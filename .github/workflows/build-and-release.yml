@@ -1,0 +1,160 @@
+name: Build & Release Sonic VANE
+
+"on":
+  workflow_dispatch:
+
+    inputs:
+      version:
+        description: 'Release version tag (leave blank to use current date vYYYY.MM.DD)'
+        required: false
+        default: ''
+      draft:
+        description: 'Create as draft release'
+        type: boolean
+        default: false
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        default: false
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Release All Platforms
+    runs-on: ubuntu-latest
+
+    env:
+      GODOT_VERSION: "4.7.2"
+      GODOT_STATUS: "stable"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Ensure Git LFS files are downloaded
+        run: |
+          git lfs install
+          git lfs pull
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Determine Release Version & Tag
+        id: version
+        run: |
+          DATE_STR=$(date +'%Y-%m-%d')
+          DATE_TAG=$(date +'%Y.%m.%d')
+
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION_TAG="${{ github.event.inputs.version }}"
+          elif [ "${{ github.ref_type }}" = "tag" ]; then
+            VERSION_TAG="${{ github.ref_name }}"
+          else
+            VERSION_TAG="v${DATE_TAG}"
+            # Avoid tag collision if dispatched multiple times on the same date
+            if git rev-parse "${VERSION_TAG}" >/dev/null 2>&1; then
+              VERSION_TAG="${VERSION_TAG}.${{ github.run_number }}"
+            fi
+          fi
+
+          echo "version=${VERSION_TAG}" >> $GITHUB_OUTPUT
+          echo "date=${DATE_STR}" >> $GITHUB_OUTPUT
+          echo "tag_name=${VERSION_TAG}" >> $GITHUB_OUTPUT
+          echo "Building release: ${VERSION_TAG} (${DATE_STR})"
+
+      - name: Cache Godot Editor & Export Templates
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/bin/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_STATUS }}-linux-x86_64
+
+      - name: Install Godot & Export Templates
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          GODOT_PKG="Godot_v${GODOT_VERSION}-${GODOT_STATUS}_linux.x86_64.zip"
+          TEMPLATES_PKG="Godot_v${GODOT_VERSION}-${GODOT_STATUS}_export_templates.tpz"
+
+          echo "Downloading Godot ${GODOT_VERSION}-${GODOT_STATUS}..."
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_STATUS}/${GODOT_PKG}"
+          unzip -q "${GODOT_PKG}" -d /tmp/godot
+          sudo mv /tmp/godot/Godot_v${GODOT_VERSION}-${GODOT_STATUS}_linux.x86_64 /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
+
+          echo "Downloading Godot export templates..."
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_STATUS}/${TEMPLATES_PKG}"
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_STATUS}
+          unzip -q "${TEMPLATES_PKG}" -d /tmp/templates
+          mv /tmp/templates/templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_STATUS}/
+
+          rm -f "${GODOT_PKG}" "${TEMPLATES_PKG}"
+          rm -rf /tmp/godot /tmp/templates
+
+      - name: Verify Godot Installation
+        run: |
+          godot --version
+
+      - name: Cache Godot Project Import
+        uses: actions/cache@v4
+        with:
+          path: .godot/imported
+          key: godot-import-${{ hashFiles('project.godot', 'export_presets.cfg') }}
+          restore-keys: |
+            godot-import-
+
+      - name: Initialize Project Assets (Headless Import)
+        run: |
+          # Headless import populates .godot/imported for clean exports
+          godot --headless --import || true
+
+      - name: Export Executables, Packs & Assemble Data Folders
+        run: |
+          python3 .github/scripts/build.py \
+            --godot-bin godot \
+            --output-dir dist \
+            --platforms all \
+            --archive \
+            --version-tag "${{ steps.version.outputs.version }}"
+
+      - name: Upload Build Artifacts to GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: SonicVANE-All-Platforms-${{ steps.version.outputs.version }}
+          path: dist/*.zip
+          retention-days: 14
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Sonic VANE ${{ steps.version.outputs.version }} (${{ steps.version.outputs.date }})
+          draft: ${{ github.event.inputs.draft || false }}
+          prerelease: ${{ github.event.inputs.prerelease || false }}
+          files: dist/*.zip
+          generate_release_notes: true
+          body: |
+            ## Sonic VANE (LS5 Engine 3) - ${{ steps.version.outputs.version }}
+
+            ### Included Builds:
+            - **Windows**: `SonicVANE-Windows-${{ steps.version.outputs.version }}.zip`
+            - **Linux**: `SonicVANE-Linux-${{ steps.version.outputs.version }}.zip`
+            - **macOS**: `SonicVANE-macOS-${{ steps.version.outputs.version }}.zip`
+
+            ### Package Layout:
+            Each build is distributed standalone with all modular game packages structured inside the `Data/` directory:
+            - Core packages: `audio.pck`, `characters.pck`, `objects.pck`, `shared.pck`
+            - Level packages: `Data/Levels/*.pck`
+            - User modding folder: `Data/Mods/`
