@@ -173,9 +173,3 @@ jobs:
             - **Windows**: `SonicVANE-Windows-${{ steps.version.outputs.version }}.zip`
             - **Linux**: `SonicVANE-Linux-${{ steps.version.outputs.version }}.zip`
             - **macOS**: `SonicVANE-macOS-${{ steps.version.outputs.version }}.zip`
-
-            ### Package Layout:
-            Each build is distributed standalone with all modular game packages structured inside the `Data/` directory:
-            - Core packages: `audio.pck`, `characters.pck`, `objects.pck`, `shared.pck`
-            - Level packages: `Data/Levels/*.pck`
-            - User modding folder: `Data/Mods/`
