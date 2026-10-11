@@ -18,7 +18,7 @@ name: Build & Release Sonic VANE
         default: false
   push:
     branches:
-      - '**'
+      - main
     tags:
       - 'v*'
 
@@ -79,15 +79,12 @@ jobs:
             VERSION_TAG="${{ github.event.inputs.version }}"
           elif [ "${{ github.ref_type }}" = "tag" ]; then
             VERSION_TAG="${{ github.ref_name }}"
-          elif [ "${{ github.ref_name }}" = "main" ]; then
+          else
             VERSION_TAG="v${DATE_TAG}"
             # Avoid tag collision if multiple commits are pushed on the same date
             if git rev-parse "${VERSION_TAG}" >/dev/null 2>&1; then
               VERSION_TAG="${VERSION_TAG}.${{ github.run_number }}"
             fi
-          else
-            BRANCH_CLEAN=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
-            VERSION_TAG="v${DATE_TAG}-${BRANCH_CLEAN}.${{ github.run_number }}"
           fi
 
           echo "version=${VERSION_TAG}" >> $GITHUB_OUTPUT
@@ -162,6 +159,28 @@ jobs:
           path: dist/*.zip
           retention-days: 14
 
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            echo "Generating changelog since $PREV_TAG..."
+            LOG_OUTPUT=$(git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (%h by @%an)" --no-merges)
+          else
+            echo "No previous tag found, taking latest 15 commits..."
+            LOG_OUTPUT=$(git log -n 15 --pretty=format:"- %s (%h by @%an)" --no-merges)
+          fi
+
+          if [ -z "$LOG_OUTPUT" ]; then
+            LOG_OUTPUT="- Minor updates and improvements."
+          fi
+
+          {
+            echo "changelog<<EOF"
+            echo "$LOG_OUTPUT"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -178,3 +197,6 @@ jobs:
             - **Windows**: `SonicVANE-Windows-${{ steps.version.outputs.version }}.zip`
             - **Linux**: `SonicVANE-Linux-${{ steps.version.outputs.version }}.zip`
             - **macOS**: `SonicVANE-macOS-${{ steps.version.outputs.version }}.zip`
+
+            ### Changelog:
+            ${{ steps.changelog.outputs.changelog }}
