@@ -5,6 +5,8 @@ const CharacterActionType = preload("res://LS5Framework/Scripts/Player/character
 
 # Homing, attack magnetism, and lightspeed-dash target resolution.
 var _owner: Node = null
+var _lightspeed_obstruction_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+var _lightspeed_obstruction_exclusions: Array[RID] = []
 
 
 func _init(owner: Node) -> void:
@@ -1471,11 +1473,14 @@ func _find_best_lightspeed_ring(origin: Vector3, max_radius: float, forward_bias
 			if world != null:
 				var ray_from: Vector3 = origin
 				var ray_to: Vector3 = ring.global_position
-				var ray_params: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(ray_from, ray_to)
-				var exclude_list: Array[RID] = []
-				exclude_list.append(p.get_rid())
+				var ray_params: PhysicsRayQueryParameters3D = _lightspeed_obstruction_query
+				ray_params.from = ray_from
+				ray_params.to = ray_to
+				var exclude_list: Array[RID] = _lightspeed_obstruction_exclusions
+				exclude_list.resize(2 if ring is CollisionObject3D else 1)
+				exclude_list[0] = p.get_rid()
 				if ring is CollisionObject3D:
-					exclude_list.append(ring_rid)
+					exclude_list[1] = ring_rid
 				ray_params.exclude = exclude_list
 				ray_params.collision_mask = p.collision_mask
 				var ray_result: Dictionary = world.direct_space_state.intersect_ray(ray_params)

@@ -33,7 +33,8 @@ func _process_collisions_for_attachment(v_before: Vector3, p_before: Vector3, de
 	if p._movement_object_contact_handled:
 		return
 	var world_up: Vector3 = p._get_gravity_up()
-	var collision_count: int = p.get_slide_collision_count()
+	var slide_collisions: Array[KinematicCollision3D] = p._get_movement_slide_collisions()
+	var collision_count: int = slide_collisions.size()
 	p._wall_input_contact_normals.clear()
 	
 	var in_spring_state: bool = p._is_spring_radial_landing_active()
@@ -59,7 +60,7 @@ func _process_collisions_for_attachment(v_before: Vector3, p_before: Vector3, de
 	var contact_count: int = collision_count + (0 if sphere_contact.is_empty() else 1)
 	for i: int in range(contact_count):
 		var slide_index: int = i - (0 if sphere_contact.is_empty() else 1)
-		var col: KinematicCollision3D = p.get_slide_collision(slide_index) if slide_index >= 0 else null
+		var col: KinematicCollision3D = slide_collisions[slide_index] if slide_index >= 0 else null
 		var collider: Object = col.get_collider() if col else instance_from_id(int(sphere_contact.collider_id))
 		var collider_shape_index: int = col.get_collider_shape_index() if col else int(sphere_contact.shape)
 		var hit_normal: Vector3 = col.get_normal() if col else sphere_contact.normal
@@ -580,9 +581,10 @@ func _reconcile_grounded_state_after_move(world_up: Vector3) -> void:
 		max_angle = min(max_angle, max(p.surface_preview_floor_max_angle_deg, 0.0))
 	var min_dot: float = cos(deg_to_rad(max_angle))
 
-	var collision_count: int = p.get_slide_collision_count()
+	var slide_collisions: Array[KinematicCollision3D] = p._get_movement_slide_collisions()
+	var collision_count: int = slide_collisions.size()
 	for i: int in range(collision_count):
-		var col: KinematicCollision3D = p.get_slide_collision(i)
+		var col: KinematicCollision3D = slide_collisions[i]
 		if col == null:
 			continue
 		var collider = col.get_collider()

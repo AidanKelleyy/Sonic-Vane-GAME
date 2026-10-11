@@ -4,6 +4,7 @@ class_name PlayerDebugHUD
 ## Diagnostics frame used to dock adjacent debug overlays.
 @onready var main_frame: Control = $SafeArea/MainFrame
 var _sidecar_width: float = 0.0
+var _last_status: StringName = &""
 @onready var status_label: Label = $SafeArea/MainFrame/Content/Header/Status
 @onready var overview_label: Label = $SafeArea/MainFrame/Content/Categories/Overview/CardContent/Values
 @onready var movement_label: Label = $SafeArea/MainFrame/Content/Categories/Movement/CardContent/Values
@@ -22,16 +23,23 @@ func update_sections(data: Dictionary) -> void:
 	visible = bool(data.get("visible", false))
 	if not visible:
 		return
-	overview_label.text = String(data.get("overview", ""))
-	movement_label.text = String(data.get("movement", ""))
-	surface_label.text = String(data.get("surface", ""))
-	ledge_label.text = String(data.get("ledge", ""))
+	_set_section_text(overview_label, String(data.get("overview", "")))
+	_set_section_text(movement_label, String(data.get("movement", "")))
+	_set_section_text(surface_label, String(data.get("surface", "")))
+	_set_section_text(ledge_label, String(data.get("ledge", "")))
 	var status: StringName = StringName(data.get("status", &"IDLE"))
-	status_label.text = String(status)
-	_apply_status_color(status)
+	if status != _last_status:
+		_last_status = status
+		_set_section_text(status_label, String(status))
+		_apply_status_color(status)
 	var show_extended: bool = bool(data.get("show_extended", false))
 	extended_panel.visible = show_extended
 	legacy_label.visible = show_extended
+
+
+func _set_section_text(label: Label, text_value: String) -> void:
+	if label.text != text_value:
+		label.text = text_value
 
 
 func get_legacy_label() -> Label:

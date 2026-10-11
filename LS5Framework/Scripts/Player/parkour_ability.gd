@@ -427,6 +427,10 @@ var _last_kick_recatch_distance: float = 0.0
 var _catch_history: Array[Dictionary] = []
 var _contact_confirmed: bool = false
 var _probe_shape: SphereShape3D = SphereShape3D.new()
+var _wall_prompt_ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+var _wall_contact_ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+var _wall_sweep_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+var _wall_query_exclusions: Array[RID] = []
 var _wall_run_animation_side: int = 0
 var _wall_run_animation_speed_scale: float = 1.0
 var _run_parallel_speed: float = 0.0
@@ -486,6 +490,12 @@ var _wall_kick_coyote_animation_side: int = 0
 var _wall_kick_coyote_entry_speed: float = 0.0
 var _wall_kick_coyote_entry_vertical_speed: float = 0.0
 var _wall_kick_coyote_vertical_speed: float = 0.0
+
+
+func _get_wall_query_exclusions() -> Array[RID]:
+	_wall_query_exclusions.resize(1)
+	_wall_query_exclusions[0] = owner_player.get_rid()
+	return _wall_query_exclusions
 
 
 func _on_action_initialized() -> void:
@@ -715,10 +725,14 @@ func _probe_wall_prompt(up: Vector3) -> Dictionary:
 	var space: PhysicsDirectSpaceState3D = owner_player.get_world_3d().direct_space_state
 	var best: Dictionary = {}
 	var best_distance: float = INF
+	var query: PhysicsRayQueryParameters3D = _wall_prompt_ray
+	query.collision_mask = mask
+	query.exclude = _get_wall_query_exclusions()
+	query.hit_back_faces = true
 	for index: int in range(8):
 		var direction: Vector3 = reference.rotated(up, TAU * float(index) / 8.0)
-		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(owner_player.global_position, owner_player.global_position + direction * reach, mask, [owner_player.get_rid()])
-		query.hit_back_faces = true
+		query.from = owner_player.global_position
+		query.to = query.from + direction * reach
 		var hit: Dictionary = space.intersect_ray(query)
 		if hit.is_empty() or not _wall_hit_is_eligible(hit, direction, up, false):
 			continue
@@ -983,8 +997,7 @@ func _try_begin_grounded_wall_parkour() -> bool:
 
 func _touching_floor() -> bool:
 	var up: Vector3 = get_owner_gravity_up()
-	for index: int in range(owner_player.get_slide_collision_count()):
-		var collision: KinematicCollision3D = owner_player.get_slide_collision(index)
+	for collision: KinematicCollision3D in owner_player._get_movement_slide_collisions():
 		if collision.get_normal().dot(up) > 0.7:
 			return true
 	return false
@@ -1254,8 +1267,7 @@ func _find_wall(reach: float, approaching_only: bool = false, prediction_time: f
 			return ahead_hit
 	var best: Dictionary = {}
 	var best_score: float = INF
-	for collision_index: int in range(owner_player.get_slide_collision_count()):
-		var collision: KinematicCollision3D = owner_player.get_slide_collision(collision_index)
+	for collision: KinematicCollision3D in owner_player._get_movement_slide_collisions():
 		if collision == null:
 			continue
 		var collision_normal: Vector3 = collision.get_normal().normalized()
@@ -1274,12 +1286,16 @@ func _find_wall(reach: float, approaching_only: bool = false, prediction_time: f
 				best = collision_hit
 				best_score = collision_score
 	var direction_count: int = max(radial_probe_count, 8)
+	var query: PhysicsRayQueryParameters3D = _wall_contact_ray
+	query.collision_mask = mask
+	query.exclude = _get_wall_query_exclusions()
+	query.hit_back_faces = true
 	for direction_index: int in range(direction_count):
 		var direction: Vector3 = reference.rotated(up, TAU * float(direction_index) / float(direction_count))
 		for height_index: int in range(-1, 2):
 			var origin: Vector3 = owner_player.global_position + up * float(height_index) * max(probe_vertical_span, 0.0)
-			var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, origin + direction * reach, mask, [owner_player.get_rid()])
-			query.hit_back_faces = true
+			query.from = origin
+			query.to = origin + direction * reach
 			var hit: Dictionary = space.intersect_ray(query)
 			if hit.is_empty() and height_index == 0 and contact_probe_radius > 0.0:
 				hit = _sweep_wall(space, origin, direction, reach, mask)
@@ -1322,19 +1338,18 @@ func _find_wall_run_ahead(
 	var probe_length: float = max(reach, 0.0) + lookahead
 	var best: Dictionary = {}
 	var best_distance: float = INF
+	var query: PhysicsRayQueryParameters3D = _wall_contact_ray
+	query.collision_mask = mask
+	query.exclude = _get_wall_query_exclusions()
+	query.hit_back_faces = true
 	for height_index: int in range(-1, 2):
 		var origin: Vector3 = (
 			owner_player.global_position
 			+ run_direction * lookahead
 			+ up * float(height_index) * max(probe_vertical_span, 0.0)
 		)
-		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-			origin,
-			origin + probe_direction * probe_length,
-			mask,
-			[owner_player.get_rid()]
-		)
-		query.hit_back_faces = true
+		query.from = origin
+		query.to = origin + probe_direction * probe_length
 		var hit: Dictionary = space.intersect_ray(query)
 		if hit.is_empty() and height_index == 0 and contact_probe_radius > 0.0:
 			hit = _sweep_wall(space, origin, probe_direction, probe_length, mask)
@@ -1373,13 +1388,15 @@ func _wall_hit_is_eligible(hit: Dictionary, probe_direction: Vector3, up: Vector
 
 
 func _sweep_wall(space: PhysicsDirectSpaceState3D, origin: Vector3, direction: Vector3, reach: float, mask: int) -> Dictionary:
-	_probe_shape.radius = max(contact_probe_radius, 0.001)
-	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+	var radius: float = maxf(contact_probe_radius, 0.001)
+	if _probe_shape.radius != radius:
+		_probe_shape.radius = radius
+	var query: PhysicsShapeQueryParameters3D = _wall_sweep_query
 	query.shape = _probe_shape
 	query.transform = Transform3D(Basis.IDENTITY, origin)
 	query.motion = direction * max(reach - _probe_shape.radius, 0.0)
 	query.collision_mask = mask
-	query.exclude = [owner_player.get_rid()]
+	query.exclude = _get_wall_query_exclusions()
 	var fractions: PackedFloat32Array = space.cast_motion(query)
 	if fractions.size() < 2 or fractions[1] >= 1.0:
 		return {}
@@ -2351,8 +2368,7 @@ func _enter_grounded_from_floor_contact() -> void:
 	var best_normal: Vector3 = Vector3.ZERO
 	var best_point: Vector3 = owner_player.global_position
 	var best_alignment: float = 0.7
-	for index: int in range(owner_player.get_slide_collision_count()):
-		var collision: KinematicCollision3D = owner_player.get_slide_collision(index)
+	for collision: KinematicCollision3D in owner_player._get_movement_slide_collisions():
 		if collision == null:
 			continue
 		var normal: Vector3 = collision.get_normal().normalized()

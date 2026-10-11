@@ -25,7 +25,43 @@ const INVINCIBILITY_VISUAL_SCENE: PackedScene = preload(
 )
 
 var _landing_prompt_sphere: SphereShape3D = SphereShape3D.new()
+var _sphere_recovery_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+var _shallow_contact_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+var _clearance_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+var _uncurl_push_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+var _shape_motion_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+var _ground_penetration_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+var _landing_prompt_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+var _sphere_recovery_ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+var _ground_penetration_ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+var _moving_support_ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+var _landing_heading_ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+var _shape_query_exclusions: Array[RID] = []
+var _shape_query_exclusions_revision: int = 0
+var _other_support_exclusions: Array[RID] = []
+var _support_only_exclusions: Array[RID] = []
+var _landing_query_exclusions: Array[RID] = []
 var _actions_by_id: Dictionary = {}
+var _movement_slide_collisions: Array[KinematicCollision3D] = []
+var _movement_slide_cache_valid: bool = false
+var _standing_clearance_batch_active: bool = false
+var _clearance_batch_frame: int = -1
+var _clearance_batch_generation: int = 0
+var _clearance_query_support_sensitive: bool = false
+var _clearance_query_support_up: Vector3 = Vector3.ZERO
+var _clearance_watched_shapes: Array[Shape3D] = []
+var _clearance_memos: Array[ClearanceMemo] = [ClearanceMemo.new(), ClearanceMemo.new()]
+
+class ClearanceMemo extends RefCounted:
+	var generation: int = -1
+	var transform: Transform3D = Transform3D.IDENTITY
+	var flags: int = 0
+	var clear: bool = false
+	var mask: int = 0
+	var attached: bool = false
+	var exclusions_revision: int = -1
+	var support_sensitive: bool = false
+	var support_up: Vector3 = Vector3.ZERO
 
 signal air_trick_boost_applied(score: float, speed_bonus: float, direction: Vector3, reason: StringName)
 
@@ -1971,12 +2007,11 @@ func _refresh_moving_collision_support() -> void:
 	if not _has_moving_collision_support() or not _ensure_main_sphere_configured():
 		return
 	var up: Vector3 = get_collision_support_up()
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-		get_main_collision_world_center(),
-		get_main_collision_world_center() - up * maxf(ground_ray_length, get_main_collision_world_radius() + safe_margin)
-	)
+	var query: PhysicsRayQueryParameters3D = _moving_support_ray
+	query.from = get_main_collision_world_center()
+	query.to = query.from - up * maxf(ground_ray_length, get_main_collision_world_radius() + safe_margin)
 	query.collision_mask = collision_mask
-	query.exclude = _make_shape_query(main_collision_shape.shape, global_transform).exclude
+	query.exclude = _get_collision_query_exclusions()
 	query.collide_with_areas = false
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 	if hit.is_empty() or hit.collider != _collision_support_body or int(hit.shape) != _collision_support_shape:
@@ -2160,6 +2195,10 @@ func _process(delta: float) -> void:
 
 
 func _exit_tree() -> void:
+	_end_standing_clearance_batch()
+	_movement_slide_cache_valid = false
+	_movement_slide_collisions.clear()
+	_watch_clearance_shapes([])
 	_release_speed_shoes_music()
 	clear_gravity_state(&"all")
 	if _anim_module != null:
@@ -2233,6 +2272,8 @@ func get_gameplay_timer_delta(fallback_delta: float) -> float:
 
 
 func _physics_process(delta: float) -> void:
+	_movement_slide_cache_valid = false
+	_end_standing_clearance_batch()
 	_movement_real_delta = delta
 	_ensure_modules()
 	if not _level_load_suspended and not _local_pause_enabled:
@@ -2243,10 +2284,14 @@ func _physics_process(delta: float) -> void:
 	_movement_tick_active = true
 	_movement_physics_process(delta)
 	_movement_tick_active = false
+	_movement_slide_cache_valid = false
+	_end_standing_clearance_batch()
 
 
 # Collision movement uses world velocity; gameplay retains movement-clock units.
 func _move_with_movement_time_scale() -> void:
+	_end_standing_clearance_batch()
+	_movement_slide_cache_valid = false
 	_update_standing_collision()
 	_movement_sphere_contact.clear()
 	_movement_object_contact_handled = false
@@ -2254,15 +2299,26 @@ func _move_with_movement_time_scale() -> void:
 	_collision_attached_last_move = attached
 	velocity *= _movement_tick_scale
 	move_and_slide()
+	_movement_slide_cache_valid = false
 	velocity /= _movement_tick_scale
 	_recover_missed_sphere_contact(movement_start)
 	_process_object_collision_contacts()
 	_refresh_surface_behavior_areas(movement_start.origin, true)
 
 
+## Contacts from the current movement phase; invalidated before each movement call.
+func _get_movement_slide_collisions() -> Array[KinematicCollision3D]:
+	if _movement_tick_active and _movement_slide_cache_valid:
+		return _movement_slide_collisions
+	_movement_slide_collisions.clear()
+	for index: int in range(get_slide_collision_count()):
+		_movement_slide_collisions.append(get_slide_collision(index))
+	_movement_slide_cache_valid = _movement_tick_active
+	return _movement_slide_collisions
+
+
 func _process_object_collision_contacts() -> void:
-	for collision_index: int in range(get_slide_collision_count()):
-		var collision: KinematicCollision3D = get_slide_collision(collision_index)
+	for collision: KinematicCollision3D in _get_movement_slide_collisions():
 		if not collision:
 			continue
 		for contact_index: int in range(collision.get_collision_count()):
@@ -2299,10 +2355,10 @@ func _recover_missed_sphere_contact(movement_start: Transform3D) -> void:
 		return
 	var sphere_start: Transform3D = movement_start * _main_sphere_last_transform
 	var space: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
-	var query: PhysicsShapeQueryParameters3D = _make_shape_query(main_collision_shape.shape, sphere_start)
-	var center_ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-		sphere_start.origin, sphere_start.origin + motion
-	)
+	var query: PhysicsShapeQueryParameters3D = _make_shape_query(main_collision_shape.shape, sphere_start, _sphere_recovery_query)
+	var center_ray: PhysicsRayQueryParameters3D = _sphere_recovery_ray
+	center_ray.from = sphere_start.origin
+	center_ray.to = sphere_start.origin + motion
 	center_ray.collision_mask = query.collision_mask
 	center_ray.exclude = query.exclude
 	center_ray.collide_with_areas = false
@@ -2347,7 +2403,7 @@ func _recover_missed_sphere_contact(movement_start: Transform3D) -> void:
 
 
 func _has_shallow_ground_contacts(sphere_transform: Transform3D) -> bool:
-	var query: PhysicsShapeQueryParameters3D = _make_shape_query(main_collision_shape.shape, sphere_transform)
+	var query: PhysicsShapeQueryParameters3D = _make_shape_query(main_collision_shape.shape, sphere_transform, _shallow_contact_query)
 	var contacts: Array[Vector3] = get_world_3d().direct_space_state.collide_shape(query, 32)
 	if contacts.is_empty():
 		return false
@@ -2414,6 +2470,42 @@ func try_uncurl_with_wall_recovery() -> bool:
 	return false
 
 
+## Clearance reuse is restricted to synchronous post-movement collision checks.
+func _begin_standing_clearance_batch() -> void:
+	_standing_clearance_batch_active = true
+	_invalidate_clearance_batch()
+	_clearance_batch_frame = Engine.get_physics_frames()
+	var main_shape: Shape3D = main_collision_shape.shape if main_collision_shape else null
+	var standing_shape: Shape3D = standing_collision_shape.shape if standing_collision_shape else null
+	if _clearance_watched_shapes.size() != 2 or _clearance_watched_shapes[0] != main_shape or _clearance_watched_shapes[1] != standing_shape:
+		var shapes: Array[Shape3D] = [main_shape, standing_shape]
+		_watch_clearance_shapes(shapes)
+
+
+func _end_standing_clearance_batch() -> void:
+	if not _standing_clearance_batch_active:
+		return
+	_standing_clearance_batch_active = false
+	_invalidate_clearance_batch()
+
+
+func _invalidate_clearance_batch() -> void:
+	_clearance_batch_generation += 1
+
+
+func _watch_clearance_shapes(shapes: Array[Shape3D]) -> void:
+	if shapes == _clearance_watched_shapes:
+		return
+	for shape: Shape3D in _clearance_watched_shapes:
+		if shape and shape.changed.is_connected(_invalidate_clearance_batch):
+			shape.changed.disconnect(_invalidate_clearance_batch)
+	_clearance_watched_shapes = shapes
+	for shape: Shape3D in shapes:
+		if shape and not shape.changed.is_connected(_invalidate_clearance_batch):
+			shape.changed.connect(_invalidate_clearance_batch)
+	_invalidate_clearance_batch()
+
+
 func _has_standing_clearance() -> bool:
 	return _has_standing_clearance_at(Vector3.ZERO)
 
@@ -2435,7 +2527,42 @@ func _has_standing_clearance_at(offset: Vector3, check_main_sphere: bool = false
 
 
 func _shape_has_clearance(shape: Shape3D, shape_transform: Transform3D, allow_support_overlap: bool = false, allow_support_foot: bool = false) -> bool:
-	var query: PhysicsShapeQueryParameters3D = _make_shape_query(shape, shape_transform)
+	if (
+		not _standing_clearance_batch_active
+		or (_collision_support_body and _has_moving_collision_support())
+	):
+		return _query_shape_clearance(shape, shape_transform, allow_support_overlap, allow_support_foot)
+	var shape_index: int = _clearance_watched_shapes.find(shape)
+	if shape_index < 0:
+		return _query_shape_clearance(shape, shape_transform, allow_support_overlap, allow_support_foot)
+	if Engine.get_physics_frames() != _clearance_batch_frame:
+		_end_standing_clearance_batch()
+		return _query_shape_clearance(shape, shape_transform, allow_support_overlap, allow_support_foot)
+	var flags: int = (1 if allow_support_overlap else 0) | (2 if allow_support_foot else 0)
+	var memo: ClearanceMemo = _clearance_memos[shape_index]
+	if (
+		memo.generation == _clearance_batch_generation and memo.transform == shape_transform and memo.flags == flags
+		and memo.mask == collision_mask and memo.attached == attached
+	):
+		_get_collision_query_exclusions()
+		if memo.exclusions_revision == _shape_query_exclusions_revision and (not memo.support_sensitive or memo.support_up == get_collision_support_up()):
+			return memo.clear
+	var clear: bool = _query_shape_clearance(shape, shape_transform, allow_support_overlap, allow_support_foot)
+	memo.generation = _clearance_batch_generation
+	memo.transform = shape_transform
+	memo.flags = flags
+	memo.clear = clear
+	memo.mask = collision_mask
+	memo.attached = attached
+	memo.exclusions_revision = _shape_query_exclusions_revision
+	memo.support_sensitive = _clearance_query_support_sensitive
+	memo.support_up = _clearance_query_support_up
+	return clear
+
+
+func _query_shape_clearance(shape: Shape3D, shape_transform: Transform3D, allow_support_overlap: bool = false, allow_support_foot: bool = false) -> bool:
+	_clearance_query_support_sensitive = false
+	var query: PhysicsShapeQueryParameters3D = _make_shape_query(shape, shape_transform, _clearance_query)
 	var space: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
 	if space.intersect_shape(query, 1).is_empty():
 		return true
@@ -2448,6 +2575,8 @@ func _shape_has_clearance(shape: Shape3D, shape_transform: Transform3D, allow_su
 	if contacts.is_empty():
 		return false
 	var support_up: Vector3 = get_collision_support_up()
+	_clearance_query_support_sensitive = true
+	_clearance_query_support_up = support_up
 	# Support tangency tolerates submillimeter contact error.
 	for index: int in range(0, contacts.size() - 1, 2):
 		if contacts[index].distance_squared_to(contacts[index + 1]) > 0.000001:
@@ -2464,9 +2593,11 @@ func _shape_has_moving_support_clearance(query: PhysicsShapeQueryParameters3D, s
 	if hits.size() >= 64:
 		return false
 	var support_rid: RID = _collision_support_body.get_rid()
-	var other_exclusions: Array[RID] = query.exclude.duplicate()
+	var other_exclusions: Array[RID] = _other_support_exclusions
+	other_exclusions.assign(query.exclude)
 	other_exclusions.append(support_rid)
-	var support_exclusions: Array[RID] = query.exclude.duplicate()
+	var support_exclusions: Array[RID] = _support_only_exclusions
+	support_exclusions.assign(query.exclude)
 	var has_support_contact: bool = false
 	for hit: Dictionary in hits:
 		var rid: RID = hit.rid
@@ -2532,18 +2663,34 @@ func _is_standing_support_foot_contact(shape_point: Vector3, support_point: Vect
 	return normal.dot(up) >= 0.707
 
 
-func _make_shape_query(shape: Shape3D, shape_transform: Transform3D) -> PhysicsShapeQueryParameters3D:
-	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+func _get_collision_query_exclusions() -> Array[RID]:
+	var exceptions: Array = get_collision_exceptions()
+	var count: int = exceptions.size() + 1
+	if _shape_query_exclusions.size() != count:
+		_shape_query_exclusions_revision += 1
+		_shape_query_exclusions.resize(count)
+	var body_rid: RID = get_rid()
+	if _shape_query_exclusions[0] != body_rid:
+		_shape_query_exclusions_revision += 1
+		_shape_query_exclusions[0] = body_rid
+	for index: int in range(exceptions.size()):
+		var exception_rid: RID = (exceptions[index] as PhysicsBody3D).get_rid()
+		if _shape_query_exclusions[index + 1] != exception_rid:
+			_shape_query_exclusions_revision += 1
+			_shape_query_exclusions[index + 1] = exception_rid
+	return _shape_query_exclusions
+
+
+func _make_shape_query(shape: Shape3D, shape_transform: Transform3D, reusable_query: PhysicsShapeQueryParameters3D = null) -> PhysicsShapeQueryParameters3D:
+	var query: PhysicsShapeQueryParameters3D = reusable_query if reusable_query else PhysicsShapeQueryParameters3D.new()
 	query.shape = shape
 	query.transform = shape_transform
 	query.collision_mask = collision_mask
-	var exclusions: Array[RID] = [get_rid()]
-	for body: PhysicsBody3D in get_collision_exceptions():
-		exclusions.append(body.get_rid())
-	query.exclude = exclusions
+	query.exclude = _get_collision_query_exclusions()
 	query.collide_with_bodies = true
 	query.collide_with_areas = false
 	query.margin = 0.0
+	query.motion = Vector3.ZERO
 	return query
 
 
@@ -2552,14 +2699,14 @@ func _get_uncurl_wall_push(offset: Vector3, support_up: Vector3) -> Vector3:
 	var standing_transform: Transform3D = global_transform * _get_standing_collision_transform()
 	standing_transform.origin += offset
 	var standing_query: PhysicsShapeQueryParameters3D = _make_shape_query(
-		standing_collision_shape.shape, standing_transform
+		standing_collision_shape.shape, standing_transform, _uncurl_push_query
 	)
 	largest_push = _get_largest_lateral_contact_push(standing_query, support_up, largest_push)
 	if _main_sphere_compact:
 		var sphere_transform: Transform3D = global_transform * _main_sphere_base_transform
 		sphere_transform.origin += offset
 		var sphere_query: PhysicsShapeQueryParameters3D = _make_shape_query(
-			main_collision_shape.shape, sphere_transform
+			main_collision_shape.shape, sphere_transform, _uncurl_push_query
 		)
 		largest_push = _get_largest_lateral_contact_push(sphere_query, support_up, largest_push)
 	if largest_push.length_squared() < 0.000001:
@@ -2593,7 +2740,7 @@ func _can_move_compact_sphere(offset: Vector3, motion: Vector3) -> bool:
 func _shape_motion_has_clearance(shape: Shape3D, shape_transform: Transform3D, motion: Vector3, allow_support_overlap: bool = false) -> bool:
 	if not _shape_has_clearance(shape, shape_transform, allow_support_overlap):
 		return false
-	var query: PhysicsShapeQueryParameters3D = _make_shape_query(shape, shape_transform)
+	var query: PhysicsShapeQueryParameters3D = _make_shape_query(shape, shape_transform, _shape_motion_query)
 	query.motion = motion
 	var space: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
 	var fractions: PackedFloat32Array = space.cast_motion(query)
@@ -3433,10 +3580,14 @@ func _movement_physics_process(delta: float) -> void:
 	# 8) Lock to surface if attached.
 	_capture_collision_support()
 	_lock_to_surface()
+	_begin_standing_clearance_batch()
 	_advance_standing_clearance_release(delta)
+	if _roll_action and _roll_action._collision_uncurl_requested:
+		_end_standing_clearance_batch()
 	if _roll_action and _roll_action.resolve_collision_uncurl_after_movement():
 		_sync_roll_state_from_action()
 	_update_standing_collision()
+	_end_standing_clearance_batch()
 
 	# 9) Update falling flag based on final attachment + velocity.
 	_update_fall_flag(delta)
@@ -5791,8 +5942,7 @@ func _process_slide_collision_surface_behaviors() -> void:
 			"collider": instance_from_id(int(_movement_sphere_contact.collider_id)),
 			"shape": int(_movement_sphere_contact.shape),
 		})
-	for collision_index: int in range(get_slide_collision_count()):
-		var collision: KinematicCollision3D = get_slide_collision(collision_index)
+	for collision: KinematicCollision3D in _get_movement_slide_collisions():
 		if collision:
 			contacts.append({"collider": collision.get_collider(), "shape": collision.get_collider_shape_index()})
 	for contact: Dictionary in contacts:
@@ -8433,10 +8583,11 @@ func _update_fall_flag(delta: float) -> void:
 	# c) Extra safety: if we're NOT attached but we are
 	#    sliding along a floor-like contact normal, treat it
 	#    as supported for the purposes of the falling flag.
-	var collision_count: int = get_slide_collision_count()
+	var slide_collisions: Array[KinematicCollision3D] = _get_movement_slide_collisions()
+	var collision_count: int = slide_collisions.size()
 	if collision_count > 0:
 		for i in collision_count:
-			var col: KinematicCollision3D = get_slide_collision(i)
+			var col: KinematicCollision3D = slide_collisions[i]
 			var n: Vector3 = col.get_normal().normalized()
 			if n.length() < 0.001:
 				continue
@@ -8636,7 +8787,8 @@ func _update_platform_carry_state() -> void:
 
 
 func _get_best_floor_slide_collision(up: Vector3) -> KinematicCollision3D:
-	var count: int = get_slide_collision_count()
+	var slide_collisions: Array[KinematicCollision3D] = _get_movement_slide_collisions()
+	var count: int = slide_collisions.size()
 	if count <= 0:
 		return null
 
@@ -8644,7 +8796,7 @@ func _get_best_floor_slide_collision(up: Vector3) -> KinematicCollision3D:
 	var best_dot: float = -1.0
 
 	for i in count:
-		var col: KinematicCollision3D = get_slide_collision(i)
+		var col: KinematicCollision3D = slide_collisions[i]
 		if col == null:
 			continue
 		var n: Vector3 = col.get_normal()
@@ -8866,7 +9018,8 @@ func _lock_to_surface() -> void:
 		move_and_collide(correction)
 	else:
 		t.origin = current_center + correction
-		global_transform = t
+		if t.origin != current_center:
+			global_transform = t
 	_recover_ground_support_penetration()
 
 
@@ -8878,7 +9031,7 @@ func _recover_ground_support_penetration() -> void:
 	var maximum_correction: float = maxf(safe_margin, 0.001)
 	var space: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
 	var query: PhysicsShapeQueryParameters3D = _make_shape_query(
-		main_collision_shape.shape, global_transform * _main_sphere_base_transform
+		main_collision_shape.shape, global_transform * _main_sphere_base_transform, _ground_penetration_query
 	)
 	# Adjacent curve faces can overlap a sphere tangent to the follow plane.
 	for attempt: int in 4:
@@ -8916,9 +9069,9 @@ func _recover_ground_support_penetration() -> void:
 		var fractions: PackedFloat32Array = space.cast_motion(query)
 		if fractions.is_empty() or fractions[0] < 1.0:
 			return
-		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-			sphere_start.origin, sphere_end.origin
-		)
+		var ray: PhysicsRayQueryParameters3D = _ground_penetration_ray
+		ray.from = sphere_start.origin
+		ray.to = sphere_end.origin
 		ray.collision_mask = query.collision_mask
 		ray.exclude = query.exclude
 		ray.collide_with_areas = false
@@ -9276,8 +9429,12 @@ func _is_surface_landable(normal: Vector3, world_up: Vector3) -> bool:
 
 func _intersect_landing_heading(origin: Vector3, ray_end: Vector3) -> Dictionary:
 	var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, ray_end)
-	query.exclude = [self]
+	var query: PhysicsRayQueryParameters3D = _landing_heading_ray
+	query.from = origin
+	query.to = ray_end
+	if _landing_query_exclusions.is_empty():
+		_landing_query_exclusions.append(get_rid())
+	query.exclude = _landing_query_exclusions
 	query.collision_mask = collision_mask
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
@@ -9331,13 +9488,16 @@ func _sweep_landing_prompt_segment(space: PhysicsDirectSpaceState3D, origin: Vec
 		if not hit.is_empty():
 			hit["fraction"] = clampf(origin.distance_to(hit["position"]) / maxf(motion.length(), 0.001), 0.0, 1.0)
 		return hit
-	_landing_prompt_sphere.radius = radius
-	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+	if _landing_prompt_sphere.radius != radius:
+		_landing_prompt_sphere.radius = radius
+	var query: PhysicsShapeQueryParameters3D = _landing_prompt_query
 	query.shape = _landing_prompt_sphere
 	query.transform = Transform3D(Basis.IDENTITY, origin)
 	query.motion = motion
 	query.collision_mask = collision_mask
-	query.exclude = [get_rid()]
+	if _landing_query_exclusions.is_empty():
+		_landing_query_exclusions.append(get_rid())
+	query.exclude = _landing_query_exclusions
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
 	query.margin = 0.001

@@ -2,6 +2,7 @@ extends RefCounted
 class_name PlayerDebugController
 
 const DEBUG_TIME_SCRUB_HOURS_PER_SECOND: float = 6.0
+const DEBUG_TEXT_REFRESH_USEC: int = 83333
 const DEBUG_DUMMY_VOICE_GAP: float = 0.35
 const DEBUG_DUMMY_VOICE_MAX_DURATION: float = 8.0
 const LIP_SYNC_DRIVER_PATH: String = "res://addons/ls5_lipsync/runtime/lip_sync_driver.gd"
@@ -18,6 +19,9 @@ var _dummy_voice_clips: Array[AudioStream] = []
 var _dummy_voice_index: int = 0
 var _dummy_voice_elapsed: float = 0.0
 var _dummy_voice_gap_elapsed: float = 0.0
+var _debug_text_next_update_usec: int = 0
+var _debug_text_extended: bool = false
+var _surface_probe_next_update_usec: int = 0
 
 
 func _init(owner: Node) -> void:
@@ -735,8 +739,14 @@ func _debug_inputs(physics_up: Vector3) -> void:
 
 func _debug_draw() -> void:
 	var p = _owner
-	if is_instance_valid(p._debug_label) and (not p._debug_visible or not p.debug_show_extended_details):
-		p._debug_label.text = ""
+	if not p._debug_visible:
+		_debug_text_next_update_usec = 0
+		_surface_probe_next_update_usec = 0
+		if is_instance_valid(p._debug_hud) and p._debug_hud.visible:
+			p._debug_hud.visible = false
+		if is_instance_valid(p._debug_label) and not p._debug_label.text.is_empty():
+			p._debug_label.text = ""
+		return
 	var up: Vector3 = p.visual_up.normalized()
 	if up.length() < 0.001:
 		up = p._get_gravity_up()
@@ -762,31 +772,19 @@ func _debug_draw() -> void:
 		_debug_draw_surface_preview()
 		_debug_draw_surface_seam_bridge()
 		_debug_draw_ledge_mantle_probes(up)
+	var now_usec: int = Time.get_ticks_usec()
+	if now_usec < _debug_text_next_update_usec and _debug_text_extended == p.debug_show_extended_details:
+		return
+	_debug_text_next_update_usec = now_usec + DEBUG_TEXT_REFRESH_USEC
+	_debug_text_extended = p.debug_show_extended_details
 	_update_debug_hud(up)
+	if not p.debug_show_extended_details:
+		if is_instance_valid(p._debug_label) and not p._debug_label.text.is_empty():
+			p._debug_label.text = ""
+		return
 
 	if not p.control_anchor:
 		return
-
-	var f: Vector3 = -p.control_anchor.global_transform.basis.z
-	var u: Vector3 = p.control_anchor.global_transform.basis.y
-
-	var forward_angle: float = rad_to_deg(atan2(f.x, f.z))
-	var up_pitch: float = rad_to_deg(acos(clamp(p._get_gravity_up().dot(u), -1.0, 1.0)))
-
-	var msg: String = "ForwardYaw = %.2f°\nUpTilt = %.2f°" % [forward_angle, up_pitch]
-
-	if p.camera != null:
-		var cam_forward: Vector3 = -p.camera.global_transform.basis.z
-		#DebugDraw3d.arrow(origin, origin + cam_forward, Color(1.0, 1.0, 0.0, 1.0))
-
-	if p.model_root != null:
-		var model_basis: Basis = p.model_root.global_transform.basis
-		var model_forward: Vector3 = -model_basis.z
-		var model_origin: Vector3 = p.model_root.global_transform.origin + up * 0.5
-		#DebugDraw3d.arrow(model_origin, model_origin + model_forward, Color(1.0, 0.0, 1.0, 1.0))
-
-	#if _follow_ray_origin != _follow_ray_target:
-		#DebugDraw3d.line(_follow_ray_origin, _follow_ray_target, Color(0.0, 1.0, 1.0, 1.0))
 
 	if p._debug_label != null and p._debug_visible and p.debug_show_extended_details:
 		var state_str: String = "ATTACHED"
@@ -994,10 +992,9 @@ func _debug_draw() -> void:
 
 		legacy_text += "\n--- FOOTSTEP ---\n"
 		if p._audio_module != null:
-			p._debug_surface_probe_timer = max(p._debug_surface_probe_timer - p.get_process_delta_time(), 0.0)
-			if p._debug_surface_probe_timer <= 0.0:
+			if now_usec >= _surface_probe_next_update_usec:
 				p._audio_module.debug_update_surface_probe(p.ground_ray)
-				p._debug_surface_probe_timer = 0.2
+				_surface_probe_next_update_usec = now_usec + 200000
 			legacy_text += "Surface: %s\n" % p._audio_module._dbg_last_surface_type
 			legacy_text += "Name:    %s\n" % (p._audio_module._dbg_last_surface_name if p._audio_module._dbg_last_surface_name != "" else "(none)")
 			legacy_text += "Checked: %s\n" % (p._audio_module._dbg_last_surface_candidates if p._audio_module._dbg_last_surface_candidates != "" else "(none)")
@@ -1016,7 +1013,9 @@ func _debug_draw() -> void:
 					legacy_text += "RAIL BLEND:%s\n" % str(
 						p.anim_tree.get("parameters/StateMachine/RAIL/blend_position")
 					)
-		p._debug_label.text = _format_debug_columns(legacy_text + _build_online_debug_text())
+		var formatted_text: String = _format_debug_columns(legacy_text + _build_online_debug_text())
+		if p._debug_label.text != formatted_text:
+			p._debug_label.text = formatted_text
 
 
 func _build_online_debug_text() -> String:
