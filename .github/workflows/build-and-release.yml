@@ -43,6 +43,7 @@ jobs:
         run: |
           git lfs install
           git lfs pull
+          git lfs checkout
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -110,15 +111,18 @@ jobs:
       - name: Cache Godot Project Import
         uses: actions/cache@v4
         with:
-          path: .godot/imported
+          path: .godot
           key: godot-import-${{ hashFiles('project.godot', 'export_presets.cfg') }}
           restore-keys: |
             godot-import-
 
-      - name: Initialize Project Assets (Headless Import)
+      - name: Initialize Project Assets (Headless Editor Import)
         run: |
-          # Headless import populates .godot/imported for clean exports
-          godot --headless --import || true
+          # In Godot 4, running the editor headlessly is required to build uid_cache.bin,
+          # global_script_class_cache.cfg, and imported 3D assets/animations. Two passes
+          # ensure all multi-stage dependencies (models -> scenes -> registries) resolve cleanly.
+          godot --headless --editor --quit || true
+          godot --headless --editor --quit || true
 
       - name: Export Executables, Packs & Assemble Data Folders
         run: |

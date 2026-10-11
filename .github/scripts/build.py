@@ -76,34 +76,44 @@ def run_command(cmd, dry_run=False):
 
 def determine_data_relative_path(export_path):
     """
-    Given an export path like '../LS5E3_Build/LS5E3_Structured/Data/Levels/cityescape.pck',
-    returns the relative path inside Data/ ('Levels/cityescape.pck').
+    Given an export path like '../LS5E3_Build/LS5E3_Structured/Data/Levels/cityescape.pck'
+    or '../Export/data/characters.pck', returns the relative path inside Data/.
     """
     normalized = export_path.replace("\\", "/")
-    if "/Data/" in normalized:
-        sub = normalized.split("/Data/")[-1]
+    parts = re.split(r"(?i)/data/", normalized)
+    if len(parts) > 1:
+        sub = parts[-1]
     else:
         sub = os.path.basename(normalized)
     return os.path.normpath(sub)
 
 
-
 def create_zip_archive(source_dir, output_zip_path):
     """
     Creates a zip archive of source_dir.
-    Preserves executable bits for Linux binaries.
+    Preserves executable and directory permission bits for Linux environments.
     """
     print(f"Creating release archive: {output_zip_path} ...")
     with zipfile.ZipFile(output_zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(source_dir):
+            for d in dirs:
+                full_dir = os.path.join(root, d)
+                rel_dir = os.path.relpath(full_dir, source_dir).replace("\\", "/") + "/"
+                zinfo = zipfile.ZipInfo(rel_dir)
+                zinfo.external_attr = 0o755 << 16  # rwxr-xr-x
+                zf.writestr(zinfo, "")
+
             for file in files:
                 full_path = os.path.join(root, file)
-                rel_path = os.path.relpath(full_path, source_dir)
+                rel_path = os.path.relpath(full_path, source_dir).replace("\\", "/")
                 zinfo = zipfile.ZipInfo.from_file(full_path, rel_path)
                 # Preserve executable permission for Linux binary or shell scripts
                 if rel_path.endswith(".x86_64") or rel_path.endswith(".sh"):
                     zinfo.external_attr = 0o755 << 16
-                zf.writestr(zinfo, open(full_path, "rb").read())
+                else:
+                    zinfo.external_attr = 0o644 << 16
+                with open(full_path, "rb") as f:
+                    zf.writestr(zinfo, f.read())
     print(f"Archive created: {output_zip_path} ({os.path.getsize(output_zip_path):,} bytes)")
 
 
@@ -160,7 +170,8 @@ def main():
             target_pck = os.path.join(common_data_dir, rel_path)
             os.makedirs(os.path.dirname(target_pck), exist_ok=True)
 
-            print(f"Exporting Pack [{pack['id']}] '{pack['name']}' -> Data/{rel_path}")
+            display_rel = rel_path.replace("\\", "/")
+            print(f"Exporting Pack [{pack['id']}] '{pack['name']}' -> Data/{display_rel}")
             cmd = [
                 args.godot_bin,
                 "--headless",

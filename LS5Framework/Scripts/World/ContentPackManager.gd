@@ -572,21 +572,25 @@ func get_data_directory() -> String:
 
 func _resolve_data_dir() -> String:
 	var base_dir: String = OS.get_executable_path().get_base_dir()
-	var data_dir: String = base_dir.path_join(data_folder_name)
-	if DirAccess.dir_exists_absolute(data_dir):
-		return data_dir
+	var candidates: PackedStringArray = [data_folder_name, data_folder_name.to_lower(), data_folder_name.to_upper()]
+	for candidate in candidates:
+		var data_dir: String = base_dir.path_join(candidate)
+		if DirAccess.dir_exists_absolute(data_dir):
+			return data_dir
 
 	if OS.has_feature("macos"):
 		var app_bundle_dir: String = base_dir.get_base_dir().get_base_dir()
 		var distribution_dir: String = app_bundle_dir.get_base_dir()
-		var macos_data_dir: String = distribution_dir.path_join(data_folder_name)
-		if DirAccess.dir_exists_absolute(macos_data_dir):
-			return macos_data_dir
+		for candidate in candidates:
+			var macos_data_dir: String = distribution_dir.path_join(candidate)
+			if DirAccess.dir_exists_absolute(macos_data_dir):
+				return macos_data_dir
 
 	var project_root: String = ProjectSettings.globalize_path("res://")
-	var dev_dir: String = project_root.path_join(data_folder_name)
-	if DirAccess.dir_exists_absolute(dev_dir):
-		return dev_dir
+	for candidate in candidates:
+		var dev_dir: String = project_root.path_join(candidate)
+		if DirAccess.dir_exists_absolute(dev_dir):
+			return dev_dir
 	return ""
 
 
@@ -626,16 +630,33 @@ func _load_pack(path: String, replace_files: bool) -> bool:
 		return false
 	if _loaded_packs.has(path):
 		return true
-	if not FileAccess.file_exists(path):
+
+	var resolved_path: String = path
+	if not FileAccess.file_exists(resolved_path):
+		var dir_path: String = path.get_base_dir()
+		var target_file: String = path.get_file().to_lower()
+		var dir := DirAccess.open(dir_path)
+		if dir != null:
+			dir.list_dir_begin()
+			var fn := dir.get_next()
+			while fn != "":
+				if fn.to_lower() == target_file:
+					resolved_path = dir_path.path_join(fn)
+					break
+				fn = dir.get_next()
+			dir.list_dir_end()
+
+	if not FileAccess.file_exists(resolved_path):
 		if verbose_logging:
 			print("ContentPackManager: pack missing: %s" % path)
 		return false
-	var ok := ProjectSettings.load_resource_pack(path, replace_files)
+	var ok := ProjectSettings.load_resource_pack(resolved_path, replace_files)
 	if verbose_logging:
 		var status: String = "failed"
 		if ok:
 			status = "loaded"
-		print("ContentPackManager: %s %s" % [status, path])
+		print("ContentPackManager: %s %s" % [status, resolved_path])
 	if ok:
 		_loaded_packs[path] = true
+		_loaded_packs[resolved_path] = true
 	return ok
