@@ -17,6 +17,8 @@ name: Build & Release Sonic VANE
         type: boolean
         default: false
   push:
+    branches:
+      - '**'
     tags:
       - 'v*'
 
@@ -77,12 +79,15 @@ jobs:
             VERSION_TAG="${{ github.event.inputs.version }}"
           elif [ "${{ github.ref_type }}" = "tag" ]; then
             VERSION_TAG="${{ github.ref_name }}"
-          else
+          elif [ "${{ github.ref_name }}" = "main" ]; then
             VERSION_TAG="v${DATE_TAG}"
-            # Avoid tag collision if dispatched multiple times on the same date
+            # Avoid tag collision if multiple commits are pushed on the same date
             if git rev-parse "${VERSION_TAG}" >/dev/null 2>&1; then
               VERSION_TAG="${VERSION_TAG}.${{ github.run_number }}"
             fi
+          else
+            BRANCH_CLEAN=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            VERSION_TAG="v${DATE_TAG}-${BRANCH_CLEAN}.${{ github.run_number }}"
           fi
 
           echo "version=${VERSION_TAG}" >> $GITHUB_OUTPUT
