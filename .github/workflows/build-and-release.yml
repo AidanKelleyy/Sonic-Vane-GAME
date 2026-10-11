@@ -44,6 +44,23 @@ jobs:
           git lfs install
           git lfs pull
           git lfs checkout
+          python3 -c "
+          import subprocess, sys
+          out = subprocess.check_output(['git', 'grep', '-l', 'version https://git-lfs.github.com/spec/v1', 'HEAD'], text=True)
+          files = [line.split(':', 1)[1] for line in out.strip().splitlines() if ':' in line]
+          failed = []
+          for f in files:
+              try:
+                  with open(f, 'rb') as fp:
+                      if fp.read(40).startswith(b'version https://git-lfs'):
+                          failed.append(f)
+              except OSError:
+                  pass
+          if failed:
+              print(f'ERROR: {len(failed)} Git LFS files were NOT downloaded: {failed[:10]}', file=sys.stderr)
+              sys.exit(1)
+          print(f'Verified all {len(files)} Git LFS files are fully downloaded.')
+          "
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -112,9 +129,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .godot
-          key: godot-import-${{ hashFiles('project.godot', 'export_presets.cfg') }}
+          key: godot-import-v2-${{ hashFiles('project.godot', 'export_presets.cfg', '.gitattributes') }}
           restore-keys: |
-            godot-import-
+            godot-import-v2-
 
       - name: Initialize Project Assets (Headless Editor Import)
         run: |

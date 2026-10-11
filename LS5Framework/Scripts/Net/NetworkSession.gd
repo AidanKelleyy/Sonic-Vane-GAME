@@ -69,7 +69,7 @@ var _hud_restore_pending: bool = false
 
 @export_group("Race SFX")
 @export var race_sfx_bus: StringName = &"UI"
-@export var sfx_race_queue_start: AudioStream = preload("res://LS5Framework/Sounds/Menu/Race_Start_Queue.WAV")
+@export var sfx_race_queue_start: AudioStream = load("res://LS5Framework/Sounds/Menu/Race_Start_Queue.WAV")
 
 @export_group("Online SFX")
 ## Bus used for online join and leave sounds.

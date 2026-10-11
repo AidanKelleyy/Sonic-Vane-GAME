@@ -180,6 +180,10 @@ def main():
                 target_pck,
             ]
             run_command(cmd, dry_run=args.dry_run)
+            if not args.dry_run:
+                if not os.path.exists(target_pck) or os.path.getsize(target_pck) == 0:
+                    raise RuntimeError(f"Pack export failed or created empty file: {target_pck}")
+                print(f"Pack verified: Data/{display_rel} ({os.path.getsize(target_pck):,} bytes)")
 
         # Ensure Mods directory exists
         mods_dir = os.path.join(common_data_dir, "Mods")

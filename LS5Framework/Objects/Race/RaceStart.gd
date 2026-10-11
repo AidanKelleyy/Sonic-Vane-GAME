@@ -122,7 +122,7 @@ const _MUSIC_TITLECARD_OFFSET_MAX: float = 5.0
 
 @export_group("SFX")
 @export var sfx_bus: StringName = &"UI"
-@export var sfx_start_queue: AudioStream = preload("res://LS5Framework/Sounds/Menu/Race_Start_Queue.WAV")
+@export var sfx_start_queue: AudioStream = load("res://LS5Framework/Sounds/Menu/Race_Start_Queue.WAV")
 @export var sfx_titlecard: AudioStream = preload("res://LS5Framework/Sounds/Menu/titlecard.wav")
 @export var sfx_countdown: AudioStream = preload("res://LS5Framework/Sounds/Menu/Countdown.wav")
 @export var sfx_go: AudioStream = preload("res://LS5Framework/Sounds/Menu/Countdown_GO.wav")
