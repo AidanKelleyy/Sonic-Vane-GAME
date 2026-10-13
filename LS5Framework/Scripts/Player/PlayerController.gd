@@ -1755,7 +1755,13 @@ func clear_prompt() -> void:
 		_ui_module.clear_prompt()
 
 
+func can_teleport_to_online_player() -> bool:
+	return not (race_session_joined or race_active or race_in_countdown)
+
+
 func teleport_near_node(target: Node3D, offset: Vector3 = Vector3(0.0, 1.0, 0.0)) -> void:
+	if not can_teleport_to_online_player():
+		return
 	if not _network_is_local_authority():
 		return
 	if target == null or not is_instance_valid(target):

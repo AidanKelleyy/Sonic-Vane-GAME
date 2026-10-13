@@ -415,6 +415,7 @@ func _process(delta: float) -> void:
 		if _network_stats_accum >= 0.25:
 			_network_stats_accum = 0.0
 			_refresh_connection_info()
+			_refresh_online_teleport_buttons()
 	if _is_input_binding_active():
 		return
 	if _pause_preview_hidden:
@@ -1087,6 +1088,9 @@ func _refresh_player_list() -> void:
 
 		var btn_tp := Button.new()
 		btn_tp.text = "Teleport"
+		btn_tp.set_meta(&"online_teleport", true)
+		btn_tp.disabled = _is_online_teleport_blocked()
+		btn_tp.tooltip_text = "Teleporting to players is unavailable during a race." if btn_tp.disabled else ""
 		btn_tp.pressed.connect(_on_teleport_pressed.bind(peer_id))
 		row.add_child(btn_tp)
 
@@ -1161,9 +1165,38 @@ func _on_ButtonLeaveQueue_pressed() -> void:
 	_refresh_player_list()
 
 
+func _is_online_teleport_blocked(player: Node = null) -> bool:
+	if not is_instance_valid(player):
+		player = _get_local_player()
+	return not is_instance_valid(player) or not player.has_method("can_teleport_to_online_player") or not player.call("can_teleport_to_online_player")
+
+
+func _refresh_online_teleport_buttons() -> void:
+	if not is_instance_valid(player_list):
+		return
+	var blocked: bool = _is_online_teleport_blocked()
+	var changed: bool = false
+	var refocus: bool = false
+	for row: Node in player_list.get_children():
+		for child: Node in row.get_children():
+			if not (child is Button) or not child.has_meta(&"online_teleport"):
+				continue
+			var button: Button = child as Button
+			if button.disabled == blocked:
+				continue
+			refocus = refocus or (blocked and button.has_focus())
+			button.disabled = blocked
+			button.tooltip_text = "Teleporting to players is unavailable during a race." if blocked else ""
+			changed = true
+	if changed:
+		call_deferred("_configure_pause_frame_focus")
+	if refocus:
+		call_deferred("_focus_visible_panel")
+
+
 func _on_teleport_pressed(peer_id: int) -> void:
 	var local_player = _get_local_player()
-	if local_player == null:
+	if _is_online_teleport_blocked(local_player):
 		return
 	_net_session = _get_network_session()
 	if _net_session == null:
@@ -1184,6 +1217,8 @@ func _teleport_to_online_player(local_player: Node, target_player: Node3D) -> vo
 	if local_player == null or target_player == null:
 		return
 	if not is_instance_valid(local_player) or not is_instance_valid(target_player):
+		return
+	if _is_online_teleport_blocked(local_player):
 		return
 
 	var target_level_id: StringName = _get_online_level_id_from_player(target_player)
@@ -1242,6 +1277,8 @@ func _teleport_to_online_player(local_player: Node, target_player: Node3D) -> vo
 					true,
 					true
 				))
+		if not is_instance_valid(local_player) or not is_instance_valid(target_player) or _is_online_teleport_blocked(local_player):
+			return
 		if not level_ready:
 			if local_player.has_method("show_prompt"):
 				local_player.call("show_prompt", "Unable to load that player's level.", 3.0)
@@ -1251,6 +1288,8 @@ func _teleport_to_online_player(local_player: Node, target_player: Node3D) -> vo
 	if target_player.has_method("_network_request_authoritative_teleport"):
 		target_player.call("_network_request_authoritative_teleport")
 	var received_fresh_state: bool = await _wait_for_online_player_state(target_player, state_sequence)
+	if not is_instance_valid(local_player) or not is_instance_valid(target_player) or _is_online_teleport_blocked(local_player):
+		return
 	if not received_fresh_state:
 		if local_player.has_method("show_prompt"):
 			local_player.call("show_prompt", "That player's position is not ready yet.", 3.0)
