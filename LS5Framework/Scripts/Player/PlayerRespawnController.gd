@@ -66,6 +66,8 @@ func _apply_respawn_transform(
 	grounded_normal: Vector3 = Vector3.ZERO
 ) -> void:
 	var p = _owner
+	if p._anim_module:
+		p._anim_module._reset_turn_amount()
 	p.clear_air_trick_bank()
 	p.cancel_homing_attack(false)
 	p.cancel_vault_bar()

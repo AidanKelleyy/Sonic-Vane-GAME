@@ -8,6 +8,28 @@ Character settings profiles separate physical controls, packaged character defau
 
 ## Attributes
 
+### Turning animation parameters
+
+The pawn's Inspector exposes turning settings under **Visuals and Animation / Locomotion/Turning Animation**. These affect `GROUND_MACHINE/GroundMove` Y only; they do not change movement physics or the visual model's facing direction. Positive values select left animations and negative values select right animations in the packaged Neo Adventure blendspace.
+
+- **Anim Turn Mode** defaults to Hybrid. Steering Intention and Velocity Turn Rate remain selectable.
+- **Anim Turn Intent Start Angle Deg** defaults to 1 degree. Smaller input heading errors produce no intentional lean.
+- **Anim Turn Intent Full Angle Deg** defaults to 30 degrees. Larger heading errors produce full directional lean before analog strength, speed ramp, and maximum amount are applied.
+- **Anim Turn Intent Strength Deadzone** defaults to 0.05, applied after the normal gameplay input dead zone. **Strength Exponent** defaults to 1.0; higher values soften partial-stick lean.
+- **Anim Turn Start Rate Deg Per Sec** defaults to 15 and **Full Rate Deg Per Sec** to 300. These affect Velocity Turn Rate and Hybrid modes.
+- **Anim Turn Min Speed** defaults to 1.0. **Full Speed** defaults to 0.0, disabling the optional speed ramp. Setting Full Speed above Min Speed introduces a smooth ramp between them. The locomotion logic-speed compensation setting controls these speed values.
+- **Anim Turn Max Amount** defaults to 1.0 and caps the absolute blend output.
+- **Anim Turn Response**, **Reverse Response**, and **Return Response** default to 14, 14, and 3 inverse seconds respectively. They control ordinary entry, switching sides, and recentering with frame-rate-independent exponential interpolation. Zero snaps for that response.
+- **Anim Turn Reset Below Min Speed** defaults on. Turning clears immediately below the speed gate; disabling it uses Return Response instead.
+
+Intention mode derives movement direction from the existing control basis and movement input, not the camera's rendered orientation or the character mesh. Input magnitude determines analog strength. The previous travel heading is transported into the current support plane before measuring the requested heading error, so immediate physical steering does not erase the first frame of animation feedback. Input can request the opposite animation side while momentum continues turning in the prior direction. An exactly backward request retains the last chosen side, with a deterministic left fallback when no side has been established.
+
+Hybrid computes both contributions. When they agree, the stronger contribution is used without adding them together. Any opposite-side intention above the input/angle dead zones completely replaces the measured contribution, even if the analog intention is weaker. With no valid intention, measured turning remains active. The combined target uses the existing speed ramp, maximum amount, and response settings.
+
+Velocity mode uses signed heading change after transporting the prior heading with the support normal. Pure support pitch or bank therefore does not create turning lean. Airborne updates clear ground turning history; respawns explicitly clear it. Zero-delta animation updates preserve the current values and history. Online pawns receive the source pawn's exact animation blend through the existing animation snapshots; measured velocity is used only as a fallback before snapshots arrive.
+
+The old `anim_turn_max_angle_deg` and `anim_turn_smooth_factor` scene properties remain hidden compatibility aliases for `anim_turn_full_rate_deg_per_sec` and `anim_turn_response`. Existing scene values are retained. Custom Attributes lists should use the new exported IDs, such as `pawn.anim_turn_mode`, `pawn.anim_turn_response`, and `pawn.anim_turn_intent_full_angle_deg`.
+
 `attribute_ids` lists the parameters offered by the character's Attributes tab, in display order. The main menu and pause menu use the same character settings scene. Packaged Sonic Neo Adventure, Adventure Sonic, and Tails profiles expose:
 
 - `visual.outline.enabled`: Enable existing CharacterSurfaceOutline material passes.

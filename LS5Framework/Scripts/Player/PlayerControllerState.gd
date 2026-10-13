@@ -639,10 +639,51 @@ var _enemy_targeting_spawn_input_received: bool = false
 ## 0.0 = full strength immediately once the delay expires.
 @export var model_turn_speed_air_roll_ramp_speed: float = 2.0
 
-@export var anim_turn_max_angle_deg: float = 300.0   # turn rate (deg/sec) that counts as "full lean"
-@export var anim_turn_full_speed: float = 0.0        # speed where turn lean is fully applied
-@export var anim_turn_min_speed: float = 0.0         # below this, no turn anim
-@export var anim_turn_smooth_factor: float = 5.0     # smoothing strength for turn param
+@export_subgroup("Locomotion/Turning Animation")
+
+## Hybrid uses the stronger same-side intent or measured turn, with opposite-side intent replacing measured turning. Steering Intention uses input only; Velocity Turn Rate uses measured travel heading only.
+@export_enum("Velocity Turn Rate", "Steering Intention", "Hybrid") var anim_turn_mode: int = 2
+## Measured turn rates at or below this value produce no lean in Velocity Turn Rate or Hybrid mode.
+@export_range(0.0, 1080.0, 1.0, "or_greater", "suffix:deg/s") var anim_turn_start_rate_deg_per_sec: float = 15.0
+## Measured turn rate producing full lean in Velocity Turn Rate or Hybrid mode.
+@export_range(0.01, 1080.0, 1.0, "or_greater", "suffix:deg/s") var anim_turn_full_rate_deg_per_sec: float = 300.0
+## Heading error at or below this angle produces no intentional lean in Steering Intention or Hybrid mode.
+@export_range(0.0, 180.0, 0.1, "suffix:deg") var anim_turn_intent_start_angle_deg: float = 1.0
+## Heading error producing full directional lean before analog strength is applied.
+@export_range(0.1, 180.0, 0.1, "suffix:deg") var anim_turn_intent_full_angle_deg: float = 30.0
+## Additional dead zone applied to the already-remapped movement input strength.
+@export_range(0.0, 0.95, 0.01) var anim_turn_intent_strength_deadzone: float = 0.05
+## Analog strength response exponent. Higher values soften partial-stick lean; 1.0 is linear.
+@export_range(0.1, 4.0, 0.05) var anim_turn_intent_strength_exponent: float = 1.0
+## Maximum absolute GroundMove Y blend position.
+@export_range(0.0, 1.0, 0.01) var anim_turn_max_amount: float = 1.0
+## Minimum lateral animation speed required for turning lean. Uses the locomotion logic-speed compensation setting.
+@export_range(0.0, 300.0, 0.1, "or_greater") var anim_turn_min_speed: float = 1.0
+## Lateral animation speed producing full lean strength. At or below minimum speed disables the speed ramp.
+@export_range(0.0, 300.0, 0.1, "or_greater") var anim_turn_full_speed: float = 0.0
+## Exponential lean response in inverse seconds. 0.0 snaps to the target.
+@export_range(0.0, 60.0, 0.1, "or_greater", "suffix:1/s") var anim_turn_response: float = 14.0
+## Exponential response when the requested lean changes sides. 0.0 snaps to the opposite target.
+@export_range(0.0, 60.0, 0.1, "or_greater", "suffix:1/s") var anim_turn_reverse_response: float = 14.0
+## Exponential response when returning toward neutral. 0.0 returns immediately.
+@export_range(0.0, 60.0, 0.1, "or_greater", "suffix:1/s") var anim_turn_return_response: float = 3.0
+## Immediately clears lean below the minimum movement speed. Disabled returns to neutral using the return response.
+@export var anim_turn_reset_below_min_speed: bool = true
+
+## Legacy full-turn-rate field retained for existing scene data.
+@export_storage var anim_turn_max_angle_deg: float:
+	get:
+		return anim_turn_full_rate_deg_per_sec
+	set(value):
+		anim_turn_full_rate_deg_per_sec = value
+## Legacy response field retained for existing scene data.
+@export_storage var anim_turn_smooth_factor: float:
+	get:
+		return anim_turn_response
+	set(value):
+		anim_turn_response = value
+
+@export_subgroup("Airborne/Animation")
 
 ## Animation state used for ordinary jumps.
 @export_enum("Standard", "Fall Blend") var jump_animation_mode: int = JumpAnimationMode.STANDARD

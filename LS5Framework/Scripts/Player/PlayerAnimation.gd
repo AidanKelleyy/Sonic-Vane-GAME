@@ -12,6 +12,8 @@ const SM_GROUND: String = SM_BASE + "/GROUND_MACHINE"
 const JUMP_FALL_BLEND_CONDITION: String = "conditions/UseFallBlendForJump"
 const NOT_JUMP_FALL_BLEND_CONDITION: String = "conditions/NotUseFallBlendForJump"
 const RAIL_SWITCH_ANIM_DURATION: float = 0.5
+const TURN_MODE_INTENTION: int = 1
+const TURN_MODE_HYBRID: int = 2
 
 var _owner: Node = null
 var _anim_param_cache: Dictionary = {}
@@ -24,7 +26,9 @@ var _anim_properties_cached: bool = false
 var _movement_time_name_cache: Dictionary = {}
 var _anim_turn_raw: float = 0.0
 var _anim_turn_smooth: float = 0.0
-var _anim_turn_prev_lateral_dir: Vector3 = Vector3.ZERO  # Used to measure signed turn rate.
+var _anim_turn_prev_lateral_dir: Vector3 = Vector3.ZERO
+var _anim_turn_prev_up: Vector3 = Vector3.UP
+var _anim_turn_last_side: float = 1.0
 var _fall_blend_smoothed: Vector2 = Vector2.ZERO
 var _fall_blend_initialized: bool = false
 var _movement_time_exclusion_pattern: RegEx = RegEx.new()
@@ -661,67 +665,119 @@ func _update_locomotion_anim(delta: float) -> void:
 	_set_anim_bool_param("conditions/Moving", lateral_speed > 0.5)
 
 func _update_turn_amount(delta: float) -> void:
-	# SUMMARY: Compute a signed turn lean target from turn rate, then smooth toward it.
-	# NOTES:
-	# - Uses physics up (loop-safe) to define the lateral plane and sign direction.
-	# - Turn rate is measured from the change in lateral direction (deg/sec).
-	# - Max lean is driven by turn rate, not smoothing strength.
-	var p
-	p = _owner
-	if p == null or not is_instance_valid(p):
-		_anim_turn_raw = 0.0
-		_anim_turn_smooth = 0.0
-		_anim_turn_prev_lateral_dir = Vector3.ZERO
+	if not is_instance_valid(_owner):
+		_reset_turn_amount()
 		return
-
+	if delta <= 0.0:
+		return
+	var p: Node = _owner
+	if not p.attached:
+		_reset_turn_amount()
+		return
 	var up: Vector3 = p._physics_up_last.normalized()
-	if up.length() < 0.001:
+	if up.length_squared() < 0.000001:
 		up = _get_owner_gravity_up()
-
 	var v: Vector3 = p.velocity * _get_speed_based_animation_scale()
-	var vertical: float = v.dot(up)
-	var lateral: Vector3 = v - up * vertical
+	var lateral: Vector3 = v.slide(up)
 	var lateral_speed: float = lateral.length()
-
-	var target: float = 0.0
-	var turn_rate_deg_per_sec: float = 0.0
-	var min_speed: float = max(p.anim_turn_min_speed, 0.001)
-	if lateral_speed >= min_speed and delta > 0.0:
-		var lateral_dir: Vector3 = lateral / lateral_speed
-
-		if _anim_turn_prev_lateral_dir.length() > 0.001:
-			var dot_dir: float = clamp(_anim_turn_prev_lateral_dir.dot(lateral_dir), -1.0, 1.0)
-			var angle_rad: float = acos(dot_dir)
-			if angle_rad > 0.00001:
-				var axis: Vector3 = _anim_turn_prev_lateral_dir.cross(lateral_dir)
-				var axis_len: float = axis.length()
-				if axis_len > 0.0001:
-					axis /= axis_len
-					var sign_dir: float = 1.0
-					if axis.dot(up) < 0.0:
-						sign_dir = -1.0
-					turn_rate_deg_per_sec = (rad_to_deg(angle_rad) / delta) * sign_dir
-
-		_anim_turn_prev_lateral_dir = lateral_dir
-	else:
+	if lateral_speed < maxf(p.anim_turn_min_speed, 0.001):
 		_anim_turn_prev_lateral_dir = Vector3.ZERO
+		_anim_turn_raw = 0.0
+		if p.anim_turn_reset_below_min_speed:
+			_anim_turn_smooth = 0.0
+		else:
+			_smooth_turn_amount(0.0, delta)
+		return
+	var lateral_dir: Vector3 = lateral / lateral_speed
+	var previous: Vector3 = _transport_turn_heading(_anim_turn_prev_lateral_dir, _anim_turn_prev_up, up)
+	var target: float = 0.0
+	var intent_target: float = 0.0
+	var intention_mode: bool = (p.anim_turn_mode == TURN_MODE_INTENTION or p.anim_turn_mode == TURN_MODE_HYBRID) and p._network_is_local_authority()
+	if intention_mode:
+		var strength: float = clampf(p._move_input.length(), 0.0, 1.0)
+		var intent: Vector3 = (p._control_forward * p._move_input.y + p._control_right * p._move_input.x).slide(up)
+		var deadzone: float = clampf(p.anim_turn_intent_strength_deadzone, 0.0, 0.95)
+		if strength > deadzone and intent.length_squared() >= 0.000001:
+			var reference: Vector3 = previous if previous.length_squared() >= 0.000001 else lateral_dir
+			var preferred_side: float = -signf(p._move_input.x) if absf(p._move_input.x) > 0.001 else _anim_turn_last_side
+			var angle: float = _signed_turn_angle(reference, intent.normalized(), up, preferred_side)
+			var amount: float = _turn_activation_weight(absf(rad_to_deg(angle)), p.anim_turn_intent_start_angle_deg, p.anim_turn_intent_full_angle_deg)
+			var analog: float = pow(clampf((strength - deadzone) / (1.0 - deadzone), 0.0, 1.0), maxf(p.anim_turn_intent_strength_exponent, 0.1))
+			intent_target = signf(angle) * amount * analog
+	if (not intention_mode or p.anim_turn_mode == TURN_MODE_HYBRID) and previous.length_squared() >= 0.000001:
+		var angle: float = _signed_turn_angle(previous, lateral_dir, up, _anim_turn_last_side)
+		var rate: float = absf(rad_to_deg(angle)) / delta
+		target = signf(angle) * _turn_activation_weight(rate, p.anim_turn_start_rate_deg_per_sec, p.anim_turn_full_rate_deg_per_sec)
+	if intention_mode:
+		if p.anim_turn_mode == TURN_MODE_INTENTION:
+			target = intent_target
+		elif target * intent_target < 0.0 or absf(intent_target) > absf(target):
+			# Opposing intent replaces the rate contribution rather than cancelling against it.
+			target = intent_target
+	_anim_turn_prev_lateral_dir = lateral_dir
+	_anim_turn_prev_up = up
+	if absf(target) > 0.000001:
+		_anim_turn_last_side = signf(target)
+	var speed_weight: float = _turn_activation_weight(lateral_speed, p.anim_turn_min_speed, p.anim_turn_full_speed) if p.anim_turn_full_speed > p.anim_turn_min_speed else 1.0
+	target *= speed_weight * clampf(p.anim_turn_max_amount, 0.0, 1.0)
+	_smooth_turn_amount(target, delta)
 
-	# Turn rate maps directly to max lean; speed is handled by the X axis blend.
-	var rate_full: float = max(p.anim_turn_max_angle_deg, 0.001)
-	var rate_ratio: float = clamp(abs(turn_rate_deg_per_sec) / rate_full, 0.0, 1.0)
-	target = rate_ratio
-	if turn_rate_deg_per_sec < 0.0:
-		target = -target
 
+func _reset_turn_amount() -> void:
+	_anim_turn_raw = 0.0
+	_anim_turn_smooth = 0.0
+	_anim_turn_prev_lateral_dir = Vector3.ZERO
+	_anim_turn_prev_up = Vector3.UP
+	_anim_turn_last_side = 1.0
+
+
+func _transport_turn_heading(direction: Vector3, from_up: Vector3, to_up: Vector3) -> Vector3:
+	# Transport heading with the support normal without adding pitch or bank to steering.
+	if direction.length_squared() < 0.000001:
+		return Vector3.ZERO
+	var transported: Vector3 = direction
+	var alignment: float = clampf(from_up.dot(to_up), -1.0, 1.0)
+	if alignment < -0.9999:
+		var axis: Vector3 = direction.slide(from_up).normalized()
+		if axis.length_squared() >= 0.000001:
+			transported = direction.rotated(axis, PI)
+	elif alignment < 0.999999:
+		transported = Quaternion(from_up, to_up) * direction
+	return transported.slide(to_up).normalized()
+
+
+func _signed_turn_angle(from_direction: Vector3, to_direction: Vector3, up: Vector3, preferred_side: float) -> float:
+	var cross: float = up.dot(from_direction.cross(to_direction))
+	var dot: float = clampf(from_direction.dot(to_direction), -1.0, 1.0)
+	if absf(cross) < 0.000001 and dot < -0.999999:
+		# Antiparallel headings retain the last intentional side.
+		return PI * (-1.0 if preferred_side < 0.0 else 1.0)
+	return atan2(cross, dot)
+
+
+func _turn_activation_weight(value: float, start: float, full: float) -> float:
+	var minimum: float = maxf(start, 0.0)
+	if value <= minimum:
+		return 0.0
+	var maximum: float = maxf(full, minimum + 0.001)
+	return smoothstep(minimum, maximum, value)
+
+
+func _smooth_turn_amount(target: float, delta: float) -> void:
 	_anim_turn_raw = target
-
-	var smooth_speed: float = max(p.anim_turn_smooth_factor, 0.0)
-	if smooth_speed <= 0.0 or delta <= 0.0:
+	var response: float = _owner.anim_turn_response
+	if absf(target) < 0.000001 or (target * _anim_turn_smooth >= 0.0 and absf(target) < absf(_anim_turn_smooth)):
+		response = _owner.anim_turn_return_response
+	elif target * _anim_turn_smooth < 0.0:
+		response = _owner.anim_turn_reverse_response
+	if response <= 0.0:
 		_anim_turn_smooth = _anim_turn_raw
 	else:
-		# Frame-rate independent smoothing (exponential response).
-		var s: float = 1.0 - exp(-smooth_speed * delta)
-		_anim_turn_smooth = lerp(_anim_turn_smooth, _anim_turn_raw, s)
+		_anim_turn_smooth = lerpf(_anim_turn_smooth, _anim_turn_raw, 1.0 - exp(-response * delta))
+	var maximum: float = clampf(_owner.anim_turn_max_amount, 0.0, 1.0)
+	_anim_turn_smooth = clampf(_anim_turn_smooth, -maximum, maximum)
+	if absf(_anim_turn_smooth) < 0.000001:
+		_anim_turn_smooth = 0.0
 
 
 func _get_turn_amount_for_anim() -> float:
