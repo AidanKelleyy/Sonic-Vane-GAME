@@ -32,6 +32,9 @@ const LOADING_MIN_VISIBLE_TIME: float = 0.2
 const LOADING_PRELOAD_DELAY: float = 0.12
 const MENU_TRANSITION_DURATION: float = 0.12
 const MENU_TRANSITION_OFFSET: float = 44.0
+const VERSION_LABEL_BASE_FONT_SIZE: int = 14
+const VERSION_LABEL_MAX_FONT_SIZE: int = 24
+const VERSION_LABEL_REFERENCE_HEIGHT: float = 720.0
 const MISSING_DATA_ROW_COUNT: int = 5
 const MISSING_DATA_TEXT: String = "NO WAY!  NO WAY!  NO WAY?  "
 const MISSING_DATA_SCROLL_VIEWPORTS_PER_SECOND: float = 0.16
@@ -235,7 +238,7 @@ var opt_player_tracking_mode: OptionButton = null
 @onready var music_track_display: HUDMusicTrackDisplay = $MusicTrackDisplay
 
 ## Displays the game build version in the corner of the main menu.
-var _version_label: Label = null
+@onready var _version_label: Label = $VersionSafeArea/VersionLabel
 
 ## Time window (seconds) to suppress hover SFX after a confirm press.
 @export var hover_suppress_after_press_time: float = 0.15
@@ -420,30 +423,23 @@ func _ready() -> void:
 	call_deferred("_initialize_startup_music_and_data_warning")
 
 	# Version label
-	_version_label = Label.new()
 	var ver: String = "dev"
 	if ProjectSettings.has_setting("application/config/version"):
 		ver = String(ProjectSettings.get_setting("application/config/version")).strip_edges()
 		if ver == "":
 			ver = "dev"
 	_version_label.text = ver
-	_version_label.add_theme_font_size_override("font_size", 14)
-	_version_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.5))
-	_version_label.add_theme_constant_override("shadow_offset_x", 1)
-	_version_label.add_theme_constant_override("shadow_offset_y", 1)
-	_version_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.6))
-	_version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_version_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-	_version_label.anchor_left = 0.0
-	_version_label.anchor_top = 1.0
-	_version_label.anchor_right = 1.0
-	_version_label.anchor_bottom = 1.0
-	_version_label.offset_left = 0.0
-	_version_label.offset_top = -30.0
-	_version_label.offset_right = -12.0
-	_version_label.offset_bottom = -8.0
-	_version_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_version_label)
+	resized.connect(_update_version_label_scale)
+	_update_version_label_scale()
+
+
+func _update_version_label_scale() -> void:
+	if not _version_label:
+		return
+	var scale_factor: float = sqrt(maxf(size.y, VERSION_LABEL_REFERENCE_HEIGHT) / VERSION_LABEL_REFERENCE_HEIGHT)
+	var font_size: int = clampi(roundi(float(VERSION_LABEL_BASE_FONT_SIZE) * scale_factor), VERSION_LABEL_BASE_FONT_SIZE, VERSION_LABEL_MAX_FONT_SIZE)
+	if _version_label.get_theme_font_size("font_size") != font_size:
+		_version_label.add_theme_font_size_override("font_size", font_size)
 
 
 func _restore_menu_mouse_cursor() -> void:

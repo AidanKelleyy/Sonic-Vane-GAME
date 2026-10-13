@@ -1797,6 +1797,33 @@ text = "No"
 [node name="MusicTrackDisplay" parent="." unique_id=423384420 instance=ExtResource("9_music_display")]
 layout_mode = 1
 
+[node name="VersionSafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 48
+
+[node name="VersionLabel" type="Label" parent="VersionSafeArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.5)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 14
+text = "dev"
+horizontal_alignment = 2
+vertical_alignment = 2
+
 [node name="CharacterUIVoicePlayer" type="AudioStreamPlayer" parent="." unique_id=1638891185]
 bus = &"Voice"
 script = ExtResource("13_character_ui_voice")
