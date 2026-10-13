@@ -953,7 +953,7 @@ var airborne_landing_align_movement_yaw_full_speed: float = 30.0
 @export_storage var rail_switch_forward_speed_min: float = 0.0
 @export_storage var rail_switch_snap_distance: float = 0.1
 ## Fixed duration of every rail-to-rail transfer.
-@export_storage var rail_switch_max_duration: float = 0.75
+@export_storage var rail_switch_max_duration: float = 0.4
 @export_storage var rail_switch_min_end_distance: float = 0.05
 
 ## How fast you must be moving downward (along up) before we consider it "falling".

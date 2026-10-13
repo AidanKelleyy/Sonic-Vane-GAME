@@ -56,8 +56,8 @@ extends CharacterAction
 @export_range(0.0, 2.0) var rail_switch_forward_speed_scale: float = 1.0
 @export_range(0.0, 60.0) var rail_switch_forward_speed_min: float = 0.0
 @export_range(0.0, 8.0) var rail_switch_snap_distance: float = 0.5
-## Fixed duration of every rail-to-rail transfer.
-@export_range(0.0, 1.5) var rail_switch_max_duration: float = 0.5
+## Fixed movement-clock duration of every rail-to-rail transfer. Switch animation playback scales to match.
+@export_range(0.0, 1.5, 0.01, "suffix:s") var rail_switch_max_duration: float = 0.4
 @export_range(0.0, 2.0) var rail_switch_min_end_distance: float = 0.2
 
 @export_subgroup("Audio")
