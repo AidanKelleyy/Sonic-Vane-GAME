@@ -24,6 +24,10 @@ const INVINCIBILITY_VISUAL_SCENE: PackedScene = preload(
 	"res://LS5Framework/Scenes/Effects/InvincibilityVisual.tscn"
 )
 
+var _character_attributes: PlayerCharacterAttributes
+var _character_colors_configured: bool = false
+var _character_colors_enabled: bool = false
+
 var _landing_prompt_sphere: SphereShape3D = SphereShape3D.new()
 var _sphere_recovery_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 var _shallow_contact_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
@@ -468,6 +472,26 @@ func _net_request_authoritative_teleport() -> void:
 	_network_module.receive_authoritative_teleport_request()
 
 
+func _publish_character_attributes(target_peer_id: int = 0) -> void:
+	if not _character_attributes or not character_settings_profile or not _network_module or not _network_module.is_active() or not is_multiplayer_authority():
+		return
+	var values: Dictionary = _character_attributes.snapshot()
+	var profile_key: String = character_settings_profile.get_profile_key()
+	if target_peer_id > 0:
+		rpc_id(target_peer_id, "_net_character_attributes", profile_key, values)
+	else:
+		rpc("_net_character_attributes", profile_key, values)
+
+
+@rpc("authority", "reliable", "call_remote")
+func _net_character_attributes(profile_key: String, values: Dictionary) -> void:
+	if not _character_attributes or not character_settings_profile or _network_is_local_authority() or values.size() > 256:
+		return
+	if profile_key != character_settings_profile.get_profile_key():
+		return
+	_character_attributes.apply(values)
+
+
 @rpc("any_peer", "reliable", "call_remote")
 func _net_authoritative_teleport(
 		transform_value: Transform3D,
@@ -651,6 +675,8 @@ func _ready() -> void:
 	_network_configure_for_role()
 	_ensure_modules()
 	_apply_character_visual_profile()
+	_character_attributes = PlayerCharacterAttributes.new(self)
+	_character_attributes.initialize()
 	_cache_default_character_effect_colors()
 	_set_jump_ball_tint(_default_jump_ball_tint)
 
@@ -1389,6 +1415,8 @@ func set_display_color(value: Color) -> void:
 		_ui_module.set_display_color(value)
 
 func set_character_colors(primary_color: Color, secondary_color: Color, trail_color: Color = Color(0.2, 0.8, 1.0, 1.0)) -> void:
+	_character_colors_configured = true
+	_character_colors_enabled = true
 	_cache_default_character_effect_colors()
 	_character_primary_color = primary_color
 	_character_secondary_color = secondary_color
@@ -1405,6 +1433,8 @@ func set_character_colors(primary_color: Color, secondary_color: Color, trail_co
 
 
 func clear_character_colors() -> void:
+	_character_colors_configured = true
+	_character_colors_enabled = false
 	_cache_default_character_effect_colors()
 	character_tint_enabled = false
 	if character_visual_profile:
@@ -2201,6 +2231,9 @@ func _process(delta: float) -> void:
 
 
 func _exit_tree() -> void:
+	if _character_attributes:
+		_character_attributes.dispose()
+		_character_attributes = null
 	_end_standing_clearance_batch()
 	_movement_slide_cache_valid = false
 	_movement_slide_collisions.clear()
@@ -2224,13 +2257,17 @@ func _exit_tree() -> void:
 func _apply_character_tint() -> void:
 	_ensure_modules()
 	if _model_module != null:
+		_model_module.restore_character_shader_attributes()
 		_model_module._apply_character_tint()
+		_model_module.apply_character_shader_attributes()
 
 
 func _clear_character_tint_overrides() -> void:
 	_ensure_modules()
 	if _model_module != null:
+		_model_module.restore_character_shader_attributes()
 		_model_module._clear_character_tint_overrides()
+		_model_module.apply_character_shader_attributes()
 
 
 func _collect_mesh_instances(node: Node, out: Array) -> void:

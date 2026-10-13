@@ -6,6 +6,53 @@ Character settings profiles separate physical controls, packaged character defau
 - A `CharacterSettingsProfile` lists the character's modular abilities and default slot assignments.
 - User changes are saved to `user://character_profiles.cfg` and do not modify the character package.
 
+## Attributes
+
+`attribute_ids` lists the parameters offered by the character's Attributes tab, in display order. The main menu and pause menu use the same character settings scene. Packaged Sonic Neo Adventure, Adventure Sonic, and Tails profiles expose:
+
+- `visual.outline.enabled`: Enable existing CharacterSurfaceOutline material passes.
+- `visual.uekawa.enabled`: Enable existing CharacterUekawaRim material passes.
+- `pawn.movement_time_scale`: Base Movement Time Scale, from 0.1x to 1.0x in 0.01 increments. Defaults to the authored pawn value (normally 1.0x); gameplay, debuff, and underwater multipliers remain separate. This physics attribute is locked during races and synchronized online.
+
+Both default to enabled, preserving the character's authored materials. These switches do not add passes to materials that never had them. Filtering duplicates the affected material chains per pawn, preserves unrelated passes, and restores the original chains when re-enabled. Character tinting and the WheelRun cutout remain separate. Race ghosts retain their existing additional-pass suppression.
+
+Eye projection is a required base shader, not an Attribute. Its controller retains ownership of the active material while optional decorative passes are changed behind it. Tinting never substitutes the eye shader. Race ghosts retain an independent eye projector while suppressing their decorative passes.
+
+Additional IDs use:
+
+- `pawn.air_top_speed`: An editable exported pawn property.
+- `ability.grounded.run_top_speed`: An ability-owned exported property, selected by its stable `action_id`.
+- `ability.parkour.wall_run_kick_upward_sustain_time`: Another modular ability property.
+- `visual.hue_overlay_strength`: An exported scalar on the pawn's private visual-profile copy.
+
+Hidden pawn storage fields that mirror modular actions are not editable through `pawn.*`; use the authoritative `ability.*` parameter instead. For scene metadata, an explicitly exported `action_id` is preferred. When absent, the resolver uses the script filename without `_action` or `_ability`. Custom scripts whose initialized ID differs from that name should store their actual `action_id` in the scene.
+
+Boolean, integer, float, enum, and color properties have generated controls. Curves, arrays, resource references, node references, and unsupported IDs produce an unavailable message rather than an unsafe editor. Numeric fields have controller decrement/increment buttons as well as mouse/keyboard entry. Bumpers switch tabs; directional navigation and scrolling remain within the menu.
+
+`attribute_definitions` optionally customizes an ID's `label`, `description`, `category`, `min`, `max`, `step`, `suffix`, and `default`. Export range and enum hints supply the initial constraints. Set explicit player-facing ranges for unrestricted physics parameters. `default_settings` may also supply defaults; those take precedence over the definition default. The original scene value is the fallback.
+
+Example definition:
+
+```gdscript
+attribute_ids = [&"ability.grounded.run_top_speed", &"visual.outline.enabled", &"visual.uekawa.enabled"]
+attribute_definitions = {
+    &"ability.grounded.run_top_speed": {
+        "label": "Running Top Speed",
+        "category": "Ground Movement",
+        "description": "Flat-ground running speed before temporary modifiers.",
+        "min": 20.0,
+        "max": 200.0,
+        "step": 1.0
+    }
+}
+```
+
+Edits are staged until Apply Attributes. Discard and closing without applying do not save edits. Each row has Reset; Reset Attributes stages restoring the tab's defaults without resetting loadouts or routes. Only non-default, validated overrides are saved. `attribute_aliases` maps retired IDs to current IDs when reading prior configuration.
+
+Physics controls are disabled during race countdowns and joined/active races. Presentation attributes remain available. Pawn baselines remain separate from temporary gameplay modifiers. Locally edited settings apply to local playable pawns using that profile, never to remote pawns through the local configuration manager.
+
+Online pawns publish reliable, authority-owned snapshots after local profile changes. Initial authoritative position requests also carry the current attribute snapshot, covering late joins and recreated pawns. Receivers validate the profile namespace, exposed IDs, scalar types, numeric limits, and enum options. Remote values are applied to that pawn only and are never written to local configuration. Only listed attributes are synchronized by this extension; loadout and route customization retain their existing behavior.
+
 ## Character package setup
 
 Create a `CharacterSettingsProfile` resource in the character package and set a stable `package_id` and `character_id`. Each ability listed in `ability_catalog` must use the same `ability_id` as its action node's `action_id`.

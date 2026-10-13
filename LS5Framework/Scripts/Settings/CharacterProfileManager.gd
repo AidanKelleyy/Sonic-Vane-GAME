@@ -300,12 +300,12 @@ func has_route_override(profile: CharacterSettingsProfile) -> bool:
 func get_effective_settings(profile: CharacterSettingsProfile) -> Dictionary:
 	if profile == null:
 		return {}
-	var settings: Dictionary = profile.default_settings.duplicate(true)
+	var settings: Dictionary = profile.normalize_attribute_settings(profile.default_settings)
 	var profile_key: String = profile.get_profile_key()
 	if _settings_overrides.has(profile_key):
 		var overrides: Variant = _settings_overrides[profile_key]
 		if overrides is Dictionary:
-			settings.merge(overrides, true)
+			settings.merge(profile.normalize_attribute_settings(overrides), true)
 	return settings
 
 
@@ -320,6 +320,40 @@ func set_character_setting(profile: CharacterSettingsProfile, setting_id: String
 	_settings_overrides[profile_key] = settings
 	_save_profiles()
 	character_profile_changed.emit(profile_key)
+
+
+func get_attribute_overrides(profile: CharacterSettingsProfile) -> Dictionary:
+	var values: Dictionary = {}
+	if not profile:
+		return values
+	var stored: Dictionary = _settings_overrides.get(profile.get_profile_key(), {})
+	stored = profile.normalize_attribute_settings(stored)
+	for id: StringName in profile.attribute_ids:
+		if stored.has(id):
+			values[id] = stored[id]
+	return values
+
+
+func set_attribute_overrides(profile: CharacterSettingsProfile, values: Dictionary, definitions: Dictionary) -> void:
+	if not profile:
+		return
+	var key: String = profile.get_profile_key()
+	var stored: Dictionary = (_settings_overrides.get(key, {}) as Dictionary).duplicate(true)
+	stored = profile.normalize_attribute_settings(stored)
+	for id: StringName in profile.attribute_ids:
+		if not definitions.has(id):
+			continue
+		stored.erase(id)
+		if values.has(id):
+			var checked: Dictionary = CharacterAttributeResolver.validate(definitions[id], values[id])
+			if not checked.is_empty() and checked.value != definitions[id].default:
+				stored[id] = checked.value
+	if stored.is_empty():
+		_settings_overrides.erase(key)
+	else:
+		_settings_overrides[key] = stored
+	_save_profiles()
+	character_profile_changed.emit(key)
 
 
 func get_slot_label(slot: StringName) -> String:

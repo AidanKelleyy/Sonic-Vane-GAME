@@ -292,6 +292,7 @@ func publish_teleport_state(target_peer_id: int = 0) -> void:
 		return
 	if not player.is_multiplayer_authority():
 		return
+	player._publish_character_attributes(target_peer_id)
 	player._update_main_state_and_flags(0.0)
 	player._update_animation(0.0)
 	if player.anim_tree:

@@ -81,7 +81,7 @@ func _sanitize_visual_branch(node: Node) -> void:
 			child.free()
 			continue
 		_sanitize_visual_branch(child)
-	if node.get_script() != null:
+	if node.get_script() and not node is CharacterEyeProjection:
 		node.set_script(null)
 
 
@@ -462,6 +462,12 @@ func _disable_additional_shader_passes() -> void:
 
 
 func _copy_material_without_additional_passes(source_material: Material) -> Material:
+	if source_material:
+		var eye_ref: WeakRef = source_material.get_meta(&"eye_projection_controller", null) as WeakRef
+		var eye_controller: Node = eye_ref.get_ref() as Node if eye_ref else null
+		if eye_controller and _visual_root and _visual_root.is_ancestor_of(eye_controller):
+			eye_controller.call("disable_additional_shader_passes")
+			return source_material
 	if source_material == null or source_material.next_pass == null:
 		return source_material
 	var base_material: Material = source_material.duplicate(false) as Material

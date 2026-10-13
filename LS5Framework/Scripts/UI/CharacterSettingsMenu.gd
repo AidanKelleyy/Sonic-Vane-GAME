@@ -35,6 +35,22 @@ var _entry: Dictionary = {}
 var _profile: CharacterSettingsProfile = null
 var _held_navigation_action: StringName = &""
 var _navigation_repeat_remaining: float = 0.0
+## Generated rows for the exposed character attributes.
+var _attribute_rows: VBoxContainer
+## Scrolling viewport for the generated attribute rows.
+var _attribute_scroll: ScrollContainer
+## Commits staged attribute overrides.
+var _attribute_apply: Button
+## Restores the last saved attribute values.
+var _attribute_discard: Button
+## Stages restoring the packaged attribute defaults.
+var _attribute_reset: Button
+var _attribute_definitions: Dictionary = {}
+var _attribute_saved: Dictionary = {}
+var _attribute_pending: Dictionary = {}
+## Generated editor controls keyed by attribute ID.
+var _attribute_editors: Dictionary = {}
+var _attribute_lock_elapsed: float = 0.0
 
 
 func _ready() -> void:
@@ -49,6 +65,7 @@ func _ready() -> void:
 	_configure_tab_focus()
 	_configure_scroll_focus(loadout_scroll)
 	_configure_scroll_focus(route_scroll)
+	_create_attributes_tab()
 	reset_button.pressed.connect(_on_reset_pressed)
 	reset_routes_button.pressed.connect(_on_reset_routes_pressed)
 	add_route_button.pressed.connect(_on_add_route_pressed)
@@ -59,8 +76,9 @@ func _ready() -> void:
 
 
 func _update_panel_height() -> void:
-	var viewport_height: float = get_viewport().get_visible_rect().size.y
-	panel.custom_minimum_size.y = maxf(viewport_height - MENU_VERTICAL_MARGIN * 2.0, 0.0)
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+	panel.custom_minimum_size.x = minf(1120.0, maxf(viewport_size.x - MENU_VERTICAL_MARGIN * 2.0, 0.0))
+	panel.custom_minimum_size.y = maxf(viewport_size.y - MENU_VERTICAL_MARGIN * 2.0, 0.0)
 
 
 func _configure_tab_focus() -> void:
@@ -78,6 +96,8 @@ func open_for_character(entry: Dictionary) -> void:
 	title_label.text = "%s Settings" % character_name
 	_build_loadout_rows()
 	_build_route_rows()
+	_build_attribute_definitions()
+	_discard_attributes()
 	tabs.current_tab = 0
 	show()
 	call_deferred("_focus_active_tab")
@@ -100,6 +120,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if _has_open_option_popup(loadout_rows) or _has_open_option_popup(route_rows) or _has_open_option_popup(_attribute_rows):
+		return
 	if _handle_tab_input(event):
 		_clear_navigation_repeat()
 		get_viewport().set_input_as_handled()
@@ -107,7 +129,7 @@ func _input(event: InputEvent) -> void:
 	if _held_navigation_action != &"" and event.is_action_released(_held_navigation_action):
 		_clear_navigation_repeat()
 	var navigation_action: StringName = _get_navigation_action_from_event(event)
-	if navigation_action == &"" or _has_open_option_popup(loadout_rows) or _has_open_option_popup(route_rows):
+	if navigation_action == &"" or _has_open_option_popup(loadout_rows) or _has_open_option_popup(route_rows) or _has_open_option_popup(_attribute_rows):
 		return
 	if navigation_action == _held_navigation_action:
 		get_viewport().set_input_as_handled()
@@ -119,13 +141,18 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if visible and _attribute_rows:
+		_attribute_lock_elapsed += delta
+		if _attribute_lock_elapsed >= 0.25:
+			_attribute_lock_elapsed = 0.0
+			_refresh_attribute_controls()
 	if not visible or SettingsManager.is_mouse_input_active():
 		_clear_navigation_repeat()
 		return
 	if _held_navigation_action == &"" or not Input.is_action_pressed(_held_navigation_action):
 		_clear_navigation_repeat()
 		return
-	if _has_open_option_popup(loadout_rows) or _has_open_option_popup(route_rows):
+	if _has_open_option_popup(loadout_rows) or _has_open_option_popup(route_rows) or _has_open_option_popup(_attribute_rows):
 		_clear_navigation_repeat()
 		return
 	_navigation_repeat_remaining -= delta
@@ -183,6 +210,16 @@ func _get_navigation_groups() -> Array:
 		_append_loadout_navigation_groups(groups)
 	elif tabs.current_tab == tabs.get_tab_idx_from_control(routes_tab):
 		_append_routes_navigation_groups(groups)
+	elif tabs.get_current_tab_control().name == &"Attributes":
+		for child: Node in _attribute_rows.get_children():
+			var controls: Array[Control] = []
+			_collect_primary_focus_targets(child, controls)
+			_append_navigation_group(groups, controls)
+		var buttons: Array[Control] = []
+		for button: Button in [_attribute_apply, _attribute_discard, _attribute_reset]:
+			if not button.disabled:
+				buttons.append(button)
+		_append_navigation_group(groups, buttons)
 	_append_footer_navigation_group(groups)
 	return groups
 
@@ -324,6 +361,8 @@ func _has_open_option_popup(root: Node) -> bool:
 		var popup: PopupMenu = (root as OptionButton).get_popup()
 		if popup != null and popup.visible:
 			return true
+	if root is ColorPickerButton and (root as ColorPickerButton).get_popup().visible:
+		return true
 	for child: Node in root.get_children():
 		if _has_open_option_popup(child):
 			return true
@@ -997,6 +1036,11 @@ func _on_visibility_changed() -> void:
 func _focus_active_tab() -> void:
 	if not visible or tabs == null:
 		return
+	if tabs.get_current_tab_control().name == &"Attributes":
+		if _focus_first_control(_attribute_rows):
+			return
+		close_button.grab_focus()
+		return
 	var loadout_tab: Control = tabs.get_node("Loadout") as Control
 	var routes_tab: Control = tabs.get_node("Routes") as Control
 	if tabs.current_tab == tabs.get_tab_idx_from_control(loadout_tab):
@@ -1016,7 +1060,7 @@ func _focus_first_control(root: Node) -> bool:
 		return false
 	if root is Control:
 		var control: Control = root as Control
-		if control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE and (control is BaseButton or control is LineEdit or control is Range or control is ItemList):
+		if _is_navigation_focus_target(control):
 			control.grab_focus()
 			return true
 	for child: Node in root.get_children():
@@ -1024,6 +1068,218 @@ func _focus_first_control(root: Node) -> bool:
 			return true
 	return false
 
+
+func _create_attributes_tab() -> void:
+	var tab: VBoxContainer = VBoxContainer.new()
+	tab.name = "Attributes"
+	tab.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	tabs.add_child(tab)
+	var hint: Label = Label.new()
+	hint.text = "Choose this character's attributes, then Apply. Closing without applying discards edits. Physics edits are unavailable during races."
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tab.add_child(hint)
+	_attribute_scroll = ScrollContainer.new()
+	_attribute_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_attribute_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	tab.add_child(_attribute_scroll)
+	_configure_scroll_focus(_attribute_scroll)
+	_attribute_rows = VBoxContainer.new()
+	_attribute_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_attribute_rows.add_theme_constant_override("separation", 12)
+	_attribute_scroll.add_child(_attribute_rows)
+	var actions: HFlowContainer = HFlowContainer.new()
+	tab.add_child(actions)
+	_attribute_apply = Button.new()
+	_attribute_apply.text = "Apply Attributes"
+	_attribute_apply.pressed.connect(_apply_attributes)
+	actions.add_child(_attribute_apply)
+	_attribute_discard = Button.new()
+	_attribute_discard.text = "Discard Changes"
+	_attribute_discard.pressed.connect(_discard_attributes)
+	actions.add_child(_attribute_discard)
+	_attribute_reset = Button.new()
+	_attribute_reset.text = "Reset Attributes"
+	_attribute_reset.pressed.connect(func() -> void:
+		for id: StringName in _attribute_definitions:
+			if not _attributes_race_locked() or CharacterAttributeResolver.is_visual(id):
+				_attribute_pending.erase(id)
+		_build_attribute_rows()
+		call_deferred("_focus_active_tab")
+	)
+	actions.add_child(_attribute_reset)
+
+func _build_attribute_definitions() -> void:
+	_attribute_definitions.clear()
+	if not _profile:
+		return
+	var scene: PackedScene = null
+	var path: String = String(_entry.get("scene", ""))
+	var needs_scene: bool = false
+	for id: StringName in _profile.attribute_ids:
+		needs_scene = needs_scene or (id != CharacterAttributeResolver.OUTLINE_ID and id != CharacterAttributeResolver.UEKAWA_ID)
+	if needs_scene and not path.is_empty() and ResourceLoader.exists(path):
+		scene = load(path) as PackedScene
+	_attribute_definitions = CharacterAttributeResolver.scene_definitions(_profile, scene)
+
+func _discard_attributes() -> void:
+	_attribute_saved = CharacterProfileManager.get_attribute_overrides(_profile)
+	_attribute_pending.clear()
+	for id: StringName in _attribute_definitions:
+		if _attribute_saved.has(id):
+			var checked: Dictionary = CharacterAttributeResolver.validate(_attribute_definitions[id], _attribute_saved[id])
+			if not checked.is_empty() and checked.value != _attribute_definitions[id].default:
+				_attribute_pending[id] = checked.value
+	_attribute_saved = _attribute_pending.duplicate(true)
+	_build_attribute_rows()
+	call_deferred("_focus_active_tab")
+
+func _apply_attributes() -> void:
+	if not _profile:
+		return
+	if _attributes_race_locked():
+		for id: StringName in _attribute_definitions:
+			if not CharacterAttributeResolver.is_visual(id):
+				_attribute_pending.erase(id)
+				if _attribute_saved.has(id):
+					_attribute_pending[id] = _attribute_saved[id]
+	CharacterProfileManager.set_attribute_overrides(_profile, _attribute_pending, _attribute_definitions)
+	_discard_attributes()
+
+func _attributes_race_locked() -> bool:
+	var player: Node = get_tree().get_first_node_in_group("Player") if get_tree() else null
+	return player != null and (("race_active" in player and player.get("race_active")) or ("race_in_countdown" in player and player.get("race_in_countdown")) or ("race_session_joined" in player and player.get("race_session_joined")))
+
+func _stage_attribute_value(id: StringName, value: Variant) -> void:
+	if not _attribute_definitions.has(id):
+		return
+	if _attributes_race_locked() and not CharacterAttributeResolver.is_visual(id):
+		return
+	var definition: Dictionary = _attribute_definitions[id]
+	var checked: Dictionary = CharacterAttributeResolver.validate(definition, value)
+	if checked.is_empty():
+		return
+	if checked.value == definition.default:
+		_attribute_pending.erase(id)
+	else:
+		_attribute_pending[id] = checked.value
+	_refresh_attribute_controls()
+
+func _build_attribute_rows() -> void:
+	for child: Node in _attribute_rows.get_children():
+		_attribute_rows.remove_child(child)
+		child.queue_free()
+	_attribute_editors.clear()
+	var category: String = ""
+	if _profile:
+		for id: StringName in _profile.attribute_ids:
+			if not _attribute_definitions.has(id):
+				var unavailable: Label = Label.new()
+				unavailable.text = "%s — unavailable or unsupported parameter" % id
+				unavailable.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				_attribute_rows.add_child(unavailable)
+				continue
+			var definition: Dictionary = _attribute_definitions[id]
+			if category != String(definition.category):
+				category = String(definition.category)
+				var heading: Label = Label.new()
+				heading.text = category
+				heading.add_theme_color_override("font_color", Color(0.35, 0.78, 1.0))
+				_attribute_rows.add_child(heading)
+			_add_attribute_row(id, definition)
+	if not _profile or _profile.attribute_ids.is_empty():
+		var empty: Label = Label.new()
+		empty.text = "This character does not expose any attributes."
+		_attribute_rows.add_child(empty)
+	_refresh_attribute_controls()
+
+func _add_attribute_row(id: StringName, definition: Dictionary) -> void:
+	var row: VBoxContainer = VBoxContainer.new()
+	row.set_meta(&"attribute_id", id)
+	_attribute_rows.add_child(row)
+	var label: Label = Label.new()
+	label.text = String(definition.label)
+	label.tooltip_text = "%s\n%s" % [definition.description, id]
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(label)
+	var controls: HBoxContainer = HBoxContainer.new()
+	row.add_child(controls)
+	var value: Variant = _attribute_pending.get(id, definition.default)
+	var type: int = int(definition.type)
+	if type == TYPE_BOOL:
+		var toggle: CheckButton = CheckButton.new()
+		toggle.text = "Enabled"
+		toggle.button_pressed = value
+		toggle.toggled.connect(func(enabled: bool) -> void: _stage_attribute_value(id, enabled))
+		controls.add_child(toggle)
+		_attribute_editors[id] = toggle
+	elif type == TYPE_COLOR:
+		var picker: ColorPickerButton = ColorPickerButton.new()
+		picker.color = value
+		picker.custom_minimum_size = Vector2(100.0, 32.0)
+		picker.color_changed.connect(func(color: Color) -> void: _stage_attribute_value(id, color))
+		controls.add_child(picker)
+		_attribute_editors[id] = picker
+	elif type == TYPE_INT and int(definition.hint) == PROPERTY_HINT_ENUM:
+		var option: OptionButton = OptionButton.new()
+		var enum_value: int = 0
+		for entry: String in String(definition.hint_string).split(","):
+			if entry.contains(":"):
+				enum_value = int(entry.get_slice(":", 1))
+			option.add_item(entry.get_slice(":", 0), enum_value)
+			enum_value += 1
+		option.select(option.get_item_index(int(value)))
+		option.item_selected.connect(func(index: int) -> void: _stage_attribute_value(id, option.get_item_id(index)))
+		controls.add_child(option)
+		_attribute_editors[id] = option
+	else:
+		var decrease: Button = Button.new()
+		decrease.text = "−"
+		controls.add_child(decrease)
+		var number: SpinBox = SpinBox.new()
+		number.min_value = float(definition.min)
+		number.max_value = float(definition.max)
+		number.step = maxf(float(definition.step), 0.0001)
+		number.suffix = String(definition.suffix)
+		number.value = float(value)
+		number.custom_minimum_size.x = 140.0
+		number.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		number.focus_mode = Control.FOCUS_NONE
+		number.get_line_edit().focus_mode = Control.FOCUS_NONE
+		number.value_changed.connect(func(amount: float) -> void: _stage_attribute_value(id, int(amount) if type == TYPE_INT else amount))
+		controls.add_child(number)
+		var increase: Button = Button.new()
+		increase.text = "+"
+		controls.add_child(increase)
+		decrease.pressed.connect(func() -> void: number.value -= number.step)
+		increase.pressed.connect(func() -> void: number.value += number.step)
+		_attribute_editors[id] = number
+	var restore: Button = Button.new()
+	restore.text = "Reset"
+	restore.pressed.connect(func() -> void:
+		_stage_attribute_value(id, definition.default)
+		_build_attribute_rows()
+		call_deferred("_focus_active_tab")
+	)
+	controls.add_child(restore)
+
+func _refresh_attribute_controls() -> void:
+	_attribute_apply.disabled = _attribute_pending == _attribute_saved
+	_attribute_discard.disabled = _attribute_pending == _attribute_saved
+	_attribute_reset.disabled = _attribute_definitions.is_empty()
+	var locked: bool = _attributes_race_locked()
+	for row: Node in _attribute_rows.get_children():
+		if not row.has_meta(&"attribute_id"):
+			continue
+		var id: StringName = row.get_meta(&"attribute_id")
+		_set_attribute_row_disabled(row, locked and not CharacterAttributeResolver.is_visual(id))
+
+func _set_attribute_row_disabled(root: Node, disabled: bool) -> void:
+	if root is BaseButton:
+		(root as BaseButton).disabled = disabled
+	elif root is SpinBox:
+		(root as SpinBox).editable = not disabled
+	for child: Node in root.get_children():
+		_set_attribute_row_disabled(child, disabled)
 
 func _focus_first_loadout_control() -> void:
 	for child: Node in loadout_rows.get_children():

@@ -3,9 +3,21 @@
 [ext_resource type="Script" uid="uid://cg665frckn63u" path="res://LS5Framework/Scripts/Settings/CharacterSettingsProfile.gd" id="1_profile"]
 
 [resource]
+attribute_ids = Array[StringName]([&"visual.outline.enabled", &"visual.uekawa.enabled", &"pawn.movement_time_scale"])
+attribute_definitions = {
+&"pawn.movement_time_scale": {
+"label": "Movement Time Scale",
+"description": "Base movement clock rate. Gameplay, debuff, and underwater multipliers remain separate.",
+"category": "Movement",
+"min": 0.1,
+"max": 1.0,
+"step": 0.01,
+"suffix": "x"
+}
+}
 script = ExtResource("1_profile")
 character_id = &"tails"
-profile_version = 7
+profile_version = 8
 selection_category = "Work In Progress"
 ability_catalog = Array[Dictionary]([{
 "ability_id": &"uppercut_kick",

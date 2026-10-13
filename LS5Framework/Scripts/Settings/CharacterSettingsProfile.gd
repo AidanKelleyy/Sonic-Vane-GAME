@@ -32,6 +32,23 @@ class_name CharacterSettingsProfile
 ## Packaged defaults for character-specific settings added by profile extensions.
 @export var default_settings: Dictionary = {}
 
+@export_group("Attributes")
+## Ordered parameter IDs exposed by the Attributes menu. Uses pawn.property, ability.action_id.property, or visual.property.
+@export var attribute_ids: Array[StringName] = []
+## Optional presentation and validation overrides keyed by attribute ID: label, description, category, min, max, step, suffix, and default.
+@export var attribute_definitions: Dictionary = {}
+## Maps retired attribute IDs to their current IDs when reading saved settings.
+@export var attribute_aliases: Dictionary = {}
+
+func normalize_attribute_settings(values: Dictionary) -> Dictionary:
+	var normalized: Dictionary = values.duplicate(true)
+	for previous: Variant in attribute_aliases:
+		var current: StringName = StringName(attribute_aliases[previous])
+		if normalized.has(previous) and not normalized.has(current):
+			normalized[current] = normalized[previous]
+		normalized.erase(previous)
+	return normalized
+
 
 func get_profile_key() -> String:
 	var normalized_package: String = String(package_id).strip_edges().to_lower()

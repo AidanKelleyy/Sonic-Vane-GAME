@@ -8,6 +8,77 @@ class_name PlayerModel
 
 var _owner: Node = null
 
+var _attribute_material_sources: Array[Dictionary] = []
+
+func restore_character_shader_attributes() -> void:
+	for entry: Dictionary in _attribute_material_sources:
+		if entry.has("eye_controller"):
+			var controller: Node = (entry.eye_controller as WeakRef).get_ref() as Node
+			if controller:
+				controller.call("set_decorative_shader_attributes", true, true)
+			continue
+		var mesh_value: Variant = entry.mesh
+		if not is_instance_valid(mesh_value):
+			continue
+		var mesh: MeshInstance3D = mesh_value as MeshInstance3D
+		if int(entry.surface) < 0:
+			mesh.material_override = entry.source
+		else:
+			mesh.set_surface_override_material(int(entry.surface), entry.source)
+	_attribute_material_sources.clear()
+
+func apply_character_shader_attributes() -> void:
+	if not _owner.model_root or not _owner._character_attributes:
+		return
+	var outline: bool = _owner._character_attributes.shader_enabled(CharacterAttributeResolver.OUTLINE_ID)
+	var uekawa: bool = _owner._character_attributes.shader_enabled(CharacterAttributeResolver.UEKAWA_ID)
+	if outline and uekawa:
+		return
+	var meshes: Array = []
+	_collect_mesh_instances(_owner.model_root, meshes)
+	for mesh: MeshInstance3D in meshes:
+		if mesh.material_override:
+			_filter_attribute_material(mesh, -1, mesh.material_override, outline, uekawa)
+		elif mesh.mesh:
+			for surface: int in range(mesh.mesh.get_surface_count()):
+				_filter_attribute_material(mesh, surface, mesh.get_active_material(surface), outline, uekawa)
+
+func _filter_attribute_material(mesh: MeshInstance3D, surface: int, source: Material, outline: bool, uekawa: bool) -> void:
+	if not source or not _has_disabled_character_pass(source, outline, uekawa):
+		return
+	var eye_ref: WeakRef = source.get_meta(&"eye_projection_controller", null) as WeakRef
+	var eye_controller: Node = eye_ref.get_ref() as Node if eye_ref else null
+	if eye_controller and eye_controller.get("eye_mesh") == mesh:
+		_attribute_material_sources.append({"eye_controller": eye_ref})
+		eye_controller.call("set_decorative_shader_attributes", outline, uekawa)
+		return
+	var original: Material = mesh.material_override if surface < 0 else mesh.get_surface_override_material(surface)
+	_attribute_material_sources.append({"mesh": mesh, "surface": surface, "source": original})
+	var filtered: Material = _copy_filtered_character_pass(source, outline, uekawa)
+	if surface < 0:
+		mesh.material_override = filtered
+	else:
+		mesh.set_surface_override_material(surface, filtered)
+
+static func _disabled_character_pass(material: Material, outline: bool, uekawa: bool) -> bool:
+	if not material is ShaderMaterial or not (material as ShaderMaterial).shader:
+		return false
+	var path: String = (material as ShaderMaterial).shader.resource_path
+	return (not outline and path == "res://LS5Framework/Shaders/CharacterSurfaceOutline.gdshader") or (not uekawa and path == "res://LS5Framework/Shaders/CharacterUekawaRim.gdshader")
+
+static func _has_disabled_character_pass(material: Material, outline: bool, uekawa: bool) -> bool:
+	return _disabled_character_pass(material, outline, uekawa) or (material.next_pass != null and _has_disabled_character_pass(material.next_pass, outline, uekawa))
+
+static func _copy_filtered_character_pass(source: Material, outline: bool, uekawa: bool) -> Material:
+	if not source:
+		return null
+	var next: Material = _copy_filtered_character_pass(source.next_pass, outline, uekawa)
+	if _disabled_character_pass(source, outline, uekawa):
+		return next
+	var copied: Material = source.duplicate() as Material
+	copied.next_pass = next
+	return copied
+
 
 func _init(owner: Node) -> void:
 	_owner = owner
@@ -68,6 +139,12 @@ func _apply_character_tint() -> void:
 				src_mat = base_mat
 			if src_mat == null:
 				continue
+			if src_mat is ShaderMaterial:
+				var source_shader: Shader = (src_mat as ShaderMaterial).shader
+				if source_shader and source_shader.resource_path == "res://LS5Framework/Shaders/CharacterEyeProjection.gdshader":
+					if _is_character_tint_material(existing_override):
+						_restore_character_tint_override(mesh_instance, surface_index, existing_override as ShaderMaterial)
+					continue
 			var base_tex: Texture2D = null
 			var base_material: BaseMaterial3D = null
 			if src_mat is BaseMaterial3D:

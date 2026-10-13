@@ -20,6 +20,31 @@ var _bound_template: ShaderMaterial
 var _bound_surface: int = -1
 var _material: ShaderMaterial
 var _previous_material: Material
+var _outline_enabled: bool = true
+var _uekawa_enabled: bool = true
+var _additional_passes_enabled: bool = true
+
+
+func set_decorative_shader_attributes(outline: bool, uekawa: bool) -> void:
+	_outline_enabled = outline
+	_uekawa_enabled = uekawa
+	_apply_decorative_passes()
+
+
+func disable_additional_shader_passes() -> void:
+	_additional_passes_enabled = false
+	_apply_decorative_passes()
+
+
+func _apply_decorative_passes() -> void:
+	if not _material or not projection_material:
+		return
+	if not _additional_passes_enabled:
+		_material.next_pass = null
+	elif _outline_enabled and _uekawa_enabled:
+		_material.next_pass = projection_material.next_pass
+	else:
+		_material.next_pass = PlayerModel._copy_filtered_character_pass(projection_material.next_pass, _outline_enabled, _uekawa_enabled)
 
 
 func _ready() -> void:
@@ -62,6 +87,8 @@ func _bind_material() -> void:
 		return
 	_previous_material = eye_mesh.get_surface_override_material(surface_index)
 	_material = projection_material.duplicate() as ShaderMaterial
+	_material.set_meta(&"eye_projection_controller", weakref(self))
+	_apply_decorative_passes()
 	eye_mesh.set_surface_override_material(surface_index, _material)
 	projection_material.changed.connect(_bind_material)
 	_update_projection()
