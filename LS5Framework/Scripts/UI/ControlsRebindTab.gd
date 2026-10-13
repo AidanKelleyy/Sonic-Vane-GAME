@@ -119,6 +119,7 @@ func _build_controls_list() -> void:
 	_setting_sliders.clear()
 	_setting_option_buttons.clear()
 	_left_stick_trick_movement_row = null
+	_add_mouse_trick_settings_row()
 	_add_controller_settings_rows()
 
 
@@ -415,6 +416,8 @@ func _sync_controls_settings() -> void:
 				slider.value = SettingsManager.right_stick_sensitivity_percent
 			"trick_rotation_acceleration_percent":
 				slider.value = SettingsManager.trick_rotation_acceleration_percent
+			"mouse_trick_sensitivity_percent":
+				slider.value = SettingsManager.mouse_trick_sensitivity_percent
 	for key in _setting_option_buttons.keys():
 		var option: OptionButton = _setting_option_buttons[key] as OptionButton
 		if option == null:
@@ -454,6 +457,13 @@ func _on_CheckInvertMouseY_toggled(pressed: bool) -> void:
 func _on_SliderMouseSensitivity_value_changed(value: float) -> void:
 	SettingsManager.set_mouse_look_sensitivity(value)
 	SettingsManager.save_now()
+
+
+func _add_mouse_trick_settings_row() -> void:
+	_add_section_label("Mouse Tuning")
+	var slider: HSlider = _add_percent_slider_setting_row("Mouse Trick Sensitivity %", SettingsManager.mouse_trick_sensitivity_percent, SettingsManager.MOUSE_TRICK_SENSITIVITY_MIN_PERCENT, SettingsManager.MOUSE_TRICK_SENSITIVITY_MAX_PERCENT, 5.0, Callable(self, "_on_MouseTrickSensitivity_value_changed"))
+	slider.tooltip_text = "Controls trick rotation per mouse movement, independently of camera sensitivity. Higher values reach full rotation speed with a shorter sweep."
+	_setting_sliders["mouse_trick_sensitivity_percent"] = slider
 
 
 func _add_controller_settings_rows() -> void:
@@ -687,6 +697,11 @@ func _on_LeftStickTrickMovement_item_selected(index: int) -> void:
 
 func _on_TrickRotationAcceleration_value_changed(value: float) -> void:
 	SettingsManager.set_trick_rotation_acceleration_percent(value)
+	SettingsManager.save_now()
+
+
+func _on_MouseTrickSensitivity_value_changed(value: float) -> void:
+	SettingsManager.set_mouse_trick_sensitivity_percent(value)
 	SettingsManager.save_now()
 
 

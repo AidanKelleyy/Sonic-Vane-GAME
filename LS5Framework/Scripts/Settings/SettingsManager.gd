@@ -151,6 +151,10 @@ const LEFT_STICK_TRICK_MOVEMENT_PRESERVE_MOMENTUM: int = 0
 const LEFT_STICK_TRICK_MOVEMENT_LAST_INPUT: int = 1
 const DEFAULT_LEFT_STICK_TRICK_MOVEMENT: int = LEFT_STICK_TRICK_MOVEMENT_PRESERVE_MOMENTUM
 const DEFAULT_TRICK_ROTATION_ACCELERATION_PERCENT: float = 300.0
+const DEFAULT_MOUSE_TRICK_SENSITIVITY_PERCENT: float = 300.0
+const MOUSE_TRICK_SENSITIVITY_MIN_PERCENT: float = 50.0
+const MOUSE_TRICK_SENSITIVITY_MAX_PERCENT: float = 300.0
+const MOUSE_TRICK_SENSITIVITY_BASE_MULTIPLIER: float = 5.0
 var left_stick_deadzone_percent: float = DEFAULT_STICK_DEADZONE_PERCENT
 var left_stick_max_percent: float = DEFAULT_STICK_MAX_PERCENT
 var right_stick_deadzone_percent: float = DEFAULT_STICK_DEADZONE_PERCENT
@@ -160,6 +164,7 @@ var walk_stick_zone_percent: float = DEFAULT_WALK_STICK_ZONE_PERCENT
 var trick_control_stick: int = DEFAULT_TRICK_CONTROL_STICK
 var left_stick_trick_movement: int = DEFAULT_LEFT_STICK_TRICK_MOVEMENT
 var trick_rotation_acceleration_percent: float = DEFAULT_TRICK_ROTATION_ACCELERATION_PERCENT
+var mouse_trick_sensitivity_percent: float = DEFAULT_MOUSE_TRICK_SENSITIVITY_PERCENT
 var preferred_joypad_device: int = -1
 var _last_input_was_controller: bool = false
 var _last_input_was_mouse: bool = false
@@ -1382,6 +1387,12 @@ func set_trick_rotation_acceleration_percent(value: float) -> void:
 	trick_rotation_acceleration_percent = clamp(value, 50.0, 300.0)
 
 
+func set_mouse_trick_sensitivity_percent(value: float) -> void:
+	if not is_finite(value):
+		value = DEFAULT_MOUSE_TRICK_SENSITIVITY_PERCENT
+	mouse_trick_sensitivity_percent = clampf(value, MOUSE_TRICK_SENSITIVITY_MIN_PERCENT, MOUSE_TRICK_SENSITIVITY_MAX_PERCENT)
+
+
 func set_homing_targeting_mode(mode: int) -> void:
 	homing_targeting_mode = clamp(mode, HOMING_TARGETING_MOVEMENT, HOMING_TARGETING_HYBRID)
 
@@ -1567,6 +1578,7 @@ func reset_control_settings_to_defaults(action_names: Array) -> void:
 	trick_control_stick = DEFAULT_TRICK_CONTROL_STICK
 	left_stick_trick_movement = DEFAULT_LEFT_STICK_TRICK_MOVEMENT
 	trick_rotation_acceleration_percent = DEFAULT_TRICK_ROTATION_ACCELERATION_PERCENT
+	mouse_trick_sensitivity_percent = DEFAULT_MOUSE_TRICK_SENSITIVITY_PERCENT
 	homing_targeting_mode = HOMING_TARGETING_HYBRID
 	homing_mouse_targeting_mode = HOMING_TARGETING_CAMERA
 	homing_targeting_separate_by_device = true
@@ -1904,6 +1916,10 @@ func get_right_stick_sensitivity() -> float:
 
 func get_trick_rotation_acceleration() -> float:
 	return clamp(trick_rotation_acceleration_percent / 100.0, 0.5, 3.0)
+
+
+func get_mouse_trick_sensitivity() -> float:
+	return MOUSE_TRICK_SENSITIVITY_BASE_MULTIPLIER * clampf(mouse_trick_sensitivity_percent, MOUSE_TRICK_SENSITIVITY_MIN_PERCENT, MOUSE_TRICK_SENSITIVITY_MAX_PERCENT) / 100.0
 
 
 func _binding_kind_matches(binding_type: String, binding_kind: StringName) -> bool:
@@ -2274,6 +2290,7 @@ func _write_settings_config(cfg: ConfigFile) -> void:
 	cfg.set_value("controls", "trick_control_stick", trick_control_stick)
 	cfg.set_value("controls", "left_stick_trick_movement", left_stick_trick_movement)
 	cfg.set_value("controls", "trick_rotation_acceleration_percent", trick_rotation_acceleration_percent)
+	cfg.set_value("controls", "mouse_trick_sensitivity_percent", mouse_trick_sensitivity_percent)
 	cfg.set_value("gameplay", "homing_targeting_mode", homing_targeting_mode)
 	cfg.set_value("gameplay", "homing_mouse_targeting_mode", homing_mouse_targeting_mode)
 	cfg.set_value("gameplay", "homing_targeting_separate_by_device", homing_targeting_separate_by_device)
@@ -2542,6 +2559,7 @@ func _load() -> void:
 		trick_rotation_acceleration_percent = float(cfg.get_value("controls", "trick_rotation_acceleration_percent"))
 	else:
 		trick_rotation_acceleration_percent = float(_get_numeric_config_value(cfg, "controls", "trick_rotation_sensitivity_percent", trick_rotation_acceleration_percent))
+	set_mouse_trick_sensitivity_percent(float(_get_numeric_config_value(cfg, "controls", "mouse_trick_sensitivity_percent", DEFAULT_MOUSE_TRICK_SENSITIVITY_PERCENT)))
 	homing_targeting_mode = int(cfg.get_value("gameplay", "homing_targeting_mode", homing_targeting_mode))
 	homing_mouse_targeting_mode = int(cfg.get_value("gameplay", "homing_mouse_targeting_mode", homing_mouse_targeting_mode))
 	homing_targeting_separate_by_device = bool(cfg.get_value("gameplay", "homing_targeting_separate_by_device", homing_targeting_separate_by_device))

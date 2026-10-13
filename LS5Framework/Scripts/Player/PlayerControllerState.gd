@@ -857,11 +857,11 @@ var airborne_landing_align_movement_yaw_full_speed: float = 30.0
 @export_subgroup("Airborne/Torque Manual Input")
 ## Enables the Ability Slot 5 mid-air manual torque mode.
 @export var manual_airborne_torque_enabled: bool = true
-## Base radians per pixel applied to yaw input (before mouse sensitivity).
+## Base yaw angular-velocity impulse per screen pixel, before mouse trick sensitivity.
 @export var manual_airborne_torque_mouse_yaw_scale: float = -0.008
-## Base radians per pixel applied to pitch input (before mouse sensitivity).
+## Base pitch angular-velocity impulse per screen pixel, before mouse trick sensitivity.
 @export var manual_airborne_torque_mouse_pitch_scale: float = -0.008
-## Base radians per pixel applied to diagonal roll input (before mouse sensitivity).
+## Base diagonal roll angular-velocity impulse per screen pixel, before mouse trick sensitivity.
 @export var manual_airborne_torque_mouse_roll_scale: float = -0.008
 ## Angular acceleration in radians per second squared at full controller stick input.
 @export var manual_airborne_torque_stick_angular_acceleration: float = 45.0

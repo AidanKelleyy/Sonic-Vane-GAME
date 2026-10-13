@@ -1144,7 +1144,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		respawn_checkpoint_now()
 
 	if event is InputEventMouseMotion:
-		_manual_airborne_mouse_delta += event.relative
+		_manual_airborne_mouse_delta += event.screen_relative
 
 
 
@@ -10160,7 +10160,7 @@ func _apply_manual_airborne_torque(delta: float) -> void:
 	stick_input.y = -stick_input.y
 	if mouse_delta.length() < 0.0001 and stick_input.length() < 0.0001:
 		return
-	var mouse_sens: float = max(SettingsManager.mouse_look_sensitivity, 0.01)
+	var mouse_sens: float = SettingsManager.get_mouse_trick_sensitivity()
 	var yaw_scale: float = manual_airborne_torque_mouse_yaw_scale * mouse_sens
 	var pitch_scale: float = manual_airborne_torque_mouse_pitch_scale * mouse_sens
 	var roll_scale: float = manual_airborne_torque_mouse_roll_scale * mouse_sens
