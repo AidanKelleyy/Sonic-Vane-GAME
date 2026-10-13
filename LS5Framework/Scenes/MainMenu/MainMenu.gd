@@ -234,6 +234,9 @@ var opt_player_tracking_mode: OptionButton = null
 ## Displays current music information without intercepting menu input.
 @onready var music_track_display: HUDMusicTrackDisplay = $MusicTrackDisplay
 
+## Displays the game build version in the corner of the main menu.
+var _version_label: Label = null
+
 ## Time window (seconds) to suppress hover SFX after a confirm press.
 @export var hover_suppress_after_press_time: float = 0.15
 ## Stops the active button-down sound when the button-release sound begins.
@@ -415,6 +418,32 @@ func _ready() -> void:
 			net.connection_state_changed.connect(_on_network_connection_state_changed)
 	_on_network_status_changed("")
 	call_deferred("_initialize_startup_music_and_data_warning")
+
+	# Version label
+	_version_label = Label.new()
+	var ver: String = "dev"
+	if ProjectSettings.has_setting("application/config/version"):
+		ver = String(ProjectSettings.get_setting("application/config/version")).strip_edges()
+		if ver == "":
+			ver = "dev"
+	_version_label.text = ver
+	_version_label.add_theme_font_size_override("font_size", 14)
+	_version_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.5))
+	_version_label.add_theme_constant_override("shadow_offset_x", 1)
+	_version_label.add_theme_constant_override("shadow_offset_y", 1)
+	_version_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.6))
+	_version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_version_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_version_label.anchor_left = 0.0
+	_version_label.anchor_top = 1.0
+	_version_label.anchor_right = 1.0
+	_version_label.anchor_bottom = 1.0
+	_version_label.offset_left = 0.0
+	_version_label.offset_top = -30.0
+	_version_label.offset_right = -12.0
+	_version_label.offset_bottom = -8.0
+	_version_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_version_label)
 
 
 func _restore_menu_mouse_cursor() -> void:

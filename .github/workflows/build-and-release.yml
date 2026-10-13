@@ -143,6 +143,18 @@ jobs:
           godot --headless --editor --quit || true
           godot --headless --editor --quit || true
 
+      - name: Stamp Version into project.godot
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "Stamping version: ${VERSION}"
+          if grep -q 'config/version=' project.godot; then
+            sed -i "s|^config/version=.*|config/version=\"${VERSION}\"|" project.godot
+          else
+            sed -i "/^config\/icon=/a config/version=\"${VERSION}\"" project.godot
+          fi
+          echo "Resulting [application] section:"
+          sed -n '/^\[application\]/,/^\[/p' project.godot | head -10
+
       - name: Export Executables, Packs & Assemble Data Folders
         run: |
           python3 .github/scripts/build.py \
