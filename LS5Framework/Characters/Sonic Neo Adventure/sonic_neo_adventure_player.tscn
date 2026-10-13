@@ -273,6 +273,8 @@ shader_parameter/flip_vertical = true
 shader_parameter/world_to_left = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 shader_parameter/world_to_right = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 shader_parameter/projector_enabled = Vector2(1, 1)
+metadata/eye_projection_controller = Object(WeakRef,"script":null)
+
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qjef8"]
 resource_local_to_scene = true

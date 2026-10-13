@@ -2021,7 +2021,7 @@ var _smoothed_surface_normal: Vector3 = Vector3.UP
 
 @export_subgroup("Invincibility")
 ## Duration applied when an Invincibility reward does not provide an override.
-@export_range(0.0, 300.0, 0.1, "or_greater", "suffix:s") var invincibility_duration: float = 18.5
+@export_range(0.0, 300.0, 0.1, "or_greater", "suffix:s") var invincibility_duration: float = 20.20
 ## Music started when Invincibility is obtained.
 @export var invincibility_music: AudioStream = preload("res://LS5Framework/Sounds/Music/Events/Event_Invincible.ogg")
 ## Priority used by the Invincibility event music.
@@ -2029,7 +2029,7 @@ var _smoothed_surface_normal: Vector3 = Vector3.UP
 ## Time the event music continues after invincibility ends before the return crossfade begins.
 @export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var invincibility_music_end_delay: float = 1.0
 ## Crossfade duration used when returning to the underlying music.
-@export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var invincibility_music_return_crossfade: float = 3.0
+@export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var invincibility_music_return_crossfade: float = 2.0
 
 @export_group("Audio")
 
