@@ -17,10 +17,11 @@ name: Build & Release Sonic VANE
         type: boolean
         default: false
   push:
-    branches:
-      - main
     tags:
       - 'v*'
+  schedule:
+    # Runs every 3 days at 12:00 UTC so releases batch multiple changes
+    - cron: '0 12 */3 * *'
 
 permissions:
   contents: write
@@ -35,6 +36,37 @@ jobs:
       GODOT_STATUS: "stable"
 
     steps:
+      - name: Checkout repository (shallow for change check)
+        if: github.event_name == 'schedule'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Skip if no changes since last release
+        if: github.event_name == 'schedule'
+        id: changes
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$LAST_TAG" ]; then
+            COMMIT_COUNT=$(git rev-list "${LAST_TAG}..HEAD" --count)
+            echo "Commits since ${LAST_TAG}: ${COMMIT_COUNT}"
+            if [ "$COMMIT_COUNT" -eq 0 ]; then
+              echo "No new commits since last release tag. Skipping build."
+              echo "skip=true" >> $GITHUB_OUTPUT
+            else
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "No previous tag found, proceeding with build."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Abort if nothing changed
+        if: github.event_name == 'schedule' && steps.changes.outputs.skip == 'true'
+        run: |
+          echo "::notice::Scheduled build skipped — no commits since last release."
+          exit 1
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
