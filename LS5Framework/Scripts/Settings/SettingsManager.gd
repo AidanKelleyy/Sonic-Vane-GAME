@@ -2,6 +2,7 @@ extends Node
 
 signal resolution_changed(size: Vector2i, aspect_ratio: String)
 signal input_bindings_changed(action: StringName)
+signal water_graphics_changed
 
 const CONFIG_PATH := "user://settings.cfg"
 const DEFAULT_CONFIG_PATH := "res://LS5Framework/Scripts/Settings/DefaultSettings.cfg"
@@ -84,8 +85,9 @@ var lod_distance_quality: int = LOD_DISTANCE_LOW
 var water_displacement_enabled: bool = false
 var water_refraction_enabled: bool = true
 var water_normal_maps_enabled: bool = true
-# Depth effects include depth-based tint, foam, and absorption; refraction is skipped when this is off.
+# Depth-based tint, foam, absorption, and projected caustics.
 var water_depth_effects_enabled: bool = true
+var water_caustics_enabled: bool = true
 
 const WATER_GLOBAL_DISPLACEMENT: StringName = &"water_displacement_enabled"
 const WATER_GLOBAL_REFRACTION: StringName = &"water_refraction_enabled"
@@ -1009,6 +1011,7 @@ func _apply_water_shader_globals() -> void:
 	RenderingServer.global_shader_parameter_set(WATER_GLOBAL_REFRACTION, water_refraction_enabled)
 	RenderingServer.global_shader_parameter_set(WATER_GLOBAL_NORMALS, water_normal_maps_enabled)
 	RenderingServer.global_shader_parameter_set(WATER_GLOBAL_DEPTH_FX, water_depth_effects_enabled)
+	water_graphics_changed.emit()
 	RenderingServer.global_shader_parameter_set(WATER_GLOBAL_SSR, ssr)
 
 
@@ -1092,6 +1095,7 @@ func get_graphics_snapshot() -> Dictionary:
 		"water_refraction_enabled": water_refraction_enabled,
 		"water_normal_maps_enabled": water_normal_maps_enabled,
 		"water_depth_effects_enabled": water_depth_effects_enabled,
+		"water_caustics_enabled": water_caustics_enabled,
 		"camera_far_cutoff": camera_far_cutoff,
 	}
 
@@ -1118,6 +1122,7 @@ func apply_graphics_snapshot(snapshot: Dictionary) -> void:
 	water_refraction_enabled = bool(snapshot.get("water_refraction_enabled", water_refraction_enabled))
 	water_normal_maps_enabled = bool(snapshot.get("water_normal_maps_enabled", water_normal_maps_enabled))
 	water_depth_effects_enabled = bool(snapshot.get("water_depth_effects_enabled", water_depth_effects_enabled))
+	water_caustics_enabled = bool(snapshot.get("water_caustics_enabled", water_caustics_enabled))
 	camera_far_cutoff = maxf(float(snapshot.get("camera_far_cutoff", camera_far_cutoff)), 1.0)
 	_apply_display()
 	_apply_graphics_to_registered()
@@ -1164,6 +1169,11 @@ func set_water_normal_maps_enabled(value: bool) -> void:
 
 func set_water_depth_effects_enabled(value: bool) -> void:
 	water_depth_effects_enabled = value
+	_apply_water_shader_globals()
+
+
+func set_water_caustics_enabled(value: bool) -> void:
+	water_caustics_enabled = value
 	_apply_water_shader_globals()
 
 func set_fullscreen(value: bool) -> void:
@@ -2253,6 +2263,7 @@ func _write_settings_config(cfg: ConfigFile) -> void:
 	cfg.set_value("graphics", "water_refraction_enabled", water_refraction_enabled)
 	cfg.set_value("graphics", "water_normal_maps_enabled", water_normal_maps_enabled)
 	cfg.set_value("graphics", "water_depth_effects_enabled", water_depth_effects_enabled)
+	cfg.set_value("graphics", "water_caustics_enabled", water_caustics_enabled)
 
 	cfg.set_value("audio", "master_percent", master_percent)
 	cfg.set_value("audio", "music_db", music_db)
@@ -2515,6 +2526,7 @@ func _load() -> void:
 	water_refraction_enabled = bool(cfg.get_value("graphics", "water_refraction_enabled", water_refraction_enabled))
 	water_normal_maps_enabled = bool(cfg.get_value("graphics", "water_normal_maps_enabled", water_normal_maps_enabled))
 	water_depth_effects_enabled = bool(cfg.get_value("graphics", "water_depth_effects_enabled", water_depth_effects_enabled))
+	water_caustics_enabled = bool(cfg.get_value("graphics", "water_caustics_enabled", water_caustics_enabled))
 
 	var legacy_master: Variant = cfg.get_value("audio", "master_percent", null)
 	if legacy_master == null:

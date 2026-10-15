@@ -191,6 +191,9 @@ func _update_attack_sources() -> void:
 	_set_attack_source(p.AttackSource.LIGHTSPEED, p._lightspeed_dash_active)
 	_set_attack_source(p.AttackSource.ENEMY_CHAIN, p._enemy_attack_chain_active and not p.attached)
 	_set_attack_source(p.AttackSource.AIR_UNCURL, (p._attack_sources & p.AttackSource.AIR_UNCURL) != 0 and not p.attached)
+	var contacts: PlayerPropContact3D = p.get_node_or_null("PropContacts") as PlayerPropContact3D
+	if contacts:
+		contacts.prepare()
 
 
 func apply_enemy_bounce(origin: Vector3, speed: float, source: Node = null) -> void:

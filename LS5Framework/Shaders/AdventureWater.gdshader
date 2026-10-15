@@ -10,7 +10,7 @@ void vertex() {
 
 void fragment() {
 	if (top_only && local_normal.y < 0.99) { discard; }
-	vec4 layer = water_layer(water_sample(local_position, normalize(local_normal)));
+	vec4 layer = water_layer(water_sample(local_position, normalize(local_normal)), VERTEX, NORMAL, VIEW, FRONT_FACING);
 	ALBEDO = layer.rgb;
 	ALPHA = layer.a;
 }

@@ -1,0 +1,35 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://LS5Framework/Objects/Props/PropBody3D.gd" id="1_body"]
+[ext_resource type="Script" path="res://LS5Framework/Objects/Props/PropTarget3D.gd" id="2_target"]
+[ext_resource type="Script" path="res://LS5Framework/Objects/Props/PropBounceResponse.gd" id="3_response"]
+
+[sub_resource type="SphereShape3D" id="Shape"]
+radius = 1.0
+[sub_resource type="SphereMesh" id="Mesh"]
+radius = 1.0
+height = 2.0
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.2, 0.75, 0.95, 1)
+[sub_resource type="Resource" id="Response"]
+script = ExtResource("3_response")
+mode = 1
+outcomes = 15
+refresh_abilities = true
+
+[node name="BadnikBounceTarget" type="RigidBody3D"]
+collision_layer = 128
+script = ExtResource("1_body")
+anchored = true
+carry_enabled = false
+allow_immune_targeting = true
+rearm_after_separation = 0.15
+visual_roots = Array[NodePath]([NodePath("Mesh")])
+bounce_responses = Array[ExtResource("3_response")]([SubResource("Response")])
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh")
+material_override = SubResource("Material")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape")
+[node name="Targetable" type="Marker3D" parent="."]
+script = ExtResource("2_target")

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cnr0y8ftudbue"
+path="res://.godot/imported/AdventureWaterDepthIntegral.glsl-63d719a54b22d72f07ea6faf5d1c5670.res"
+
+[deps]
+
+source_file="res://LS5Framework/Shaders/AdventureWaterDepthIntegral.glsl"
+dest_files=["res://.godot/imported/AdventureWaterDepthIntegral.glsl-63d719a54b22d72f07ea6faf5d1c5670.res"]
+
+[params]
+

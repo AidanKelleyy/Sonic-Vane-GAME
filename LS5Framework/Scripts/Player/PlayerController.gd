@@ -603,6 +603,9 @@ func _net_play_footstep_sfx(
 # LIFECYCLE
 # ===========================================================
 func _ready() -> void:
+	var prop_contacts: PlayerPropContact3D = PlayerPropContact3D.new()
+	prop_contacts.name = "PropContacts"
+	add_child(prop_contacts)
 	_reset_enemy_targeting_spawn_grace()
 	_update_gravity_state(0.0)
 	var initial_gravity_up: Vector3 = _get_gravity_up()
@@ -2379,13 +2382,17 @@ func _move_with_movement_time_scale() -> void:
 	_movement_object_contact_handled = false
 	var movement_start: Transform3D = global_transform
 	_collision_attached_last_move = attached
-	velocity *= _movement_tick_scale
 	var saved_floor_layers: int = platform_floor_layers
 	var saved_wall_layers: int = platform_wall_layers
 	if _surface_launch_carry_suppressed:
 		platform_floor_layers = 0
 		platform_wall_layers = 0
 		_surface_launch_carry_consumed = true
+	var prop_contacts: PlayerPropContact3D = get_node_or_null("PropContacts") as PlayerPropContact3D
+	var destroyed_props: Array[PhysicsBody3D] = []
+	if prop_contacts:
+		destroyed_props = prop_contacts.resolve_before_move(velocity * _movement_tick_scale * get_physics_process_delta_time())
+	velocity *= _movement_tick_scale
 	move_and_slide()
 	platform_floor_layers = saved_floor_layers
 	platform_wall_layers = saved_wall_layers
@@ -2394,6 +2401,9 @@ func _move_with_movement_time_scale() -> void:
 	_recover_missed_sphere_contact(movement_start)
 	_process_object_collision_contacts()
 	_refresh_surface_behavior_areas(movement_start.origin, true)
+	for prop: PhysicsBody3D in destroyed_props:
+		if is_instance_valid(prop):
+			remove_collision_exception_with(prop)
 
 
 ## Contacts from the current movement phase; invalidated before each movement call.
@@ -13765,3 +13775,55 @@ func _net_play_voice_clip(stream_path: String, priority: int) -> void:
 func claim_kick_contact(target: Node) -> bool:
 	var contacts: KickContactController = get_node_or_null("KickContacts") as KickContactController
 	return contacts.claim_target(target) if contacts else true
+
+
+var _prop_default_profiles: Dictionary = {}
+
+
+func get_prop_attack_profile(id: StringName) -> PropAttackProfile:
+	var lookup: StringName = &"spin_kick" if id == &"tornado_kick" else id
+	var action: CharacterAction = _actions_by_id.get(lookup) as CharacterAction
+	if not action and id in [&"bounce", &"stomp", &"bounce_rebound"]:
+		action = _actions_by_id.get(&"bounce_stomp") as CharacterAction
+	if action:
+		for profile: PropAttackProfile in action.prop_attack_profiles:
+			if profile and profile.attack_id == id:
+				return profile
+	if not _prop_default_profiles.has(id):
+		_prop_default_profiles[id] = PropAttackProfile.default_for(id)
+	return _prop_default_profiles[id] as PropAttackProfile
+
+
+func apply_prop_bounce_response(response: PropBounceResponse, source: Node3D, up: Vector3, target_velocity: Vector3, was_airborne: bool = true) -> void:
+	if response.mode == PropBounceResponse.Mode.NONE or (attached and response.airborne_only and not was_airborne):
+		return
+	var axis: Vector3 = up.normalized()
+	var lateral: Vector3 = velocity.slide(axis) * response.lateral_retention
+	var jump_scale: float = response.jump_held_multiplier if _is_jump_held() else 1.0
+	var speed: float = maxf(response.speed * jump_scale, 0.0)
+	if response.mode == PropBounceResponse.Mode.BADNIK:
+		speed = maxf(speed, absf(velocity.dot(axis)))
+		speed += _consume_attack_magnetism_bounce_compensation()
+	elif response.mode == PropBounceResponse.Mode.RADIAL:
+		axis = (global_position - source.global_position).normalized()
+	elif response.mode == PropBounceResponse.Mode.DIRECTIONAL:
+		axis = (source.global_basis * response.direction).normalized()
+	if axis.is_zero_approx():
+		axis = up
+	velocity = lateral + axis * minf(speed, maxf(response.maximum_speed, 0.0)) + target_velocity * response.inherit_target_velocity
+	attached = false
+	_attachment_immunity = launch_immunity_time
+	_airborne_time = 0.0
+	_jump_variable = false
+	_jump_hang_allowed = false
+	if response.end_bounce_stomp:
+		_bounce_state = BounceState.NONE
+		_bounce_rebound_attack_active = false
+	if response.refresh_abilities:
+		refresh_airborne_abilities()
+	if _homing_active:
+		_homing_active = false
+		_homing_target = null
+		_homing_target_position_valid = false
+		_homing_elapsed = 0.0
+		_homing_post_attack_timer = maxf(homing_post_attack_time, 0.0)

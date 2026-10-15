@@ -55,7 +55,12 @@ void fragment() {
 	vec3 centered = uvw * 2.0 - 1.0;
 	if (geometry_kind == 1 && dot(centered, centered) > 1.0) { discard; }
 	if (geometry_kind == 2 && dot(centered.xz, centered.xz) > 1.0) { discard; }
-	float attenuation = distance_attenuation * (1.0 - smoothstep(0.0, fade_depth, bounds_min.y + bounds_size.y - local.y));
+	float upper_boundary = bounds_min.y + bounds_size.y;
+	if (geometry_kind == 1) {
+		upper_boundary = bounds_min.y + bounds_size.y * (0.5 + 0.5 * sqrt(max(1.0 - dot(centered.xz, centered.xz), 0.0)));
+	}
+	float water_depth = max(upper_boundary - local.y, 0.0);
+	float attenuation = distance_attenuation * exp(-2.0 * water_depth / fade_depth) * (1.0 - smoothstep(0.0, fade_depth, water_depth));
 	if (attenuation <= 0.0) { discard; }
 	if (geometry_kind == 3 && (!has_occupancy || texture(occupancy, uvw).r < 0.5)) { discard; }
 	float facing = 1.0;

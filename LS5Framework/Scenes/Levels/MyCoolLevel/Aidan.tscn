@@ -17,10 +17,11 @@
 
 [node name="aidan" type="RigidBody3D" unique_id=174097419 node_paths=PackedStringArray("surface_impact_sfx_player", "surface_slide_sfx_player") groups=["carryable_object", "dynamic_physics_object"]]
 collision_layer = 2
-collision_mask = 5
+collision_mask = 7
 continuous_cd = true
 script = ExtResource("1_qnbjv")
-carry_friction = 0.2
+carry_friction = 0.16
+carry_bounce = 0.5
 surface_dust_scene = ExtResource("2_iibvc")
 surface_impact_min_speed = 0.5
 surface_impact_sounds = Array[AudioStream]([ExtResource("3_w6251"), ExtResource("4_wyp80"), ExtResource("5_qsl5g"), ExtResource("6_jsepa"), ExtResource("7_a3ip7"), ExtResource("8_53lff"), ExtResource("9_sddhd")])

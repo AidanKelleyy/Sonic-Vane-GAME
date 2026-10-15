@@ -83,6 +83,8 @@ func _get_valid_cached_homing_target(origin: Vector3, max_range: float, mode: in
 		return null
 	if not target.is_in_group("HomingTarget"):
 		return null
+	if target.has_method("is_prop_target_available") and not target.call("is_prop_target_available", p, true):
+		return null
 	if p._object_has_property(target, "enabled") and not bool(target.get("enabled")):
 		return null
 	if p._object_has_property(target, "active") and not bool(target.get("active")):
@@ -104,6 +106,8 @@ func _get_homing_target_max_distance(target: Node3D) -> float:
 
 
 func _is_homing_target_within_max_distance(target: Node3D, distance_squared: float) -> bool:
+	if target.has_method("is_prop_target_available") and not target.call("is_prop_target_available", _owner, true):
+		return false
 	var max_distance: float = _get_homing_target_max_distance(target)
 	return max_distance <= 0.0 or distance_squared <= max_distance * max_distance
 
@@ -671,6 +675,8 @@ func _is_attack_magnetism_target_available(target: Node3D) -> bool:
 		return false
 	if p._object_has_property(target, "active") and not bool(target.get("active")):
 		return false
+	if target.has_method("is_prop_target_available") and not target.call("is_prop_target_available", p, false):
+		return false
 	if p._object_has_property(target, "attack_magnetism_enabled"):
 		return bool(target.get("attack_magnetism_enabled"))
 	return true
@@ -1162,6 +1168,9 @@ func _end_homing(up: Vector3, jump_held: bool) -> void:
 func _update_homing(delta: float, up_for_physics: Vector3, is_attached: bool) -> void:
 	var p = _owner
 	if not p._homing_active:
+		return
+	if is_instance_valid(p._homing_target) and p._homing_target.has_method("is_prop_target_available") and not p._homing_target.call("is_prop_target_available", p, true):
+		cancel_homing_attack(false)
 		return
 	p._homing_elapsed += p.get_gameplay_timer_delta(delta)
 	if p.homing_fail_timeout > 0.0 and p._homing_elapsed >= p.homing_fail_timeout:

@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://d343lons8sgqo"]
+
+[ext_resource type="Texture2D" uid="uid://hj3t6lab8id1" path="res://LS5Framework/Objects/Crates/Wood/Wood_Egg_Crate_crate_wood_EGG.png" id="1_04g6f"]
+
+[resource]
+albedo_texture = ExtResource("1_04g6f")

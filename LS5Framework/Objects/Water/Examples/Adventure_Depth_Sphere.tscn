@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Water_Sphere.tscn" id="1"]
+
+[node name="AdventureDepthSphere" instance=ExtResource("1")]
+depth_effect_enabled = true
+depth_color = Color(0.015, 0.12, 0.24, 1)
+depth_visibility_distance = 600.0

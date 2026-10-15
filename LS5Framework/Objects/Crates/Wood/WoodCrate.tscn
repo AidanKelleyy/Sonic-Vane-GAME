@@ -1,0 +1,83 @@
+[gd_scene format=3 uid="uid://d1aw6tx6bcf3m"]
+
+[ext_resource type="Script" uid="uid://c2vkgx1ocpd33" path="res://LS5Framework/Objects/Props/PropBody3D.gd" id="1_body"]
+[ext_resource type="PackedScene" uid="uid://dej70t6ue2sp8" path="res://LS5Framework/Objects/Crates/Wood/Wood_Egg_Crate.glb" id="2_mesh"]
+[ext_resource type="Script" uid="uid://b3tr2jsh60x7a" path="res://LS5Framework/Objects/Gameplay/ObjectFractureEmitter.gd" id="4_fracture"]
+[ext_resource type="Script" uid="uid://dvn3ik5o7ht1j" path="res://LS5Framework/Objects/Props/PropHitRule.gd" id="5_rule"]
+[ext_resource type="Script" uid="uid://yu6ko7dwk81r" path="res://LS5Framework/Objects/Props/PropTarget3D.gd" id="6_target"]
+[ext_resource type="PackedScene" uid="uid://ercxlt8ucs0b" path="res://LS5Framework/Objects/Crates/Wood/wood_crate_fractures.tscn" id="7_e8b02"]
+[ext_resource type="AudioStream" uid="uid://bydp2phrfhw1g" path="res://LS5Framework/Sounds/Objects/Props/Wood_Crate_Destroy.wav" id="7_sound"]
+
+[ext_resource type="PackedScene" uid="uid://cl8cgqg8wxrdn" path="res://LS5Framework/Particles/FootstepDustBurst.tscn" id="surface_2_yhbbx"]
+[ext_resource type="AudioStream" uid="uid://l2jpyc1e3he4" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard1.wav" id="surface_3_rh82k"]
+[ext_resource type="AudioStream" uid="uid://bvjl441qgfiba" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard2.wav" id="surface_4_ti8ja"]
+[ext_resource type="AudioStream" uid="uid://bhrf8vtiiihed" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard3.wav" id="surface_5_3ey7p"]
+[ext_resource type="AudioStream" uid="uid://dbepeulhcl7nm" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard4.wav" id="surface_6_fpvcd"]
+[ext_resource type="AudioStream" uid="uid://quy2y0vkeq17" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard5.wav" id="surface_7_qcfvv"]
+[ext_resource type="AudioStream" uid="uid://cdc14esa2m2y4" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard6.wav" id="surface_8_at2e1"]
+[ext_resource type="AudioStream" uid="uid://bmrp4pclos1lh" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard7.wav" id="surface_9_fcmbc"]
+[ext_resource type="AudioStream" uid="uid://b5q2dp8atjawr" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_scrape_smooth_loop1.wav" id="surface_10_mst16"]
+
+[sub_resource type="Resource" id="CommandRule"]
+script = ExtResource("5_rule")
+categories = 2
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(3.969, 3.969, 3.969)
+
+[node name="WoodCrate" type="RigidBody3D" unique_id=1241149430 node_paths=PackedStringArray("fracture_emitter", "surface_impact_sfx_player", "surface_slide_sfx_player")]
+collision_mask = 5
+script = ExtResource("1_body")
+destroyable = true
+hit_rules = Array[ExtResource("5_rule")]([SubResource("CommandRule")])
+fracture_emitter = NodePath("FractureEmitter")
+visual_roots = Array[NodePath]([NodePath("Visual")])
+destruction_sounds = Array[AudioStream]([ExtResource("7_sound")])
+anchored = true
+buoyancy_enabled = true
+buoyancy_volume = 0.12
+carry_enabled = false
+carry_mass = 60.0
+surface_dust_scene = ExtResource("surface_2_yhbbx")
+surface_impact_min_speed = 0.5
+surface_impact_sounds = Array[AudioStream]([ExtResource("surface_3_rh82k"), ExtResource("surface_4_ti8ja"), ExtResource("surface_5_3ey7p"), ExtResource("surface_6_fpvcd"), ExtResource("surface_7_qcfvv"), ExtResource("surface_8_at2e1"), ExtResource("surface_9_fcmbc")])
+surface_slide_sounds = Array[AudioStream]([ExtResource("surface_10_mst16")])
+surface_impact_sfx_player = NodePath("SFX_Collision")
+surface_slide_sfx_player = NodePath("SFX_Sliding")
+surface_sound_max_volume_db = 10.0
+surface_sound_max_speed = 60.0
+surface_effect_probe_max_skin = 0.5
+surface_effect_probe_max_speed = 100.0
+surface_effect_probe_correction_min_speed = 5.0
+
+[node name="Visual" parent="." unique_id=1525327297 instance=ExtResource("2_mesh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.9845, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1891895145]
+shape = SubResource("Shape")
+
+[node name="FractureEmitter" type="Node3D" parent="." unique_id=189796658]
+script = ExtResource("4_fracture")
+fracture_source_path = NodePath("../WoodCrate_Fractures")
+piece_density = 600.0
+piece_mass = 4.0
+explosion_impulse = 18.0
+upward_impulse = 6.0
+random_impulse = 3.0
+lifetime_sec = 6.0
+
+[node name="Targetable" type="Marker3D" parent="." unique_id=1184574468]
+script = ExtResource("6_target")
+homing_target_enabled = false
+
+[node name="WoodCrate_Fractures" parent="." unique_id=121172711 instance=ExtResource("7_e8b02")]
+
+[node name="SFX_Collision" type="AudioStreamPlayer3D" parent="."]
+unit_size = 60.0
+attenuation_filter_cutoff_hz = 15000.0
+attenuation_filter_db = -3.0
+
+[node name="SFX_Sliding" type="AudioStreamPlayer3D" parent="."]
+unit_size = 60.0
+attenuation_filter_cutoff_hz = 15000.0
+attenuation_filter_db = -3.0

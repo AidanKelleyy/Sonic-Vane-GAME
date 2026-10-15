@@ -12,6 +12,21 @@ const CAUSTICS_SHADER: Shader = preload("res://LS5Framework/Shaders/AdventureWat
 const REFRACTION_CAPTURE: Script = preload("res://LS5Framework/Scripts/World/AdventureWaterRefractionCapture.gd")
 const SURFACE_LAYER: int = 32
 const CONTAINMENT_DIRECTION: Vector3 = Vector3(0.873421, 0.371923, 0.312711)
+const COMPOSITOR_PARAMETERS: Dictionary = {"depth_enabled": true, "depth_color": true, "depth_visibility": true, "depth_strength": true, "underwater_depth": true}
+
+@export_group("Object Buoyancy")
+## Enables physical water sampling for props and fragments.
+@export var prop_water_enabled: bool = true
+## Fluid density in mass units per cubic world unit.
+@export var prop_water_density: float = 1000.0
+## World-space current velocity used by prop water drag.
+@export var prop_water_velocity: Vector3 = Vector3.ZERO
+## Higher priorities take precedence in overlapping water volumes.
+@export var prop_water_priority: int = 0
+## Overrides resolved object gravity for fluid forces.
+@export var prop_water_gravity_override: bool = false
+## Fluid gravity acceleration used when the override is enabled.
+@export var prop_water_gravity: Vector3 = Vector3.DOWN * 65.0
 
 @export_group("Geometry")
 ## Primitive geometry or a baked closed custom mesh.
@@ -91,15 +106,33 @@ const CONTAINMENT_DIRECTION: Vector3 = Vector3(0.873421, 0.371923, 0.312711)
 ## Removes the solid colour at one while retaining bright wave highlights.
 @export_range(0.0, 1.0, 0.01) var transparency: float = 0.6
 ## Independent opacity of the wave highlights.
-@export_range(0.0, 1.0, 0.01) var wave_opacity: float = 0.85
+@export_range(0.0, 1.0, 0.01) var wave_opacity: float = 0.55
 ## Image brightness where wave highlights begin.
 @export_range(0.0, 1.0, 0.01) var highlight_threshold: float = 0.65
 ## Brightness interval over which highlights reach full opacity.
-@export_range(0.001, 1.0, 0.01) var highlight_softness: float = 0.2
-## Distortion of the scene, including transparent character effects. Shares one additional render per viewport.
+@export_range(0.001, 1.0, 0.01) var highlight_softness: float = 0.3
+## Sky-colour coverage at grazing angles on exterior faces. Zero disables the response; requires Water Depth Effects.
+@export_range(0.0, 1.0, 0.01) var view_angle_strength: float = 0.35
+## Grazing-angle colour, adapted to the scene's sky and surface lighting when weather affects the surface.
+@export_color_no_alpha var view_angle_color: Color = Color(0.22, 0.36, 0.45, 1.0)
+## World-space distance where fine surface patterns finish fading. Zero disables distance fading; pixel-footprint filtering remains active.
+@export_range(0.0, 20000.0, 50.0, "or_greater") var surface_detail_distance: float = 1200.0
+## Distortion of the rendered scene, including transparent character effects, through the shared compositor.
 @export var refraction_enabled: bool = true
 ## Wave-slope distortion strength relative to viewport height.
 @export_range(0.0, 0.1, 0.001) var refraction_strength: float = 0.055
+
+@export_group("Depth Absorption")
+## Obscures the view according to distance travelled through this water volume.
+@export var depth_effect_enabled: bool = false
+## Colour approached as objects become obscured by water.
+@export_color_no_alpha var depth_color: Color = Color(0.02, 0.16, 0.28, 1.0)
+## World-space distance through water at which visibility is reduced by approximately 95 percent at full strength.
+@export_range(0.1, 20000.0, 10.0, "or_greater") var depth_visibility_distance: float = 300.0
+## Absorption multiplier. Zero disables depth absorption without altering the authored colour or distance.
+@export_range(0.0, 4.0, 0.01) var depth_strength: float = 1.0
+## Applies depth absorption from the camera to geometry or the volume exit while the camera is inside water.
+@export var underwater_depth_effect: bool = true
 
 @export_group("Caustics")
 ## Project animated caustics onto opaque geometry inside the volume.
@@ -156,9 +189,13 @@ var refraction_resolution_scale: float = 0.75
 @export var weather_affects_surface: bool = true
 ## Applies sunlight, moonlight, and sky colour to projected caustics.
 @export var weather_affects_caustics: bool = true
+## Applies sky colour and brightness to depth absorption, with reduced visibility in darkness, wind, and rain.
+@export var weather_affects_depth: bool = true
+## Depth response weight, multiplied by Weather Influence Strength. Full response reduces visibility by up to 40 percent and increases absorption strength by up to 20 percent.
+@export_range(0.0, 1.0, 0.01) var weather_depth_influence: float = 0.35
 ## Applies rain and wind changes to highlight opacity, transparency, refraction, and caustic softness.
 @export var weather_affects_roughness: bool = false
-## Blend of sky colour into authored surface, wave, and caustic colours.
+## Blend of sky colour into authored surface, wave, caustic, and depth colours.
 @export_range(0.0, 1.0, 0.01) var weather_sky_color_strength: float = 0.6
 ## Minimum surface brightness retained in dark environments.
 @export_range(0.0, 1.0, 0.01) var weather_minimum_surface_brightness: float = 0.08
@@ -230,9 +267,18 @@ var _render_bounds_transform: Transform3D
 var _world_bounds: AABB
 var _surface_world_bounds: AABB
 var _pending_weather_delta: float = 0.0
+## Runtime graphics settings supplying water effect switches.
+var _graphics_settings: Node
+var _graphics_refraction: bool = true
+var _graphics_normals: bool = true
+var _graphics_depth: bool = true
+var _graphics_caustics: bool = true
 
 
 func _ready() -> void:
+	if not Engine.is_editor_hint():
+		add_to_group(&"prop_water_volume")
+	_connect_graphics_settings()
 	_load_frames()
 	_rebuild()
 	if geometry == Geometry.CUSTOM and not baked_mesh:
@@ -516,6 +562,9 @@ func _update_materials() -> void:
 		_release_refraction_captures()
 		return
 	_update_render_bounds()
+	var depth_active: bool = is_depth_effect_active()
+	var compositor_active: bool = uses_water_compositor()
+	var caustics_active: bool = caustics_enabled and _graphics_depth and _graphics_caustics
 	var has_camera: bool = false
 	var surface_in_view: bool = false
 	var caustics_in_view: bool = false
@@ -528,26 +577,26 @@ func _update_materials() -> void:
 		if not _is_render_source_visible(source):
 			continue
 		var planes: Array[Plane] = camera.get_frustum()
-		if _bounds_in_frustum(_surface_world_bounds, planes):
+		if _bounds_in_frustum(_surface_world_bounds, planes) or (depth_active and (_world_bounds.has_point(camera.get_camera_transform().origin) or _bounds_in_frustum(_world_bounds, planes))):
 			surface_in_view = true
 			surface_sources.append(source)
-		if caustics_enabled and caustic_intensity > 0.0 and _bounds_in_frustum(_world_bounds, planes):
+		if caustics_active and caustic_intensity > 0.0 and _bounds_in_frustum(_world_bounds, planes):
 			caustics_in_view = caustics_in_view or not caustic_max_distance or _distance_to_volume_squared(camera.get_camera_transform().origin) < caustic_max_distance * caustic_max_distance
 	if not has_camera:
 		surface_in_view = true
 		caustics_in_view = true
-	_caustics.visible = caustics_enabled and caustic_intensity > 0.0 and caustics_in_view
+	_caustics.visible = caustics_active and caustic_intensity > 0.0 and caustics_in_view
 	if not surface_in_view and not _caustics.visible:
 		_release_refraction_captures()
 		return
 	if _pending_weather_delta > 0.0:
 		_update_weather(_pending_weather_delta)
 		_pending_weather_delta = 0.0
-	var desired_shader: Shader = REFRACTION_SHADER if refraction_enabled else SURFACE_SHADER
+	var desired_shader: Shader = REFRACTION_SHADER if compositor_active else SURFACE_SHADER
 	if _material.shader != desired_shader:
 		_material.shader = desired_shader
 		_surface_parameter_cache.clear()
-	if refraction_enabled:
+	if compositor_active:
 		_visual.layers = REFRACTION_CAPTURE.WATER_RENDER_LAYER
 		_material.render_priority = 120
 		_update_refraction_captures(surface_sources)
@@ -555,7 +604,7 @@ func _update_materials() -> void:
 		_visual.layers = 1
 		_material.render_priority = 0
 		_release_refraction_captures()
-	_visual.visible = not refraction_enabled or not REFRACTION_CAPTURE.is_supported()
+	_visual.visible = not compositor_active or not REFRACTION_CAPTURE.is_supported()
 	var agitation: float = _get_weather_agitation()
 	var motion: float = agitation if weather_affects_motion else 0.0
 	var appearance: float = agitation if weather_affects_surface and weather_affects_roughness else 0.0
@@ -564,8 +613,14 @@ func _update_materials() -> void:
 	var surface_light: float = lerpf(1.0, _weather_surface_brightness if _weather_lighting_active else _weather_light, weather_influence_strength) if weather_influence_enabled and weather_affects_surface else 1.0
 	var caustic_light: float = lerpf(1.0, _weather_caustic_brightness if _weather_lighting_active else _weather_light, weather_influence_strength) if weather_influence_enabled and weather_affects_caustics else 1.0
 	var tint: float = weather_sky_color_strength * weather_influence_strength if weather_influence_enabled and _weather_lighting_active else 0.0
+	var depth_weight: float = weather_depth_influence * weather_influence_strength if weather_influence_enabled and weather_affects_depth else 0.0
+	var depth_brightness: float = _weather_surface_brightness if _weather_lighting_active else _weather_light
+	var depth_darkness: float = (1.0 - depth_brightness) * depth_weight
+	var depth_turbidity: float = maxf(_weather_rain, clampf(_weather_wind.length() / maxf(weather_reference_wind_speed, 0.01), 0.0, 1.0) * 0.5) * depth_weight
+	var current_depth_color: Color = _weather_tinted_color(depth_color, _weather_sky_color, weather_sky_color_strength * depth_weight if _weather_lighting_active else 0.0, lerpf(1.0, depth_brightness, depth_weight))
 	var current_water_color: Color = _weather_tinted_color(water_color, _weather_sky_color, tint if weather_affects_surface else 0.0, surface_light)
-	var current_wave_color: Color = _weather_tinted_color(wave_color, _weather_sky_color, tint if weather_affects_surface else 0.0, surface_light)
+	var current_wave_color: Color = _weather_tinted_color(wave_color, _weather_sky_color, tint if weather_affects_surface else 0.0, pow(surface_light, 1.35))
+	var current_view_color: Color = _weather_tinted_color(view_angle_color, _weather_sky_color, tint if weather_affects_surface else 0.0, surface_light)
 	var current_caustic_color: Color = _weather_tinted_color(caustic_color, _weather_light_color.lerp(_weather_sky_color, 0.3), tint if weather_affects_caustics else 0.0, 1.0)
 	var current_transparency: float = transparency * lerpf(1.0, 0.85, appearance)
 	var time: float = _elapsed + animation_offset
@@ -580,13 +635,20 @@ func _update_materials() -> void:
 	_surface_scroll_was_matched = surface_scroll_match_animation
 	var params: Dictionary = {
 		"water_color": current_water_color, "wave_color": current_wave_color,
+		"view_angle_color": current_view_color, "view_angle_strength": view_angle_strength if _graphics_depth else 0.0,
+		"surface_detail_distance": surface_detail_distance,
 		"transparency": current_transparency, "wave_opacity": minf(wave_opacity * lerpf(1.0, 1.2, appearance), 1.0),
 		"highlight_threshold": maxf(highlight_threshold - appearance * 0.1, 0.0), "highlight_softness": highlight_softness + appearance * 0.1,
 		"tile_size": surface_tile_size.max(Vector2.ONE * 0.01) * lerpf(1.0, 1.25, motion),
 		"mirror_x": surface_mirror_x, "mirror_y": surface_mirror_y,
 		"texture_rotation": deg_to_rad(surface_rotation), "scroll_offset": surface_scroll * surface_scroll_time + (_surface_weather_scroll_sample if weather_affects_motion and weather_influence_enabled else Vector2.ZERO),
 		"top_only": visible_surface == VisibleSurface.TOP and geometry == Geometry.BOX,
-		"refraction_strength": minf(refraction_strength * lerpf(1.0, 1.5, appearance), 0.1),
+		"refraction_strength": minf(refraction_strength * lerpf(1.0, 1.5, appearance), 0.1) if refraction_enabled and _graphics_refraction and _graphics_normals else 0.0,
+		"depth_enabled": depth_active,
+		"depth_color": current_depth_color,
+		"depth_visibility": maxf(depth_visibility_distance * (1.0 - 0.3 * depth_turbidity - 0.1 * depth_darkness), 0.1),
+		"depth_strength": depth_strength * (1.0 + 0.2 * depth_turbidity),
+		"underwater_depth": underwater_depth_effect,
 	}
 	if not _surface_images.is_empty():
 		params["surface_image"] = _surface_images[posmod(surface_frame, _surface_images.size())]
@@ -618,7 +680,8 @@ func _set_material_parameters(material: ShaderMaterial, cache: Dictionary, param
 		if cache.has(parameter) and cache[parameter] == value:
 			continue
 		cache[parameter] = value
-		material.set_shader_parameter(parameter, value)
+		if not COMPOSITOR_PARAMETERS.has(parameter):
+			material.set_shader_parameter(parameter, value)
 	for parameter: String in cache.keys():
 		if not parameters.has(parameter):
 			cache.erase(parameter)
@@ -670,13 +733,66 @@ func _distance_to_volume_squared(camera_position: Vector3) -> float:
 
 
 func is_refraction_visible_from(camera: Camera3D) -> bool:
-	if not refraction_enabled or not is_visible_in_tree() or not is_instance_valid(camera):
+	if not uses_water_compositor() or not is_visible_in_tree() or not is_instance_valid(camera):
 		return false
 	_update_render_bounds()
-	return _bounds_in_frustum(_surface_world_bounds, camera.get_frustum())
+	var planes: Array[Plane] = camera.get_frustum()
+	return _bounds_in_frustum(_surface_world_bounds, planes) or (is_depth_effect_active() and (_world_bounds.has_point(camera.get_camera_transform().origin) or _bounds_in_frustum(_world_bounds, planes)))
+
+
+func is_depth_effect_active() -> bool:
+	return depth_effect_enabled and depth_strength > 0.0 and _graphics_depth and REFRACTION_CAPTURE.is_supported()
+
+
+func uses_water_compositor() -> bool:
+	return (refraction_enabled and _graphics_refraction and _graphics_normals) or is_depth_effect_active()
+
+
+func _connect_graphics_settings() -> void:
+	if Engine.is_editor_hint():
+		return
+	_graphics_settings = get_node_or_null("/root/SettingsManager")
+	if _graphics_settings:
+		if not _graphics_settings.water_graphics_changed.is_connected(_on_water_graphics_changed):
+			_graphics_settings.water_graphics_changed.connect(_on_water_graphics_changed)
+		_on_water_graphics_changed()
+
+
+func _on_water_graphics_changed() -> void:
+	_graphics_refraction = _graphics_settings.water_refraction_enabled
+	_graphics_normals = _graphics_settings.water_normal_maps_enabled
+	_graphics_depth = _graphics_settings.water_depth_effects_enabled
+	_graphics_caustics = _graphics_settings.water_caustics_enabled
+	if is_instance_valid(_visual):
+		_update_materials()
 
 
 func _restore_scroll_defaults() -> void:
+	if get("view_angle_strength") == null:
+		view_angle_strength = 0.35
+	if get("view_angle_color") == null:
+		view_angle_color = Color(0.22, 0.36, 0.45, 1.0)
+	if get("surface_detail_distance") == null:
+		surface_detail_distance = 1200.0
+	if get("weather_affects_depth") == null:
+		weather_affects_depth = true
+	if get("weather_depth_influence") == null:
+		weather_depth_influence = 0.35
+	if get("depth_effect_enabled") == null:
+		depth_effect_enabled = false
+	if get("depth_color") == null:
+		depth_color = Color(0.02, 0.16, 0.28, 1.0)
+	if get("depth_visibility_distance") == null:
+		depth_visibility_distance = 300.0
+	if get("depth_strength") == null:
+		depth_strength = 1.0
+	if get("underwater_depth_effect") == null:
+		underwater_depth_effect = true
+	if get("_graphics_depth") == null:
+		_graphics_refraction = true
+		_graphics_normals = true
+		_graphics_depth = true
+		_graphics_caustics = true
 	if get("refraction_resolution_scale") == null:
 		refraction_resolution_scale = 0.75
 	if get("caustic_max_distance") == null:
@@ -891,3 +1007,25 @@ func _get_configuration_warnings() -> PackedStringArray:
 	if geometry == Geometry.CUSTOM and _faces.size() > 6000:
 		warnings.append("Custom water containment scans mesh triangles. Use a simplified closed source for large meshes.")
 	return warnings
+
+
+func sample_prop_water(world_point: Vector3, radius: float = 0.0) -> Dictionary:
+	if not prop_water_enabled:
+		return {}
+	var fraction: float = 0.0
+	if geometry == Geometry.BOX:
+		var local: Vector3 = to_local(world_point)
+		var distances: Vector3 = (_bounds.size * 0.5 - (local - _bounds.get_center()).abs()) * global_basis.get_scale().abs()
+		fraction = clampf(0.5 + minf(distances.x, minf(distances.y, distances.z)) / maxf(radius * 2.0, 0.001), 0.0, 1.0)
+	else:
+		var offsets: Array[Vector3] = [Vector3.ZERO, Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.FORWARD, Vector3.BACK]
+		for offset: Vector3 in offsets:
+			if contains_water_point(world_point + offset * radius):
+				fraction += 1.0 / float(offsets.size())
+	var data: Dictionary = {"fraction": fraction, "density": maxf(prop_water_density, 0.0), "velocity": prop_water_velocity, "priority": prop_water_priority}
+	if prop_water_gravity_override:
+		data["gravity"] = prop_water_gravity
+	return data
+
+func get_prop_water_bounds() -> AABB:
+	return global_transform * _bounds

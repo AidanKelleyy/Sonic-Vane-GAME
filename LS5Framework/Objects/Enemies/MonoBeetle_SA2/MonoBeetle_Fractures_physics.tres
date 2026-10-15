@@ -1,0 +1,5 @@
+[gd_resource type="Resource" script_class="FractureImportPhysics" format=3]
+[ext_resource type="Script" path="res://LS5Framework/Objects/Props/FractureImportPhysics.gd" id="1_profile"]
+[resource]
+script = ExtResource("1_profile")
+piece_mass = 4.0

@@ -8,6 +8,8 @@
 [ext_resource type="Font" path="res://LS5Framework/Resources/Fonts/Orbitron900.tres" id="6_orbitron_900"]
 [ext_resource type="Font" path="res://LS5Framework/Resources/Fonts/Orbitron600.tres" id="7_orbitron_600"]
 
+[ext_resource type="Script" path="res://LS5Framework/Scripts/UI/OptionsPanelLayout.gd" id="water_options_layout"]
+
 [sub_resource type="StyleBoxFlat" id="StyleBox_reset_defaults_warning"]
 bg_color = Color(0.16, 0.018, 0.025, 0.98)
 border_width_left = 4
@@ -262,6 +264,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="Overlay/OptionsPanel"]
+script = ExtResource("water_options_layout")
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -533,17 +536,22 @@ tooltip_text = "Disable to keep the water mesh flat (saves vertex texture sampli
 [node name="CheckWaterRefraction" type="CheckBox" parent="Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent/GridGraphics"]
 layout_mode = 2
 text = "Water Refraction"
-tooltip_text = "Disable to skip screen-space refraction (requires depth effects)."
+tooltip_text = "Distort the view through water. Original water materials also require Water Depth Effects."
 
 [node name="CheckWaterNormals" type="CheckBox" parent="Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent/GridGraphics"]
 layout_mode = 2
 text = "Water Normal Maps"
-tooltip_text = "Disable to use flat normals (saves normal map sampling)."
+tooltip_text = "Enable normal-map detail and image-based water distortion."
 
 [node name="CheckWaterDepthFx" type="CheckBox" parent="Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent/GridGraphics"]
 layout_mode = 2
 text = "Water Depth Effects"
-tooltip_text = "Disable depth-based tint/foam/absorption (uses deep color, saves depth sampling)."
+tooltip_text = "Enable depth-based water colour, absorption, foam, and projected caustics."
+
+[node name="CheckWaterCaustics" type="CheckBox" parent="Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent/GridGraphics" groups=["MenuButtons"]]
+layout_mode = 2
+tooltip_text = "Show moving light patterns on surfaces beneath water. Requires Water Depth Effects."
+text = "Water Caustics"
 
 [node name="HBoxLOD" type="HBoxContainer" parent="Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent"]
 layout_mode = 2

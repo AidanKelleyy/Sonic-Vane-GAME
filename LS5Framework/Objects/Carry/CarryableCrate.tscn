@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ddj7d3ue1la8i"]
 
-[ext_resource type="Script" uid="uid://c1rk71fl0lh8s" path="res://LS5Framework/Objects/Carry/CarryableObject.gd" id="1_carryable"]
+[ext_resource type="Script" path="res://LS5Framework/Objects/Props/PropBody3D.gd" id="1_carryable"]
 [ext_resource type="AudioStream" uid="uid://l2jpyc1e3he4" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard1.wav" id="2_3h0u8"]
 [ext_resource type="PackedScene" uid="uid://cl8cgqg8wxrdn" path="res://LS5Framework/Particles/FootstepDustBurst.tscn" id="2_ms858"]
 [ext_resource type="AudioStream" uid="uid://bvjl441qgfiba" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard2.wav" id="3_ms858"]
@@ -21,9 +21,11 @@ roughness = 0.82
 
 [node name="CarryableCrate" type="RigidBody3D" unique_id=174097419 node_paths=PackedStringArray("surface_impact_sfx_player", "surface_slide_sfx_player") groups=["carryable_object", "dynamic_physics_object"]]
 collision_layer = 2
-collision_mask = 5
+collision_mask = 7
 continuous_cd = true
 script = ExtResource("1_carryable")
+buoyancy_enabled = true
+buoyancy_volume = 0.02
 carry_friction = 0.2
 surface_dust_scene = ExtResource("2_ms858")
 surface_impact_min_speed = 0.5

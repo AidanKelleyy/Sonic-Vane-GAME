@@ -1,8 +1,6 @@
 extends Node3D
 class_name ObjectFractureEmitter
 
-const FRACTURE_PIECE_SAFETY_SCRIPT: Script = preload("res://LS5Framework/Objects/Gameplay/ObjectFracturePieceSafety.gd")
-
 @export_group("Fracture")
 ## Enables fracture spawning when triggered.
 @export var fracture_enabled: bool = true
@@ -21,12 +19,30 @@ const FRACTURE_PIECE_SAFETY_SCRIPT: Script = preload("res://LS5Framework/Objects
 ## Adds each spawned fracture body to this group.
 @export var spawned_group: StringName = &"object_fracture"
 
+@export_group("Piece Profiles")
+## Additional authored fracture template roots emitted with the primary source.
+@export var additional_source_paths: Array[NodePath] = []
+## Maximum number of live pieces emitted by this component.
+@export_range(1, 256, 1) var maximum_live_pieces: int = 64
+## Maximum number of live fracture bodies across the scene.
+@export_range(1, 1024, 1) var scene_piece_budget: int = 192
+## Overrides the imported body settings with this emitter's physics parameters.
+@export var override_imported_physics: bool = false
+## Material density override. Zero disables buoyancy when imported physics overrides are enabled.
+@export var piece_density: float = 0.0
+## Gravity scale applied when imported physics overrides are enabled.
+@export var piece_gravity_scale: float = 4.0
+## Fraction of the attack impulse distributed across the emitted pieces.
+@export var attack_impulse_fraction: float = 0.25
+## Fraction of source linear and angular motion inherited by fragments.
+@export var inherit_motion: float = 1.0
+
 @export_group("Physics")
 ## Collision layer restored on spawned fracture bodies when the template uses no layer.
 @export_flags_3d_physics var fallback_collision_layer: int = 8
 ## Collision mask restored on spawned fracture bodies when the template uses no mask.
 @export_flags_3d_physics var fallback_collision_mask: int = 5
-## Mass applied to spawned rigid fracture pieces when greater than zero.
+## Mass override applied when imported physics overrides are enabled. Zero preserves imported mass.
 @export var piece_mass: float = 0.35
 ## Outward impulse applied to each fracture piece.
 @export var explosion_impulse: float = 6.0
@@ -36,12 +52,14 @@ const FRACTURE_PIECE_SAFETY_SCRIPT: Script = preload("res://LS5Framework/Objects
 @export var random_impulse: float = 1.0
 ## Random angular velocity applied per piece.
 @export var random_angular_velocity: float = 8.0
-## Enables continuous collision detection on spawned fracture bodies.
+## Continuous collision override applied when imported physics overrides are enabled.
 @export var piece_continuous_collision: bool = true
 
 @export_group("Collision Safety")
-## Enables additional collision sweeps for spawned fracture bodies.
+## Supplemental sweep override applied when imported physics overrides are enabled.
 @export var piece_collision_safety_enabled: bool = true
+## Minimum linear speed requiring supplemental fragment sweeps. Native CCD remains independent.
+@export var piece_collision_safety_min_speed: float = 35.0
 ## Collision mask used by spawned fracture collision safety sweeps.
 @export_flags_3d_physics var piece_collision_safety_mask: int = 17
 ## Radius used by spawned fracture collision safety sweeps.
@@ -64,6 +82,8 @@ const FRACTURE_PIECE_SAFETY_SCRIPT: Script = preload("res://LS5Framework/Objects
 @export var fade_out_sec: float = 1.0
 ## Removes non-detached spawned pieces when this emitter exits the scene tree.
 @export var cleanup_on_exit: bool = true
+
+var _emission_context: Dictionary = {}
 
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _spawned: Array[Node3D] = []
@@ -93,7 +113,8 @@ func _exit_tree() -> void:
 	_spawned.clear()
 
 
-func emit_fractures(origin: Vector3 = Vector3.INF) -> void:
+func emit_fractures(origin: Vector3 = Vector3.INF, context: Dictionary = {}) -> void:
+	_emission_context = context
 	if not fracture_enabled:
 		return
 	if not _fracture_source:
@@ -112,6 +133,8 @@ func emit_fractures(origin: Vector3 = Vector3.INF) -> void:
 		return
 
 	for piece_template in _piece_templates:
+		if _spawned.size() >= maximum_live_pieces or get_tree().get_nodes_in_group(&"object_fracture").size() >= scene_piece_budget:
+			break
 		_spawn_piece(piece_template, parent, origin)
 
 
@@ -120,12 +143,19 @@ func _spawn_piece(piece_template: Dictionary, parent: Node, origin: Vector3) -> 
 	if not source_node:
 		return
 
-	var piece: Node3D = source_node.duplicate(Node.DUPLICATE_SIGNALS | Node.DUPLICATE_GROUPS | Node.DUPLICATE_SCRIPTS) as Node3D
+	if not source_node is RigidBody3D:
+		return
+	var piece: RigidBody3D = source_node.duplicate(Node.DUPLICATE_SIGNALS | Node.DUPLICATE_GROUPS | Node.DUPLICATE_SCRIPTS) as RigidBody3D
 	if not piece:
 		return
-
 	var source_transform: Transform3D = piece_template["source_transform"] as Transform3D
 	var body_transform: Transform3D = _fracture_source.global_transform * source_transform
+	piece.process_mode = Node.PROCESS_MODE_INHERIT
+	if piece is ObjectPhysicsBody3D:
+		piece.fracture_template = false
+	if override_imported_physics:
+		_apply_physics_overrides(piece)
+	piece.transform = Transform3D.IDENTITY
 	piece.name = "%s_Fracture" % String(piece_template.get("name", "Piece"))
 	piece.visible = true
 	piece.top_level = false
@@ -134,6 +164,9 @@ func _spawn_piece(piece_template: Dictionary, parent: Node, origin: Vector3) -> 
 
 	parent.add_child(piece)
 	piece.global_transform = body_transform
+	if piece is ObjectPhysicsBody3D:
+		piece._reset_motion_history()
+		piece._store_surface_effect_previous_state()
 	_restore_piece_collision_state(piece, piece_template)
 	_prepare_spawned_piece(piece)
 
@@ -147,38 +180,30 @@ func _spawn_piece(piece_template: Dictionary, parent: Node, origin: Vector3) -> 
 func _prepare_spawned_piece(piece: Node3D) -> void:
 	_set_visible_recursive(piece, true)
 	if piece is RigidBody3D:
-		var body: RigidBody3D = piece as RigidBody3D
-		if piece_mass > 0.0:
-			body.mass = piece_mass
-		body.continuous_cd = piece_continuous_collision
-		body.freeze = false
-		body.sleeping = false
-		_attach_piece_collision_safety(body)
+		piece.freeze = false
+		piece.sleeping = false
 
 
-func _attach_piece_collision_safety(body: RigidBody3D) -> void:
-	if not piece_collision_safety_enabled:
-		return
-	var existing_safety: Node = body.get_node_or_null(NodePath("FractureCollisionSafety"))
-	if existing_safety:
-		if existing_safety.has_method("reset_history"):
-			existing_safety.call("reset_history")
-		return
-	var safety: Node = FRACTURE_PIECE_SAFETY_SCRIPT.new()
-	safety.name = "FractureCollisionSafety"
-	body.add_child(safety)
-	if safety.has_method("setup"):
-		safety.call(
-			"setup",
-			body,
-			piece_collision_safety_mask,
-			piece_collision_safety_radius,
-			piece_collision_safety_skin,
-			piece_collision_safety_max_sweep_step_distance,
-			piece_collision_safety_bounce,
-			piece_collision_safety_friction,
-			piece_collision_safety_up
-		)
+func _apply_physics_overrides(body: RigidBody3D) -> void:
+	if piece_mass > 0.0:
+		body.mass = piece_mass
+	body.continuous_cd = piece_continuous_collision
+	var material: PhysicsMaterial = PhysicsMaterial.new()
+	material.friction = piece_collision_safety_friction
+	material.bounce = piece_collision_safety_bounce
+	body.physics_material_override = material
+	if body is ObjectPhysicsBody3D:
+		body.carry_mass = body.mass
+		body.carry_gravity_scale = piece_gravity_scale
+		body.carry_bounce = piece_collision_safety_bounce
+		body.carry_friction = piece_collision_safety_friction
+		body.carry_continuous_collision = piece_continuous_collision
+		body.collision_safety_enabled = piece_collision_safety_enabled
+		body.collision_safety_min_speed = piece_collision_safety_min_speed
+		body.buoyancy_enabled = piece_density > 0.0
+		body.buoyancy_volume = body.mass / maxf(piece_density, 0.001)
+	else:
+		body.gravity_scale = piece_gravity_scale
 
 
 func _apply_explosion(piece: Node3D, origin: Vector3) -> void:
@@ -193,14 +218,26 @@ func _apply_explosion(piece: Node3D, origin: Vector3) -> void:
 		outward = outward.normalized()
 
 	var impulse: Vector3 = outward * max(explosion_impulse, 0.0)
-	impulse += Vector3.UP * upward_impulse
+	var up: Vector3 = _emission_context.get("up", piece_collision_safety_up)
+	impulse += up.normalized() * upward_impulse
+	impulse += (_emission_context.get("impulse", Vector3.ZERO) as Vector3) * attack_impulse_fraction / maxf(float(_piece_templates.size()), 1.0)
 	if random_impulse > 0.0:
 		impulse += _random_unit_vector() * _rng.randf_range(0.0, random_impulse)
+	var source_velocity: Vector3 = _emission_context.get("velocity", Vector3.ZERO)
+	var source_spin: Vector3 = _emission_context.get("angular_velocity", Vector3.ZERO)
+	var source_position: Vector3 = _emission_context.get("source_position", origin)
+	body.linear_velocity = (source_velocity + source_spin.cross(body.global_position - source_position)) * inherit_motion
+	body.angular_velocity = source_spin * inherit_motion
+	if body is ObjectPhysicsBody3D and _emission_context.has("gravity"):
+		var gravity: Vector3 = _emission_context["gravity"]
+		body.simplified_up = -gravity.normalized() if not gravity.is_zero_approx() else up
+		body.carry_gravity_scale = gravity.length() / maxf(float(ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)), 0.001)
+		body._update_gravity_pull_state(0.0)
 	body.apply_central_impulse(impulse)
 
 	var angular_strength: float = max(random_angular_velocity, 0.0)
 	if angular_strength > 0.0:
-		body.angular_velocity = _random_unit_vector() * _rng.randf_range(0.0, angular_strength)
+		body.angular_velocity += _random_unit_vector() * _rng.randf_range(0.0, angular_strength)
 
 
 func _setup_cleanup(piece: Node3D) -> void:
@@ -210,7 +247,10 @@ func _setup_cleanup(piece: Node3D) -> void:
 		piece.queue_free()
 		return
 
-	var timer := Timer.new()
+	if wait_time <= 0.0:
+		_fade_and_free(piece, fade_time)
+		return
+	var timer: Timer = Timer.new()
 	timer.one_shot = true
 	timer.wait_time = wait_time
 	piece.add_child(timer)
@@ -260,6 +300,10 @@ func _rebuild_piece_templates() -> void:
 
 	var source_inverse: Transform3D = _fracture_source.global_transform.affine_inverse()
 	var piece_roots: Array[Node3D] = _collect_piece_roots()
+	for path: NodePath in additional_source_paths:
+		var extra: Node3D = get_node_or_null(path) as Node3D
+		if extra:
+			_collect_rigid_piece_roots(extra, piece_roots)
 	for piece_root in piece_roots:
 		if not _contains_mesh(piece_root):
 			continue
@@ -270,25 +314,33 @@ func _rebuild_piece_templates() -> void:
 			"collision_states": _collect_collision_states(piece_root)
 		})
 
+	for path: NodePath in additional_source_paths:
+		var extra: Node3D = get_node_or_null(path) as Node3D
+		if extra:
+			extra.visible = false
+			_set_collision_enabled_recursive(extra, false)
+
 
 func _collect_piece_roots() -> Array[Node3D]:
-	var rigid_roots: Array[Node3D] = []
-	_collect_rigid_piece_roots(_fracture_source, rigid_roots)
-	if not rigid_roots.is_empty():
-		return rigid_roots
-
-	var child_roots: Array[Node3D] = []
-	for child in _fracture_source.get_children():
-		if child is Node3D:
-			child_roots.append(child as Node3D)
-	return child_roots
+	var roots: Array[Node3D] = []
+	_collect_rigid_piece_roots(_fracture_source, roots)
+	if roots.is_empty():
+		push_warning("Fracture source '%s' requires imported dynamic bodies with convex collision. Runtime collision generation is disabled." % _fracture_source.name)
+	return roots
 
 
 func _collect_rigid_piece_roots(node: Node, roots: Array[Node3D]) -> void:
-	if node != _fracture_source and node is RigidBody3D and _contains_mesh(node):
-		roots.append(node as Node3D)
+	if node is RigidBody3D and _contains_mesh(node):
+		var valid_shape: bool = false
+		for child: Node in node.get_children():
+			if child is CollisionShape3D and child.shape and not child.shape is ConcavePolygonShape3D:
+				valid_shape = true
+		if valid_shape:
+			roots.append(node)
+		else:
+			push_warning("Fracture body '%s' has no prepared convex collision." % node.name)
 		return
-	for child in node.get_children():
+	for child: Node in node.get_children():
 		_collect_rigid_piece_roots(child, roots)
 
 
@@ -327,10 +379,6 @@ func _restore_piece_collision_state(piece: Node3D, piece_template: Dictionary) -
 			var collision_object: CollisionObject3D = node as CollisionObject3D
 			collision_object.collision_layer = int(state.get("collision_layer", fallback_collision_layer))
 			collision_object.collision_mask = int(state.get("collision_mask", fallback_collision_mask))
-			if collision_object.collision_layer == 0:
-				collision_object.collision_layer = fallback_collision_layer
-			if collision_object.collision_mask == 0:
-				collision_object.collision_mask = fallback_collision_mask
 			if node is Area3D:
 				var area: Area3D = node as Area3D
 				area.monitoring = bool(state.get("monitoring", true))
@@ -346,6 +394,10 @@ func _set_source_collision_enabled(value: bool) -> void:
 
 
 func _set_collision_enabled_recursive(node: Node, value: bool) -> void:
+	if node is RigidBody3D and not value:
+		node.freeze = true
+		node.sleeping = true
+		node.process_mode = Node.PROCESS_MODE_DISABLED
 	if node is CollisionObject3D:
 		var collision_object: CollisionObject3D = node as CollisionObject3D
 		if value:
@@ -368,10 +420,10 @@ func _collect_fade_materials(node: Node, materials: Array[Material]) -> void:
 			mesh_instance.material_override = _duplicate_fade_material(material_override)
 			materials.append(mesh_instance.material_override)
 
-		var surface_count: int = mesh_instance.get_surface_override_material_count()
+		var surface_count: int = mesh_instance.mesh.get_surface_count() if mesh_instance.mesh else 0
 		for i in range(surface_count):
-			var surface_material: Material = mesh_instance.get_surface_override_material(i)
-			if surface_material:
+			var surface_material: Material = mesh_instance.get_active_material(i)
+			if surface_material and not material_override:
 				var duplicate: Material = _duplicate_fade_material(surface_material)
 				mesh_instance.set_surface_override_material(i, duplicate)
 				materials.append(duplicate)

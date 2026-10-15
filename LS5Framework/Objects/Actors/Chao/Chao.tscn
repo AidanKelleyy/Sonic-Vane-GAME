@@ -17,7 +17,9 @@
 
 [node name="Chao" type="RigidBody3D" unique_id=174097419 node_paths=PackedStringArray("surface_impact_sfx_player", "surface_slide_sfx_player") groups=["carryable_object", "dynamic_physics_object"]]
 collision_layer = 2
-collision_mask = 5
+collision_mask = 7
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -0.4, 0)
 continuous_cd = true
 script = ExtResource("1_c07se")
 carry_friction = 0.2

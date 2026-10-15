@@ -19,10 +19,16 @@ var _blend: float = 0.0
 var _target: float = 0.0
 var _time: float = 0.0
 var _rect: ColorRect = null
+var _depth_absorption_active: bool = false
+## Graphics options controlling underwater tint and distortion.
+var _graphics_settings: Node
 
 
 func _ready() -> void:
 	layer = -1
+	_graphics_settings = get_node_or_null("/root/SettingsManager")
+	if _graphics_settings:
+		_graphics_settings.water_graphics_changed.connect(_on_water_graphics_changed)
 	_rect = get_node_or_null("UnderwaterRect")
 	if _rect == null:
 		return
@@ -36,6 +42,8 @@ func _process(delta: float) -> void:
 	_time += delta
 	var t: float = clamp(blend_speed * delta, 0.0, 1.0)
 	_blend = lerp(_blend, _target, t)
+	if not _target and _blend < 0.001:
+		_depth_absorption_active = false
 	var mat: ShaderMaterial = _rect.material as ShaderMaterial
 	if mat == null:
 		return
@@ -45,11 +53,24 @@ func _process(delta: float) -> void:
 	mat.set_shader_parameter("ripple_speed", ripple_speed)
 	mat.set_shader_parameter("ripple_strength", ripple_strength)
 	mat.set_shader_parameter("ripple_scale", ripple_scale)
-	_rect.visible = _blend > 0.001
+	mat.set_shader_parameter("depth_absorption_active", _depth_absorption_active)
+	var tint_active: bool = not _depth_absorption_active and tint_color.a > 0.0 and (not _graphics_settings or _graphics_settings.water_depth_effects_enabled)
+	var ripple_active: bool = ripple_strength > 0.0 and (not _graphics_settings or (_graphics_settings.water_refraction_enabled and _graphics_settings.water_normal_maps_enabled))
+	_rect.visible = _blend > 0.001 and (tint_active or ripple_active)
 
 
 func set_underwater(state: bool) -> void:
 	_target = 1.0 if state else 0.0
+
+
+func set_depth_absorption_active(active: bool) -> void:
+	if active or _target > 0.0 or _blend < 0.001:
+		_depth_absorption_active = active
+		_process(0.0)
+
+
+func _on_water_graphics_changed() -> void:
+	_process(0.0)
 
 
 func set_tint_override(color: Color) -> void:

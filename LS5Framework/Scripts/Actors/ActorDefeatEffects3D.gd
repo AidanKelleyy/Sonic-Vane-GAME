@@ -23,7 +23,12 @@ func play_defeat_effect(size: float = 1.0) -> void:
 		return
 	var fracture_emitter: Node = _actor.get_node_or_null(fracture_emitter_path) if fracture_emitter_path != NodePath("") else null
 	if fracture_emitter and fracture_emitter.has_method("emit_fractures"):
-		fracture_emitter.call("emit_fractures", _get_origin_transform().origin)
+		var velocity: Vector3 = _actor.get("velocity") if _actor is CharacterBody3D else Vector3.ZERO
+		var up: Vector3 = _actor.call("get_gravity_up") if _actor.has_method("get_gravity_up") else Vector3.UP
+		var context: Dictionary = {"velocity": velocity, "source_position": _actor.global_position, "up": up}
+		if _actor.has_method("get_gravity_acceleration_vector"):
+			context["gravity"] = _actor.call("get_gravity_acceleration_vector")
+		fracture_emitter.call("emit_fractures", _get_origin_transform().origin, context)
 	if defeat_effect_scene == null:
 		return
 	var effect: Node = defeat_effect_scene.instantiate()

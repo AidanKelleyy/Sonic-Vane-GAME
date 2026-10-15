@@ -386,7 +386,7 @@ shader_parameter/tex_flat = ExtResource("23_i5omx")
 shader_parameter/tex_glow = ExtResource("24_isflb")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = false
-shader_parameter/swap_time = 628.745
+shader_parameter/swap_time = 5579.933
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_l51wo"]
 size = Vector3(36.186234, 40.35939, 58.338074)
@@ -2956,6 +2956,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.022949, 0, 0)
 [node name="Circle" parent="RaceGoal/GoalModel/GoalRing2/Armature/Skeleton3D" index="0" unique_id=1294627438]
 material_override = SubResource("ShaderMaterial_3u76p")
 
+[node name="SwapLight" parent="RaceGoal/GoalModel/GoalRing2" index="2" unique_id=1016145482]
+light_energy = 40.0
+
 [node name="Checkpoint" parent="RaceGoal" unique_id=1068812376 instance=ExtResource("18_dup37")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1633.8037, 162.24062, 388.91992)
 
@@ -4058,11 +4061,18 @@ leave_base_after_break = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2009.7941, 19.788559, 239.46474)
 size = Vector3(10000, 100, 9000)
 surface_scroll = Vector2(0.1, 0.1)
-water_color = Color(9.62615e-08, 0.6998658, 0.7891493, 1)
+water_color = Color(0.67155164, 0.79033893, 0.9815983, 1)
 wave_color = Color(0.81109464, 0.96750003, 0.9999998, 1)
-transparency = 0.67
+transparency = 0.87
 wave_opacity = 0.96
+highlight_softness = 0.2
+depth_effect_enabled = true
+depth_color = Color(0.1792674, 0.6285922, 0.77180696, 1)
+depth_visibility_distance = 150.1
 caustic_scroll = Vector2(0.1, 0.1)
+weather_depth_influence = 1.0
+weather_affects_roughness = true
+weather_sky_color_strength = 0.87
 
 [editable path="Lights/EnvironmentWeatherSystem"]
 [editable path="Lights/EnvironmentWeatherSystem/DayNightCycle"]

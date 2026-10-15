@@ -109,6 +109,8 @@ func _put_down_carried_object() -> void:
 
 func release_carried_object_from_put_down_animation() -> void:
 	var p = _owner
+	if not p._carry_put_down_pending_release:
+		return
 	if not _has_carried_object():
 		_clear_pending_carry_put_down()
 		return
@@ -650,6 +652,8 @@ func _is_carry_put_down_body_motion_safe(candidate_transform: Transform3D, carry
 	var p = _owner
 	if not (carryable is PhysicsBody3D):
 		return true
+	if carryable is ObjectPhysicsBody3D:
+		return carryable.is_carry_placement_clear(candidate_transform, maxf(p.carry_put_down_body_test_margin, 0.0), -up * maxf(p.carry_put_down_body_test_margin, 0.01), _get_carry_put_down_query_excludes(carryable))
 	var body: PhysicsBody3D = carryable as PhysicsBody3D
 	var test_parameters: PhysicsTestMotionParameters3D = PhysicsTestMotionParameters3D.new()
 	test_parameters.from = candidate_transform

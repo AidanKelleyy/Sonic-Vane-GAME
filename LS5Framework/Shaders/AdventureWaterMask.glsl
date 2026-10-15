@@ -12,13 +12,19 @@ layout(set = 0, binding = 1, std140) uniform Water {
 	vec4 appearance;
 	vec4 mapping;
 	vec4 mirror_size;
+	vec4 view_color;
+	vec4 view_response;
 } water;
 layout(location = 0) out vec3 local_position;
 layout(location = 1) out vec3 local_normal;
+layout(location = 2) out vec3 view_position;
+layout(location = 3) out vec3 view_normal;
 void main() {
 	WaterVertex vertex = vertices[gl_VertexIndex];
 	local_position = vertex.position.xyz;
 	local_normal = vertex.normal.xyz;
+	view_position = (water.model_view * vertex.position).xyz;
+	view_normal = transpose(inverse(mat3(water.model_view))) * vertex.normal.xyz;
 	gl_Position = water.mvp * vertex.position;
 }
 
@@ -34,11 +40,15 @@ layout(set = 0, binding = 1, std140) uniform Water {
 	vec4 appearance;
 	vec4 mapping;
 	vec4 mirror_size;
+	vec4 view_color;
+	vec4 view_response;
 } water;
 layout(set = 0, binding = 2) uniform sampler2D surface_image;
 layout(set = 0, binding = 3) uniform sampler2D scene_depth;
 layout(location = 0) in vec3 local_position;
 layout(location = 1) in vec3 local_normal;
+layout(location = 2) in vec3 view_position;
+layout(location = 3) in vec3 view_normal;
 layout(location = 0) out vec2 surface_distortion;
 layout(location = 1) out vec4 surface_layer;
 
@@ -76,6 +86,12 @@ void main() {
 	if (textureLod(scene_depth, screen_uv, 0.0).r > gl_FragCoord.z + 0.000001) { discard; }
 	vec3 weights = pow(abs(normalize(local_normal)), vec3(8.0));
 	weights /= max(dot(weights, vec3(1.0)), 0.0001);
+	vec3 view_direction = water.mapping.w > 0.5 ? vec3(0.0, 0.0, 1.0) : normalize(-view_position);
+	float grazing = pow(1.0 - clamp(abs(dot(normalize(view_normal), view_direction)), 0.0, 1.0), 5.0);
+	float distance_fade = water.view_response.y > 0.0 ? 1.0 - smoothstep(water.view_response.y * 0.25, water.view_response.y, length(view_position)) : 1.0;
+	vec3 tile_position = local_position / vec3(water.tile_scroll.x, min(water.tile_scroll.x, water.tile_scroll.y), water.tile_scroll.y);
+	float footprint = max(length(dFdx(tile_position)), length(dFdy(tile_position)));
+	float detail = distance_fade * (1.0 - smoothstep(0.02, 0.15, footprint)) * mix(1.0, 0.25, grazing);
 	float c = cos(water.mapping.x);
 	float s = sin(water.mapping.x);
 	mat2 rotation = mat2(vec2(c, s), vec2(-s, c));
@@ -84,30 +100,33 @@ void main() {
 	vec2 uv_z = rotation * (local_position.xy / water.tile_scroll.xy) + water.tile_scroll.zw;
 	vec3 sample_color = vec3(0.0);
 	vec3 gradient = vec3(0.0);
-	if (weights.x > 0.001) {
+	if (weights.x > 0.001 && detail > 0.001) {
 		sample_color += tiled_image(uv_x) * weights.x;
-		vec2 slope = transpose(rotation) * wave_gradient(uv_x);
+		vec2 slope = water.mapping.z > 0.0 ? transpose(rotation) * wave_gradient(uv_x) : vec2(0.0);
 		gradient += vec3(0.0, slope.y, slope.x) * weights.x;
 	}
-	if (weights.y > 0.001) {
+	if (weights.y > 0.001 && detail > 0.001) {
 		sample_color += tiled_image(uv_y) * weights.y;
-		vec2 slope = transpose(rotation) * wave_gradient(uv_y);
+		vec2 slope = water.mapping.z > 0.0 ? transpose(rotation) * wave_gradient(uv_y) : vec2(0.0);
 		gradient += vec3(slope.x, 0.0, slope.y) * weights.y;
 	}
-	if (weights.z > 0.001) {
+	if (weights.z > 0.001 && detail > 0.001) {
 		sample_color += tiled_image(uv_z) * weights.z;
-		vec2 slope = transpose(rotation) * wave_gradient(uv_z);
+		vec2 slope = water.mapping.z > 0.0 ? transpose(rotation) * wave_gradient(uv_z) : vec2(0.0);
 		gradient += vec3(slope.x, slope.y, 0.0) * weights.z;
 	}
 	vec3 view_gradient = mat3(water.model_axes) * gradient;
-	vec2 distortion = vec2(view_gradient.x, -view_gradient.y) * 4.0 * water.mapping.z;
+	vec2 distortion = vec2(view_gradient.x, -view_gradient.y) * 4.0 * water.mapping.z * detail;
 	distortion.x *= water.mirror_size.w / water.mirror_size.z;
 	surface_distortion = distortion;
 	float brightness = dot(pow(max(sample_color, vec3(0.0)), vec3(1.0 / 2.2)), vec3(0.2126, 0.7152, 0.0722));
 	float highlight = smoothstep(water.appearance.z, water.appearance.z + max(water.appearance.w, 0.001), brightness);
-	float wave_alpha = highlight * water.appearance.y * water.wave_color.a;
+	float wave_alpha = highlight * water.appearance.y * water.wave_color.a * detail;
 	float base_alpha = (1.0 - water.appearance.x) * water.water_color.a;
 	float alpha = wave_alpha + base_alpha * (1.0 - wave_alpha);
 	vec3 color = water.wave_color.rgb * wave_alpha + water.water_color.rgb * base_alpha * (1.0 - wave_alpha);
+	float reflection = gl_FrontFacing ? grazing * water.view_response.x : 0.0;
+	color = color * (1.0 - reflection) + water.view_color.rgb * reflection;
+	alpha = alpha + reflection * (1.0 - alpha);
 	surface_layer = vec4(color, alpha);
 }

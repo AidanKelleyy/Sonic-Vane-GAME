@@ -23,6 +23,12 @@ enum FastFallHorizontalDragMode {
 	FORCE_EXEMPT,
 }
 
+@export_group("Prop Attacks")
+## Optional body-contact phase emitted while this action is attacking. Empty uses standard phases.
+@export var prop_body_attack_id: StringName = &""
+## Damaging phase profiles supplied by this action. Empty uses its standard attack classification.
+@export var prop_attack_profiles: Array[PropAttackProfile] = []
+
 @export_group("Action")
 @export_subgroup("Activation")
 @export var action_id: StringName = &""

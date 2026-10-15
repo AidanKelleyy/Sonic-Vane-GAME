@@ -91,7 +91,7 @@ func _sync() -> void:
 				_meshes[mesh_id] = _mesh_vertices(mesh)
 			var vertices: PackedByteArray = _meshes[mesh_id]
 			if not vertices.is_empty() and water._surface_parameter_cache.has("surface_image"):
-				data.append({"id": id, "mesh_id": mesh_id, "vertices": vertices, "count": vertices.size() / 32, "transform": water._visual.get_global_transform_interpolated(), "parameters": water._surface_parameter_cache.duplicate()})
+				data.append({"id": id, "mesh_id": mesh_id, "vertices": vertices, "count": vertices.size() / 32, "transform": water._visual.get_global_transform_interpolated(), "bounds": water._bounds, "geometry": water.geometry, "parameters": water._surface_parameter_cache.duplicate()})
 	for id: int in _meshes.keys():
 		if not meshes.has(id):
 			_meshes.erase(id)

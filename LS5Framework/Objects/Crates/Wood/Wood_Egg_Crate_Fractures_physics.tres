@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FractureImportPhysics" format=3 uid="uid://do12g013itlk5"]
+
+[ext_resource type="Script" uid="uid://2i7ds336kler" path="res://LS5Framework/Objects/Props/FractureImportPhysics.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+piece_density = 600.0
+friction = 0.45
+bounce = 0.25

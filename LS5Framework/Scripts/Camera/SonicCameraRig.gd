@@ -672,6 +672,12 @@ func _setup_underwater_effect() -> void:
 	if underwater_effect_scene != null:
 		_underwater_effect = underwater_effect_scene.instantiate()
 		add_child(_underwater_effect)
+	if not SettingsManager.water_graphics_changed.is_connected(_queue_water_graphics_refresh):
+		SettingsManager.water_graphics_changed.connect(_queue_water_graphics_refresh)
+
+
+func _queue_water_graphics_refresh() -> void:
+	_refresh_precise_camera_water.call_deferred()
 
 
 func _setup_speed_radial_blur_effect() -> void:
@@ -793,6 +799,14 @@ func _refresh_precise_camera_water() -> void:
 						_underwater_effect.call("set_underwater", false)
 						_underwater_effect.call("clear_tint_override")
 	_camera_precise_water_volumes = inside
+	if is_instance_valid(_underwater_effect) and _underwater_effect.has_method("set_depth_absorption_active"):
+		var absorption_active: bool = false
+		for area: Area3D in inside.values():
+			var volume: Node = area.get_parent()
+			if volume.has_method("is_depth_effect_active") and volume.call("is_depth_effect_active") and volume.get("underwater_depth_effect"):
+				absorption_active = true
+				break
+		_underwater_effect.call("set_depth_absorption_active", absorption_active)
 
 
 func _set_camera_water_loop_active(active: bool) -> void:

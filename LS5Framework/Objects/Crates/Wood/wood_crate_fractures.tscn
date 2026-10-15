@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://ercxlt8ucs0b"]
+
+[ext_resource type="PackedScene" uid="uid://dlypboc1tlrsa" path="res://LS5Framework/Objects/Crates/Wood/Wood_Egg_Crate_Fractures.glb" id="1_47wth"]
+
+[node name="WoodCrate_Fractures" type="Node3D" unique_id=121172711]
+
+[node name="Wood_Egg_Crate_Fractures" parent="." unique_id=41274743 instance=ExtResource("1_47wth")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+
+[node name="wood_box_broken1" parent="Wood_Egg_Crate_Fractures" index="0" unique_id=96200724]
+carry_friction = 0.45
+carry_bounce = 0.25
+
+[node name="wood_box_broken2" parent="Wood_Egg_Crate_Fractures" index="1" unique_id=914229036]
+carry_friction = 0.45
+
+[node name="wood_box_broken3" parent="Wood_Egg_Crate_Fractures" index="2" unique_id=1513960473]
+carry_friction = 0.45
+
+[node name="Wood_Egg_Crate_Fractures2" parent="." unique_id=295716937 instance=ExtResource("1_47wth")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -2, 0)
+
+[node name="wood_box_broken1" parent="Wood_Egg_Crate_Fractures2" index="0" unique_id=96200724]
+carry_friction = 0.45
+carry_bounce = 0.25
+
+[node name="wood_box_broken2" parent="Wood_Egg_Crate_Fractures2" index="1" unique_id=914229036]
+carry_friction = 0.45
+
+[node name="wood_box_broken3" parent="Wood_Egg_Crate_Fractures2" index="2" unique_id=1513960473]
+carry_friction = 0.45
+
+[node name="Wood_Egg_Crate_Fractures3" parent="." unique_id=1013558815 instance=ExtResource("1_47wth")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, -2, 0)
+
+[node name="wood_box_broken1" parent="Wood_Egg_Crate_Fractures3" index="0" unique_id=96200724]
+carry_friction = 0.45
+carry_bounce = 0.25
+
+[node name="wood_box_broken2" parent="Wood_Egg_Crate_Fractures3" index="1" unique_id=914229036]
+carry_friction = 0.45
+
+[node name="wood_box_broken3" parent="Wood_Egg_Crate_Fractures3" index="2" unique_id=1513960473]
+carry_friction = 0.45
+
+[node name="Wood_Egg_Crate_Fractures4" parent="." unique_id=895509313 instance=ExtResource("1_47wth")]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 0, -2, 0)
+
+[node name="wood_box_broken1" parent="Wood_Egg_Crate_Fractures4" index="0" unique_id=96200724]
+carry_friction = 0.45
+carry_bounce = 0.25
+
+[node name="wood_box_broken2" parent="Wood_Egg_Crate_Fractures4" index="1" unique_id=914229036]
+carry_friction = 0.45
+
+[node name="wood_box_broken3" parent="Wood_Egg_Crate_Fractures4" index="2" unique_id=1513960473]
+carry_friction = 0.45
+
+[node name="Wood_Egg_Crate_Fractures5" parent="." unique_id=838436726 instance=ExtResource("1_47wth")]
+transform = Transform3D(-5.732056e-15, -1, 4.371139e-08, 1.3113416e-07, -4.371139e-08, -1, 1, 0, 1.3113416e-07, 2, 0, 0)
+
+[node name="wood_box_broken1" parent="Wood_Egg_Crate_Fractures5" index="0" unique_id=96200724]
+carry_friction = 0.45
+carry_bounce = 0.25
+
+[node name="wood_box_broken2" parent="Wood_Egg_Crate_Fractures5" index="1" unique_id=914229036]
+carry_friction = 0.45
+
+[node name="wood_box_broken3" parent="Wood_Egg_Crate_Fractures5" index="2" unique_id=1513960473]
+carry_friction = 0.45
+
+[editable path="Wood_Egg_Crate_Fractures"]
+[editable path="Wood_Egg_Crate_Fractures2"]
+[editable path="Wood_Egg_Crate_Fractures3"]
+[editable path="Wood_Egg_Crate_Fractures4"]
+[editable path="Wood_Egg_Crate_Fractures5"]

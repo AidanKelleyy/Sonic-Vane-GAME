@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="PropFeedbackProfile" format=3]
+
+[ext_resource type="Script" path="res://LS5Framework/Objects/Props/PropFeedbackProfile.gd" id="1_profile"]
+[ext_resource type="AudioStream" path="res://LS5Framework/Sounds/Objects/Props/Metal_Crate_Destroy.wav" id="2_sound"]
+[resource]
+script = ExtResource("1_profile")
+sounds = Array[AudioStream]([ExtResource("2_sound")])

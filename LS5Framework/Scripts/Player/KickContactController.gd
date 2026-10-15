@@ -69,6 +69,8 @@ func _ready() -> void:
 
 func begin_kick(kind: StringName, up: Vector3) -> void:
 	_kick_kind = kind
+	var id: StringName = &"uppercut_kick" if kind == &"uppercut" else (&"tornado_kick" if kind == &"tornado" else &"spin_kick")
+	_player.set_meta(StringName("prop_activation_" + String(id)), Engine.get_physics_frames())
 	_kick_up = up.normalized()
 	_hit_targets.clear()
 	_has_previous_position = false

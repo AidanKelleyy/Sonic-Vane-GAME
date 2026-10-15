@@ -155,6 +155,8 @@ var opt_player_tracking_mode: OptionButton = null
 @onready var chk_water_refraction: CheckBox = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent/GridGraphics/CheckWaterRefraction
 @onready var chk_water_normals: CheckBox = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent/GridGraphics/CheckWaterNormals
 @onready var chk_water_depth_fx: CheckBox = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent/GridGraphics/CheckWaterDepthFx
+## Toggle for projected underwater light patterns.
+@onready var chk_water_caustics: CheckBox = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent/GridGraphics/CheckWaterCaustics
 ## Selects the global multiplier applied to object LOD transition distances.
 @onready var opt_lod_distance: OptionButton = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics/ScrollGraphics/GraphicsContent/HBoxLOD/OptionLOD
 
@@ -2314,6 +2316,7 @@ func _collect_graphics_snapshot_from_ui() -> Dictionary:
 		"water_refraction_enabled": chk_water_refraction.button_pressed,
 		"water_normal_maps_enabled": chk_water_normals.button_pressed,
 		"water_depth_effects_enabled": chk_water_depth_fx.button_pressed,
+		"water_caustics_enabled": chk_water_caustics.button_pressed,
 		"camera_far_cutoff": float(slider_camera_far.value),
 	}
 
@@ -2372,6 +2375,7 @@ func _sync_options_from_settings() -> void:
 	chk_water_refraction.button_pressed = SettingsManager.water_refraction_enabled
 	chk_water_normals.button_pressed = SettingsManager.water_normal_maps_enabled
 	chk_water_depth_fx.button_pressed = SettingsManager.water_depth_effects_enabled
+	chk_water_caustics.button_pressed = SettingsManager.water_caustics_enabled
 	var lod_index: int = opt_lod_distance.get_item_index(SettingsManager.lod_distance_quality)
 	if lod_index >= 0:
 		opt_lod_distance.selected = lod_index

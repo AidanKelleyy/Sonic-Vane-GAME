@@ -86,8 +86,12 @@ func _try_dynamic_impact(body: Node) -> bool:
 		return false
 	if not (body is RigidBody3D) and (dynamic_body_group == &"" or not body.is_in_group(dynamic_body_group)):
 		return false
+	if body.has_method("is_carried") and body.call("is_carried"):
+		return false
 	var impact_velocity: Vector3 = Vector3.ZERO
-	if body.has_method("get_dynamic_impact_velocity"):
+	if body.has_method("get_dynamic_impact_velocity_at"):
+		impact_velocity = body.call("get_dynamic_impact_velocity_at", _actor.global_position)
+	elif body.has_method("get_dynamic_impact_velocity"):
 		var impact_value: Variant = body.call("get_dynamic_impact_velocity")
 		if impact_value is Vector3:
 			impact_velocity = impact_value as Vector3
@@ -102,7 +106,10 @@ func _try_dynamic_impact(body: Node) -> bool:
 		var actor_velocity_value: Variant = _actor.get("velocity")
 		if actor_velocity_value is Vector3:
 			actor_velocity = actor_velocity_value as Vector3
-	var impact_speed: float = (impact_velocity - actor_velocity).length()
+	var impact_normal: Vector3 = (body.global_position - _actor.global_position).normalized() if body is Node3D else Vector3.ZERO
+	if impact_normal.is_zero_approx():
+		impact_normal = -(impact_velocity - actor_velocity).normalized()
+	var impact_speed: float = maxf(-(impact_velocity - actor_velocity).dot(impact_normal), 0.0)
 	if impact_speed < max(dynamic_body_damage_min_speed, 0.0):
 		return false
 	var damage: int = max(dynamic_body_damage_amount, 1)
