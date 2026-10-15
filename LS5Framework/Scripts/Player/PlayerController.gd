@@ -631,10 +631,8 @@ func _ready() -> void:
 	floor_max_angle = deg_to_rad(40.0)
 	floor_block_on_wall = false
 	floor_stop_on_slope = true
-	# Disable built-in platform leave velocity. Godot's get_platform_velocity()
-	# includes angular surface velocity (omega x r) from rotating RigidBody3D
-	# contacts, which causes velocity spikes on spinning physics objects.
-	# The custom platform carry system handles leave velocity for intentional platforms.
+	# Surface launches inherit contact-point motion explicitly.
+	# Passive platform exits retain the custom horizontal carry behavior.
 	platform_on_leave = PLATFORM_ON_LEAVE_DO_NOTHING
 
 	# Optionally make walls more “slidey” instead of sticky
@@ -2039,6 +2037,43 @@ func _get_collision_support_velocity() -> Vector3:
 	return Vector3.ZERO
 
 
+## Returns surface motion at a contact point in movement-clock units.
+func get_surface_launch_velocity(collider: Object, point: Vector3) -> Vector3:
+	if not is_instance_valid(collider):
+		return Vector3.ZERO
+	var world_velocity: Vector3 = Vector3.ZERO
+	if collider is PhysicsBody3D and collider.is_inside_tree():
+		var body: PhysicsBody3D = collider as PhysicsBody3D
+		var state: PhysicsDirectBodyState3D = PhysicsServer3D.body_get_direct_state(body.get_rid())
+		if state:
+			world_velocity = state.get_velocity_at_local_position(point - state.transform.origin)
+	if world_velocity.is_zero_approx() and collider.has_method("get_platform_velocity"):
+		var custom_velocity: Variant = collider.call("get_platform_velocity")
+		if custom_velocity is Vector3:
+			world_velocity = custom_velocity
+	return world_to_movement_velocity(world_velocity) if world_velocity.is_finite() else Vector3.ZERO
+
+
+## Returns the current grounded support's contact-point motion.
+func get_ground_launch_surface_velocity() -> Vector3:
+	if not attached:
+		return Vector3.ZERO
+	if _has_moving_collision_support():
+		return get_surface_launch_velocity(_collision_support_body, _collision_support_body.to_global(_collision_support_local_point))
+	if _follow_hit and is_instance_valid(_follow_collider_last):
+		return get_surface_launch_velocity(_follow_collider_last, _follow_point)
+	if is_instance_valid(_platform_collider_last):
+		return get_surface_launch_velocity(_platform_collider_last, surface_point)
+	return Vector3.ZERO
+
+
+## Converts a support-relative takeoff into world motion without duplicate platform carry.
+func inherit_surface_launch_velocity(relative_velocity: Vector3, surface_velocity: Vector3) -> Vector3:
+	_surface_launch_carry_suppressed = true
+	_surface_launch_carry_consumed = false
+	return relative_velocity + surface_velocity
+
+
 func _refresh_moving_collision_support() -> void:
 	if not _has_moving_collision_support() or not _ensure_main_sphere_configured():
 		return
@@ -2326,6 +2361,10 @@ func _physics_process(delta: float) -> void:
 	_movement_tick_debuff_active = is_movement_time_scale_debuff_active()
 	_movement_tick_active = true
 	_movement_physics_process(delta)
+	if _surface_launch_carry_consumed:
+		_surface_launch_carry_suppressed = false
+	_surface_launch_carry_consumed = false
+	_effects_module.update_ground_action_dust()
 	_movement_tick_active = false
 	_movement_slide_cache_valid = false
 	_end_standing_clearance_batch()
@@ -2341,7 +2380,15 @@ func _move_with_movement_time_scale() -> void:
 	var movement_start: Transform3D = global_transform
 	_collision_attached_last_move = attached
 	velocity *= _movement_tick_scale
+	var saved_floor_layers: int = platform_floor_layers
+	var saved_wall_layers: int = platform_wall_layers
+	if _surface_launch_carry_suppressed:
+		platform_floor_layers = 0
+		platform_wall_layers = 0
+		_surface_launch_carry_consumed = true
 	move_and_slide()
+	platform_floor_layers = saved_floor_layers
+	platform_wall_layers = saved_wall_layers
 	_movement_slide_cache_valid = false
 	velocity /= _movement_tick_scale
 	_recover_missed_sphere_contact(movement_start)
@@ -3362,7 +3409,7 @@ func _movement_physics_process(delta: float) -> void:
 	var was_on_platform: bool = _platform_on_floor_last and _platform_collider_last != null and is_instance_valid(_platform_collider_last) and _platform_collider_last.is_inside_tree()
 	var platform_velocity_for_leave: Vector3 = Vector3.ZERO
 
-	if was_on_platform and delta > 0.0:
+	if was_on_platform and delta > 0.0 and not _surface_launch_carry_suppressed:
 		# Plain RigidBody3D objects (no get_platform_velocity) are not treated as carry
 		# platforms. Using their linear_velocity for carry creates a feedback loop:
 		# player contact impulse → sphere velocity → carry moves player → more contact.
@@ -3387,7 +3434,7 @@ func _movement_physics_process(delta: float) -> void:
 			if delta_horizontal.length() > max_carry_disp and max_carry_disp > 0.0:
 				delta_horizontal = delta_horizontal.normalized() * max_carry_disp
 
-			if manual_platform_position_carry_enabled:
+			if manual_platform_position_carry_enabled and not (_jump_requested and attached):
 				global_position = global_position + delta_horizontal
 			platform_velocity_for_leave = delta_horizontal / delta
 
@@ -3435,7 +3482,7 @@ func _movement_physics_process(delta: float) -> void:
 		_try_rail_path_snap_attach(v_before, p_before)
 
 	# If we stepped/jumped off a platform this frame, carry its horizontal momentum.
-	if was_on_platform and not _platform_on_floor_last and platform_velocity_for_leave.length() > 0.0001:
+	if was_on_platform and not _platform_on_floor_last and not _surface_launch_carry_suppressed and platform_velocity_for_leave.length() > 0.0001:
 		if _dbg_tp_trace > 0:
 			print("[TP-F%d] PLATFORM_CARRY: carry=%v new_vel=%v" % [9 - _dbg_tp_trace, platform_velocity_for_leave, velocity + platform_velocity_for_leave])
 		velocity = velocity + platform_velocity_for_leave
@@ -4857,7 +4904,7 @@ func _perform_spindash_jump(world_up: Vector3) -> void:
 	var vertical: float = v.dot(up)
 	var jump_speed_used: float = max(spindash_jump_speed, 0.0)
 	v += up * (jump_speed_used - vertical)
-	velocity = v
+	velocity = inherit_surface_launch_velocity(v, get_ground_launch_surface_velocity())
 
 	var surf_n: Vector3 = surface_normal.normalized()
 	if surf_n.length() < 0.001:
@@ -6162,6 +6209,7 @@ func _apply_launch_from_surface(detach_normal: Vector3, world_up: Vector3) -> vo
 # MOVEMENT / SLOPE PHYSICS
 # ===========================================================
 func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -> void:
+	var inherited_launch_velocity: Vector3 = Vector3.ZERO
 	var timer_delta: float = get_gameplay_timer_delta(delta)
 	var physics_up: Vector3 = up_for_physics.normalized()
 	if physics_up.length() < 0.001:
@@ -7614,6 +7662,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 			if _dbg_tp_trace > 0:
 				print("[TP-F%d] JUMP_FROM_GROUND: vel=%v -> vertical=%s" % [9 - _dbg_tp_trace, velocity, jump_speed])
 			vertical = jump_speed
+			inherited_launch_velocity = inherit_surface_launch_velocity(Vector3.ZERO, get_ground_launch_surface_velocity())
 
 			play_jump_sfx()
 
@@ -7646,7 +7695,8 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 				_jump_dash_requested = true
 
 		if should_coyote:
-			vertical = max(vertical, jump_speed)
+			var support_velocity: Vector3 = world_to_movement_velocity(_coyote_surface_velocity_world)
+			vertical = max(vertical, jump_speed + support_velocity.dot(physics_up))
 			_jump_requested = false
 			_coyote_jump_requested = false
 			_clear_coyote_jump_window()
@@ -7955,9 +8005,10 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 	velocity = v_final
 	if water_physics_enabled and _running_on_water_surface and attached:
 		_check_water_surface_min_speed()
+	velocity += inherited_launch_velocity
 
-	if not is_attached:
-		_last_air_velocity = v_final
+	if not attached:
+		_last_air_velocity = velocity
 
 
 func _adjust_final_movement_velocity(movement_velocity: Vector3, _physics_up: Vector3) -> Vector3:
@@ -8699,6 +8750,7 @@ func _apply_airborne_collision_state() -> void:
 func _clear_coyote_jump_window() -> void:
 	_coyote_jump_available = false
 	_coyote_jump_timer = 0.0
+	_coyote_surface_velocity_world = Vector3.ZERO
 	_set_coyote_available_ui(false)
 
 
@@ -8710,6 +8762,7 @@ func remove_coyote_jump_eligibility() -> void:
 func refresh_coyote_jump_window_custom(duration: float) -> void:
 	if not coyote_jump_enabled:
 		return
+	_coyote_surface_velocity_world = Vector3.ZERO
 	_coyote_jump_available = true
 	_coyote_jump_timer = max(duration, 0.0)
 	_set_coyote_available_ui(true)
@@ -8749,6 +8802,7 @@ func _start_coyote_jump_window() -> void:
 		return
 	_coyote_jump_available = true
 	_coyote_jump_timer = max(coyote_jump_duration, 0.0)
+	_coyote_surface_velocity_world = get_ground_launch_surface_velocity() * get_movement_time_scale()
 	_set_coyote_available_ui(true)
 
 
@@ -11488,12 +11542,12 @@ func _get_property_cache_key(obj: Object) -> String:
 		return "script_id:%d" % script_resource.get_instance_id()
 	return "class:%s" % obj.get_class()
 
-func _do_bounce_landing(v_before: Vector3, landing_normal: Vector3) -> void:
+func _do_bounce_landing(v_before: Vector3, landing_normal: Vector3, surface_velocity: Vector3 = Vector3.ZERO) -> void:
 	var n: Vector3 = landing_normal.normalized()
 	if n.length() < 0.001:
 		return
 
-	var v: Vector3 = v_before
+	var v: Vector3 = v_before - surface_velocity
 
 	# Decompose into normal + tangential components relative to the landing surface
 	var v_normal: Vector3 = n * v.dot(n)
@@ -11524,8 +11578,8 @@ func _do_bounce_landing(v_before: Vector3, landing_normal: Vector3) -> void:
 	var bounce_speed: float = into_speed + bounce_add_speed
 	bounce_speed = clamp(bounce_speed, bounce_min_up_speed, bounce_max_up_speed)
 
-	# Final velocity: keep tangential unchanged, flip normal upwards along the surface
-	velocity = v_tangent + n * bounce_speed
+	# Resolve the rebound in the surface frame, then restore world motion.
+	velocity = v_tangent + n * bounce_speed + surface_velocity
 
 	_on_trick_detected(TrickSystem.TrickType.BOUNCE_POGO)
 
@@ -13196,6 +13250,18 @@ func _emit_footstep_dust(foot: StringName = &"") -> void:
 		var dust_node: Node3D = dust as Node3D
 		dust_node.top_level = true
 		dust_node.global_transform = emitter.global_transform
+		dust_node.scale *= _get_footstep_dust_size_multiplier()
+
+
+func _get_footstep_dust_size_multiplier() -> float:
+	var up: Vector3 = surface_normal.normalized() if attached else _physics_up_last.normalized()
+	if up.length_squared() < 0.001:
+		up = _get_gravity_up()
+	var speed: float = velocity.slide(up).length() * effective_movement_time_scale
+	var speed_ratio: float = clampf(speed / maxf(footstep_dust_full_size_speed, 0.001), 0.0, 1.0)
+	var minimum: float = maxf(footstep_dust_size_min_multiplier, 0.1)
+	var maximum: float = maxf(footstep_dust_size_max_multiplier, minimum)
+	return lerpf(minimum, maximum, speed_ratio)
 
 
 func _get_footstep_dust_emitter(foot: StringName = &"") -> Node3D:

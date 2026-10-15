@@ -381,6 +381,9 @@ enum WallLiftPhase { NONE, SETTLING, HOLD, RELEASE }
 @export var wall_cling_slide_speed_for_max_volume: float = 60.0
 
 var _in_contact: bool = false
+## Last wall contact used to resolve launch-point motion.
+var _wall_launch_body: Node3D = null
+var _wall_launch_local_point: Vector3 = Vector3.ZERO
 var _surface_force_cling: bool = false
 var _mode: WallMode = WallMode.CLING
 var _normal: Vector3 = Vector3.ZERO
@@ -949,9 +952,10 @@ func prepare_priority_input(delta: float) -> bool:
 	_contact_confirmed = not hit.is_empty()
 	if _contact_confirmed:
 		if not _in_contact:
-			execute({"wall_normal": hit["normal"], "source_action": owner_player.get_current_action_id(), "force_cling": _wall_hit_forces_cling(hit)})
+			execute({"wall_normal": hit["normal"], "wall_contact": hit, "source_action": owner_player.get_current_action_id(), "force_cling": _wall_hit_forces_cling(hit)})
 		else:
 			_normal = hit["normal"]
+			_set_wall_launch_contact(hit)
 		_missing_time = 0.0
 	elif _in_contact:
 		_missing_time += delta
@@ -986,6 +990,7 @@ func _try_begin_grounded_wall_parkour() -> bool:
 		return false
 	if not execute({
 		"wall_normal": hit["normal"],
+		"wall_contact": {"collider": owner_player._follow_collider_last, "position": owner_player.surface_point},
 		"source_action": owner_player.get_current_action_id(),
 		"grounded_wall_transition": true,
 		"force_cling": owner_player.is_surface_cling_forced(),
@@ -1018,7 +1023,7 @@ func resolve_movement_contact(entry_velocity: Vector3) -> void:
 		return
 	var previous_velocity: Vector3 = owner_player.velocity
 	owner_player.velocity = entry_velocity
-	if not execute({"wall_normal": hit["normal"], "source_action": owner_player.get_current_action_id(), "force_cling": _wall_hit_forces_cling(hit)}):
+	if not execute({"wall_normal": hit["normal"], "wall_contact": hit, "source_action": owner_player.get_current_action_id(), "force_cling": _wall_hit_forces_cling(hit)}):
 		owner_player.velocity = previous_velocity
 		return
 	_contact_confirmed = true
@@ -1408,7 +1413,15 @@ func _sweep_wall(space: PhysicsDirectSpaceState3D, origin: Vector3, direction: V
 	return hit
 
 
+func _set_wall_launch_contact(hit: Dictionary) -> void:
+	_wall_launch_body = hit.get("collider") as Node3D
+	_wall_launch_local_point = Vector3.ZERO
+	if is_instance_valid(_wall_launch_body) and _wall_launch_body.is_inside_tree():
+		_wall_launch_local_point = _wall_launch_body.to_local(hit.get("position", owner_player.global_position))
+
+
 func on_action_enter(context: Dictionary = {}) -> void:
+	_set_wall_launch_contact(context.get("wall_contact", {}))
 	_clear_wall_collision_visual_offset()
 	_wall_exit_visual_offset = Vector3.ZERO
 	_wall_exit_animation_pending = false
@@ -2154,6 +2167,12 @@ func _surface_strength() -> float:
 
 
 func _kick(vertical_speed_override: float = NAN) -> void:
+	var surface_velocity: Vector3 = Vector3.ZERO
+	if is_instance_valid(_wall_launch_body) and _wall_launch_body.is_inside_tree():
+		surface_velocity = owner_player.get_surface_launch_velocity(_wall_launch_body, _wall_launch_body.to_global(_wall_launch_local_point))
+	owner_player.velocity -= surface_velocity
+	if not is_nan(vertical_speed_override):
+		vertical_speed_override -= surface_velocity.dot(get_owner_gravity_up())
 	var up: Vector3 = get_owner_gravity_up()
 	var outward: Vector3 = _normal.slide(up).normalized()
 	var tangent: Vector3 = up.cross(outward).normalized()
@@ -2200,6 +2219,7 @@ func _kick(vertical_speed_override: float = NAN) -> void:
 		slide_outward_bonus += max(-current_vertical_speed, 0.0) * wall_cling_kick_downward_slide_outward_multiplier
 		outward_speed += slide_outward_bonus * strength
 	owner_player.velocity = tangent * parallel + kick_direction * outward_speed + up * vertical
+	owner_player.velocity = owner_player.inherit_surface_launch_velocity(owner_player.velocity, surface_velocity)
 	if owner_player.has_method("request_parkour_wall_kick_camera_assist"):
 		owner_player.request_parkour_wall_kick_camera_assist(
 			owner_player.velocity,

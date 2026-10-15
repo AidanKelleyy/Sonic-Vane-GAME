@@ -365,6 +365,45 @@ func get_current_weather_id() -> StringName:
 	return _current_preset.preset_id if _current_preset else &""
 
 
+func get_environment_influence_state() -> Dictionary:
+	var cycle: DayNightCycle = get_node_or_null(day_night_cycle_path) as DayNightCycle
+	var rain: RainSystem = get_node_or_null(rain_system_path) as RainSystem
+	if not cycle and not rain and not _current_preset:
+		return {}
+	var sky: Dictionary = {}
+	if cycle:
+		sky = cycle.get_current_weather_state()
+	elif _current_preset and _current_preset.sky_weather:
+		var source: DayNightWeather = _current_preset.sky_weather
+		sky = {
+			"wind_direction": source.wind_direction, "wind_speed": source.wind_speed,
+			"cloud_coverage": source.cloud_coverage, "cloud_density": source.cloud_density,
+			"overcast_light_multiplier": source.overcast_light_multiplier,
+		}
+	var precipitation: Dictionary = {}
+	if precipitation_enabled:
+		if rain and (not Engine.is_editor_hint() or rain.get_script().is_tool()):
+			precipitation = rain.get_current_precipitation_state()
+		elif rain and rain.profile:
+			precipitation = {
+				"intensity": rain.profile.intensity * rain.intensity_multiplier if rain.rain_enabled else 0.0,
+				"wind_velocity": rain.profile.wind_velocity,
+			}
+		elif _current_preset and _current_preset.rain_profile:
+			precipitation = {"intensity": _current_preset.rain_profile.intensity, "wind_velocity": _current_preset.rain_profile.wind_velocity}
+	var overcast: float = clampf(float(sky.get("cloud_coverage", 0.0)) * float(sky.get("cloud_density", 0.0)), 0.0, 1.0)
+	var result: Dictionary = {
+		"sky_wind_direction": sky.get("wind_direction", Vector2.ZERO),
+		"sky_wind_speed": maxf(float(sky.get("wind_speed", 0.0)), 0.0),
+		"rain_wind_velocity": precipitation.get("wind_velocity", Vector2.ZERO),
+		"rain_intensity": clampf(float(precipitation.get("intensity", 0.0)), 0.0, 1.0),
+		"direct_light_multiplier": lerpf(1.0, float(sky.get("overcast_light_multiplier", 1.0)), overcast),
+	}
+	if cycle:
+		result.merge(cycle.get_current_lighting_state())
+	return result
+
+
 func clear_persistent_weather_state() -> void:
 	var state_store: Node = get_node_or_null("/root/EnvironmentWeatherState")
 	if state_store and state_store.has_method("clear_state"):

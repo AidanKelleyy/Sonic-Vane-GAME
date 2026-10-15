@@ -11,6 +11,7 @@ const PRESENTATION_PROPERTIES: Array[String] = [
 	"_jump_dash_recent_timer", "_is_jumping", "_is_falling", "_hurt_active", "_is_dead",
 	"_player_state_locked", "_spring_align_timer", "_spline_active", "_vault_bar_active",
 	"_rail_switch_active", "_rail_switch_animation_side", "race_finished",
+	"_drift_active", "_drift_direction_value",
 ]
 
 const STATE_PROPERTIES: Array[String] = [

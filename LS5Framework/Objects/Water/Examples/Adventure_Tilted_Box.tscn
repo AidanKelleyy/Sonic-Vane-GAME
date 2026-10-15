@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Water_Volume_Adventure.tscn" id="1"]
+
+[node name="AdventureTiltedBox" instance=ExtResource("1")]
+rotation = Vector3(0, 0, 0.5235988)
+size = Vector3(700, 100, 350)
+visible_surface = 1
+runnable_surface = 1
+transparency = 0.65

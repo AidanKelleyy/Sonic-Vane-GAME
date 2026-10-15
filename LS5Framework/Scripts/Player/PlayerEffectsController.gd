@@ -9,10 +9,107 @@ const JUMP_BALL_RESOURCE_ARGUMENT: String = "_jump-ball-enabled"
 # Barrier Blast state and player-specific runtime visual effects.
 var _owner: Node = null
 var _barrier_foot_trail_controller: BarrierBlastFootTrailController = null
+## Reuses one world-space emitter for grounded spindash and drift dust.
+var _ground_action_dust: GPUParticles3D = null
+var _ground_action_dust_material: ParticleProcessMaterial = null
 
 
 func _init(owner: Node) -> void:
 	_owner = owner
+
+
+func _get_ground_action_dust_direction(up: Vector3) -> Vector3:
+	var p = _owner
+	var facing: Vector3 = p._model_forward.slide(up).normalized()
+	if facing.length_squared() < 0.001:
+		return Vector3.ZERO
+	if p._spindash_charging and p.spindash_dust_enabled:
+		return -facing
+	if p._drift_active and p.drift_dust_enabled:
+		var speed: float = p.velocity.slide(up).length() * p.effective_movement_time_scale
+		if speed < p.drift_dust_min_speed or absf(p._drift_direction_value) < 0.01:
+			return Vector3.ZERO
+		return facing.cross(up).normalized() * signf(p._drift_direction_value)
+	return Vector3.ZERO
+
+
+func _ensure_ground_action_dust() -> bool:
+	if is_instance_valid(_ground_action_dust):
+		return true
+	var p = _owner
+	if not p.ground_action_dust_scene:
+		return false
+	var source: Node = p.ground_action_dust_scene.instantiate()
+	if not source:
+		return false
+	var particles: GPUParticles3D = source.get_node_or_null("DustParticles") as GPUParticles3D
+	if not particles or not particles.process_material is ParticleProcessMaterial:
+		source.free()
+		return false
+	source.remove_child(particles)
+	particles.owner = null
+	source.free()
+	_ground_action_dust = particles
+	_ground_action_dust_material = particles.process_material.duplicate() as ParticleProcessMaterial
+	_ground_action_dust_material.direction = Vector3(0.0, 0.25, -1.0).normalized()
+	_ground_action_dust_material.spread = 25.0
+	var launch_multiplier: float = maxf(p.ground_action_dust_launch_speed_multiplier, 0.0)
+	_ground_action_dust_material.initial_velocity_min = 4.0 * launch_multiplier
+	_ground_action_dust_material.initial_velocity_max = 8.0 * launch_multiplier
+	var size_multiplier: float = maxf(p.ground_action_dust_size_multiplier, 0.1)
+	_ground_action_dust_material.scale_min *= size_multiplier
+	_ground_action_dust_material.scale_max *= size_multiplier
+	_ground_action_dust_material.directional_velocity_min = 0.0
+	_ground_action_dust_material.directional_velocity_max = 0.0
+	_ground_action_dust_material.damping_min = 0.5
+	_ground_action_dust_material.damping_max = 1.5
+	particles.process_material = _ground_action_dust_material
+	particles.name = "GroundActionDust"
+	particles.emitting = false
+	particles.one_shot = false
+	particles.explosiveness = 0.0
+	particles.local_coords = false
+	particles.amount = 32
+	particles.lifetime = maxf(p.ground_action_dust_lifetime, 0.05)
+	particles.visibility_aabb = AABB(Vector3(-128.0, -128.0, -128.0), Vector3(256.0, 256.0, 256.0))
+	p.add_child(particles)
+	particles.top_level = true
+	SettingsManager._apply_graphics_quality_to_node(particles)
+	return true
+
+
+func update_ground_action_dust() -> void:
+	var p = _owner
+	if not is_instance_valid(p):
+		return
+	var allowed: bool = (
+		p.attached and not p._is_dead and not p._local_pause_enabled
+		and not p._level_load_suspended and p.is_visible_in_tree()
+		and not p._running_on_water_surface and not p._in_water_volume
+		and not p._rail_active and not p._rail_switch_active and not p._spline_active
+		and not p.is_parkour_active()
+		and (not p._network_module or p._network_module.is_level_present())
+	)
+	var up: Vector3 = p.surface_normal.normalized()
+	if up.length_squared() < 0.001:
+		up = p._get_gravity_up()
+	var direction: Vector3 = _get_ground_action_dust_direction(up) if allowed else Vector3.ZERO
+	if direction.length_squared() < 0.001:
+		if is_instance_valid(_ground_action_dust):
+			_ground_action_dust.emitting = false
+		return
+	if not _ensure_ground_action_dust():
+		return
+	var origin: Vector3 = p.global_position - up * maxf(p.collision_ground_distance - p.ground_action_dust_height, 0.0)
+	var basis: Basis = Basis(direction.cross(up).normalized(), up, -direction)
+	var pose: Transform3D = Transform3D(basis, origin)
+	if not _ground_action_dust.global_transform.is_equal_approx(pose):
+		_ground_action_dust.global_transform = pose
+	var lift: Vector3 = up * 0.8
+	if not _ground_action_dust_material.gravity.is_equal_approx(lift):
+		_ground_action_dust_material.gravity = lift
+	if not _ground_action_dust.emitting:
+		_ground_action_dust.emitting = true
 
 
 func _ensure_barrier_foot_trail_controller() -> void:
@@ -50,6 +147,10 @@ func _cancel_barrier_blast() -> void:
 
 func reset_for_level_change() -> void:
 	var p = _owner
+	if is_instance_valid(_ground_action_dust):
+		_ground_action_dust.queue_free()
+	_ground_action_dust = null
+	_ground_action_dust_material = null
 	_cancel_barrier_blast()
 	p._sonic_boom_active = false
 	p._sonic_boom_was_full = false

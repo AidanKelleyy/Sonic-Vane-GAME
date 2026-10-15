@@ -1,4 +1,4 @@
-[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dvk14643rdjmm"]
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dvk14643rdjmm"]
 
 [ext_resource type="Texture2D" uid="uid://cofal0ttrvcyh" path="res://LS5Framework/Images/Ring_Particle.png" id="1_4ofg1"]
 

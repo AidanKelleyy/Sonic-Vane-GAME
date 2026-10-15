@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Water_Volume_Adventure.tscn" id="1"]
+
+[node name="AdventureWaterSphere" instance=ExtResource("1")]
+geometry = 1
+size = Vector3(450, 450, 450)
+visible_surface = 1
+runnable_surface = 1
+water_color = Color(0.07, 0.5, 0.43, 1)
+transparency = 0.75
+caustic_depth = 550.0

@@ -306,6 +306,14 @@ func refresh_profile() -> void:
 	_apply_profile_state(_current_state)
 
 
+func get_current_precipitation_state() -> Dictionary:
+	var state: Dictionary = _current_state if not _current_state.is_empty() else _sample_profile(profile)
+	return {
+		"intensity": float(state.get("intensity", 0.0)) * intensity_multiplier if _system_active and rain_enabled else 0.0,
+		"wind_velocity": state.get("wind_velocity", Vector2.ZERO),
+	}
+
+
 func get_cover_exposure() -> float:
 	return _cover_exposure
 

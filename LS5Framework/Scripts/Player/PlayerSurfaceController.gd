@@ -210,6 +210,7 @@ func _process_collisions_for_attachment(v_before: Vector3, p_before: Vector3, de
 		# Check for water surface landing (classic water running).
 		var is_water: bool = p._is_water_collider(collider)
 		var can_land_water: bool = p._can_land_on_water_surface(v_before, hit_normal)
+		can_land_water = can_land_water and p._water_module.can_run_on_collider(collider, hit_normal)
 		if _is_low_speed_detach_reattach_blocked(hit_normal, world_up):
 			can_land_water = false
 		if is_water and can_land_water:
@@ -254,7 +255,7 @@ func _process_collisions_for_attachment(v_before: Vector3, p_before: Vector3, de
 		if can_attach_from_collision:
 			# If we are in bounce mode, perform a bounce instead of attaching.
 			if p._bounce_state == p.BounceState.BOUNCE and p.bounce_enabled:
-				p._do_bounce_landing(v_before, hit_normal)
+				p._do_bounce_landing(v_before, hit_normal, collider_velocity)
 
 				# Keep surface info for orientation if needed
 				p.surface_normal = hit_normal.normalized()
@@ -432,6 +433,8 @@ func _try_ground_snap_attach(world_up: Vector3, v_before: Vector3 = Vector3.ZERO
 	var up: Vector3 = world_up.normalized()
 	if up.length() < 0.001:
 		up = p._get_gravity_up()
+	if _try_oriented_water_snap(up):
+		return
 
 	# Only snap if we're close and not moving upward (prevents breaking launches).
 	var vertical: float = p.velocity.dot(up)
@@ -485,6 +488,7 @@ func _try_ground_snap_attach(world_up: Vector3, v_before: Vector3 = Vector3.ZERO
 	if p.debug_mode_enabled and hit_collider_for_water != null:
 		print("[WATER DEBUG] Ground ray hit: %s (is_water=%s)" % [hit_collider_for_water.name, is_water])
 	var can_land: bool = p._can_land_on_water_surface(p.velocity, hit_normal)
+	can_land = can_land and p._water_module.can_run_on_collider(hit_collider_for_water, hit_normal)
 	if is_water and can_land:
 		p.velocity = p._apply_water_surface_landing_speed_penalty(p.velocity, hit_normal)
 		p.attached = true
@@ -1474,7 +1478,7 @@ func _ground_follow_probe(delta: float) -> void:
 		p._follow_normal = p.ground_ray.get_collision_normal()
 		var hit_collider = p.ground_ray.get_collider()
 		var hit_shape_index: int = p.ground_ray.get_collider_shape()
-		if p._is_water_collider(hit_collider) and not p._running_on_water_surface and not p._can_start_water_surface_running(p._follow_normal):
+		if p._is_water_collider(hit_collider) and (not p._water_module.can_run_on_collider(hit_collider, p._follow_normal) or (not p._running_on_water_surface and not p._can_start_water_surface_running(p._follow_normal))):
 			var floor_hit: Dictionary = _get_ground_ray_hit_ignoring_water_surface()
 			if not floor_hit.is_empty():
 				p._follow_point = floor_hit.position
@@ -1761,6 +1765,9 @@ func _update_attachment_state_after_move(delta: float) -> void:
 			p._follow_collider_shape_last
 		)
 		var follow_is_water: bool = p._is_water_collider(p._follow_collider_last)
+		if follow_is_water and not p._water_module.can_run_on_collider(p._follow_collider_last, raw_n):
+			p._drop_from_water_surface(raw_n)
+			return
 
 		if not can_attach:
 			if p._radial_attach_this_frame:
@@ -1782,6 +1789,8 @@ func _update_attachment_state_after_move(delta: float) -> void:
 				var blended_n: Vector3 = (prev_n * (1.0 - t_smooth) + raw_n * t_smooth).normalized()
 
 				p.surface_normal = blended_n
+				if p._running_on_water_surface:
+					p._water_surface_normal = blended_n
 				p.surface_point = p._follow_point
 				p._collision_support_normal = raw_n
 
@@ -1832,6 +1841,8 @@ func _update_attachment_state_after_move(delta: float) -> void:
 				p._reproject_velocity_onto_new_surface(prev_n, final_n)
 
 		p.surface_normal = final_n
+		if p._running_on_water_surface:
+			p._water_surface_normal = final_n
 		p.surface_point = p._follow_point
 		p._collision_support_normal = raw_n
 
@@ -1848,6 +1859,47 @@ func _update_attachment_state_after_move(delta: float) -> void:
 
 	if p.attached:
 		p._record_attach_state(p.surface_normal, world_up)
+
+
+func _try_oriented_water_snap(world_up: Vector3) -> bool:
+	var p = _owner
+	var player_up: Vector3 = p.get_up_vector().normalized()
+	if player_up.length_squared() < 0.001 or player_up.dot(world_up) > 0.999:
+		return false
+	var origin: Vector3 = p.global_position
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+		origin, origin - player_up * p.ground_ray_length, p.ground_ray.collision_mask, [p.get_rid()]
+	)
+	var hit: Dictionary = p.get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty():
+		return false
+	var collider: Node = hit.get("collider") as Node
+	if not collider or not p._is_water_collider(collider):
+		return false
+	var volume: Node = collider.get_parent()
+	if not volume or not volume.has_method("allows_water_running"):
+		return false
+	var normal: Vector3 = hit.normal.normalized()
+	if p.velocity.dot(normal) > 1.0:
+		return false
+	if not p._can_land_on_water_surface(p.velocity, normal) or not p._water_module.can_run_on_collider(collider, normal):
+		return false
+	if p._is_surface_alignment_rejected(collider, normal, world_up, int(hit.get("shape", -1))):
+		return false
+	if _is_low_speed_detach_reattach_blocked(normal, player_up):
+		return false
+	p.velocity = p._apply_water_surface_landing_speed_penalty(p.velocity, normal)
+	p.attached = true
+	p.surface_normal = normal
+	p.surface_point = hit.position
+	p._prev_surface_normal = normal
+	p._start_water_surface_running(normal)
+	p._finish_spring_landing_state()
+	p._attachment_immunity = 0.0
+	p._airborne_time = 0.0
+	p._record_attach_state(normal, world_up)
+	p._ground_snap_attached_this_frame = true
+	return true
 
 
 func _rotate_velocity_with_surface(previous_normal: Vector3, next_normal: Vector3) -> void:

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dyafo7cq17b5h"]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Water_Volume_Adventure.tscn" id="1"]
+
+[node name="AdventurePool" unique_id=1855235790 instance=ExtResource("1")]
+size = Vector3(600, 100, 600)
+transparency = 0.5
+caustic_depth = 160.0

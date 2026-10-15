@@ -243,6 +243,61 @@ func transition_to_time(hour: float, duration_seconds: float, shortest_path: boo
 	_time_transition_active = true
 
 
+func get_current_lighting_state() -> Dictionary:
+	var sampled: Dictionary = _get_profile_state()
+	var weather_state: Dictionary = _get_weather_state()
+	var overcast: float = clampf(float(weather_state.get("cloud_coverage", 0.0)) * float(weather_state.get("cloud_density", 0.0)), 0.0, 1.0)
+	var direct_multiplier: float = lerpf(1.0, float(weather_state.get("overcast_light_multiplier", 1.0)), overcast) if weather_controls_lighting else 1.0
+	var ambient_multiplier: float = lerpf(1.0, float(weather_state.get("overcast_ambient_multiplier", 1.0)), overcast) if weather_controls_lighting else 1.0
+	var zenith: Color = sampled["zenith_color"] if time_controls_sky_appearance else _fixed_sky_parameters.get(&"zenith_color", sampled["zenith_color"])
+	var horizon: Color = sampled["horizon_color"] if time_controls_sky_appearance else _fixed_sky_parameters.get(&"horizon_color", sampled["horizon_color"])
+	var cloud: Color = sampled["cloud_light_color"] if time_controls_cloud_lighting else _fixed_sky_parameters.get(&"cloud_light_color", sampled["cloud_light_color"])
+	var sky_energy: float = float(sampled["sky_energy"]) if time_controls_environment_lighting else _fixed_background_energy
+	var ambient: Color = sampled["ambient_color"] if time_controls_environment_lighting else _fixed_ambient_color
+	var ambient_energy: float = (float(sampled["ambient_energy"]) if time_controls_environment_lighting else _fixed_ambient_energy) * ambient_multiplier
+	var sun_energy: float = (float(sampled["sun_energy"]) if time_controls_celestial_lighting else _fixed_sun_energy) * direct_multiplier
+	var moon_energy: float = (float(sampled["moon_energy"]) if time_controls_celestial_lighting else _fixed_moon_energy) * direct_multiplier
+	var sun_color: Color = sampled["sun_color"] if time_controls_celestial_lighting else _fixed_sun_color
+	var moon_color: Color = sampled["moon_color"] if time_controls_celestial_lighting else _fixed_moon_color
+	var environment_node: WorldEnvironment = get_node_or_null(world_environment_path) as WorldEnvironment
+	if environment_node and environment_node.environment:
+		var environment: Environment = environment_node.environment
+		sky_energy = environment.background_energy_multiplier
+		ambient = environment.ambient_light_color
+		ambient_energy = environment.ambient_light_energy
+		var sky_material: ShaderMaterial = environment.sky.sky_material as ShaderMaterial if environment.sky else null
+		if sky_material:
+			var value: Variant = sky_material.get_shader_parameter("zenith_color")
+			if value is Color:
+				zenith = value
+			value = sky_material.get_shader_parameter("horizon_color")
+			if value is Color:
+				horizon = value
+			value = sky_material.get_shader_parameter("cloud_light_color")
+			if value is Color:
+				cloud = value
+	var sun: DirectionalLight3D = get_node_or_null(sun_light_path) as DirectionalLight3D
+	var moon: DirectionalLight3D = get_node_or_null(moon_light_path) as DirectionalLight3D
+	if sun:
+		sun_energy = sun.light_energy if sun.visible else 0.0
+		sun_color = sun.light_color
+	if moon:
+		moon_energy = moon.light_energy if moon.visible else 0.0
+		moon_color = moon.light_color
+	var sky_color: Color = zenith.lerp(horizon, 0.55).lerp(cloud, overcast * 0.65 if weather_controls_clouds else 0.0)
+	var direct_energy: float = maxf(sun_energy + moon_energy, 0.0)
+	var light_color: Color = (sun_color * sun_energy + moon_color * moon_energy) / direct_energy if direct_energy > 0.0001 else sky_color
+	return {
+		"lighting_available": true, "sky_color": sky_color, "sky_energy": maxf(sky_energy, 0.0),
+		"ambient_color": ambient, "ambient_energy": maxf(ambient_energy, 0.0),
+		"light_color": light_color, "direct_light_energy": direct_energy,
+	}
+
+
+func get_current_weather_state() -> Dictionary:
+	return _get_weather_state()
+
+
 func transition_to_weather(target_weather: DayNightWeather, duration_seconds: float) -> void:
 	if not target_weather:
 		return

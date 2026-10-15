@@ -2,6 +2,8 @@ extends RefCounted
 class_name PlayerWaterController
 
 var _owner: Node = null
+var _precise_body_volumes: Dictionary = {}
+var _precise_head_volumes: Dictionary = {}
 
 
 func _init(owner: Node) -> void:
@@ -34,6 +36,8 @@ func reset_for_teleport() -> void:
 	var p = _owner
 	if p == null:
 		return
+	_precise_body_volumes.clear()
+	_precise_head_volumes.clear()
 	p._water_volume_count = 0
 	p._in_water_volume = false
 	p._head_water_volume_count = 0
@@ -54,6 +58,12 @@ func reset_for_teleport() -> void:
 
 
 func register_volume_entry(collider: Node3D) -> void:
+	if _is_precise_volume(collider):
+		return
+	_enter_volume(collider)
+
+
+func _enter_volume(collider: Node3D) -> void:
 	var p = _owner
 	if p == null or not p.water_physics_enabled:
 		return
@@ -68,6 +78,12 @@ func register_volume_entry(collider: Node3D) -> void:
 
 
 func register_volume_exit(collider: Node3D) -> void:
+	if _is_precise_volume(collider):
+		return
+	_exit_volume(collider)
+
+
+func _exit_volume(collider: Node3D) -> void:
 	var p = _owner
 	if p == null or not p.water_physics_enabled:
 		return
@@ -80,6 +96,12 @@ func register_volume_exit(collider: Node3D) -> void:
 
 
 func register_head_entry(collider: Node3D) -> void:
+	if _is_precise_volume(collider):
+		return
+	_enter_head(collider)
+
+
+func _enter_head(collider: Node3D) -> void:
 	var p = _owner
 	if p == null or not p.water_physics_enabled:
 		return
@@ -91,6 +113,12 @@ func register_head_entry(collider: Node3D) -> void:
 
 
 func register_head_exit(collider: Node3D) -> void:
+	if _is_precise_volume(collider):
+		return
+	_exit_head(collider)
+
+
+func _exit_head(collider: Node3D) -> void:
 	var p = _owner
 	if p == null or not p.water_physics_enabled:
 		return
@@ -200,13 +228,10 @@ func refresh_submersion_state() -> void:
 	var p = _owner
 	if p == null or not p.water_physics_enabled:
 		return
+	_refresh_precise_volumes()
 	if p._running_on_water_surface and not p.attached:
 		p._running_on_water_surface = false
-	if p._running_on_water_surface:
-		p._in_water_volume = false
-	elif p._water_volume_count > 0:
-		# Surface exits restore immersion without another detector entry.
-		p._in_water_volume = true
+	p._in_water_volume = p._water_volume_count > 0 and not p._running_on_water_surface
 
 	var was_fully_submerged: bool = p._fully_submerged
 	if p.attached:
@@ -267,7 +292,7 @@ func reset_logic_speed() -> void:
 
 func get_surface_run_normal() -> Vector3:
 	var p = _owner
-	var normal: Vector3 = p._water_surface_normal.normalized()
+	var normal: Vector3 = p.surface_normal.normalized() if p.attached else p._water_surface_normal.normalized()
 	if normal.length() < 0.001:
 		normal = p.surface_normal.normalized()
 	if normal.length() < 0.001:
@@ -315,8 +340,6 @@ func drop_from_surface(normal: Vector3) -> void:
 		drop_normal = p.get_gravity_up()
 	p.attached = false
 	p._running_on_water_surface = false
-	p._in_water_volume = true
-	p._fully_submerged = true
 	p._water_reattach_cooldown_timer = p.water_reattach_cooldown
 	p._attachment_immunity = max(p._attachment_immunity, p.water_reattach_cooldown)
 	p._clear_coyote_jump_window()
@@ -328,13 +351,85 @@ func drop_from_surface(normal: Vector3) -> void:
 		var normal_speed: float = p.velocity.dot(drop_normal)
 		if normal_speed > -down_speed:
 			p.velocity -= drop_normal * (normal_speed + down_speed)
+	refresh_submersion_state()
 
 
 func get_surface_normal(area: Variant) -> Vector3:
 	var p = _owner
 	if is_instance_valid(area) and area is Area3D:
+		var volume: Node = area.get_parent()
+		if volume and volume.has_method("get_water_surface_normal"):
+			return volume.call("get_water_surface_normal", p.global_position)
 		return (area as Area3D).global_transform.basis.y.normalized()
 	return p.get_gravity_up()
+
+
+func can_run_on_collider(collider: Object, normal: Vector3) -> bool:
+	if not is_instance_valid(collider) or not collider is Node:
+		return false
+	var volume: Node = (collider as Node).get_parent()
+	if volume and volume.has_method("allows_water_running"):
+		return volume.call("allows_water_running", normal, _owner.get_up_vector(), _owner._running_on_water_surface)
+	return true
+
+
+func _is_precise_volume(collider: Node) -> bool:
+	return is_instance_valid(collider) and collider.get_parent() and collider.get_parent().has_method("contains_water_point")
+
+
+func _sample_precise_volumes(detector: Area3D, point: Vector3) -> Dictionary:
+	var inside: Dictionary = {}
+	if not is_instance_valid(detector):
+		return inside
+	for area: Area3D in detector.get_overlapping_areas():
+		if area.is_in_group("water") and _is_precise_volume(area):
+			if area.get_parent().call("contains_water_point", point):
+				inside[area.get_instance_id()] = area
+	return inside
+
+
+func _refresh_precise_volumes() -> void:
+	var p = _owner
+	var detector: Area3D = p.get_node_or_null("WaterDetector") as Area3D
+	var body_inside: Dictionary = _sample_precise_volumes(detector, _detector_sample_point(detector, p.global_position))
+	for id: int in body_inside:
+		if not _precise_body_volumes.has(id):
+			_enter_volume(body_inside[id])
+	for id: int in _precise_body_volumes:
+		if not body_inside.has(id):
+			var area: Area3D = _precise_body_volumes[id]
+			if is_instance_valid(area):
+				_exit_volume(area)
+			else:
+				p._water_volume_count = maxi(p._water_volume_count - 1, 0)
+				p._in_water_volume = p._water_volume_count > 0
+	_precise_body_volumes = body_inside
+	var head_detector: Area3D = p._head_water_detector_node as Area3D
+	var head_point: Vector3 = _detector_sample_point(head_detector, p.global_position)
+	var head_inside: Dictionary = _sample_precise_volumes(head_detector, head_point)
+	for id: int in head_inside:
+		if not _precise_head_volumes.has(id):
+			_enter_head(head_inside[id])
+	for id: int in _precise_head_volumes:
+		if not head_inside.has(id):
+			var area: Area3D = _precise_head_volumes[id]
+			if is_instance_valid(area):
+				_exit_head(area)
+			else:
+				p._head_water_volume_count = maxi(p._head_water_volume_count - 1, 0)
+				p._head_in_water_volume = p._head_water_volume_count > 0
+				if not p._head_in_water_volume:
+					notify_head_exited_water()
+	_precise_head_volumes = head_inside
+
+
+func _detector_sample_point(detector: Area3D, fallback: Vector3) -> Vector3:
+	if is_instance_valid(detector):
+		for child: Node in detector.get_children():
+			if child is CollisionShape3D and not (child as CollisionShape3D).disabled:
+				return (child as CollisionShape3D).global_position
+		return detector.global_position
+	return fallback
 
 
 func get_splash_tier(velocity_value: Vector3, surface_normal: Vector3) -> int:

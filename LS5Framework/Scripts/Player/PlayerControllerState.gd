@@ -2197,6 +2197,12 @@ var _smoothed_surface_normal: Vector3 = Vector3.UP
 @export var left_foot_dust_emitter: Node3D
 ## Location used when the right foot emits dust.
 @export var right_foot_dust_emitter: Node3D
+## Footstep dust size multiplier at zero movement speed.
+@export_range(0.1, 8.0, 0.1) var footstep_dust_size_min_multiplier: float = 1.0
+## Footstep dust size multiplier at or above the full-size movement speed.
+@export_range(0.1, 8.0, 0.1) var footstep_dust_size_max_multiplier: float = 3.0
+## Actual surface-tangential speed where footstep dust reaches its maximum size.
+@export_range(0.0, 300.0, 1.0) var footstep_dust_full_size_speed: float = 100.0
 
 @export_subgroup("Movement/Skidding")
 ## Looping skid sound player.
@@ -2712,6 +2718,24 @@ var _water_logic_speed_elapsed: float = 0.0
 @export var homing_reticle_sound_bus: StringName = &"UI"
 @export var homing_reticle_sound_volume_db: float = -4.0
 
+@export_subgroup("Effects/Ground Action Dust")
+## Emits directional dust behind grounded spindash charges.
+@export var spindash_dust_enabled: bool = true
+## Emits directional dust toward the outside of grounded drifts.
+@export var drift_dust_enabled: bool = true
+## Supplies the DustParticles GPU emitter and its dust artwork.
+@export var ground_action_dust_scene: PackedScene = preload("res://LS5Framework/Particles/FootstepDustBurst.tscn")
+## Height above the ground contact point used by the directional dust emitter.
+@export_range(0.0, 1.0, 0.01) var ground_action_dust_height: float = 0.12
+## Minimum surface-tangential movement speed required for drift dust.
+@export_range(0.0, 100.0, 0.5) var drift_dust_min_speed: float = 10.0
+## Size multiplier applied to the directional dust particle growth range.
+@export_range(0.1, 8.0, 0.1) var ground_action_dust_size_multiplier: float = 2.5
+## Launch-speed multiplier applied to directional spindash and drift dust.
+@export_range(0.0, 8.0, 0.1) var ground_action_dust_launch_speed_multiplier: float = 3.0
+## Lifetime of directional dust particles, in seconds.
+@export_range(0.05, 3.0, 0.05) var ground_action_dust_lifetime: float = 0.9
+
 @export_subgroup("Effects/Speed Lines")
 @export var speed_lines_enabled: bool = true
 @export var speed_lines_follow_speed_scale: float = 0.7
@@ -3196,6 +3220,9 @@ var _platform_on_floor_last: bool = false
 var _platform_velocity_last: Vector3 = Vector3.ZERO
 var _platform_collider_last: Node3D
 var _platform_prev_origin: Vector3 = Vector3.ZERO
+var _surface_launch_carry_suppressed: bool = false
+var _surface_launch_carry_consumed: bool = false
+var _coyote_surface_velocity_world: Vector3 = Vector3.ZERO
 var _dbg_tp_trace: int = 0
 ## Set true in Inspector to print per-frame velocity at every step when on a RigidBody3D.
 @export var _dbg_dynbody: bool = false

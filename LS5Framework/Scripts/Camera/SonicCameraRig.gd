@@ -552,6 +552,7 @@ var _inverted_attachment_transition_consumed: bool = false
 
 # Underwater effect state
 var _camera_water_volume_count: int = 0
+var _camera_precise_water_volumes: Dictionary = {}
 var _camera_in_water: bool = false
 var _underwater_effect: Node = null
 var _speed_radial_blur_effect: Node = null
@@ -711,6 +712,12 @@ func _setup_camera_water_audio() -> void:
 
 
 func _on_camera_water_area_entered(area: Area3D) -> void:
+	if area.get_parent() and area.get_parent().has_method("contains_water_point"):
+		return
+	_enter_camera_water(area)
+
+
+func _enter_camera_water(area: Area3D) -> void:
 	if not area.is_in_group("water"):
 		return
 	var was_in_water: bool = _camera_water_volume_count > 0
@@ -728,6 +735,12 @@ func _on_camera_water_area_entered(area: Area3D) -> void:
 
 
 func _on_camera_water_area_exited(area: Area3D) -> void:
+	if area.get_parent() and area.get_parent().has_method("contains_water_point"):
+		return
+	_exit_camera_water(area)
+
+
+func _exit_camera_water(area: Area3D) -> void:
 	if not area.is_in_group("water"):
 		return
 	_camera_water_volume_count = max(_camera_water_volume_count - 1, 0)
@@ -751,6 +764,35 @@ func _play_camera_water_one_shot(stream: AudioStream) -> void:
 		return
 	_camera_water_one_shot_player.stream = stream
 	_camera_water_one_shot_player.play()
+
+
+func _refresh_precise_camera_water() -> void:
+	if not is_instance_valid(_camera_water_detector_node):
+		return
+	var inside: Dictionary = {}
+	var point: Vector3 = camera.global_position if is_instance_valid(camera) else _camera_water_detector_node.global_position
+	for area: Area3D in _camera_water_detector_node.get_overlapping_areas():
+		var volume: Node = area.get_parent()
+		if area.is_in_group("water") and volume and volume.has_method("contains_water_point"):
+			if volume.call("contains_water_point", point):
+				inside[area.get_instance_id()] = area
+	for id: int in inside:
+		if not _camera_precise_water_volumes.has(id):
+			_enter_camera_water(inside[id])
+	for id: int in _camera_precise_water_volumes:
+		if not inside.has(id):
+			var area: Area3D = _camera_precise_water_volumes[id]
+			if is_instance_valid(area):
+				_exit_camera_water(area)
+			else:
+				_camera_water_volume_count = maxi(_camera_water_volume_count - 1, 0)
+				if not _camera_water_volume_count:
+					_camera_in_water = false
+					_set_camera_water_loop_active(false)
+					if is_instance_valid(_underwater_effect):
+						_underwater_effect.call("set_underwater", false)
+						_underwater_effect.call("clear_tint_override")
+	_camera_precise_water_volumes = inside
 
 
 func _set_camera_water_loop_active(active: bool) -> void:
@@ -828,6 +870,7 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_refresh_precise_camera_water()
 	if render_rate_camera_updates:
 		_camera_look_strength = _render_look_strength_pending
 		_camera_mouse_strength = _render_mouse_strength_pending

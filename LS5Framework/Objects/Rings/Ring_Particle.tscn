@@ -9,4 +9,5 @@ script = ExtResource("1_ring_particle")
 twinkle_start_scale = 0.007
 twinkle_fade_out_time = 0.3
 twinkle_pixel_size = 0.003
+twinkle_glow_scale_multiplier = 3.0
 twinkle_glow_color = Color(7.181, 7.181, 7.181, 1)

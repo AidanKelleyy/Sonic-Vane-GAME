@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://c555wstctf6fi"
+path="res://.godot/imported/AdventureWaterComposite.glsl-deab65ccadd9c28fbefd73bd0e17f1b2.res"
+
+[deps]
+
+source_file="res://LS5Framework/Shaders/AdventureWaterComposite.glsl"
+dest_files=["res://.godot/imported/AdventureWaterComposite.glsl-deab65ccadd9c28fbefd73bd0e17f1b2.res"]
+
+[params]
+

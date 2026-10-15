@@ -180,6 +180,8 @@ func execute(context: Dictionary = {}) -> bool:
 	if ground_launch and up.dot(get_owner_gravity_up()) > 0.7:
 		refresh_airborne_abilities()
 	var entry_velocity: Vector3 = context.get("entry_velocity", _get_entry_velocity())
+	var surface_launch: bool = ground_launch and owner_player.attached and not owner_player._rail_active
+	var surface_velocity: Vector3 = owner_player.get_ground_launch_surface_velocity() if surface_launch else Vector3.ZERO
 	if not activate(context):
 		return false
 	if owner_player._rail_active:
@@ -217,6 +219,8 @@ func execute(context: Dictionary = {}) -> bool:
 	if wall_fatigue_enabled:
 		launch_speed *= _wall_kick_strength
 	owner_player.velocity = lateral * clamp(horizontal_speed_retention, 0.0, 1.0) + up * max(vertical, launch_speed)
+	if surface_launch:
+		owner_player.velocity = owner_player.inherit_surface_launch_velocity(owner_player.velocity, surface_velocity)
 	if kick_contacts:
 		kick_contacts.begin_kick(&"uppercut", up)
 	_update_attack_window()

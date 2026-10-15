@@ -22,13 +22,13 @@ extends CharacterAbility
 @export var bounce_down_impulse: float = 40.0
 
 @export_subgroup("Movement/Rebound")
-## Minimum impact speed treated as a valid bounce.
+## Minimum surface-relative impact speed used for the rebound.
 @export var bounce_min_impact_speed: float = 10.0
 ## Speed added to the upward rebound.
 @export var bounce_add_speed: float = 0.1
-## Minimum upward rebound speed.
+## Minimum outward rebound speed relative to the contacted surface.
 @export var bounce_min_up_speed: float = 0.5
-## Maximum upward rebound speed.
+## Maximum outward rebound speed relative to the contacted surface.
 @export var bounce_max_up_speed: float = 50.0
 
 @export_subgroup("Movement/Landing")

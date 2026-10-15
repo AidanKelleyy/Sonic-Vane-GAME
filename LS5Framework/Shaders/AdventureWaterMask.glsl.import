@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://b6upsjjjbnna5"
+path="res://.godot/imported/AdventureWaterMask.glsl-630f1ddeea4716e362555cdd82466461.res"
+
+[deps]
+
+source_file="res://LS5Framework/Shaders/AdventureWaterMask.glsl"
+dest_files=["res://.godot/imported/AdventureWaterMask.glsl-630f1ddeea4716e362555cdd82466461.res"]
+
+[params]
+

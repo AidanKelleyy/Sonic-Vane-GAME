@@ -1,0 +1,145 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/World/AdventureWaterShowcase.gd" id="1"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Pool.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Tilted_Box.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Sideways_Wall.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Water_Sphere.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Clear_Cylinder.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_CSG_Union.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_CSG_Cutout.tscn" id="8"]
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.07, 0.1, 0.15, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.65, 0.8, 1, 1)
+ambient_light_energy = 0.8
+tonemap_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.52, 0.55, 0.5, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="Floor"]
+material = SubResource("FloorMaterial")
+size = Vector3(10500, 20, 1300)
+
+[sub_resource type="StandardMaterial3D" id="StripeMaterial"]
+albedo_color = Color(0.19, 0.23, 0.26, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Stripe"]
+material = SubResource("StripeMaterial")
+size = Vector3(10500, 4, 30)
+
+[node name="AdventureWaterShowcase" type="Node3D" node_paths=PackedStringArray("preview_camera", "examples_root", "description_label", "previous_button", "next_button")]
+script = ExtResource("1")
+preview_camera = NodePath("Camera3D")
+examples_root = NodePath("Examples")
+description_label = NodePath("CanvasLayer/Margin/Panel/Margin/Controls/Description")
+previous_button = NodePath("CanvasLayer/Margin/Panel/Margin/Controls/Buttons/Previous")
+next_button = NodePath("CanvasLayer/Margin/Panel/Margin/Controls/Buttons/Next")
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Light" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.7, -0.4, 0)
+light_energy = 1.5
+
+[node name="Camera3D" type="Camera3D" parent="."]
+current = true
+far = 20000.0
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+position = Vector3(4500, -90, 0)
+mesh = SubResource("Floor")
+
+[node name="Stripe1" type="MeshInstance3D" parent="."]
+position = Vector3(4500, -78, 80)
+mesh = SubResource("Stripe")
+
+[node name="Stripe2" type="MeshInstance3D" parent="."]
+position = Vector3(4500, -78, -80)
+mesh = SubResource("Stripe")
+
+[node name="Stripe3" type="MeshInstance3D" parent="."]
+position = Vector3(4500, -78, 240)
+mesh = SubResource("Stripe")
+
+[node name="Stripe4" type="MeshInstance3D" parent="."]
+position = Vector3(4500, -78, -240)
+mesh = SubResource("Stripe")
+
+[node name="Examples" type="Node3D" parent="."]
+
+[node name="Pool" parent="Examples" instance=ExtResource("2")]
+
+[node name="TiltedBox" parent="Examples" instance=ExtResource("3")]
+position = Vector3(1500, 130, 0)
+
+[node name="SidewaysWall" parent="Examples" instance=ExtResource("4")]
+position = Vector3(3000, 170, 0)
+
+[node name="Sphere" parent="Examples" instance=ExtResource("5")]
+position = Vector3(4500, 270, 0)
+
+[node name="ClearCylinder" parent="Examples" instance=ExtResource("6")]
+position = Vector3(6000, 60, 0)
+
+[node name="CSGUnion" parent="Examples" instance=ExtResource("7")]
+position = Vector3(7500, 40, 0)
+
+[node name="CSGCutout" parent="Examples" instance=ExtResource("8")]
+position = Vector3(9000, 40, 0)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Margin" type="MarginContainer" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -128.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer/Margin"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="CanvasLayer/Margin/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="Controls" type="VBoxContainer" parent="CanvasLayer/Margin/Panel/Margin"]
+layout_mode = 2
+
+[node name="Description" type="Label" parent="CanvasLayer/Margin/Panel/Margin/Controls"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Margin/Panel/Margin/Controls"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="Previous" type="Button" parent="CanvasLayer/Margin/Panel/Margin/Controls/Buttons"]
+custom_minimum_size = Vector2(120, 32)
+layout_mode = 2
+focus_neighbor_right = NodePath("../Next")
+text = "Previous"
+
+[node name="Next" type="Button" parent="CanvasLayer/Margin/Panel/Margin/Controls/Buttons"]
+custom_minimum_size = Vector2(120, 32)
+layout_mode = 2
+focus_neighbor_left = NodePath("../Previous")
+text = "Next"

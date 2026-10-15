@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Water_Volume_Adventure.tscn" id="1"]
+
+[ext_resource type="ArrayMesh" path="res://LS5Framework/Objects/Water/Examples/Adventure_CSG_Cutout_Mesh.tres" id="2"]
+[ext_resource type="Texture3D" path="res://LS5Framework/Objects/Water/Examples/Adventure_CSG_Cutout_CausticMask.res" id="3"]
+
+[node name="AdventureCSGCutout" instance=ExtResource("1")]
+geometry = 3
+baked_mesh = ExtResource("2")
+baked_caustic_mask = ExtResource("3")
+visible_surface = 1
+runnable_surface = 1
+geometry_source = NodePath("Source")
+water_color = Color(0.04, 0.35, 0.65, 1)
+transparency = 0.55
+caustic_clip_resolution = 24
+caustic_depth = 250.0
+
+[node name="Source" type="CSGCombiner3D" parent="."]
+visible = false
+
+[node name="WaterBlock" type="CSGBox3D" parent="Source"]
+position = Vector3(0, -75, 0)
+size = Vector3(600, 150, 600)
+
+[node name="DryOpening" type="CSGCylinder3D" parent="Source"]
+operation = 2
+position = Vector3(0, -75, 0)
+radius = 140.0
+height = 200.0
+sides = 32

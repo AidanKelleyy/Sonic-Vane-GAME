@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Water_Volume_Adventure.tscn" id="1"]
+
+[node name="AdventureSidewaysWall" instance=ExtResource("1")]
+rotation = Vector3(0, 0, -1.5707963)
+size = Vector3(450, 90, 700)
+visible_surface = 1
+runnable_surface = 0
+water_color = Color(0.08, 0.22, 0.6, 1)
+transparency = 0.7

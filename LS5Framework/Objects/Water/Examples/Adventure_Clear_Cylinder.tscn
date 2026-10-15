@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Water_Volume_Adventure.tscn" id="1"]
+
+[node name="AdventureClearCylinder" instance=ExtResource("1")]
+geometry = 2
+size = Vector3(400, 180, 400)
+visible_surface = 1
+runnable_surface = 1
+transparency = 1.0
+refraction_enabled = true
+refraction_strength = 0.006
+surface_fps = 10.0
+caustic_fps = 15.0
+caustic_depth = 300.0
