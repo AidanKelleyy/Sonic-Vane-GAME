@@ -133,19 +133,27 @@ var _carry_collision_mask: int = 0
 @export var simplified_up: Vector3 = Vector3.UP
 ## Gravity strength used by simplified physics.
 @export var simplified_gravity_strength: float = 65.0
-## Tangential velocity removed on simplified ground contact.
+## Dynamic friction coefficient used while simplified props slide on a support.
 @export_range(0.0, 1.0, 0.01) var simplified_friction: float = 0.25
+## Static friction coefficient for quiet props, clamped to at least the dynamic coefficient.
+@export_range(0.0, 2.0, 0.01) var simplified_static_friction: float = 0.6
+## Maximum contact responses resolved during each simplified motion step.
+@export_range(1, 16, 1) var simplified_max_slides: int = 4
+## Minimum settling threshold for closing speed; large gravity steps raise this threshold.
+@export var simplified_settle_speed: float = 2.0
+## Maximum downward distance used to check the complete collision footprint.
+@export var simplified_support_distance: float = 0.08
 ## Normal velocity retained on simplified ground contact.
 @export_range(0.0, 1.25, 0.01) var simplified_bounce: float = 0.35
-## Radius used by simplified ground checks.
+## Fallback collision radius for shapeless legacy props and surface-effect probes.
 @export var simplified_collision_radius: float = 0.55
 ## Maximum distance covered by one simplified physics sweep step.
 @export var simplified_max_sweep_step_distance: float = 0.45
 ## Extra separation applied after simplified physics impact.
 @export var simplified_collision_skin: float = 0.025
-## Collision mask used by simplified ground checks.
+## Ground mask used by shapeless legacy props; authored shapes use the body collision mask.
 @export_flags_3d_physics var simplified_ground_collision_mask: int = 17
-## Speed below which simplified bounce normal velocity is cleared.
+## Relative speed eligible for resting; smaller rebound speeds are cleared.
 @export var simplified_sleep_speed: float = 0.5
 ## Keeps simplified physics carryables upright while they are not carried.
 @export var simplified_keep_upright: bool = true
@@ -251,6 +259,8 @@ var _rigid_support_shape_transform: Transform3D = Transform3D.IDENTITY
 var _rigid_support_refresh_timer: float = 0.0
 var _rigid_rest_parameters: PhysicsTestMotionParameters3D = PhysicsTestMotionParameters3D.new()
 var _rigid_rest_result: PhysicsTestMotionResult3D = PhysicsTestMotionResult3D.new()
+var _simplified_motion_parameters: PhysicsTestMotionParameters3D
+var _simplified_motion_result: PhysicsTestMotionResult3D
 var _simplified_ray_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
 var _surface_ray_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
 var _gravity_modifiers: Dictionary = {}
@@ -293,7 +303,7 @@ func _physics_process(delta: float) -> void:
 	_update_collision_exception_timer(delta)
 	_update_surface_effect_timers(delta)
 	_update_gravity_pull_state(delta)
-	if buoyancy_enabled and buoyancy_component and sleeping and not anchored and not is_carried():
+	if carry_physics_mode == CarryPhysicsMode.RIGID_BODY and buoyancy_enabled and buoyancy_component and sleeping and not anchored and not is_carried():
 		var water: Dictionary = buoyancy_component.evaluate(global_transform, linear_velocity, angular_velocity, get_prop_gravity_vector(), mass, delta)
 		if buoyancy_component.submerged_fraction > 0.0 or buoyancy_component.get_meta(&"was_submerged", false):
 			sleeping = false
@@ -874,10 +884,165 @@ func _update_carry_ease(delta: float) -> void:
 
 
 func _update_simplified_physics(delta: float) -> void:
+	if not _has_simplified_collision_shapes():
+		_update_simplified_ray_physics(delta)
+		return
 	var up: Vector3 = get_gravity_up() if follow_gravity_pull else _get_base_gravity_up()
 	if simplified_keep_upright:
 		_apply_simplified_upright(up)
-	if not buoyancy_enabled and _simplified_should_remain_at_rest(up):
+	var gravity_strength: float = _get_resolved_gravity_strength(maxf(simplified_gravity_strength, 0.0))
+	var acceleration: Vector3 = -up * gravity_strength
+	if buoyancy_component and buoyancy_enabled:
+		var water: Dictionary = buoyancy_component.evaluate(global_transform, _manual_velocity, Vector3.ZERO, acceleration, mass, delta)
+		acceleration += (water["force"] as Vector3) / maxf(mass, 0.001)
+	var support: Dictionary = _get_simplified_shape_support(up)
+	if _apply_simplified_support(support, up, acceleration, delta):
+		return
+	var distance: float = _manual_velocity.length() * maxf(delta, 0.0)
+	var step_count: int = clampi(ceili(distance / maxf(simplified_max_sweep_step_distance, 0.01)), 1, 64)
+	var step_delta: float = maxf(delta, 0.0) / float(step_count)
+	for index: int in range(step_count):
+		_move_simplified_shape_step(step_delta, up)
+		if _manual_velocity.is_zero_approx():
+			break
+
+
+func _has_simplified_collision_shapes() -> bool:
+	for owner_id: int in get_shape_owners():
+		if not is_shape_owner_disabled(owner_id) and shape_owner_get_shape_count(owner_id) > 0:
+			return true
+	return false
+
+
+func _get_simplified_shape_support(up: Vector3) -> Dictionary:
+	if not _simplified_motion_parameters:
+		_simplified_motion_parameters = PhysicsTestMotionParameters3D.new()
+		_simplified_motion_result = PhysicsTestMotionResult3D.new()
+	var parameters: PhysicsTestMotionParameters3D = _simplified_motion_parameters
+	parameters.from = global_transform
+	parameters.motion = -up * maxf(simplified_support_distance, 0.001)
+	parameters.margin = maxf(simplified_collision_skin, 0.001)
+	parameters.recovery_as_collision = true
+	parameters.max_collisions = clampi(carry_rest_max_support_contacts, 1, 32)
+	parameters.exclude_bodies = []
+	if is_instance_valid(_collision_exception_body):
+		parameters.exclude_bodies = [_collision_exception_body.get_rid()]
+	var result: PhysicsTestMotionResult3D = _simplified_motion_result
+	if not PhysicsServer3D.body_test_motion(get_rid(), parameters, result):
+		return {}
+	var best_index: int = -1
+	var best_alignment: float = maxf(carry_rest_min_support_dot, 0.0)
+	for index: int in range(result.get_collision_count()):
+		var normal: Vector3 = result.get_collision_normal(index).normalized()
+		var alignment: float = normal.dot(up)
+		if alignment > best_alignment and result.get_collision_depth(index) <= maxf(simplified_collision_skin * 2.0, 0.01):
+			best_index = index
+			best_alignment = alignment
+	if best_index < 0:
+		return {}
+	return {"normal": result.get_collision_normal(best_index).normalized(), "position": result.get_collision_point(best_index), "collider": result.get_collider(best_index), "velocity": result.get_collider_velocity(best_index), "travel": result.get_travel()}
+
+
+func _simplified_collider_velocity(collider: Object, point: Vector3, fallback: Vector3) -> Vector3:
+	if collider is ObjectPhysicsBody3D:
+		return collider.get_dynamic_impact_velocity_at(point)
+	return fallback
+
+
+func _simplified_support_body_can_rest(collider: Object) -> bool:
+	if not is_instance_valid(collider) or not collider is Node3D or not collider.is_inside_tree() or collider.is_queued_for_deletion():
+		return false
+	if collider is ObjectPhysicsBody3D:
+		if collider.is_carried():
+			return false
+		if collider.anchored:
+			return true
+		if collider.carry_physics_mode == CarryPhysicsMode.SIMPLIFIED:
+			return collider._simplified_resting and collider.get_dynamic_impact_velocity().is_zero_approx()
+	if collider is RigidBody3D:
+		return collider.freeze or (collider.sleeping and collider.linear_velocity.is_zero_approx() and collider.angular_velocity.is_zero_approx())
+	return _rigid_support_body_can_rest(collider as Node3D)
+
+
+func _apply_simplified_support(support: Dictionary, up: Vector3, acceleration: Vector3, delta: float) -> bool:
+	var was_resting: bool = _simplified_resting
+	_simplified_resting = false
+	if support.is_empty():
+		_manual_velocity += acceleration * delta
+		return false
+	var normal: Vector3 = support.normal
+	var point: Vector3 = support.position
+	var collider: Object = support.collider
+	var support_velocity: Vector3 = _simplified_collider_velocity(collider, point, support.velocity)
+	var relative: Vector3 = _manual_velocity - support_velocity
+	var normal_speed: float = relative.dot(normal)
+	var normal_acceleration: float = acceleration.dot(normal)
+	var settling_speed: float = maxf(maxf(simplified_settle_speed, 0.0), maxf(-normal_acceleration, 0.0) * maxf(delta, 0.0) * 1.5)
+	if normal_speed > maxf(simplified_sleep_speed, 0.0) or normal_speed < -settling_speed or normal_acceleration > 0.001:
+		_manual_velocity += acceleration * delta
+		return false
+	# Support gaps require physical motion before settling.
+	if (support.travel as Vector3).dot(-up) > maxf(simplified_collision_skin, 0.001) + 0.002:
+		_manual_velocity += acceleration * delta
+		return false
+	var tangent: Vector3 = relative.slide(normal)
+	var tangent_acceleration: Vector3 = acceleration.slide(normal)
+	var normal_force: float = maxf(-normal_acceleration, 0.0)
+	var static_friction: float = maxf(simplified_static_friction, simplified_friction)
+	if tangent.length() <= maxf(simplified_sleep_speed, 0.0) and tangent_acceleration.length() <= normal_force * static_friction + 0.001 and _simplified_support_body_can_rest(collider):
+		if not was_resting and -normal_speed >= maxf(surface_impact_min_speed, 0.0):
+			_process_surface_effect_contact(point, normal, relative)
+		_manual_velocity = Vector3.ZERO
+		_simplified_resting = true
+		_mark_surface_contact_without_effects(normal)
+		return true
+	if was_resting:
+		_stop_surface_slide_sound()
+	tangent += tangent_acceleration * delta
+	tangent = tangent.move_toward(Vector3.ZERO, maxf(simplified_friction, 0.0) * normal_force * delta)
+	_manual_velocity = support_velocity + tangent
+	if tangent.length() >= maxf(surface_slide_min_speed, 0.0):
+		_process_surface_effect_contact(point, normal, relative)
+	return false
+
+
+func _move_simplified_shape_step(delta: float, up: Vector3) -> void:
+	var remaining_time: float = delta
+	for index: int in range(maxi(simplified_max_slides, 1)):
+		var motion: Vector3 = _manual_velocity * remaining_time
+		if motion.length_squared() < 0.00000001:
+			break
+		var collision: KinematicCollision3D = move_and_collide(motion, false, maxf(simplified_collision_skin, 0.001), false, clampi(carry_rest_max_support_contacts, 1, 32))
+		if not collision:
+			break
+		var fraction: float = clampf(collision.get_travel().dot(motion) / motion.length_squared(), 0.0, 1.0)
+		remaining_time *= 1.0 - fraction
+		for contact: int in range(collision.get_collision_count()):
+			var normal: Vector3 = collision.get_normal(contact).normalized()
+			var point: Vector3 = collision.get_position(contact)
+			var collider: Object = collision.get_collider(contact)
+			var support_velocity: Vector3 = _simplified_collider_velocity(collider, point, collision.get_collider_velocity(contact))
+			var relative: Vector3 = _manual_velocity - support_velocity
+			var closing_speed: float = -relative.dot(normal)
+			if closing_speed <= 0.001:
+				continue
+			record_object_impact(point, normal, relative, collider as Node3D)
+			_process_surface_effect_contact(point, normal, relative)
+			var bounce_speed: float = closing_speed * maxf(simplified_bounce, 0.0)
+			if closing_speed <= maxf(simplified_settle_speed, 0.0) or bounce_speed < maxf(simplified_sleep_speed, 0.0):
+				bounce_speed = 0.0
+			var tangent: Vector3 = relative.slide(normal)
+			tangent = tangent.move_toward(Vector3.ZERO, maxf(simplified_friction, 0.0) * closing_speed)
+			_manual_velocity = support_velocity + tangent + normal * bounce_speed
+		if remaining_time < 0.00001:
+			break
+
+
+func _update_simplified_ray_physics(delta: float) -> void:
+	var up: Vector3 = get_gravity_up() if follow_gravity_pull else _get_base_gravity_up()
+	if simplified_keep_upright:
+		_apply_simplified_upright(up)
+	if not buoyancy_enabled and _simplified_ray_should_remain_at_rest(up):
 		_manual_velocity = Vector3.ZERO
 		_stop_surface_slide_sound()
 		return
@@ -894,7 +1059,7 @@ func _update_simplified_physics(delta: float) -> void:
 	var step_count: int = maxi(1, ceili(motion.length() / max_step_distance))
 	var step_motion: Vector3 = motion / float(step_count)
 	for _step_index: int in range(step_count):
-		if not _move_simplified_step(step_motion, up):
+		if not _move_simplified_ray_step(step_motion, up):
 			return
 
 
@@ -916,7 +1081,7 @@ func _apply_simplified_upright(up: Vector3) -> void:
 		global_basis = upright_basis
 
 
-func _move_simplified_step(motion: Vector3, up: Vector3) -> bool:
+func _move_simplified_ray_step(motion: Vector3, up: Vector3) -> bool:
 	var start_position: Vector3 = global_position
 	var target_position: Vector3 = start_position + motion
 	var hit: Dictionary = _cast_simplified_motion(start_position, motion, up)
@@ -952,7 +1117,7 @@ func _move_simplified_step(motion: Vector3, up: Vector3) -> bool:
 	return false
 
 
-func _simplified_should_remain_at_rest(up: Vector3) -> bool:
+func _simplified_ray_should_remain_at_rest(up: Vector3) -> bool:
 	if not _simplified_resting:
 		return false
 	if _manual_velocity.length() > max(simplified_sleep_speed, 0.0):
@@ -974,7 +1139,7 @@ func _simplified_should_remain_at_rest(up: Vector3) -> bool:
 
 
 func _simplified_support_can_rest(normal: Vector3, up: Vector3) -> bool:
-	var friction: float = max(simplified_friction, 0.0)
+	var friction: float = maxf(maxf(simplified_friction, simplified_static_friction), 0.0)
 	return normal.dot(up) >= max(carry_rest_min_support_dot, 1.0 / sqrt(1.0 + friction * friction))
 
 

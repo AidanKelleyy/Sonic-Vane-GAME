@@ -71,13 +71,22 @@ vec3 tiled_image(vec2 uv) {
 	return textureGrad(surface_image, mirror_uv(uv, lod), dx, dy).rgb;
 }
 
+float filtered_height(vec2 uv, float lod) {
+	vec3 color = textureLod(surface_image, mirror_uv(uv, ceil(lod)), lod).rgb;
+	return dot(pow(max(color, vec3(0.0)), vec3(1.0 / 2.2)), vec3(0.2126, 0.7152, 0.0722));
+}
+
 vec2 wave_gradient(vec2 uv) {
-	vec2 texel = vec2(2.0) / vec2(textureSize(surface_image, 0));
-	vec3 right = textureLod(surface_image, mirror_uv(uv + vec2(texel.x, 0.0), 1.0), 1.0).rgb;
-	vec3 left = textureLod(surface_image, mirror_uv(uv - vec2(texel.x, 0.0), 1.0), 1.0).rgb;
-	vec3 down = textureLod(surface_image, mirror_uv(uv + vec2(0.0, texel.y), 1.0), 1.0).rgb;
-	vec3 up = textureLod(surface_image, mirror_uv(uv - vec2(0.0, texel.y), 1.0), 1.0).rgb;
-	return vec2(dot(right - left, vec3(0.2126, 0.7152, 0.0722)), dot(down - up, vec3(0.2126, 0.7152, 0.0722)));
+	vec2 dimensions = vec2(textureSize(surface_image, 0));
+	float footprint = max(length(dFdx(uv) * dimensions), length(dFdy(uv) * dimensions));
+	float lod = clamp(log2(max(max(footprint, water.view_response.z), 1.0)), 0.0, float(textureQueryLevels(surface_image) - 1));
+	float width = max(exp2(lod), 2.0);
+	vec2 texel = vec2(width) / dimensions;
+	float right = filtered_height(uv + vec2(texel.x, 0.0), lod);
+	float left = filtered_height(uv - vec2(texel.x, 0.0), lod);
+	float down = filtered_height(uv + vec2(0.0, texel.y), lod);
+	float up = filtered_height(uv - vec2(0.0, texel.y), lod);
+	return vec2(right - left, down - up) * (2.0 / width);
 }
 
 void main() {

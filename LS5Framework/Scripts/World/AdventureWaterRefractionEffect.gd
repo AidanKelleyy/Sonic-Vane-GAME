@@ -5,6 +5,7 @@ const MASK_SHADER: RDShaderFile = preload("res://LS5Framework/Shaders/AdventureW
 const COMPOSITE_SHADER: RDShaderFile = preload("res://LS5Framework/Shaders/AdventureWaterComposite.glsl")
 const DEPTH_SHADER: RDShaderFile = preload("res://LS5Framework/Shaders/AdventureWaterDepth.glsl")
 const INTEGRAL_SHADER: RDShaderFile = preload("res://LS5Framework/Shaders/AdventureWaterDepthIntegral.glsl")
+const MSAA_COPY_SHADER: RDShaderFile = preload("res://LS5Framework/Shaders/AdventureWaterMSAACopy.glsl")
 const BUFFER_CONTEXT: StringName = &"adventure_water"
 
 var _mutex: Mutex = Mutex.new()
@@ -27,10 +28,12 @@ var _integral_shader: RID
 var _depth_pipeline: RID
 var _integral_pipeline: RID
 var _depth_framebuffers: Dictionary = {}
+var _msaa_copy_shader: RID
+var _msaa_copy_pipelines: Dictionary = {}
 
 
 func _init() -> void:
-	effect_callback_type = EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
+	effect_callback_type = EFFECT_CALLBACK_TYPE_PRE_TRANSPARENT
 	access_resolved_color = true
 	access_resolved_depth = true
 
@@ -90,7 +93,30 @@ func _render_callback(_callback_type: int, render_data: RenderData) -> void:
 		var has_absorption: bool = absorption.is_valid()
 		_dispatch(scene_copy, color, mask, layer, depth, water_depth, absorption if has_absorption else layer, size, 0.0, has_absorption)
 		_dispatch(color, scene_copy, mask, layer, depth, water_depth, absorption if has_absorption else layer, size, 1.0, has_absorption)
+		if buffers.get_msaa_3d() != RenderingServer.VIEWPORT_MSAA_DISABLED:
+			_copy_to_msaa(color, buffers.get_color_layer(view, true), buffers.get_texture_samples(), view)
 	_prune_buffers(water_data)
+
+
+func _copy_to_msaa(source: RID, target: RID, samples: int, view: int) -> void:
+	if not _msaa_copy_shader.is_valid():
+		_msaa_copy_shader = _rd.shader_create_from_spirv(MSAA_COPY_SHADER.get_spirv())
+	var framebuffer: RID = _get_depth_framebuffer(StringName("msaa_%d" % view), [target])
+	var format: int = _rd.framebuffer_get_format(framebuffer)
+	if not _msaa_copy_pipelines.has(format):
+		var raster: RDPipelineRasterizationState = RDPipelineRasterizationState.new()
+		raster.cull_mode = RenderingDevice.POLYGON_CULL_DISABLED
+		var multisample: RDPipelineMultisampleState = RDPipelineMultisampleState.new()
+		multisample.sample_count = samples
+		var blend: RDPipelineColorBlendState = RDPipelineColorBlendState.new()
+		blend.attachments = [RDPipelineColorBlendStateAttachment.new()]
+		_msaa_copy_pipelines[format] = _rd.render_pipeline_create(_msaa_copy_shader, format, -1, RenderingDevice.RENDER_PRIMITIVE_TRIANGLES, raster, multisample, RDPipelineDepthStencilState.new(), blend)
+	var uniforms: Array[RDUniform] = [_uniform(RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, [_nearest_sampler, source])]
+	var draw_list: int = _rd.draw_list_begin(framebuffer)
+	_rd.draw_list_bind_render_pipeline(draw_list, _msaa_copy_pipelines[format])
+	_rd.draw_list_bind_uniform_set(draw_list, UniformSetCacheRD.get_cache(_msaa_copy_shader, 0, uniforms), 0)
+	_rd.draw_list_draw(draw_list, false, 1, 3)
+	_rd.draw_list_end()
 
 
 func _dispatch(output: RID, source: RID, mask: RID, layer: RID, depth: RID, water_depth: RID, absorption: RID, size: Vector2i, composite: float, has_absorption: bool) -> void:
@@ -175,7 +201,7 @@ func _prepare_draws(data: Array[Dictionary], view: Transform3D, projection: Proj
 		_append_color(values, params.wave_color.srgb_to_linear())
 		values.append_array(PackedFloat32Array([params.transparency, params.wave_opacity, params.highlight_threshold, params.highlight_softness, params.texture_rotation, float(params.top_only), params.refraction_strength, float(absf(projection.w.w) > 0.5), float(params.mirror_x), float(params.mirror_y), size.x, size.y]))
 		_append_color(values, params.view_angle_color.srgb_to_linear())
-		values.append_array(PackedFloat32Array([params.view_angle_strength, params.surface_detail_distance, 0.0, 0.0]))
+		values.append_array(PackedFloat32Array([params.view_angle_strength, params.surface_detail_distance, params.refraction_filter_pixels, 0.0]))
 		var bytes: PackedByteArray = values.to_byte_array()
 		_rd.buffer_update(uniform_buffer, 0, bytes.size(), bytes)
 		var texture: RID = RenderingServer.texture_get_rd_texture(params.surface_image.get_rid(), true)
@@ -363,7 +389,9 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and _rd:
 		for buffer: RID in _geometry.values() + _draws.values() + _depth_draws.values():
 			_rd.free_rid(buffer)
-		for resource: RID in [_mask_shader, _composite_shader, _depth_shader, _integral_shader, _linear_sampler, _nearest_sampler, _surface_sampler]:
+		for resource: RID in _msaa_copy_pipelines.values():
+			_rd.free_rid(resource)
+		for resource: RID in [_mask_shader, _composite_shader, _depth_shader, _integral_shader, _msaa_copy_shader, _linear_sampler, _nearest_sampler, _surface_sampler]:
 			if resource.is_valid():
 				_rd.free_rid(resource)
 		if _framebuffer.is_valid() and _rd.framebuffer_is_valid(_framebuffer):

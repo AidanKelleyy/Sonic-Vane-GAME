@@ -19,6 +19,7 @@ uniform float texture_rotation = 0.0;
 uniform vec2 scroll_offset = vec2(0.0);
 uniform bool top_only = true;
 uniform float refraction_strength = 0.055;
+uniform float refraction_filter_pixels = 8.0;
 varying vec3 local_position;
 varying vec3 local_normal;
 

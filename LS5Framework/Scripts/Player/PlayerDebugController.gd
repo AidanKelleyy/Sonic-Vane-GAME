@@ -1172,6 +1172,10 @@ func _build_movement_debug_text(gravity_up: Vector3, parkour_snapshot: Dictionar
 
 func _build_surface_debug_text() -> String:
 	var p = _owner
+	var material_name: String = _get_attached_material_debug_name()
+	var surface_type: String = "none"
+	if p.attached and p._audio_module:
+		surface_type = p._audio_module._dbg_last_surface_type
 	var surface_kind: String = "FLOOR" if p._dbg_surface_is_floor_like else "NON-FLOOR"
 	var water_state: String = "none"
 	if p._running_on_water_surface:
@@ -1182,12 +1186,24 @@ func _build_surface_debug_text() -> String:
 		water_state = "partial"
 	return "\n".join(PackedStringArray([
 		"Attached    %s" % _debug_yes_no(p.attached),
+		"Material    %s" % material_name,
+		"Footsteps   %s" % surface_type,
 		"Angle       %6.2f°  %s" % [p._dbg_surface_angle_deg, surface_kind],
 		"Normal Δ    %6.2f°" % p._normal_delta_angle_deg,
 		"Adhesion    %6.2f / %6.2f" % [p._dbg_current_adhesion_speed, p._dbg_required_adhesion_speed],
 		"Support     k %.4f  force %.2f" % [p._surface_support_curvature, p._surface_support_reaction_accel],
 		"Water       %s" % water_state,
 	]))
+
+
+func _get_attached_material_debug_name() -> String:
+	var p = _owner
+	if not p.attached:
+		return "none (airborne)"
+	if not p._audio_module:
+		return "unknown (audio module missing)"
+	p._audio_module.debug_update_surface_probe(p.ground_ray)
+	return p._audio_module._dbg_last_surface_material
 
 
 func _build_ledge_debug_text(snapshot: Dictionary) -> String:

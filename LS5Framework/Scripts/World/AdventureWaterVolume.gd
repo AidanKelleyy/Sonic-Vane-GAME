@@ -117,10 +117,12 @@ const COMPOSITOR_PARAMETERS: Dictionary = {"depth_enabled": true, "depth_color":
 @export_color_no_alpha var view_angle_color: Color = Color(0.22, 0.36, 0.45, 1.0)
 ## World-space distance where fine surface patterns finish fading. Zero disables distance fading; pixel-footprint filtering remains active.
 @export_range(0.0, 20000.0, 50.0, "or_greater") var surface_detail_distance: float = 1200.0
-## Distortion of the rendered scene, including transparent character effects, through the shared compositor.
+## Distortion of the opaque scene through the shared compositor. Transparent effects and editor overlays render afterward.
 @export var refraction_enabled: bool = true
 ## Wave-slope distortion strength relative to viewport height.
 @export_range(0.0, 0.1, 0.001) var refraction_strength: float = 0.055
+## Minimum image-filter width in texture pixels for soft refraction slopes. Larger values broaden the pillow shape; wave highlight cutoffs remain independent.
+@export_range(1.0, 64.0, 1.0) var refraction_filter_pixels: float = 8.0
 
 @export_group("Depth Absorption")
 ## Obscures the view according to distance travelled through this water volume.
@@ -644,6 +646,7 @@ func _update_materials() -> void:
 		"texture_rotation": deg_to_rad(surface_rotation), "scroll_offset": surface_scroll * surface_scroll_time + (_surface_weather_scroll_sample if weather_affects_motion and weather_influence_enabled else Vector2.ZERO),
 		"top_only": visible_surface == VisibleSurface.TOP and geometry == Geometry.BOX,
 		"refraction_strength": minf(refraction_strength * lerpf(1.0, 1.5, appearance), 0.1) if refraction_enabled and _graphics_refraction and _graphics_normals else 0.0,
+		"refraction_filter_pixels": maxf(refraction_filter_pixels, 1.0),
 		"depth_enabled": depth_active,
 		"depth_color": current_depth_color,
 		"depth_visibility": maxf(depth_visibility_distance * (1.0 - 0.3 * depth_turbidity - 0.1 * depth_darkness), 0.1),
@@ -768,6 +771,8 @@ func _on_water_graphics_changed() -> void:
 
 
 func _restore_scroll_defaults() -> void:
+	if get("refraction_filter_pixels") == null:
+		refraction_filter_pixels = 8.0
 	if get("view_angle_strength") == null:
 		view_angle_strength = 0.35
 	if get("view_angle_color") == null:

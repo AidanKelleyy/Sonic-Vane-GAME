@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://ckte4v2yckxv8"
+path="res://.godot/imported/AdventureWaterMSAACopy.glsl-36190657529fe1d47131088fca36fc2e.res"
+
+[deps]
+
+source_file="res://LS5Framework/Shaders/AdventureWaterMSAACopy.glsl"
+dest_files=["res://.godot/imported/AdventureWaterMSAACopy.glsl-36190657529fe1d47131088fca36fc2e.res"]
+
+[params]
+

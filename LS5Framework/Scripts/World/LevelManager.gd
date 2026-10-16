@@ -618,6 +618,15 @@ func load_level_by_scene_path(
 		_resume_network_time_after_level_load(network_time_suspended)
 		_level_load_in_progress = false
 		return
+	if loading_transition != null:
+		loading_transition.show_loading_phase("Preparing surface materials...")
+	var surface_material_start_usec: int = Time.get_ticks_usec()
+	await _prepare_surface_material_lookups(inst)
+	if loading_transition != null:
+		loading_transition.record_loading_phase(
+			"Preparing surface material lookups",
+			float(Time.get_ticks_usec() - surface_material_start_usec) / 1000000.0
+		)
 	if cache_enabled:
 		inst.process_mode = original_process_mode
 	_current_level = inst
@@ -833,6 +842,27 @@ func _unload_current_level() -> void:
 		parent.remove_child(old_level)
 	old_level.queue_free()
 	_clear_screen_faders_for_scene_change()
+
+
+func _prepare_surface_material_lookups(level: Node) -> void:
+	if get_tree():
+		await get_tree().process_frame
+	var resolver: PlayerAudio = PlayerAudio.new(null)
+	var warmed_meshes: Dictionary = {}
+	var pending: Array[Node] = [level]
+	var slice_start_usec: int = Time.get_ticks_usec()
+	while not pending.is_empty():
+		var node: Node = pending.pop_back()
+		if not is_instance_valid(node):
+			continue
+		pending.append_array(node.get_children())
+		if node is PhysicsBody3D and not node is CharacterBody3D:
+			resolver.warm_surface_material_lookups(node, warmed_meshes)
+		elif node is CSGShape3D and (node as CSGShape3D).is_root_shape() and (node as CSGShape3D).use_collision:
+			resolver.warm_surface_material_lookups(node, warmed_meshes)
+		if Time.get_ticks_usec() - slice_start_usec >= maxi(preparation_frame_budget_usec, 250) and get_tree():
+			await get_tree().process_frame
+			slice_start_usec = Time.get_ticks_usec()
 
 
 func _prepare_players_for_level_change() -> void:

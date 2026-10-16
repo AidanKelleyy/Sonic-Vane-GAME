@@ -1140,7 +1140,7 @@
           "kind": "Preload"
         }
       ],
-      "source_sha256": "5b164baa1edbad6e7e5c02cb050a2438b2437c9dbe1f1c16ae73fc44686a86c6"
+      "source_sha256": "b6c93eba4f1c6153caaaa1fb269aff839837b36b3ae3c75aebe6d4ffcaaf1e41"
     },
     {
       "path": "res://LS5Framework/Objects/Props/PropAttackProfile.gd",
@@ -5553,7 +5553,7 @@
           "kind": "Preload"
         }
       ],
-      "source_sha256": "bb7539c068798f23d57211647d2c63e6201e18b0a0af5c90a523f7b9e01cb65b"
+      "source_sha256": "55972ad21ab583ce73d23a876f0b9eeeaf424841c45ee73dbbacffe01c9e2458"
     },
     {
       "path": "res://LS5Framework/Scripts/World/AdventureWaterShowcase.gd",
@@ -5581,7 +5581,7 @@
           "kind": "Script class"
         }
       ],
-      "source_sha256": "0ff2de990af6d0dd21b5acb3a9859399615a9ce07ddc4aa6710ec12f300321be"
+      "source_sha256": "bc55856eb4639b4b1664c6f67a66b9ebf5f0ccbed494b9e227b9f2f0fcad8d3e"
     },
     {
       "path": "res://LS5Framework/Scripts/World/AudioPreparationManifest.gd",

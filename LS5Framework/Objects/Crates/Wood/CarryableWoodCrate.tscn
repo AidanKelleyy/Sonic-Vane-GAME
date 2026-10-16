@@ -17,6 +17,7 @@ impact_damage_enabled = true
 impact_minimum_speed = 35.0
 anchored = false
 carry_enabled = true
+carry_friction = 0.4
 simplified_collision_radius = 1.98
 
 [node name="WoodCrate_Fractures" parent="." index="4" unique_id=121172711]

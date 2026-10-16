@@ -8,6 +8,19 @@ class_name PlayerAudio
 
 enum FootstepSurface { DEFAULT, GRAVEL, SAND, TILE, DIRT, WOOD, GRASS, STONE, WATER, METAL }
 
+const SURFACE_TOKENS: Dictionary = {
+	"flr": FootstepSurface.DEFAULT, "floor": FootstepSurface.DEFAULT,
+	"grv": FootstepSurface.GRAVEL, "gvl": FootstepSurface.GRAVEL, "gravel": FootstepSurface.GRAVEL,
+	"snd": FootstepSurface.SAND, "sand": FootstepSurface.SAND,
+	"til": FootstepSurface.TILE, "tile": FootstepSurface.TILE,
+	"drt": FootstepSurface.DIRT, "dirt": FootstepSurface.DIRT,
+	"wod": FootstepSurface.WOOD, "wood": FootstepSurface.WOOD,
+	"grs": FootstepSurface.GRASS, "grass": FootstepSurface.GRASS,
+	"stn": FootstepSurface.STONE, "stone": FootstepSurface.STONE,
+	"wtr": FootstepSurface.WATER, "water": FootstepSurface.WATER,
+	"mtl": FootstepSurface.METAL, "metal": FootstepSurface.METAL,
+}
+
 const VOICE_PRIORITY_IDLE: int = 0
 const VOICE_PRIORITY_ACTION: int = 1
 const VOICE_PRIORITY_EMOTE: int = 2
@@ -20,9 +33,10 @@ var _last_footstep_surface: int = FootstepSurface.DEFAULT
 var _dbg_last_surface_name: String = ""
 var _dbg_last_surface_type: String = "DEFAULT"
 var _dbg_last_surface_candidates: String = ""
-var _mesh_face_counts: Dictionary = {}
+var _dbg_last_surface_material: String = "unknown (no contact)"
+var _surface_geometry_cache: Dictionary = {}
+var _surface_source_cache: Dictionary = {}
 var _surface_result_cache: Dictionary = {}
-var _object_material_property_cache: Dictionary = {}
 var _last_jump_index: int = -1
 var _last_jumpdash_index: int = -1
 var _last_voice_index: int = -1
@@ -285,123 +299,236 @@ func _play_next_queued_voice() -> void:
 	_replicate_voice(player)
 
 
-func _get_mesh_face_counts(mesh_res: ArrayMesh) -> Array[int]:
-	var key: int = mesh_res.get_rid().get_id()
-	if _mesh_face_counts.has(key):
-		return _mesh_face_counts[key]
-	var counts: Array[int] = []
-	var surf_count: int = mesh_res.get_surface_count()
-	for i in range(surf_count):
-		var arrays = mesh_res.surface_get_arrays(i)
-		var idx_arr = arrays[ArrayMesh.ARRAY_INDEX]
-		var vert_arr = arrays[ArrayMesh.ARRAY_VERTEX]
-		var tri_count: int = 0
-		if idx_arr != null and idx_arr.size() > 0:
-			tri_count = idx_arr.size() / 3
-		elif vert_arr != null:
-			tri_count = vert_arr.size() / 3
-		counts.append(tri_count)
-	_mesh_face_counts[key] = counts
-	return counts
+func _get_surface_geometry(mesh: Mesh) -> Dictionary:
+	var key: int = mesh.get_instance_id()
+	if _surface_geometry_cache.has(key):
+		return _surface_geometry_cache[key]
+	if _surface_geometry_cache.size() >= 32:
+		_surface_geometry_cache.clear()
+	var ends: Array[int] = []
+	var face_count: int = 0
+	for index: int in range(mesh.get_surface_count()):
+		if mesh is ArrayMesh:
+			var array_mesh: ArrayMesh = mesh as ArrayMesh
+			if array_mesh.surface_get_primitive_type(index) != Mesh.PRIMITIVE_TRIANGLES:
+				ends.append(face_count)
+				continue
+			var index_count: int = array_mesh.surface_get_array_index_len(index)
+			var vertex_count: int = index_count if index_count > 0 else array_mesh.surface_get_array_len(index)
+			face_count += vertex_count / 3
+		else:
+			var arrays: Array = mesh.surface_get_arrays(index)
+			var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX] if arrays[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+			var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			face_count += (indices.size() if not indices.is_empty() else vertices.size()) / 3
+		ends.append(face_count)
+	var geometry: Dictionary = {"ends": ends, "triangles": null}
+	_surface_geometry_cache[key] = geometry
+	var invalidate: Callable = _invalidate_surface_geometry.bind(key)
+	if not mesh.changed.is_connected(invalidate):
+		mesh.changed.connect(invalidate, CONNECT_ONE_SHOT)
+	return geometry
+
+
+func _invalidate_surface_geometry(key: int) -> void:
+	_surface_geometry_cache.erase(key)
+	_surface_result_cache.clear()
 
 
 func _resolve_footstep_surface(ray: RayCast3D) -> int:
+	var p: Node = _owner
+	if is_instance_valid(p) and p.attached and is_instance_valid(p._follow_collider_last):
+		var support: Node = p._follow_collider_last
+		if not p._follow_hit and ray and ray.is_colliding() and ray.get_collider() == support:
+			return _resolve_surface_contact(support, ray.get_collision_point(), ray.get_collision_normal())
+		return _resolve_surface_contact(support, p._follow_point, p._follow_normal)
+	if ray and ray.is_colliding():
+		return _resolve_surface_contact(ray.get_collider() as Node, ray.get_collision_point(), ray.get_collision_normal())
+	return _resolve_surface_contact(null, Vector3.ZERO, Vector3.UP)
+
+
+func _resolve_surface_contact(collider: Node, point: Vector3, normal: Vector3) -> int:
 	_dbg_last_surface_name = ""
-	_dbg_last_surface_type = FootstepSurface.keys()[FootstepSurface.DEFAULT]
+	_dbg_last_surface_type = "DEFAULT"
 	_dbg_last_surface_candidates = ""
-
-	if ray == null or not ray.is_colliding():
+	_dbg_last_surface_material = "unknown (no contact)"
+	if not is_instance_valid(collider):
 		return FootstepSurface.DEFAULT
-
-	var collider: Node = ray.get_collider()
-	if collider == null or not is_instance_valid(collider):
+	var sources: Array[WeakRef] = _get_surface_sources(collider)
+	var best: Dictionary = {}
+	var best_distance: float = INF
+	for reference: WeakRef in sources:
+		var source: Node3D = reference.get_ref() as Node3D
+		if not is_instance_valid(source):
+			continue
+		var sample: Dictionary = _sample_surface_source(source, point, normal, sources.size() == 1)
+		var distance: float = float(sample.get("distance", INF))
+		if not sample.is_empty() and (best.is_empty() or distance < best_distance):
+			best = sample
+			best_distance = distance
+	if best.is_empty():
+		_dbg_last_surface_material = "unknown (no matching visual surface)"
+		_dbg_last_surface_candidates = "collider=%s" % collider.name
 		return FootstepSurface.DEFAULT
+	return _classify_surface_material(best.get("material") as Material, String(best.get("name", "")), best.get("base_material") as Material)
 
-	var face_idx: int = ray.get_collision_face_index()
-	var cache_key: String = "%d:%d" % [collider.get_instance_id(), face_idx]
-	if _surface_result_cache.has(cache_key):
-		var cached: Dictionary = _surface_result_cache[cache_key]
-		_dbg_last_surface_name = String(cached.get("name", ""))
-		_dbg_last_surface_type = String(cached.get("type", FootstepSurface.keys()[FootstepSurface.DEFAULT]))
-		_dbg_last_surface_candidates = String(cached.get("checked", "cached"))
-		return int(cached.get("surface", FootstepSurface.DEFAULT))
 
-	var all_candidates: Array[String] = []
-	var mesh_inst: MeshInstance3D = null
-
-	var node: Node = collider
-	for _depth in range(8):
-		if node == null:
-			break
-		if mesh_inst == null and node is MeshInstance3D:
-			mesh_inst = node as MeshInstance3D
-		var object_names: Array[String] = []
-		_add_object_material_keyword_names(object_names, node)
-		_append_surface_candidates(all_candidates, object_names)
-		var object_result: int = _match_surface_names(object_names)
-		if object_result >= 0:
-			_dbg_last_surface_candidates = _format_surface_candidates(all_candidates)
-			_dbg_last_surface_type = FootstepSurface.keys()[object_result]
-			_store_surface_cache(cache_key, object_result)
-			return object_result
-		node = node.get_parent()
-
-	if mesh_inst == null:
-		_dbg_last_surface_candidates = "collider=%s; checked=%s" % [collider.name, _format_surface_candidates(all_candidates)]
-		_store_surface_cache(cache_key, FootstepSurface.DEFAULT)
-		return FootstepSurface.DEFAULT
-
-	var mesh_res: Mesh = mesh_inst.mesh
-	if mesh_res == null:
-		_dbg_last_surface_candidates = _format_surface_candidates(all_candidates)
-		_store_surface_cache(cache_key, FootstepSurface.DEFAULT)
-		return FootstepSurface.DEFAULT
-
-	var general_names: Array[String] = []
-	_add_material_keyword_names(general_names, mesh_inst.material_override)
-	_add_object_material_keyword_names(general_names, mesh_res)
-	_append_surface_candidates(all_candidates, general_names)
-	var general_result: int = _match_surface_names(general_names)
-	if general_result >= 0:
-		_dbg_last_surface_candidates = _format_surface_candidates(all_candidates)
-		_dbg_last_surface_type = FootstepSurface.keys()[general_result]
-		_store_surface_cache(cache_key, general_result)
-		return general_result
-
-	if mesh_res is ArrayMesh:
-		var target_surface_idx: int = -1
-		var face_counts: Array[int] = _get_mesh_face_counts(mesh_res as ArrayMesh)
-		var face_count_acc: int = 0
-		for i in range(face_counts.size()):
-			if face_idx < face_count_acc + face_counts[i]:
-				target_surface_idx = i
+func _get_surface_sources(collider: Node) -> Array[WeakRef]:
+	var key: int = collider.get_instance_id()
+	var now: int = Time.get_ticks_msec()
+	if _surface_source_cache.has(key):
+		var cached: Dictionary = _surface_source_cache[key]
+		var sources_valid: bool = not cached.sources.is_empty()
+		for reference: WeakRef in cached.sources:
+			if not is_instance_valid(reference.get_ref()):
+				sources_valid = false
 				break
-			face_count_acc += face_counts[i]
+		if sources_valid and now < int(cached.expiry):
+			return cached.sources
+	var sources: Array[WeakRef] = []
+	var node: Node = collider
+	for depth: int in range(8):
+		if not node:
+			break
+		if node is MeshInstance3D or node is CSGShape3D:
+			sources.append(weakref(node))
+			break
+		if node != collider and node is CollisionObject3D:
+			break
+		node = node.get_parent()
+	if sources.is_empty():
+		_collect_surface_sources(collider, sources, 3)
+	if _surface_source_cache.size() >= 128:
+		_surface_source_cache.clear()
+	_surface_source_cache[key] = {"sources": sources, "expiry": now + 1000}
+	return sources
 
-		if target_surface_idx >= 0:
-			var names_to_check: Array[String] = _get_surface_keyword_names(mesh_inst, mesh_res, target_surface_idx)
-			_append_surface_candidates(all_candidates, names_to_check)
-			var result: int = _match_surface_names(names_to_check)
-			if result >= 0:
-				_dbg_last_surface_candidates = _format_surface_candidates(all_candidates)
-				_dbg_last_surface_type = FootstepSurface.keys()[result]
-				_store_surface_cache(cache_key, result)
-				return result
 
-	_dbg_last_surface_candidates = _format_surface_candidates(all_candidates)
-	_store_surface_cache(cache_key, FootstepSurface.DEFAULT)
-	return FootstepSurface.DEFAULT
+func _collect_surface_sources(node: Node, sources: Array[WeakRef], depth: int) -> void:
+	if depth <= 0 or sources.size() >= 32:
+		return
+	for child: Node in node.get_children():
+		if child is CollisionObject3D:
+			continue
+		if child is MeshInstance3D or child is CSGShape3D:
+			sources.append(weakref(child))
+		else:
+			_collect_surface_sources(child, sources, depth - 1)
+		if sources.size() >= 32:
+			break
 
 
-func _store_surface_cache(cache_key: String, surface: int) -> void:
-	if _surface_result_cache.size() > 512:
+func warm_surface_material_lookups(collider: Node, warmed_meshes: Dictionary) -> void:
+	var sources: Array[WeakRef] = _get_surface_sources(collider)
+	for reference: WeakRef in sources:
+		var source: Node3D = reference.get_ref() as Node3D
+		var mesh: Mesh = null
+		if source is MeshInstance3D:
+			mesh = (source as MeshInstance3D).mesh
+		elif source is CSGShape3D:
+			var meshes: Array = (source as CSGShape3D).get_meshes()
+			if meshes.size() == 2:
+				mesh = meshes[1] as Mesh
+		if not mesh or (sources.size() == 1 and mesh.get_surface_count() <= 1):
+			continue
+		var key: int = mesh.get_instance_id()
+		if warmed_meshes.has(key):
+			continue
+		warmed_meshes[key] = true
+		mesh.generate_triangle_mesh()
+
+
+func _sample_surface_source(source: Node3D, point: Vector3, normal: Vector3, sole_source: bool) -> Dictionary:
+	var mesh: Mesh = null
+	var mesh_instance: MeshInstance3D = source as MeshInstance3D
+	var pose: Transform3D = source.global_transform
+	if mesh_instance:
+		mesh = mesh_instance.mesh
+	elif source is CSGShape3D:
+		var meshes: Array = (source as CSGShape3D).get_meshes()
+		if meshes.size() == 2:
+			pose *= meshes[0]
+			mesh = meshes[1] as Mesh
+		elif source is CSGPrimitive3D and source.get_child_count() == 0:
+			return {"material": source.get("material"), "distance": 0.0}
+	if not mesh or mesh.get_surface_count() == 0:
+		return {}
+	var surface_index: int = 0 if mesh.get_surface_count() == 1 else -1
+	var distance: float = 0.0
+	if surface_index < 0 or not sole_source:
+		if absf(pose.basis.determinant()) < 0.000001:
+			return {}
+		var geometry: Dictionary = _get_surface_geometry(mesh)
+		var triangles: TriangleMesh = geometry.triangles as TriangleMesh
+		if not triangles:
+			# Mesh BVHs are shared and remain independent of physics face ordering.
+			triangles = mesh.generate_triangle_mesh()
+			geometry.triangles = triangles
+		if not triangles:
+			return {}
+		var inverse: Transform3D = pose.affine_inverse()
+		var direction: Vector3 = normal.normalized() if normal.length_squared() > 0.000001 else Vector3.UP
+		var hit: Dictionary = triangles.intersect_segment(inverse * (point + direction * 0.002), inverse * (point - direction * 0.25))
+		var hit_distance: float = point.distance_squared_to(pose * Vector3(hit.position)) if not hit.is_empty() else INF
+		if hit_distance > 0.000004:
+			var reverse_hit: Dictionary = triangles.intersect_segment(inverse * (point - direction * 0.002), inverse * (point + direction * 0.25))
+			if not reverse_hit.is_empty() and point.distance_squared_to(pose * Vector3(reverse_hit.position)) < hit_distance:
+				hit = reverse_hit
+		if hit.is_empty():
+			return {}
+		distance = point.distance_squared_to(pose * Vector3(hit.position))
+		var face_index: int = int(hit.face_index)
+		var ends: Array[int] = geometry.ends
+		for index: int in range(ends.size()):
+			if face_index >= 0 and face_index < ends[index]:
+				surface_index = index
+				break
+	if surface_index < 0:
+		return {}
+	var base_material: Material = mesh.surface_get_material(surface_index)
+	var material: Material = mesh_instance.get_active_material(surface_index) if mesh_instance else base_material
+	if source is CSGShape3D and (source as CSGShape3D).material_override:
+		material = (source as CSGShape3D).material_override
+	var surface_name: String = (mesh as ArrayMesh).surface_get_name(surface_index) if mesh is ArrayMesh else ""
+	return {"material": material, "base_material": base_material, "name": surface_name, "distance": distance}
+
+
+func _classify_surface_material(material: Material, surface_name: String, base_material: Material = null) -> int:
+	var key: String = "%d:%d:%s" % [material.get_instance_id() if material else 0, base_material.get_instance_id() if base_material else 0, surface_name]
+	var now: int = Time.get_ticks_msec()
+	if _surface_result_cache.has(key):
+		var cached: Dictionary = _surface_result_cache[key]
+		if now < int(cached.expiry):
+			_dbg_last_surface_name = cached.name
+			_dbg_last_surface_type = cached.type
+			_dbg_last_surface_material = cached.material
+			_dbg_last_surface_candidates = cached.checked
+			return int(cached.surface)
+	var names: Array[String] = []
+	_add_material_keyword_names(names, material)
+	if base_material != material:
+		_add_material_keyword_names(names, base_material)
+	if not surface_name.is_empty():
+		names.append(surface_name.to_lower())
+	var surface: int = _match_surface_names(names)
+	if surface < 0:
+		surface = FootstepSurface.DEFAULT
+	_dbg_last_surface_type = FootstepSurface.keys()[surface]
+	_dbg_last_surface_candidates = _format_surface_candidates(names)
+	_dbg_last_surface_material = "unassigned"
+	if material:
+		_dbg_last_surface_material = material.resource_name
+		if _dbg_last_surface_material.is_empty():
+			_dbg_last_surface_material = material.resource_path.get_file()
+		if _dbg_last_surface_material.is_empty():
+			_dbg_last_surface_material = "%s (unnamed)" % material.get_class()
+	elif not surface_name.is_empty():
+		_dbg_last_surface_material = "%s (surface name)" % surface_name
+	if _surface_result_cache.size() >= 512:
 		_surface_result_cache.clear()
-	_surface_result_cache[cache_key] = {
-		"surface": surface,
-		"name": _dbg_last_surface_name,
-		"type": _dbg_last_surface_type,
-		"checked": _dbg_last_surface_candidates
-	}
+	_surface_result_cache[key] = {"surface": surface, "name": _dbg_last_surface_name, "type": _dbg_last_surface_type,
+		"material": _dbg_last_surface_material, "checked": _dbg_last_surface_candidates, "expiry": now + 500}
+	return surface
 
 
 func _match_surface_names(names_to_check: Array[String]) -> int:
@@ -411,27 +538,6 @@ func _match_surface_names(names_to_check: Array[String]) -> int:
 			_dbg_last_surface_name = name_str
 			return result
 	return -1
-
-
-func _append_surface_candidates(all_candidates: Array[String], names_to_check: Array[String]) -> void:
-	for name_str in names_to_check:
-		if not all_candidates.has(name_str):
-			all_candidates.append(name_str)
-
-
-func _object_has_property(object: Object, property_name: String) -> bool:
-	if object == null:
-		return false
-	var cache_key: String = "%s:%s" % [object.get_class(), property_name]
-	if _object_material_property_cache.has(cache_key):
-		return bool(_object_material_property_cache[cache_key])
-	for entry in object.get_property_list():
-		if typeof(entry) == TYPE_DICTIONARY and entry.has("name"):
-			if String(entry["name"]) == property_name:
-				_object_material_property_cache[cache_key] = true
-				return true
-	_object_material_property_cache[cache_key] = false
-	return false
 
 
 func _format_surface_candidates(names_to_check: Array[String]) -> String:
@@ -448,39 +554,6 @@ func debug_update_surface_probe(ray: RayCast3D) -> void:
 	_resolve_footstep_surface(ray)
 
 
-func _get_surface_keyword_names(mesh_inst: MeshInstance3D, mesh_res: Mesh, surface_idx: int) -> Array[String]:
-	var names_to_check: Array[String] = []
-
-	_add_material_keyword_names(names_to_check, mesh_inst.material_override)
-
-	var mat: Material = mesh_inst.get_surface_override_material(surface_idx)
-	if mat == null and mesh_res is ArrayMesh:
-		mat = (mesh_res as ArrayMesh).surface_get_material(surface_idx)
-	_add_material_keyword_names(names_to_check, mat)
-	_add_object_material_keyword_names(names_to_check, mesh_res)
-
-	if mesh_res is ArrayMesh:
-		var array_mesh: ArrayMesh = mesh_res as ArrayMesh
-		var surf_name: String = array_mesh.surface_get_name(surface_idx).to_lower()
-		if not surf_name.is_empty() and not names_to_check.has(surf_name):
-			names_to_check.append(surf_name)
-
-	return names_to_check
-
-
-func _add_object_material_keyword_names(names_to_check: Array[String], object: Object) -> void:
-	if object == null:
-		return
-	if _object_has_property(object, "material_override"):
-		var material_override_value = object.get("material_override")
-		if material_override_value is Material:
-			_add_material_keyword_names(names_to_check, material_override_value)
-	if _object_has_property(object, "material"):
-		var material_value = object.get("material")
-		if material_value is Material:
-			_add_material_keyword_names(names_to_check, material_value)
-
-
 func _add_material_keyword_names(names_to_check: Array[String], mat: Material) -> void:
 	if mat == null:
 		return
@@ -493,26 +566,14 @@ func _add_material_keyword_names(names_to_check: Array[String], mat: Material) -
 
 
 func _match_surface_keyword(name_str: String) -> int:
-	if "gravel" in name_str or "grv" in name_str or "gvl" in name_str:
-		return FootstepSurface.GRAVEL
-	if "snd" in name_str or "sand" in name_str:
-		return FootstepSurface.SAND
-	if "til" in name_str or "tile" in name_str:
-		return FootstepSurface.TILE
-	if "drt" in name_str or "dirt" in name_str:
-		return FootstepSurface.DIRT
-	if "wod" in name_str or "wood" in name_str:
-		return FootstepSurface.WOOD
-	if "grs" in name_str or "grass" in name_str:
-		return FootstepSurface.GRASS
-	if "stn" in name_str or "stone" in name_str:
-		return FootstepSurface.STONE
-	if "wtr" in name_str or "water" in name_str:
-		return FootstepSurface.WATER
-	if "mtl" in name_str or "metal" in name_str:
-		return FootstepSurface.METAL
-	if "flr" in name_str or "floor" in name_str:
-		return FootstepSurface.DEFAULT
+	var normalized: String = name_str.to_lower().replace(".", "_").replace("-", "_").replace(" ", "_")
+	var tokens: PackedStringArray = normalized.split("_", false)
+	for index: int in range(tokens.size() - 1, -1, -1):
+		if SURFACE_TOKENS.has(tokens[index]):
+			return int(SURFACE_TOKENS[tokens[index]])
+	for keyword: String in ["gravel", "sand", "tile", "dirt", "wood", "grass", "stone", "water", "metal", "floor"]:
+		if keyword in normalized:
+			return int(SURFACE_TOKENS[keyword])
 	return -1
 
 

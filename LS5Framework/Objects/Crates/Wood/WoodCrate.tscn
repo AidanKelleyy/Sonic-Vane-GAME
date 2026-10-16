@@ -7,7 +7,6 @@
 [ext_resource type="Script" uid="uid://yu6ko7dwk81r" path="res://LS5Framework/Objects/Props/PropTarget3D.gd" id="6_target"]
 [ext_resource type="PackedScene" uid="uid://ercxlt8ucs0b" path="res://LS5Framework/Objects/Crates/Wood/wood_crate_fractures.tscn" id="7_e8b02"]
 [ext_resource type="AudioStream" uid="uid://bydp2phrfhw1g" path="res://LS5Framework/Sounds/Objects/Props/Wood_Crate_Destroy.wav" id="7_sound"]
-
 [ext_resource type="PackedScene" uid="uid://cl8cgqg8wxrdn" path="res://LS5Framework/Particles/FootstepDustBurst.tscn" id="surface_2_yhbbx"]
 [ext_resource type="AudioStream" uid="uid://l2jpyc1e3he4" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard1.wav" id="surface_3_rh82k"]
 [ext_resource type="AudioStream" uid="uid://bvjl441qgfiba" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard2.wav" id="surface_4_ti8ja"]
@@ -26,7 +25,7 @@ categories = 2
 size = Vector3(3.969, 3.969, 3.969)
 
 [node name="WoodCrate" type="RigidBody3D" unique_id=1241149430 node_paths=PackedStringArray("fracture_emitter", "surface_impact_sfx_player", "surface_slide_sfx_player")]
-collision_mask = 5
+collision_mask = 7
 script = ExtResource("1_body")
 destroyable = true
 hit_rules = Array[ExtResource("5_rule")]([SubResource("CommandRule")])
@@ -37,7 +36,10 @@ anchored = true
 buoyancy_enabled = true
 buoyancy_volume = 0.12
 carry_enabled = false
+carry_physics_mode = 1
 carry_mass = 60.0
+carry_friction = 0.35
+simplified_collision_radius = 2.0
 surface_dust_scene = ExtResource("surface_2_yhbbx")
 surface_impact_min_speed = 0.5
 surface_impact_sounds = Array[AudioStream]([ExtResource("surface_3_rh82k"), ExtResource("surface_4_ti8ja"), ExtResource("surface_5_3ey7p"), ExtResource("surface_6_fpvcd"), ExtResource("surface_7_qcfvv"), ExtResource("surface_8_at2e1"), ExtResource("surface_9_fcmbc")])
@@ -72,12 +74,12 @@ homing_target_enabled = false
 
 [node name="WoodCrate_Fractures" parent="." unique_id=121172711 instance=ExtResource("7_e8b02")]
 
-[node name="SFX_Collision" type="AudioStreamPlayer3D" parent="."]
+[node name="SFX_Collision" type="AudioStreamPlayer3D" parent="." unique_id=1988419409]
 unit_size = 60.0
 attenuation_filter_cutoff_hz = 15000.0
 attenuation_filter_db = -3.0
 
-[node name="SFX_Sliding" type="AudioStreamPlayer3D" parent="."]
+[node name="SFX_Sliding" type="AudioStreamPlayer3D" parent="." unique_id=521828448]
 unit_size = 60.0
 attenuation_filter_cutoff_hz = 15000.0
 attenuation_filter_db = -3.0
