@@ -1,0 +1,11 @@
+# Object ring spew
+
+Add `ObjectRingSpew3D.tscn` as a child of a `PropBody3D` or `Enemy` to emit standard dropped rings. Nested placement under an enemy's `Components/Optional` root is also supported. The nearest supported ancestor supplies damage events; **Source Path** can select another prop or enemy explicitly. The component's position sets the emission origin. Objects without the component retain their existing behavior.
+
+**Damage Ring Count** applies to each actual nonlethal health or durability reduction. **Destruction Ring Count** applies once on prop destruction or enemy defeat. Lethal hits use only the destruction burst, preventing duplicate rewards from damage and death signals. Rejected attacks, invulnerability, and unchanged durability produce no damage burst. Defaults are zero rings on damage, ten on destruction, and a **Ring Limit Per Life** of 32. The limit includes all damage and destruction bursts and resets with the source. Zero disables the per-life limit; each burst is still capped at 128 rings.
+
+**Outward Speed**, **Upward Speed**, **Spawn Radius**, **Spawn Up Offset**, **Inherit Velocity**, and **Ring Size** configure the launch. Upward motion and the radial distribution follow the source's gravity-up direction, including sideways or planetary gravity. Velocity is captured before destruction clears movement. This component has no per-frame processing.
+
+The default scene is `DroppedRing.tscn`, preserving its bounce physics and sound, pickup delay, flicker, lifetime, and light-speed-dash exclusion. **Ring Scene** accepts that scene or a variant inheriting `DroppedRing`; variants can customize pickup delay, lifetime, bounce, and ring value. Emitted rings are level transients parented outside the source and survive its removal. They remain until collection, normal expiration, or level transient cleanup, including after an ordinary source respawn.
+
+Emission and collection are local. The player who collects a ring receives its value; influence ownership does not automatically award or reserve these pickups. **Local Collection Only** on `Ring` suppresses network collection requests and updates for these spawned rings. Normal authored rings retain their existing collection behavior. **Spew Sound** plays once per nonempty burst and can be cleared to disable it.

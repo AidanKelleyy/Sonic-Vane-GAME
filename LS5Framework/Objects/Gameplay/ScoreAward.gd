@@ -42,10 +42,12 @@ func has_awarded() -> bool:
 func _resolve_score_recipient(recipient: Node) -> Node:
 	var pending: Array[Node] = []
 	var visited: Dictionary = {}
-	if recipient:
+	if is_instance_valid(recipient):
 		pending.append(recipient)
 	while not pending.is_empty():
 		var current: Node = pending.pop_front() as Node
+		if not is_instance_valid(current) or current.is_queued_for_deletion():
+			continue
 		var instance_id: int = current.get_instance_id()
 		if visited.has(instance_id):
 			continue
@@ -54,8 +56,9 @@ func _resolve_score_recipient(recipient: Node) -> Node:
 			return current
 		if current.has_method("get_score_award_recipient"):
 			var resolved_value: Variant = current.call("get_score_award_recipient")
-			if resolved_value is Node and resolved_value != current:
+			if resolved_value is Node and is_instance_valid(resolved_value) and resolved_value != current:
 				pending.append(resolved_value as Node)
+			continue
 		if current.has_meta(&"score_award_recipient"):
 			var metadata_value: Variant = current.get_meta(&"score_award_recipient")
 			if metadata_value is Node and metadata_value != current:

@@ -30,8 +30,23 @@ enum CarryState {
 ## Component receiving water forces. Empty creates a component on ready.
 @export var buoyancy_component: ObjectBuoyancy3D
 
+## Current carrier of this object.
 var carry_holder: Node3D
-var impact_instigator: Node3D
+## Player credited for this object's local impacts.
+var impact_instigator: Node3D:
+	get:
+		return get_score_award_recipient()
+	set(value):
+		set_influence_owner(value)
+
+@export_group("Influence Ownership")
+## Attribution duration after release or a qualifying impulse. Zero disables expiry.
+@export_range(0.0, 120.0, 0.1, "or_greater", "suffix:s") var influence_duration: float = 8.0
+## Minimum applied impulse that assigns a new influence owner.
+@export_range(0.0, 1000.0, 0.1, "or_greater") var influence_minimum_impulse: float = 2.0
+
+var _influence_owner: WeakRef
+var _influence_remaining: float = 0.0
 
 @export_group("Carry")
 ## Allows this object to be picked up.
@@ -271,6 +286,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_update_influence_ownership(delta)
 	if buoyancy_component:
 		buoyancy_component.enabled = buoyancy_enabled
 		buoyancy_component.displaced_volume = buoyancy_volume
@@ -383,6 +399,8 @@ func throw_from_carry(release_transform: Transform3D, release_velocity: Vector3,
 
 
 func release_carry(release_transform: Transform3D, release_velocity: Vector3, release_collision_lock: float = 0.35) -> void:
+	if is_instance_valid(carry_holder):
+		set_influence_owner(carry_holder)
 	_restore_carry_collisions()
 	carry_holder = null
 	global_transform = release_transform
@@ -1697,9 +1715,11 @@ func _remove_collision_exception() -> void:
 	_collision_exception_timer = 0.0
 
 
-func apply_kick_impulse(impulse: Vector3) -> bool:
+func apply_kick_impulse(impulse: Vector3, instigator: Node3D = null) -> bool:
 	if is_carried() or (carry_physics_mode == CarryPhysicsMode.RIGID_BODY and freeze):
 		return false
+	if is_instance_valid(instigator) and impulse.length() >= influence_minimum_impulse and not impulse.is_zero_approx():
+		set_influence_owner(instigator)
 	_simplified_resting = false
 	_clear_rigid_rest_state()
 	if carry_physics_mode == CarryPhysicsMode.SIMPLIFIED:
@@ -1708,6 +1728,43 @@ func apply_kick_impulse(impulse: Vector3) -> bool:
 		sleeping = false
 		apply_central_impulse(impulse)
 	return true
+
+
+func set_influence_owner(instigator: Node3D) -> void:
+	if not is_instance_valid(instigator) or instigator.is_queued_for_deletion():
+		clear_influence_owner()
+		return
+	_influence_owner = weakref(instigator)
+	_influence_remaining = maxf(influence_duration, 0.0)
+
+
+func clear_influence_owner() -> void:
+	_influence_owner = null
+	_influence_remaining = 0.0
+
+
+func get_score_award_recipient() -> Node3D:
+	var instigator: Node3D = _influence_owner.get_ref() as Node3D if _influence_owner else null
+	if not is_instance_valid(instigator) or not instigator.is_inside_tree() or instigator.is_queued_for_deletion():
+		clear_influence_owner()
+		return null
+	if influence_duration > 0.0 and _influence_remaining <= 0.0 and not is_carried():
+		clear_influence_owner()
+		return null
+	if instigator.has_method("_network_is_local_authority") and not instigator.call("_network_is_local_authority"):
+		return null
+	return instigator
+
+
+func _update_influence_ownership(delta: float) -> void:
+	if not _influence_owner:
+		return
+	get_score_award_recipient()
+	if not _influence_owner or is_carried() or influence_duration <= 0.0:
+		return
+	_influence_remaining = maxf(_influence_remaining - maxf(delta, 0.0), 0.0)
+	if _influence_remaining <= 0.0:
+		clear_influence_owner()
 
 
 func clear_carry_owner() -> void:
@@ -1838,8 +1895,24 @@ func _refresh_buoyancy_samples() -> void:
 		buoyancy_component.samples = buoyancy_samples if not buoyancy_samples.is_empty() else _make_buoyancy_samples()
 
 
-func record_object_impact(_point: Vector3, _normal: Vector3, _relative_velocity: Vector3, _collider: Node3D) -> void:
-	pass
+func record_object_impact(_point: Vector3, normal: Vector3, relative_velocity: Vector3, collider: Node3D) -> void:
+	var recipient: Node3D = get_score_award_recipient()
+	if is_carried() or not is_instance_valid(collider) or not recipient:
+		return
+	var receiver: Node = collider
+	if not receiver.has_method("receive_object_impact"):
+		receiver = receiver.get_parent()
+	if receiver and receiver.has_method("receive_object_impact"):
+		var source_reference: WeakRef = weakref(self)
+		var recipient_reference: WeakRef = weakref(recipient)
+		var receiver_reference: WeakRef = weakref(receiver)
+		var deliver: Callable = func() -> void:
+			var source: Node3D = source_reference.get_ref() as Node3D
+			var beneficiary: Node3D = recipient_reference.get_ref() as Node3D
+			var target: Node = receiver_reference.get_ref() as Node
+			if is_instance_valid(source) and is_instance_valid(beneficiary) and is_instance_valid(target):
+				target.call("receive_object_impact", source, relative_velocity, normal, beneficiary)
+		deliver.call_deferred()
 
 
 func get_dynamic_impact_velocity_at(point: Vector3) -> Vector3:

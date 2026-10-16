@@ -100,6 +100,7 @@ func _physics_process(delta: float) -> void:
 	_feedback_timer = maxf(_feedback_timer - delta, 0.0)
 	_impact_timer = maxf(_impact_timer - delta, 0.0)
 	if is_destroyed:
+		_update_influence_ownership(delta)
 		if _respawn_timer > 0.0:
 			_respawn_timer -= delta
 			if _respawn_timer <= 0.0:
@@ -163,7 +164,7 @@ func receive_prop_hit(hit: PropHit) -> int:
 	if rule:
 		outcome = Outcome.DAMAGED
 		if not anchored and not is_carried():
-			apply_kick_impulse(hit.impulse)
+			apply_kick_impulse(hit.impulse, hit.instigator)
 		if destroyable or breakable:
 			durability = maxf(durability - maxf(hit.profile.damage * rule.damage_multiplier, 0.0), 0.0)
 			if rule.instant_destroy:
@@ -403,6 +404,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 func record_object_impact(point: Vector3, normal: Vector3, relative: Vector3, collider: Node3D) -> void:
 	if is_release_contact_ignored(collider):
 		return
+	super.record_object_impact(point, normal, relative, collider)
 	if not impact_damage_enabled or _impact_timer > 0.0 or is_carried() or is_destroyed or -relative.dot(normal) < impact_minimum_speed:
 		return
 	_impact_timer = maxf(impact_cooldown, 0.01)
@@ -410,7 +412,8 @@ func record_object_impact(point: Vector3, normal: Vector3, relative: Vector3, co
 	hit.profile = PropAttackProfile.make(&"physical_impact", PropAttackProfile.Category.IMPACT)
 	hit.profile.damage = impact_damage
 	hit.source = collider
-	hit.instigator = impact_instigator
+	if is_instance_valid(collider) and collider.has_method("get_score_award_recipient"):
+		hit.instigator = collider.call("get_score_award_recipient") as Node3D
 	hit.activation = Time.get_ticks_msec()
 	hit.normal = -normal
 	hit.velocity = -relative

@@ -168,7 +168,9 @@ func _process_contact(collider: Node3D, origin: Vector3) -> void:
 	var direction: Vector3 = (outward.normalized() * (1.0 - lift) + up * lift).normalized()
 	var strength: float = uppercut_impulse_strength if _kick_kind == &"uppercut" else sweep_impulse_strength
 	var impulse: Vector3 = direction * max(strength, 0.0)
-	if body.has_method("apply_kick_impulse"):
+	if body is ObjectPhysicsBody3D:
+		(body as ObjectPhysicsBody3D).apply_kick_impulse(impulse, _player)
+	elif body.has_method("apply_kick_impulse"):
 		body.call("apply_kick_impulse", impulse)
 	else:
 		body.sleeping = false

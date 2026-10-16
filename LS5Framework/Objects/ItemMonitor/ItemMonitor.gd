@@ -48,6 +48,14 @@ signal reward_unhandled(player: Node, reward: ItemMonitorReward)
 ## Keeps the authored base mesh after the monitor breaks.
 @export var leave_base_after_break: bool = false
 
+@export_group("Object Impacts")
+## Allows locally owned dynamic objects to break this monitor.
+@export var object_impact_enabled: bool = true
+## Physics layers containing dynamic objects accepted by the touch sensor.
+@export_flags_3d_physics var object_impact_collision_mask: int = 2
+## Minimum normal closing speed required for an owned object to break the monitor.
+@export_range(0.0, 1000.0, 0.1, "or_greater") var object_impact_minimum_speed: float = 20.0
+
 @export_group("Regeneration")
 ## Restores the monitor after its rewards have been collected.
 @export var respawn_enabled: bool = true
@@ -120,6 +128,8 @@ var _gameplay_activated: bool = false
 var _managed_preparation: bool = false
 var _cosmetics_activated: bool = false
 var _touching_players: Array[Node3D] = []
+## Owned-object overlap candidates awaiting sufficient impact speed.
+var _touching_objects: Array[ObjectPhysicsBody3D] = []
 
 static var _display_material_cache: Dictionary = {}
 static var _looping_audio_cache: Dictionary = {}
@@ -156,6 +166,8 @@ func activate_for_gameplay(_context: Dictionary) -> bool:
 		return true
 	monitoring = true
 	monitorable = true
+	if object_impact_enabled:
+		collision_mask |= object_impact_collision_mask
 	if not body_entered.is_connected(_on_body_entered):
 		body_entered.connect(_on_body_entered)
 	if not body_exited.is_connected(_on_body_exited):
@@ -233,17 +245,24 @@ func _process(delta: float) -> void:
 func _physics_process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
-	if _broken or allow_player_pass_through:
+	if _broken:
 		return
+	for index: int in range(_touching_objects.size() - 1, -1, -1):
+		if not is_instance_valid(_touching_objects[index]):
+			_touching_objects.remove_at(index)
+			continue
+		var object: ObjectPhysicsBody3D = _touching_objects[index]
+		if _try_object_impact(object):
+			return
 	for index: int in range(_touching_players.size() - 1, -1, -1):
 		if not is_instance_valid(_touching_players[index]):
 			_touching_players.remove_at(index)
 			continue
 		var body: Node3D = _touching_players[index]
-		if _is_supported_player(body) and _is_player_attacking(body):
+		if not allow_player_pass_through and _is_supported_player(body) and _is_player_attacking(body):
 			_break_monitor(body)
 			return
-	if _touching_players.is_empty():
+	if _touching_players.is_empty() and _touching_objects.is_empty():
 		set_physics_process(false)
 
 
@@ -284,7 +303,15 @@ func _apply_size_to_node(node: Node3D, uniform_size: float) -> void:
 
 
 func _on_body_entered(body: Node3D) -> void:
-	if _broken or not _is_supported_player(body):
+	if _broken:
+		return
+	if object_impact_enabled and body is ObjectPhysicsBody3D:
+		if not _touching_objects.has(body):
+			_touching_objects.append(body)
+		if not _try_object_impact(body):
+			set_physics_process(true)
+		return
+	if not _is_supported_player(body):
 		return
 	if allow_player_pass_through or _is_player_attacking(body):
 		_break_monitor(body)
@@ -296,12 +323,37 @@ func _on_body_entered(body: Node3D) -> void:
 
 func _on_body_exited(body: Node3D) -> void:
 	_touching_players.erase(body)
-	if _touching_players.is_empty():
+	if body is ObjectPhysicsBody3D:
+		_touching_objects.erase(body)
+	if _touching_players.is_empty() and _touching_objects.is_empty():
 		set_physics_process(false)
 
 
-func _break_monitor(player: Node3D) -> void:
-	if player.has_method("claim_kick_contact") and not bool(player.call("claim_kick_contact", self)):
+func _try_object_impact(body: ObjectPhysicsBody3D) -> bool:
+	var normal: Vector3 = (body.global_position - global_position).normalized()
+	return receive_object_impact(body, body.get_dynamic_impact_velocity_at(global_position), normal)
+
+
+func receive_object_impact(body: Node3D, relative_velocity: Vector3, normal: Vector3, instigator: Node3D = null) -> bool:
+	if _broken or not object_impact_enabled or not is_instance_valid(body) or not body is ObjectPhysicsBody3D:
+		return false
+	var object: ObjectPhysicsBody3D = body as ObjectPhysicsBody3D
+	if object.is_carried():
+		return false
+	var recipient: Node3D = instigator if is_instance_valid(instigator) else object.get_score_award_recipient()
+	if not _is_supported_player(recipient) or not recipient.is_inside_tree() or recipient.is_queued_for_deletion():
+		return false
+	var impact_normal: Vector3 = normal.normalized()
+	if impact_normal.is_zero_approx():
+		impact_normal = -relative_velocity.normalized()
+	if relative_velocity.is_zero_approx() or -relative_velocity.dot(impact_normal) < object_impact_minimum_speed:
+		return false
+	_break_monitor(recipient, false)
+	return _broken
+
+
+func _break_monitor(player: Node3D, direct_attack: bool = true) -> void:
+	if direct_attack and player.has_method("claim_kick_contact") and not bool(player.call("claim_kick_contact", self)):
 		return
 	if _broken:
 		return
@@ -315,7 +367,7 @@ func _break_monitor(player: Node3D) -> void:
 	_play_break_sound()
 	if _score_award:
 		_score_award.award(player)
-	if bounce_airborne_player and _is_player_airborne(player):
+	if direct_attack and bounce_airborne_player and _is_player_airborne(player):
 		_bounce_player(player)
 	monitor_broken.emit(player)
 	if collection_delay <= 0.0 or get_tree() == null:
@@ -323,7 +375,10 @@ func _break_monitor(player: Node3D) -> void:
 		return
 	var collection_generation: int = _state_generation
 	var collection_timer: SceneTreeTimer = get_tree().create_timer(collection_delay)
-	collection_timer.timeout.connect(_collect_rewards.bind(player, collection_generation))
+	var recipient_reference: WeakRef = weakref(player)
+	collection_timer.timeout.connect(func() -> void:
+		var recipient: Node = recipient_reference.get_ref() as Node
+		_collect_rewards(recipient, collection_generation))
 
 
 func _collect_rewards(player: Node, expected_generation: int = -1) -> void:
@@ -332,7 +387,7 @@ func _collect_rewards(player: Node, expected_generation: int = -1) -> void:
 	if _collection_completed or not _broken:
 		return
 	_collection_completed = true
-	if player != null and is_instance_valid(player):
+	if is_instance_valid(player) and player.is_inside_tree() and not player.is_queued_for_deletion():
 		var notified_item_ids: Dictionary = {}
 		for reward: ItemMonitorReward in rewards:
 			if reward == null or not reward.is_configured():
@@ -448,6 +503,7 @@ func _disable_collision() -> void:
 	set_deferred("monitoring", false)
 	set_deferred("monitorable", false)
 	_touching_players.clear()
+	_touching_objects.clear()
 	set_process(false)
 	set_physics_process(false)
 	if _touch_shape != null:
@@ -529,6 +585,7 @@ func _respawn_monitor(play_feedback: bool) -> void:
 		_break_audio.stop()
 	_set_idle_audio_stream(intact_idle_sound)
 	_touching_players.clear()
+	_touching_objects.clear()
 	_update_cosmetic_processing()
 	set_physics_process(false)
 	if play_feedback and respawn_feedback != null:

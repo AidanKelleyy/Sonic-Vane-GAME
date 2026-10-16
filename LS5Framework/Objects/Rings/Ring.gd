@@ -29,6 +29,8 @@ static var _pickup_audio_pan_left: bool = true
 @export var allow_light_speed_dash: bool = true
 
 @export var ring_value: int = 1
+## Collects this ring locally without sending or accepting network collection updates.
+@export var local_collection_only: bool = false
 
 @export var pickup_particle_scene: PackedScene = preload("res://LS5Framework/Objects/Rings/Ring_Particle.tscn")
 @export var pickup_particle_texture: Texture2D = preload("res://LS5Framework/Images/Ring_Particle.png")
@@ -197,7 +199,7 @@ func _apply_to_player(player: Node3D) -> void:
 		player.call("add_rings", ring_value)
 
 	# Single-player: collect locally.
-	if multiplayer == null or not multiplayer.has_multiplayer_peer():
+	if local_collection_only or multiplayer == null or not multiplayer.has_multiplayer_peer():
 		_collect_local()
 		return
 
@@ -383,7 +385,7 @@ static func get_next_pickup_audio_bus(fallback_bus: StringName = &"SFX") -> Stri
 
 @rpc("any_peer", "reliable")
 func _rpc_request_collect() -> void:
-	if multiplayer == null or not multiplayer.has_multiplayer_peer():
+	if local_collection_only or multiplayer == null or not multiplayer.has_multiplayer_peer():
 		return
 	if not multiplayer.is_server():
 		return
@@ -408,4 +410,6 @@ func _rpc_request_collect() -> void:
 
 @rpc("authority", "reliable", "call_local")
 func _rpc_set_collected(value: bool) -> void:
+	if local_collection_only:
+		return
 	_set_collected(value, false)

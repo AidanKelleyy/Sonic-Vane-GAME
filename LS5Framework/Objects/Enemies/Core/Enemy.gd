@@ -452,6 +452,7 @@ func _refresh_source_traversal_actions(source: Node) -> void:
 			if recipient_value is Node and recipient_value != current:
 				current = recipient_value as Node
 				continue
+			return
 		current = current.get_parent()
 
 
@@ -471,6 +472,7 @@ func _register_source_combo_feat(source: Node) -> void:
 			if recipient_value is Node and recipient_value != current:
 				current = recipient_value as Node
 				continue
+			return
 		current = current.get_parent()
 
 

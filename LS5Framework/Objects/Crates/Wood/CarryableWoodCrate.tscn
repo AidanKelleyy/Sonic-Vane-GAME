@@ -1,18 +1,26 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://3oynpvht654i"]
 
-[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Crates/Wood/WoodCrate.tscn" id="1_crate"]
-[ext_resource type="Script" path="res://LS5Framework/Objects/Props/PropHitRule.gd" id="2_rule"]
+[ext_resource type="PackedScene" uid="uid://d1aw6tx6bcf3m" path="res://LS5Framework/Objects/Crates/Wood/WoodCrate.tscn" id="1_crate"]
+[ext_resource type="Script" uid="uid://dvn3ik5o7ht1j" path="res://LS5Framework/Objects/Props/PropHitRule.gd" id="2_rule"]
+[ext_resource type="Script" uid="uid://cug5haoksnh1g" path="res://LS5Framework/Objects/Rings/ObjectRingSpew3D.gd" id="3_frnmf"]
+[ext_resource type="AudioStream" uid="uid://dgkgp6v0jh2kc" path="res://LS5Framework/Sounds/Objects/Item_Monitor_Break.wav" id="4_74p1s"]
 
 [sub_resource type="Resource" id="BothRule"]
 script = ExtResource("2_rule")
 categories = 7
 
-[node name="CarryableWoodCrate" instance=ExtResource("1_crate")]
+[node name="CarryableWoodCrate" unique_id=1386599126 instance=ExtResource("1_crate")]
 collision_layer = 2
 collision_mask = 7
-anchored = false
-carry_enabled = true
 hit_rules = Array[ExtResource("2_rule")]([SubResource("BothRule")])
-simplified_collision_radius = 1.98
 impact_damage_enabled = true
 impact_minimum_speed = 35.0
+anchored = false
+carry_enabled = true
+simplified_collision_radius = 1.98
+
+[node name="ObjectRingSpew3D" type="Node3D" parent="." index="7" unique_id=937570897]
+script = ExtResource("3_frnmf")
+spew_sound = ExtResource("4_74p1s")
+spew_pitch_scale = 1.25
+metadata/_custom_type_script = "uid://cug5haoksnh1g"

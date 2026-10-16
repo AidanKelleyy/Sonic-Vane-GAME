@@ -2481,6 +2481,16 @@ func _recover_missed_sphere_contact(movement_start: Transform3D) -> void:
 		query.transform.origin += motion * minf(fractions[1] + 0.001 / motion_length, 1.0)
 		query.margin = 0.001
 		contact = space.get_rest_info(query)
+		# Tangential and separating contacts cannot block the completed movement.
+		if not contact.is_empty() and motion.dot(contact.normal) >= -0.0001:
+			contact = {}
+			safe_fraction = 1.0
+	if not contact.is_empty() and crossing.is_empty() and attached and _collision_attached_last_move and ground_unevenness_tolerance > 0.0:
+		var sphere_end: Transform3D = sphere_start
+		sphere_end.origin += motion
+		var tolerance: float = minf(ground_unevenness_tolerance, get_main_collision_world_radius() * 0.1)
+		if _has_shallow_ground_contacts(sphere_end, tolerance, ground_unevenness_max_angle_deg):
+			return
 	if contact.is_empty() and not crossing.is_empty():
 		var normal: Vector3 = crossing.normal
 		var inward_motion: float = -motion.dot(normal)
@@ -2502,19 +2512,20 @@ func _recover_missed_sphere_contact(movement_start: Transform3D) -> void:
 	_movement_sphere_contact = contact
 
 
-func _has_shallow_ground_contacts(sphere_transform: Transform3D) -> bool:
+func _has_shallow_ground_contacts(sphere_transform: Transform3D, depth_limit: float = -1.0, angle_limit_deg: float = 20.0) -> bool:
 	var query: PhysicsShapeQueryParameters3D = _make_shape_query(main_collision_shape.shape, sphere_transform, _shallow_contact_query)
 	var contacts: Array[Vector3] = get_world_3d().direct_space_state.collide_shape(query, 32)
-	if contacts.is_empty():
+	if contacts.is_empty() or contacts.size() >= 64:
 		return false
-	var maximum_depth: float = maxf(safe_margin, 0.001)
+	var maximum_depth: float = maxf(safe_margin, 0.001) if depth_limit < 0.0 else depth_limit
+	var minimum_alignment: float = 0.95 if depth_limit < 0.0 else cos(deg_to_rad(clampf(angle_limit_deg, 0.0, 45.0)))
 	var support_up: Vector3 = get_collision_support_up()
 	# Native ground contacts within the recovery margin remain subject to surface locking.
 	for index: int in range(0, contacts.size() - 1, 2):
 		if contacts[index].distance_squared_to(contacts[index + 1]) > maximum_depth * maximum_depth:
 			return false
 		var contact_up: Vector3 = (sphere_transform.origin - contacts[index + 1]).normalized()
-		if contact_up.dot(support_up) < 0.95:
+		if contact_up.dot(support_up) < minimum_alignment:
 			return false
 	return true
 

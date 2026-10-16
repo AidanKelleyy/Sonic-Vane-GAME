@@ -68,3 +68,17 @@ The isolated Niko collision/water benchmark measured one-crate emission at appro
 Wood and MonoBeetle models are configured for this workflow. Both use mass 4, gravity scale 4, friction 0.25, bounce 0.15, linear/angular damping 0.09/0.05, collision layer/mask 8/5, CCD, and fast-motion safety sweeps. Wood uses density 600 for buoyancy; MonoBeetle buoyancy is disabled. Templates remain frozen with processing disabled until a copy is emitted. Spawning still instantiates native physics bodies; import-time collision preparation removes geometry-generation stalls rather than guaranteeing zero runtime allocation.
 
 Carry releases retain the player collision exception for the configured release lock and until the active object shapes no longer overlap the releasing player. Attack contacts and physical impact damage from that player are ignored during this guard. World impacts and other attackers retain normal damage behavior.
+
+## Local influence benefits
+
+Carrying assigns an influence owner. Releasing or throwing starts a fresh attribution window; an accepted player attack or kick can transfer ownership when its impulse meets **Influence Minimum Impulse**. Anonymous impulses and minor contacts preserve the existing owner without refreshing the window. **Influence Duration** defaults to eight seconds; zero disables expiry. Held ownership does not expire. Respawn/reset and removal of the credited player clear attribution.
+
+`get_score_award_recipient()` exposes the current eligible local beneficiary. Enemy object-impact defeats use it for score, combo credit, and the existing airborne ability refresh, while retaining the impacting object as the damage source. No player bounce is applied for indirect hits. Expired ownership removes benefits without disabling existing enemy impact damage. Attribution is local state and is not replicated online.
+
+Item monitors accept sufficiently fast owned-object impacts. **Object Impact Enabled**, **Object Impact Collision Mask**, and **Object Impact Minimum Speed** configure this behavior; the default speed threshold is 20. Normal closing speed rejects slow and glancing contacts. Touch overlaps handle ordinary contacts, while existing prop collision/sweep callbacks handle solid monitor contacts. Delayed rewards retain the beneficiary selected at impact, including when the object is subsequently influenced by another player. Unowned, expired, held, and ineligible objects do not break monitors. Direct player monitor interactions retain their existing bounce behavior.
+
+Custom local interactions can call `set_influence_owner(player)` or `apply_kick_impulse(impulse, player)`. Existing one-argument impulse calls remain valid. Physical chain ownership propagation and automatic ownership from ordinary walking pushes are not included.
+
+## Ring contents
+
+Add `res://LS5Framework/Objects/Rings/ObjectRingSpew3D.tscn` beneath a prop to emit dropped rings on damage or destruction. The same component works under enemies. Counts, per-life limits, launch speeds, inherited velocity, ring variants, and emission sound are configured on the component. See `Objects/Rings/README.md` for setup and behavior.

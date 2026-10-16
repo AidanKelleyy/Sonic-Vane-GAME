@@ -1648,6 +1648,10 @@ var airborne_landing_align_movement_yaw_full_speed: float = 30.0
 ## Distance from the character center to the contact point along the surface normal.
 ## For a 2-unit tall capsule centered on the character, this is usually about 1.0.
 @export var collision_ground_distance: float = 1.0
+## Maximum shallow terrain overlap accepted during grounded sweep recovery. Limited to 10% of the active sphere radius; zero disables unevenness forgiveness.
+@export_range(0.0, 0.1, 0.001, "or_greater") var ground_unevenness_tolerance: float = 0.08
+## Maximum contact deviation from support-up accepted as shallow terrain, in degrees.
+@export_range(0.0, 45.0, 1.0, "suffix:°") var ground_unevenness_max_angle_deg: float = 20.0
 
 
 # -----------------------------------------------------------
