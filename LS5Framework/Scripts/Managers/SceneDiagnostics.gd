@@ -1,5 +1,6 @@
 extends Node
 
+const PLAYER_VALIDATION: Script = preload("res://LS5Framework/Scripts/Managers/PlayerScriptValidation.gd")
 const OVERLAY_SCRIPT: Script = preload("res://LS5Framework/Scripts/UI/SceneDiagnosticOverlay.gd")
 const REPORT_PATH: String = "user://scene_diagnostics.log"
 const DEPENDENCY_ERROR_LOG_PATH: String = "user://scene_dependency_errors.log"
@@ -22,9 +23,24 @@ var _load_issue: Dictionary = {}
 var _preview_active: bool = false
 var _last_report: Dictionary = {}
 var _dependency_scan_generation: int = 0
+var _bootstrap_failures: Dictionary = {}
+var _player_script_failures: Dictionary = {}
+var _player_scripts_verified: bool = false
+var _verified_player_scenes: Dictionary = {}
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_bootstrap_failures = PLAYER_VALIDATION.inspect_resources(PLAYER_VALIDATION.read_manifest())
+	_player_script_failures = _bootstrap_failures.duplicate()
+	if OS.get_cmdline_user_args().has("--verify-player-startup"):
+		var failures: Dictionary = _bootstrap_failures.duplicate()
+		if failures.is_empty():
+			failures = PLAYER_VALIDATION.inspect_scripts(PLAYER_VALIDATION.read_manifest())
+		for path: String in failures:
+			push_error("%s: %s" % [path, failures[path]])
+		print("PLAYER_STARTUP_RESULT scripts=%d failures=%d" % [PLAYER_VALIDATION.read_manifest().get("player_scripts", []).size(), failures.size()])
+		get_tree().quit(1 if not failures.is_empty() else 0)
+		return
 	LevelPreparationManager.level_preparation_started.connect(_on_preparation_started)
 	LevelPreparationManager.level_preparation_failed.connect(_on_preparation_failed)
 	LevelPreparationManager.level_preparation_completed.connect(_on_preparation_completed)
@@ -34,6 +50,48 @@ func _ready() -> void:
 	_timer.timeout.connect(_check_scene)
 	add_child(_timer)
 	_timer.start()
+
+func validate_player_scene(packed: PackedScene, scene_path: String) -> bool:
+	var failed: Dictionary = _bootstrap_failures.duplicate()
+	if failed.is_empty() and not _player_scripts_verified:
+		failed = PLAYER_VALIDATION.inspect_scripts(PLAYER_VALIDATION.read_manifest())
+		_player_scripts_verified = failed.is_empty()
+	if failed.is_empty() and not _verified_player_scenes.has(packed.get_instance_id()):
+		failed = PLAYER_VALIDATION.inspect_scene(packed, scene_path)
+		if failed.is_empty():
+			_verified_player_scenes[packed.get_instance_id()] = weakref(packed)
+	if not failed.is_empty():
+		report_player_script_failure(failed, scene_path)
+		return false
+	_clear_player_script_failure()
+	return true
+
+func validate_player_instance(player: Node, scene_path: String) -> bool:
+	var failed: Dictionary = PLAYER_VALIDATION.inspect_instance(player, scene_path)
+	if failed.is_empty():
+		return true
+	report_player_script_failure(failed, scene_path)
+	return false
+
+func report_player_script_failure(failed: Dictionary, scene_path: String) -> void:
+	_player_script_failures = failed.duplicate()
+	record_event("PlayerScripts", "Player controller or dependency validation failed", scene_path)
+	_load_issue = _player_script_issue(failed)
+	_present([_load_issue], {"scene": _current_scene_path(), "character_scene_paths": [scene_path] if not scene_path.is_empty() else [], "player_script_failures": failed})
+
+func _player_script_issue(failed: Dictionary) -> Dictionary:
+	var paths: Array = failed.keys()
+	paths.sort()
+	var path: String = String(paths[0]) if not paths.is_empty() else "Unknown reference"
+	return _issue("PLAYER_SCRIPT_FAILED", "Player script or dependency failed", "%s: %s" % [path, failed.get(path, "Invalid script reference")], "Re-export the base game with its startup dependencies, deploy matching Data packs, then restart. Updating a content pack alone cannot repair an already failed script class.")
+
+func _clear_player_script_failure() -> void:
+	if not _bootstrap_failures.is_empty():
+		return
+	_player_script_failures.clear()
+	if String(_load_issue.get("code", "")) == "PLAYER_SCRIPT_FAILED":
+		_load_issue.clear()
+		_clear_display()
 
 func record_event(source: String, reason: String, resource_path: String = "") -> void:
 	_events.append({"source": source, "reason": reason, "resource": resource_path, "time_msec": Time.get_ticks_msec()})
@@ -89,6 +147,9 @@ func _current_scene_path() -> String:
 
 func _check_scene() -> void:
 	if _preview_active:
+		return
+	if not _player_script_failures.is_empty():
+		_present([_player_script_issue(_player_script_failures)], {"scene": _current_scene_path(), "player_script_failures": _player_script_failures})
 		return
 	var scene: Node = get_tree().current_scene
 	if not is_instance_valid(scene):
@@ -159,6 +220,12 @@ func inspect_scene(level_value: Variant, player_value: Variant, rig_value: Varia
 	var rig: Node = rig_value if _live_node(rig_value) else null
 	var active_camera: Camera3D = camera_value if _live_node(camera_value) and camera_value is Camera3D else null
 	var issues: Array[Dictionary] = []
+	var script_failures: Dictionary = context.get("player_script_failures", {})
+	if _live_node(player) and bool(context.get("player_script_required", false)):
+		script_failures = script_failures.duplicate()
+		script_failures.merge(PLAYER_VALIDATION.inspect_instance(player, String(context.get("character_scene_paths", ["Player"])[0]) if not context.get("character_scene_paths", []).is_empty() else "Player"))
+	if not script_failures.is_empty():
+		issues.append(_player_script_issue(script_failures))
 	if not _live_node(level):
 		issues.append(_issue("LEVEL_MISSING", "Level scene is not present", "A gameplay shell is running, but its level manager has no live level instance.", "Check the selected level path and the last loading/preparation error."))
 	if not _live_node(player):
@@ -222,6 +289,9 @@ func _present(issues: Array, context: Dictionary) -> void:
 	}
 	_dependency_scan_generation += 1
 	_last_report["dependency_scan"] = {"state": "Scanning", "entries": []}
+	_last_report["failed_resources"].merge(_player_script_failures)
+	var context_failures: Dictionary = context.get("player_script_failures", {})
+	_last_report["failed_resources"].merge(context_failures)
 	var log_saved: bool = _write_report()
 	_ensure_overlay()
 	_overlay.call("show_report", _last_report, log_saved)
@@ -328,7 +398,7 @@ func _ensure_overlay() -> void:
 	get_tree().root.add_child(_overlay)
 
 func open_dependency_inspection(return_dialog: Window = null) -> void:
-	if is_instance_valid(_overlay) and _overlay.call("is_report_visible"):
+	if is_instance_valid(_overlay) and _overlay.call("has_report"):
 		_overlay.call("open_inspection", return_dialog)
 
 func _clear_display() -> void:

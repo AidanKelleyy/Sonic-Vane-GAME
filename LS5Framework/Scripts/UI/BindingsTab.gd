@@ -50,6 +50,7 @@ const CONTROL_CATEGORIES: Array[Dictionary] = [
 	]},
 	{"label": "Debug", "actions": [
 		{"action": "debug_toggle", "label": "Toggle Debug HUD"},
+		{"action": "scene_diagnostics_toggle", "label": "Show / Hide Scene Diagnostics"},
 		{"action": "debug_enter", "label": "Toggle Debug Flight"},
 		{"action": "debug_fast", "label": "Fast Fly"},
 		{"action": "debug_slow", "label": "Slow Fly"},

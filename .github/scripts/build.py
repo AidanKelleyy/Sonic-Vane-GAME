@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import zipfile
 
 
@@ -117,6 +118,24 @@ def create_zip_archive(source_dir, output_zip_path):
     print(f"Archive created: {output_zip_path} ({os.path.getsize(output_zip_path):,} bytes)")
 
 
+def verify_player_startup(executable, output_dir, platform):
+    """Load player scripts from the exported base game without mounting Data packs."""
+    with tempfile.TemporaryDirectory(prefix="sonic_vane_startup_") as isolated_dir:
+        result = subprocess.run(
+            [os.path.abspath(executable), "--headless", "--", "--verify-player-startup"],
+            cwd=isolated_dir, capture_output=True, text=True, timeout=120,
+        )
+    output = result.stdout + result.stderr
+    log_dir = os.path.join(output_dir, "validation")
+    os.makedirs(log_dir, exist_ok=True)
+    with open(os.path.join(log_dir, platform + "_player_startup.log"), "w", encoding="utf-8") as file:
+        file.write(output)
+    marker = re.search(r"PLAYER_STARTUP_RESULT scripts=(\d+) failures=(\d+)", output)
+    if result.returncode or not marker or int(marker.group(1)) == 0 or int(marker.group(2)) or "SCRIPT ERROR:" in output:
+        raise RuntimeError("Exported player startup validation failed; inspect " + log_dir)
+    print(f"Verified {marker.group(1)} player scripts in isolated {platform} base export")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Export Sonic VANE with structured Data/ pack folders.")
     parser.add_argument("--godot-bin", default=os.environ.get("GODOT_BIN", "godot"), help="Path to Godot binary")
@@ -129,6 +148,12 @@ def main():
     parser.add_argument("--version-tag", default="", help="Version string for archives (e.g. 2026.10.11)")
 
     args = parser.parse_args()
+
+    validation_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "validate_startup_dependencies.py")
+    validation_command = [sys.executable, validation_script, "--presets-cfg", args.presets_cfg]
+    if not args.dry_run:
+        run_command(validation_command + ["--fix"])
+    run_command(validation_command)
 
     presets = parse_export_presets(args.presets_cfg)
     print(f"Loaded {len(presets)} presets from {args.presets_cfg}")
@@ -234,6 +259,19 @@ def main():
                     os.remove(mac_zip)
                 except OSError:
                     pass
+
+        if not args.dry_run:
+            if plat == "windows" and sys.platform == "win32":
+                verify_player_startup(exe_target, os.path.abspath(args.output_dir), plat)
+            elif plat == "linux" and sys.platform.startswith("linux"):
+                verify_player_startup(bin_target, os.path.abspath(args.output_dir), plat)
+            elif plat == "macos" and sys.platform == "darwin":
+                from pathlib import Path
+                candidates = list(Path(plat_dir).glob("*.app/Contents/MacOS/*"))
+                executables = [path for path in candidates if path.is_file() and os.access(path, os.X_OK)]
+                if len(executables) != 1:
+                    raise RuntimeError("Could not resolve the macOS executable for startup validation")
+                verify_player_startup(str(executables[0]), os.path.abspath(args.output_dir), plat)
 
         # Copy structured Data/ folder next to the executable
         target_data_dir = os.path.join(plat_dir, "Data")

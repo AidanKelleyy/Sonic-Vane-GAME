@@ -332,6 +332,8 @@ func _replace_peer_character(peer_id: int) -> void:
 	var packed: PackedScene = _get_player_scene_for_spawn(peer_id, is_local)
 	if packed == null:
 		return
+	if not SceneDiagnostics.validate_player_scene(packed, packed.resource_path):
+		return
 	var old_player: Node = get_player_node(peer_id)
 	var old_transform: Transform3D = Transform3D.IDENTITY
 	var old_velocity: Vector3 = Vector3.ZERO
@@ -2361,12 +2363,21 @@ func _spawn_player(peer_id: int, is_local: bool) -> void:
 		push_warning("NetworkSession: selected character scene is not prepared.")
 		return
 
+	if not SceneDiagnostics.validate_player_scene(packed, packed.resource_path):
+		if is_local:
+			_local_spawn_failure = "Player script validation failed; inspect scene diagnostics for the reference and dependency."
+		return
 	var inst = packed.instantiate()
 	if not inst or not (inst is Node3D):
 		if is_local:
 			_local_spawn_failure = "The selected character scene did not instantiate a valid Node3D player root."
 		if inst:
 			inst.free()
+		return
+	if not SceneDiagnostics.validate_player_instance(inst, packed.resource_path):
+		if is_local:
+			_local_spawn_failure = "The character instantiated without a valid player controller script."
+		inst.free()
 		return
 	if is_local:
 		_local_spawn_failure = ""
@@ -2602,6 +2613,7 @@ func get_scene_diagnostic_context() -> Dictionary:
 		"resolved_character": resolved_character,
 		"character_scene_paths": character_scene_paths,
 		"spawn_failure": _local_spawn_failure,
+		"player_script_required": true,
 		"local_peer_id": _local_id,
 		"players_root": String(_players_root.get_path()) if is_instance_valid(_players_root) and _players_root.is_inside_tree() else "<missing>",
 		"camera_rig_path": String(camera_rig_path)

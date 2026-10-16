@@ -30,8 +30,8 @@ func _validate_meshes(node: Node, dynamic_parent: bool = false) -> bool:
 		var prepared: bool = false
 		for child: Node in node.get_children():
 			if child is CollisionShape3D:
-				if not child.shape is ConvexPolygonShape3D:
-					push_error("Fracture body '%s' must import with convex collision." % node.name)
+				if not _supports_collision_shape(child.shape):
+					push_error("Fracture body '%s' requires convex or primitive collision." % node.name)
 					return false
 				prepared = true
 		if not prepared:
@@ -67,16 +67,7 @@ func _prepare_body(body: RigidBody3D, profile: Resource) -> void:
 			child.transform = Transform3D(scale_basis) * child.transform
 			child.position -= center
 		if child is CollisionShape3D:
-			if not child.shape is ConvexPolygonShape3D:
-				push_error("Fracture piece requires convex collision: %s" % body.name)
-				continue
-			var shape: ConvexPolygonShape3D = child.shape.duplicate() as ConvexPolygonShape3D
-			var points: PackedVector3Array = shape.points
-			for index: int in range(points.size()):
-				points[index] = child.transform * points[index]
-			shape.points = points
-			child.shape = shape
-			child.transform = Transform3D.IDENTITY
+			_bake_collision_shape(child)
 	body.basis = body.basis.orthonormalized()
 	body.position += body.basis * center
 	body.set_script(PHYSICS_SCRIPT)
@@ -111,6 +102,39 @@ func _prepare_body(body: RigidBody3D, profile: Resource) -> void:
 	body.process_mode = Node.PROCESS_MODE_DISABLED
 	body.add_to_group(&"dynamic_physics_object", true)
 	body.set_meta(&"fracture_import_prepared", true)
+
+func _supports_collision_shape(shape: Shape3D) -> bool:
+	return shape is ConvexPolygonShape3D or shape is BoxShape3D or shape is SphereShape3D or shape is CapsuleShape3D or shape is CylinderShape3D
+
+
+func _bake_collision_shape(collision: CollisionShape3D) -> void:
+	var shape: Shape3D = collision.shape.duplicate() as Shape3D
+	var transform: Transform3D = collision.transform
+	if shape is ConvexPolygonShape3D:
+		var points: PackedVector3Array = shape.points
+		for index: int in range(points.size()):
+			points[index] = transform * points[index]
+		shape.points = points
+		collision.transform = Transform3D.IDENTITY
+	else:
+		var scale: Vector3 = transform.basis.get_scale().abs()
+		if shape is BoxShape3D:
+			shape.size *= scale
+		elif shape is SphereShape3D:
+			shape.radius *= maxf(scale.x, maxf(scale.y, scale.z))
+		elif shape is CylinderShape3D:
+			shape.radius *= maxf(scale.x, scale.z)
+			shape.height *= scale.y
+		elif shape is CapsuleShape3D:
+			var radius: float = shape.radius * maxf(scale.x, scale.z)
+			var height: float = maxf(shape.height * scale.y, radius * 2.0)
+			shape.height = maxf(height, shape.radius * 2.0)
+			shape.radius = radius
+			shape.height = height
+		transform.basis = transform.basis.orthonormalized()
+		collision.transform = transform
+	collision.shape = shape
+
 
 func _collect_meshes(node: Node, meshes: Array[MeshInstance3D]) -> void:
 	if node is MeshInstance3D and node.mesh:

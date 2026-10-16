@@ -19,6 +19,9 @@ anchored = false
 carry_enabled = true
 simplified_collision_radius = 1.98
 
+[node name="WoodCrate_Fractures" parent="." index="4" unique_id=121172711]
+visible = false
+
 [node name="ObjectRingSpew3D" type="Node3D" parent="." index="7" unique_id=937570897]
 script = ExtResource("3_frnmf")
 spew_sound = ExtResource("4_74p1s")

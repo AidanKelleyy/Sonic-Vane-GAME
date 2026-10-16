@@ -13,6 +13,8 @@ var _subtitle: Label = null
 var _body: Label = null
 var _footer: Label = null
 var _preview: bool = false
+var _report_available: bool = false
+var _hidden_by_user: bool = false
 var _dependency_heading: Label = null
 var _dependencies: ItemList = null
 var _dependency_detail: Label = null
@@ -137,13 +139,26 @@ func show_report(report: Dictionary, log_saved: bool, preview: bool = false) -> 
 		lines.append("+ %d more findings in the saved report." % (issues.size() - 4))
 	_body.text = "\n".join(lines)
 	update_dependencies(report, log_saved)
-	_root.visible = true
+	_report_available = true
+	_root.visible = not _hidden_by_user
 	_layout()
 
 func clear_report() -> void:
+	_report_available = false
 	_leave_inspection()
 	if _root:
 		_root.visible = false
+
+func has_report() -> bool:
+	return _report_available
+
+func toggle_report_visibility() -> void:
+	if not _report_available:
+		return
+	_hidden_by_user = not _hidden_by_user
+	if _hidden_by_user:
+		_leave_inspection()
+	_root.visible = not _hidden_by_user
 
 func is_report_visible() -> bool:
 	return _root != null and _root.visible
@@ -191,7 +206,10 @@ func update_dependencies(report: Dictionary, log_saved: bool) -> void:
 		log_text = "Logs: Local Files / scene_dependency_errors.log + scene_diagnostics.log" if log_saved else "Scene report could not be saved; take a screenshot."
 		if not report.get("dependency_error_log_saved", false):
 			log_text += "\nDependency error log could not be saved."
-	_footer.text = "Level: %s | %s\n%s" % [level, primary_code, log_text]
+	var shortcuts: PackedStringArray = []
+	for event: InputEvent in InputMap.action_get_events(&"scene_diagnostics_toggle"):
+		shortcuts.append(event.as_text())
+	_footer.text = "Level: %s | %s\n%s\nShow / hide: %s" % [level, primary_code, log_text, " / ".join(shortcuts) if not shortcuts.is_empty() else "Unbound"]
 	var scan: Dictionary = report.get("dependency_scan", {})
 	_dependency_entries = scan.get("entries", [])
 	_dependencies.clear()
@@ -217,6 +235,15 @@ func _select_dependency(index: int) -> void:
 	_fit_height.call_deferred()
 
 func _input(event: InputEvent) -> void:
+	if get_tree().get_meta("input_binding_active", false):
+		return
+	var focus: Control = get_viewport().gui_get_focus_owner()
+	if focus is LineEdit or focus is TextEdit:
+		return
+	if _report_available and event.is_action_pressed(&"scene_diagnostics_toggle") and not event.is_echo():
+		get_viewport().set_input_as_handled()
+		toggle_report_visibility()
+		return
 	if not is_report_visible():
 		return
 	var toggle: bool = (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F7) or (event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_RIGHT_STICK)
@@ -246,6 +273,10 @@ func _toggle_inspection() -> void:
 	_dependencies.grab_focus()
 
 func open_inspection(return_dialog: Window = null) -> void:
+	if not _report_available:
+		return
+	_hidden_by_user = false
+	_root.visible = true
 	if _inspection_active:
 		return
 	_return_dialog = weakref(return_dialog) if is_instance_valid(return_dialog) else null

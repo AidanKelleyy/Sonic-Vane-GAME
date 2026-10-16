@@ -35,7 +35,7 @@ Enable **Buoyancy Enabled**, set mass and effective displaced volume, and option
 
 Adventure Water volumes expose density, currents, overlap priority, and an optional fluid-gravity override. Fluid gravity otherwise follows object gravity, including zero gravity. Box boundaries interpolate sample submersion; other volume shapes use containment samples. Rendered texture waves do not alter physical water boundaries.
 
-The shared fracture emitter accepts a source-motion context and additional template-root arrays. Fractures must import as prepared dynamic bodies with convex collision. The emitter reuses those shapes and preserves imported physics by default; it never converts raw meshes or builds collision geometry at runtime. Shared fragments inherit source linear/angular motion and gravity. Live-piece budgets and lifetime/fade settings bound debris cost. Existing enemy defeat effects use this emitter through their existing adapter.
+The shared fracture emitter accepts a source-motion context and additional template-root arrays. Fractures must import as prepared dynamic bodies with convex or primitive collision. The emitter reuses those shapes and preserves imported physics by default; it never converts raw meshes or builds collision geometry at runtime. Shared fragments inherit source linear/angular motion and gravity. Live-piece budgets and lifetime/fade settings bound debris cost. Existing enemy defeat effects use this emitter through their existing adapter.
 
 ## Validation and current limits
 
@@ -59,10 +59,10 @@ The isolated Niko collision/water benchmark measured one-crate emission at appro
 
 ## Fracture import workflow
 
-1. In the fracture model's Advanced Import Settings, enable Generate Physics on every piece, choose a Dynamic body, and use a single convex collision shape. Mesh node paths use Godot's sanitized names; dots in source names become underscores.
+1. In the fracture model's Advanced Import Settings, enable Generate Physics on every piece, choose a Dynamic body, and use a single convex shape or a Box, Sphere, Capsule, or Cylinder primitive. Mesh node paths use Godot's sanitized names; dots in source names become underscores.
 2. Assign `res://addons/ls5_surface_attach_import/fracture_post_import.gd` as the model's import script.
 3. Save a `FractureImportPhysics` resource beside the model named `<model_basename>_physics.tres`. It configures per-piece mass, density, gravity scale, friction, bounce, damping, collision layers, CCD, and safety sweeps. Without a sidecar, the shared defaults apply.
-4. Reimport the model after changing its import settings, profile, or import script. The import script rejects meshes missing dynamic bodies or convex shapes and centers each body without moving its rendered mesh.
+4. Reimport the model after changing its import settings, profile, or import script. The import script rejects meshes missing dynamic bodies or supported collision shapes and centers each body without moving its rendered mesh.
 5. Assign the imported scene as the emitter's fracture source. Leave Override Imported Physics disabled to preserve the profile. Enable it only for an intentional per-emitter variation.
 
 Wood and MonoBeetle models are configured for this workflow. Both use mass 4, gravity scale 4, friction 0.25, bounce 0.15, linear/angular damping 0.09/0.05, collision layer/mask 8/5, CCD, and fast-motion safety sweeps. Wood uses density 600 for buoyancy; MonoBeetle buoyancy is disabled. Templates remain frozen with processing disabled until a copy is emitted. Spawning still instantiates native physics bodies; import-time collision preparation removes geometry-generation stalls rather than guaranteeing zero runtime allocation.

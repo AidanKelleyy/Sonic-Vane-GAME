@@ -302,6 +302,11 @@ var _startup_data_check_complete: bool = false
 var _test_level_skip_requested: bool = false
 
 func _ready() -> void:
+	if OS.get_cmdline_user_args().has("--verify-player-startup"):
+		set_process(false)
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		return
 	tab_bindings.loadout_mapping_requested.connect(_on_loadout_mapping_requested)
 	menu_overlay.hide()
 	title_backdrop.entrance_music_requested.connect(_play_title_music)
