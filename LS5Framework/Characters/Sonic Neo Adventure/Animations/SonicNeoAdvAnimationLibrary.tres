@@ -4,7 +4,9 @@
 [ext_resource type="Animation" uid="uid://twg8cv8qaaw3" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/BrakeStop_End.res" id="2"]
 [ext_resource type="Animation" uid="uid://bjptk64l1xd1i" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/BrakeStop_Enter.res" id="3"]
 [ext_resource type="Animation" uid="uid://brej48lq6v7j7" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Carry_Hold.res" id="4"]
+[ext_resource type="Animation" uid="uid://dgxdnma2m6s4w" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/CAMMOD_Quills_Left.res" id="4_fcvev"]
 [ext_resource type="Animation" uid="uid://gw3dan1ujfro" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Carry_Pickup.res" id="5"]
+[ext_resource type="Animation" uid="uid://uf0hgyg1q3is" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/CAMMOD_Quills_Right.res" id="5_xo120"]
 [ext_resource type="Animation" uid="uid://dqt1trqjg17tb" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Carry_PutDown.res" id="6"]
 [ext_resource type="Animation" uid="uid://4ykcxr7ka5b4" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Carry_Throw.res" id="7"]
 [ext_resource type="Animation" uid="uid://3ntjf4120bwd" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Drift_Left.res" id="8"]
@@ -84,7 +86,7 @@
 [ext_resource type="Animation" uid="uid://du6h3krlqvmx4" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallKick_Cling.res" id="79_ldh02"]
 [ext_resource type="Animation" uid="uid://du3lkupynf63e" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallKick_Left.res" id="80_hian6"]
 [ext_resource type="Animation" uid="uid://csne8lajgnwtu" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallKick_Right.res" id="81_wk56n"]
-[ext_resource type="Animation" uid="uid://cjeo1r7lhgbsx" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/_POSES_VictoryPoseRender.res" id="88_a1xrn"]
+[ext_resource type="Animation" uid="uid://b6q4m7jquk2tb" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/_POSES_VictoryPoseRender.res" id="88_a1xrn"]
 [ext_resource type="Animation" uid="uid://blgoscqwfv7n" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/PHYSICS_Ears_Additive.res" id="physics_ears"]
 [ext_resource type="Animation" uid="uid://bpolm44qqhdln" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/PHYSICS_Quill_Additive.res" id="physics_quills"]
 [ext_resource type="Animation" uid="uid://jxxycqtvbs5c" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/RESET.res" id="reset"]
@@ -94,6 +96,8 @@ _data = {
 &"BrakeStop": ExtResource("1"),
 &"BrakeStop_End": ExtResource("2"),
 &"BrakeStop_Enter": ExtResource("3"),
+&"CAMMOD_Quills_Left": ExtResource("4_fcvev"),
+&"CAMMOD_Quills_Right": ExtResource("5_xo120"),
 &"Carry_Hold": ExtResource("4"),
 &"Carry_Pickup": ExtResource("5"),
 &"Carry_PutDown": ExtResource("6"),
