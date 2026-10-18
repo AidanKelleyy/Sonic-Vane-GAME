@@ -14,7 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://c12m0rampjump" path="res://LS5Framework/Objects/Ramps/JumpPanelRamp.tscn" id="11_qbnya"]
 [ext_resource type="Texture2D" uid="uid://c1m7ix7sf8vvr" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL_GLOW.png" id="12_ai0xw"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="12_na7uc"]
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="12_rjsqb"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="12_rjsqb"]
 [ext_resource type="Shader" uid="uid://p3g0j2rv6t4n" path="res://LS5Framework/Objects/Environment/DayNightCycle/day_night_sky.gdshader" id="13_ci8yw"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/AutomationSpline2_5D.tscn" id="17_mun4f"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/AutomationSpline2_5DDepthProfile.tscn" id="18_ai0xw"]
@@ -1125,9 +1125,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.318115, 4.5, -17.548828)
 [node name="TeleportExit_GHC" type="Node3D" parent="." unique_id=938499116]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300.24463, 3.0517578e-05, -539.5117)
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1230930640]
+[node name="PlayerSpawn" parent="." unique_id=1230930640 instance=ExtResource("12_rjsqb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 297.672, -1.0115919, -519.3306)
-script = ExtResource("12_rjsqb")
 downwarp_enabled = true
 
 [node name="Lights" type="Node3D" parent="." unique_id=569178392]

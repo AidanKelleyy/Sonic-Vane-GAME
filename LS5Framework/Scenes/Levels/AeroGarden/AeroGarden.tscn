@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dly2us572gvv0"]
 
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="1_i62wg"]
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="1_rc8ud"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="1_rc8ud"]
 [ext_resource type="Script" uid="uid://ds5kvbpmvq3ds" path="res://LS5Framework/Objects/Environment/DayNightCycle/DayNightProfile.gd" id="2_ftc5c"]
 [ext_resource type="PackedScene" uid="uid://bucbdoyievjwl" path="res://LS5Framework/Objects/Race/RaceStart.tscn" id="2_r68ua"]
 [ext_resource type="AudioStream" uid="uid://ccir36fnnhaga" path="res://LS5Framework/Sounds/Music/08 - HIGH AND BROKEN.mp3" id="3_h0nvc"]
@@ -150,7 +150,7 @@ overcast_light_multiplier = 0.91
 overcast_ambient_multiplier = 1.65
 fog_density_multiplier = 7.13
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_44y4x"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gfl2m"]
 resource_local_to_scene = true
 shader = ExtResource("4_t48is")
 shader_parameter/sun_direction = Vector3(0.07745165, 0.9948454, 0.06545171)
@@ -208,16 +208,16 @@ shader_parameter/below_horizon_detail = 1.0
 shader_parameter/below_horizon_curvature = 1.0
 shader_parameter/below_horizon_haze_strength = 0.72
 
-[sub_resource type="Sky" id="Sky_2fuwv"]
+[sub_resource type="Sky" id="Sky_ifxxm"]
 resource_local_to_scene = true
-sky_material = SubResource("ShaderMaterial_44y4x")
+sky_material = SubResource("ShaderMaterial_gfl2m")
 process_mode = 3
 
-[sub_resource type="Environment" id="Environment_4kwc5"]
+[sub_resource type="Environment" id="Environment_x2lkb"]
 resource_local_to_scene = true
 background_mode = 2
 background_energy_multiplier = 1.14
-sky = SubResource("Sky_2fuwv")
+sky = SubResource("Sky_ifxxm")
 ambient_light_source = 3
 ambient_light_color = Color(0.09328576, 0.21435475, 0.49166715, 1)
 ambient_light_sky_contribution = 0.82
@@ -267,14 +267,14 @@ size = Vector3(3, 3, 3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_2idqw"]
 size = Vector3(26.118591, 33.963867, 206.10492)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_gfl2m"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8xbgl"]
 render_priority = 0
 shader = ExtResource("11_t48is")
 shader_parameter/tex_flat = ExtResource("12_dftnh")
 shader_parameter/tex_glow = ExtResource("13_eq5tt")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 25337.693
+shader_parameter/swap_time = 12556.458
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_h0nvc"]
 size = Vector3(52.86328, 23.474121, 20.675903)
@@ -306,11 +306,11 @@ point_count = 3
 [sub_resource type="BoxShape3D" id="BoxShape3D_o6lti"]
 size = Vector3(12, 3.98938, 5.0271606)
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_ifxxm"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_rv457"]
 resource_local_to_scene = true
 radius = 6.0
 
-[sub_resource type="Curve3D" id="Curve3D_x2lkb"]
+[sub_resource type="Curve3D" id="Curve3D_awis5"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -318,20 +318,9 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_8xbgl"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_wihol"]
 resource_local_to_scene = true
 radius = 6.0
-
-[sub_resource type="Curve3D" id="Curve3D_rv457"]
-resource_local_to_scene = true
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
-"tilts": PackedFloat32Array(0, 0)
-}
-point_count = 2
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_awis5"]
-resource_local_to_scene = true
 
 [sub_resource type="Curve3D" id="Curve3D_hga6m"]
 resource_local_to_scene = true
@@ -376,10 +365,21 @@ point_count = 2
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_iaxxs"]
 resource_local_to_scene = true
+
+[sub_resource type="Curve3D" id="Curve3D_arbqb"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_4sk8b"]
+resource_local_to_scene = true
 height = 5.0718994
 radius = 1.4550781
 
-[sub_resource type="Curve3D" id="Curve3D_arbqb"]
+[sub_resource type="Curve3D" id="Curve3D_dcpjh"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -400,6 +400,12 @@ resource_name = "Rehit Boundary"
 script = ExtResource("cam_trait_activation")
 event = 3
 area_path = NodePath("RehitBoundary")
+
+[sub_resource type="Resource" id="Resource_8etnq"]
+script = ExtResource("cam_trait_activation")
+event = 5
+exit_distance = 50.01
+metadata/_custom_type_script = "uid://cdupr030jgwkv"
 
 [sub_resource type="Resource" id="CameraTrait_0003"]
 resource_name = "Instant Entry"
@@ -825,7 +831,7 @@ time_controls_fog = false
 sun_path_azimuth_degrees = -40.19999999999999
 
 [node name="WorldEnvironment" parent="Lights/EnvironmentWeatherSystem/DayNightCycle" index="0" unique_id=1480341513]
-environment = SubResource("Environment_4kwc5")
+environment = SubResource("Environment_x2lkb")
 
 [node name="Sun" parent="Lights/EnvironmentWeatherSystem/DayNightCycle" index="1" unique_id=370270526]
 transform = Transform3D(0.9969832, 0.005080236, 0.07745165, -0.07761808, 0.065254256, 0.9948454, 0, -0.9978558, 0.06545171, 0, 0, 0)
@@ -843,9 +849,7 @@ directional_shadow_pancake_size = 0.0
 [node name="Moon" parent="Lights/EnvironmentWeatherSystem/DayNightCycle" index="2" unique_id=1577357035]
 transform = Transform3D(-0.9895125, 0.01750239, -0.143383, 0.14444727, 0.11989727, -0.98222184, 0, -0.9926321, -0.12116802, 0, 0, 0)
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1081310151]
-script = ExtResource("1_rc8ud")
-downwarp_enabled = true
+[node name="PlayerSpawn" parent="." unique_id=1081310151 instance=ExtResource("1_rc8ud")]
 
 [node name="PlayerBox" type="CSGBox3D" parent="." unique_id=1539746332]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 160.80511, 0.38155317)
@@ -873,17 +877,11 @@ action_lock_time = 2.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5402006, 2.7000732, -4.1533203)
 shape = SubResource("BoxShape3D_s3bf4")
 metadata/_uniform_size_base_position = Vector3(-0.5402006, 2.7000732, -4.1533203)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="TempMesh" parent="Objects/JumpPanelRamp" index="1" unique_id=1872819520]
 transform = Transform3D(-2.1855695e-07, 0, 4, 0, 2, 0, -5, 0, -1.7484555e-07, 0, 3.1922607, 0)
 mesh = SubResource("PrismMesh_0c5dn")
 metadata/_uniform_size_base_position = Vector3(0, 3.1922607, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="Objects/JumpPanelRamp" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="RaceGoal" parent="Objects" unique_id=1214655687 instance=ExtResource("4_ihbxp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5923.9155, -1944.4847, 0.08951187)
@@ -904,10 +902,7 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0
 transform = Transform3D(-0.46977797, -0.019219073, 0.8825755, -0.013801098, 0.99980074, 0.014425739, -0.8826769, -0.005403636, -0.4699496, -4.080078, 1.765625, 1.9685009)
 
 [node name="Circle" parent="Objects/RaceGoal/GoalModel/GoalRing2/Armature/Skeleton3D" index="0" unique_id=1294627438]
-material_override = SubResource("ShaderMaterial_gfl2m")
-
-[node name="SwapLight" parent="Objects/RaceGoal/GoalModel/GoalRing2" index="2" unique_id=1016145482]
-light_energy = 40.0
+material_override = SubResource("ShaderMaterial_8xbgl")
 
 [node name="OmniLight3D" parent="Objects/RaceGoal" index="4" unique_id=118658822]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.673426, 0)
@@ -941,7 +936,7 @@ rehit_cooldown = 1.0
 curve = SubResource("Curve3D_olunl")
 
 [node name="RailBooster" parent="Objects/Rail/Path3D" index="0" unique_id=167397505 instance=ExtResource("11_olunl")]
-transform = Transform3D(-0.9999853, -0.0007124575, -0.002794545, -4.7062174e-05, 0.97290415, -0.23119685, 0.002883529, -0.23119588, -0.9728996, 3.8109841, 19.092154, 38.475178)
+transform = Transform3D(-0.9999852, -0.0007124575, -0.002794545, -4.706217e-05, 0.97290415, -0.23119685, 0.002883529, -0.23119588, -0.9728996, 3.8109841, 19.092154, 38.475178)
 visible = false
 progress = 69.312935
 active = false
@@ -959,7 +954,7 @@ surface_handoff_search_length = 4.0
 curve = SubResource("Curve3D_dftnh")
 
 [node name="RailBooster" parent="Objects/Rail3/Path3D" index="0" unique_id=2079203673 instance=ExtResource("11_olunl")]
-transform = Transform3D(-0.94476503, -0.3238308, 0.049478415, -0.32454765, 0.94581324, -0.0072250157, -0.044457715, -0.022885539, -0.99871576, 3.150883, 27.888378, -4.6003)
+transform = Transform3D(-0.94476503, -0.3238308, 0.04947842, -0.32454765, 0.94581324, -0.007225016, -0.044457715, -0.022885539, -0.9987158, 3.150883, 27.888378, -4.6003)
 progress = 25.701004
 boost_mode = 1
 boost_speed = 70.0
@@ -980,44 +975,31 @@ action_lock_time = 3.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.036315918, 1.6947327, -0.008361816)
 shape = SubResource("BoxShape3D_o6lti")
 metadata/_uniform_size_base_position = Vector3(0.036315918, 1.6947327, -0.008361816)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="TempMesh" parent="Objects/JumpPanelRamp2" index="1" unique_id=1872819520]
 skeleton = NodePath("../../JumpPanelRamp2")
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="Objects/JumpPanelRamp2" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="DashRing" parent="Objects" unique_id=1363137776 instance=ExtResource("10_s3bf4")]
-process_mode = 3
 transform = Transform3D(2.591566e-07, 1.9367142, 0.49913752, 2.7875622e-08, 0.49913752, -1.9367142, -2, 2.5791303e-07, 3.7683836e-08, 754.8912, -262.7603, 11.276533)
 strength = 230.0
 use_trajectory_solver = true
 trajectory_arc_enabled = true
 trajectory_arc_height = 15.0
 
-[node name="Mesh" parent="Objects/DashRing" index="0"]
+[node name="Mesh" parent="Objects/DashRing" index="0" unique_id=1771592567]
 transform = Transform3D(1, 8.880699e-08, 1.9535541e-08, -8.880699e-08, 0.9076868, 0.41964817, 1.9535541e-08, -0.41964817, 0.9076868, 0, 0, 0)
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="CollisionShape3D" parent="Objects/DashRing" index="1" unique_id=1628548631]
-shape = SubResource("CylinderShape3D_ifxxm")
-metadata/_uniform_size_base_position = Vector3(0, 0.2, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
+shape = SubResource("CylinderShape3D_rv457")
 
-[node name="TrajectorySolver" parent="Objects/DashRing" index="2"]
+[node name="TrajectorySolver" parent="Objects/DashRing" index="2" unique_id=588358444]
 transform = Transform3D(1, 1.4210855e-14, -1.7763568e-15, 0, 1, 2.4297881e-15, 0, 2.429788e-15, 1, 5.722046e-06, 56.356293, -0.4657898)
 visible = true
 
 [node name="SplinePath" parent="Objects/DashRing" index="5" unique_id=1615889928]
-curve = SubResource("Curve3D_x2lkb")
+curve = SubResource("Curve3D_awis5")
 
 [node name="DashRing2" parent="Objects" unique_id=7118127 instance=ExtResource("10_s3bf4")]
-process_mode = 3
 transform = Transform3D(3.5943066e-07, 1.8014269, -0.86882746, -1.311893e-07, -0.86882746, -1.8014269, -2, 3.807345e-07, -3.7977653e-08, 864.8912, -234.72269, 11.276533)
 strength = 217.0
 use_trajectory_solver = true
@@ -1026,112 +1008,98 @@ trajectory_arc_height = 2.0
 movement_lock_time = 0.3
 action_lock_time = 0.3
 
-[node name="Mesh" parent="Objects/DashRing2" index="0"]
+[node name="Mesh" parent="Objects/DashRing2" index="0" unique_id=1771592567]
 transform = Transform3D(1, 1.383184e-07, 4.3671284e-09, -1.383184e-07, 0.99800825, 0.06308314, 4.3671284e-09, -0.06308314, 0.99800825, 0, 0, 0)
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="CollisionShape3D" parent="Objects/DashRing2" index="1" unique_id=1628548631]
-shape = SubResource("CylinderShape3D_8xbgl")
-metadata/_uniform_size_base_position = Vector3(0, 0.2, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
+shape = SubResource("CylinderShape3D_wihol")
 
-[node name="TrajectorySolver" parent="Objects/DashRing2" index="2"]
+[node name="TrajectorySolver" parent="Objects/DashRing2" index="2" unique_id=588358444]
 transform = Transform3D(1, 0, -5.3290705e-15, 0, 1, -3.61485e-15, 0, -3.6148503e-15, 1, 3.8146973e-06, 28.742188, 1.8959198)
 visible = true
 
 [node name="SplinePath" parent="Objects/DashRing2" index="5" unique_id=1615889928]
-curve = SubResource("Curve3D_rv457")
+curve = SubResource("Curve3D_hga6m")
 
 [node name="DashRing3" parent="Objects" unique_id=1628762636 instance=ExtResource("10_s3bf4")]
-process_mode = 3
 transform = Transform3D(4.6925314e-07, 2.9058275, 0.7457655, -1.9678387e-07, 0.7457655, -2.9058275, -3, 4.056047e-07, 3.0725764e-07, 927.0987, -359.93015, 13.661617)
 strength = 190.0
 movement_lock_time = 2.0
 action_lock_time = 2.0
 
 [node name="Spring4" parent="Objects" unique_id=1060979208 instance=ExtResource("14_olunl")]
-process_mode = 3
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 1145.4546, -392.93048, -4.5441117)
 strength = 30.0
 stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring4" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, -0.9384354, 0)
-shape = SubResource("CylinderShape3D_awis5")
+shape = SubResource("CylinderShape3D_a3gdf")
 metadata/_uniform_size_base_position = Vector3(0, -0.9384354, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring4" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_hga6m")
+curve = SubResource("Curve3D_m2ekc")
 
 [node name="Mesh" parent="Objects/Spring4" index="5" unique_id=1922896033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.71029663, 0)
 metadata/_uniform_size_base_position = Vector3(0, -0.71029663, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="Spring5" parent="Objects" unique_id=458264817 instance=ExtResource("14_olunl")]
-process_mode = 3
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 1145.4546, -392.93048, 6.8255696)
 strength = 30.0
 stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring5" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, -0.9384354, 0)
-shape = SubResource("CylinderShape3D_a3gdf")
+shape = SubResource("CylinderShape3D_tojsi")
 metadata/_uniform_size_base_position = Vector3(0, -0.9384354, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring5" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_m2ekc")
+curve = SubResource("Curve3D_pikr0")
 
 [node name="Mesh" parent="Objects/Spring5" index="5" unique_id=1922896033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.71029663, 0)
 metadata/_uniform_size_base_position = Vector3(0, -0.71029663, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="Spring6" parent="Objects" unique_id=817881415 instance=ExtResource("14_olunl")]
-process_mode = 3
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 1145.4546, -392.93048, 18.44604)
 strength = 30.0
 stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring6" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, -0.9384354, 0)
-shape = SubResource("CylinderShape3D_tojsi")
+shape = SubResource("CylinderShape3D_ino7o")
 metadata/_uniform_size_base_position = Vector3(0, -0.9384354, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring6" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_pikr0")
+curve = SubResource("Curve3D_h40xe")
 
 [node name="Mesh" parent="Objects/Spring6" index="5" unique_id=1922896033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.71029663, 0)
 metadata/_uniform_size_base_position = Vector3(0, -0.71029663, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="Spring7" parent="Objects" unique_id=443339832 instance=ExtResource("14_olunl")]
-process_mode = 3
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 1145.4546, -392.93048, 30.74909)
 strength = 30.0
 stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring7" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, -0.9384354, 0)
-shape = SubResource("CylinderShape3D_ino7o")
+shape = SubResource("CylinderShape3D_iaxxs")
 metadata/_uniform_size_base_position = Vector3(0, -0.9384354, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring7" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_h40xe")
+curve = SubResource("Curve3D_arbqb")
 
 [node name="Mesh" parent="Objects/Spring7" index="5" unique_id=1922896033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.71029663, 0)
 metadata/_uniform_size_base_position = Vector3(0, -0.71029663, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="Spring3" parent="Objects" unique_id=469601637 instance=ExtResource("14_olunl")]
-process_mode = 3
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1215.7042, -407.17987, -12.360922)
 snap_to_center = false
 strength = 45.0
@@ -1139,12 +1107,12 @@ stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring3" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, 1.6291504, 0)
-shape = SubResource("CylinderShape3D_iaxxs")
+shape = SubResource("CylinderShape3D_4sk8b")
 metadata/_uniform_size_base_position = Vector3(0, 1.6291504, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring3" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_arbqb")
+curve = SubResource("Curve3D_dcpjh")
 
 [node name="Mesh" parent="Objects/Spring3" index="5" unique_id=1922896033]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 2.2774658, 0)
@@ -1181,15 +1149,6 @@ action_lock_time = 0.5
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.91693115, 1.9184265, 0.042175293)
 shape = SubResource("BoxShape3D_dftnh")
 metadata/_uniform_size_base_position = Vector3(0.91693115, 1.9184265, 0.042175293)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
-[node name="TempMesh" parent="Objects/JumpPanelRamp8" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="Objects/JumpPanelRamp8" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="JumpPanelRamp4" parent="Objects" unique_id=166160515 instance=ExtResource("6_2idqw")]
 transform = Transform3D(-2, 0, -1.7484555e-07, 0, 2, 0, 1.7484555e-07, 0, -2, 2268.2087, -251.07391, -732.483)
@@ -1247,7 +1206,8 @@ action_lock_time = 1.0
 
 [node name="CameraOverrideVolume" parent="Objects" unique_id=410278458 instance=ExtResource("16_iydqp")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 2262.9963, -210.62569, -2323.1855)
-activation_traits = Array[ExtResource("cam_trait_activation")]([SubResource("CameraTrait_0001"), SubResource("CameraTrait_0002")])
+enabled = false
+activation_traits = Array[ExtResource("cam_trait_activation")]([SubResource("CameraTrait_0001"), SubResource("CameraTrait_0002"), SubResource("Resource_8etnq")])
 transition_traits = Array[ExtResource("cam_trait_transition")]([SubResource("CameraTrait_0003"), SubResource("CameraTrait_0004")])
 up_mode = 2
 
@@ -1603,15 +1563,6 @@ action_lock_time = 0.2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28765106, 0.8789978, -0.008300781)
 shape = SubResource("BoxShape3D_ifxxm")
 metadata/_uniform_size_base_position = Vector3(0.28765106, 0.8789978, -0.008300781)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
-[node name="TempMesh" parent="JumpPanelRamp" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="JumpPanelRamp2" parent="." unique_id=2055631829 instance=ExtResource("6_2idqw")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1188.9337, -367.31805, 19.333218)
@@ -1625,15 +1576,6 @@ action_lock_time = 0.2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28765106, 0.8789978, -0.008300781)
 shape = SubResource("BoxShape3D_ifxxm")
 metadata/_uniform_size_base_position = Vector3(0.28765106, 0.8789978, -0.008300781)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
-[node name="TempMesh" parent="JumpPanelRamp2" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp2" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="DashPanel" parent="." unique_id=1418350663 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2479.5444, -358.47757, -330.98166)
@@ -1769,14 +1711,6 @@ shape = SubResource("BoxShape3D_hga6m")
 metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.008300781)
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
 
-[node name="TempMesh" parent="JumpPanelRamp3" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp3" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
 [node name="JumpPanelRamp4" parent="." unique_id=2009432610 instance=ExtResource("6_2idqw")]
 transform = Transform3D(0.96347415, -0.030717622, 0.26603416, -0.004396452, 0.9914517, 0.13040018, -0.2677656, -0.12680681, 0.9551029, 2578.0525, -304.17355, 117.8306)
 forward_speed = 95.0
@@ -1790,14 +1724,6 @@ transform = Transform3D(1.0000012, 0, 0, 0, 1, 0, 0, 0, 1.0000012, 0.03515625, 1
 shape = SubResource("BoxShape3D_hga6m")
 metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.008300781)
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
-
-[node name="TempMesh" parent="JumpPanelRamp4" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp4" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="JumpPanelRamp5" parent="." unique_id=629027011 instance=ExtResource("6_2idqw")]
 transform = Transform3D(0.96347415, -0.030717622, 0.26603416, -0.004396452, 0.9914517, 0.13040018, -0.2677656, -0.12680681, 0.9551029, 2566.491, -304.1208, 121.043785)
@@ -1813,14 +1739,6 @@ shape = SubResource("BoxShape3D_hga6m")
 metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.008300781)
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
 
-[node name="TempMesh" parent="JumpPanelRamp5" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp5" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
 [node name="JumpPanelRamp6" parent="." unique_id=1200160047 instance=ExtResource("6_2idqw")]
 transform = Transform3D(0.96347415, -0.030717622, 0.26603416, -0.004396452, 0.9914517, 0.13040018, -0.2677656, -0.12680681, 0.9551029, 2554.9292, -304.06802, 124.25697)
 forward_speed = 95.0
@@ -1835,14 +1753,6 @@ shape = SubResource("BoxShape3D_hga6m")
 metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.008300781)
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
 
-[node name="TempMesh" parent="JumpPanelRamp6" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp6" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
 [node name="JumpPanelRamp7" parent="." unique_id=886635872 instance=ExtResource("6_2idqw")]
 transform = Transform3D(0.96347415, -0.030717622, 0.26603416, -0.004396452, 0.9914517, 0.13040018, -0.2677656, -0.12680681, 0.9551029, 2544.331, -304.01965, 127.2024)
 forward_speed = 95.0
@@ -1856,14 +1766,6 @@ transform = Transform3D(1.0000012, 0, 0, 0, 1, 0, 0, 0, 1.0000012, 0.03515625, 1
 shape = SubResource("BoxShape3D_hga6m")
 metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.008300781)
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
-
-[node name="TempMesh" parent="JumpPanelRamp7" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp7" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="RingSpline" parent="." unique_id=2125630419 instance=ExtResource("21_jmllb")]
 transform = Transform3D(0.9816139, 0, 0.19087753, 0, 1, 0, -0.19087753, 0, 0.9816139, 2609.3877, -288.65277, 94.803314)
@@ -2010,6 +1912,7 @@ skeleton = NodePath("../../Checkpoint5")
 [editable path="Lights/EnvironmentWeatherSystem"]
 [editable path="Lights/EnvironmentWeatherSystem/DayNightCycle"]
 [editable path="Objects/JumpPanelRamp"]
+[editable path="Objects/JumpPanelRamp/Ramp"]
 [editable path="Objects/RaceGoal"]
 [editable path="Objects/RaceGoal/GoalModel"]
 [editable path="Objects/RaceGoal/GoalModel/GoalRing2"]
@@ -2017,14 +1920,18 @@ skeleton = NodePath("../../Checkpoint5")
 [editable path="Objects/Rail"]
 [editable path="Objects/Rail3"]
 [editable path="Objects/JumpPanelRamp2"]
+[editable path="Objects/JumpPanelRamp2/Ramp"]
 [editable path="Objects/DashRing"]
+[editable path="Objects/DashRing/Mesh/DashRing"]
 [editable path="Objects/DashRing2"]
+[editable path="Objects/DashRing2/Mesh/DashRing"]
 [editable path="Objects/Spring4"]
 [editable path="Objects/Spring5"]
 [editable path="Objects/Spring6"]
 [editable path="Objects/Spring7"]
 [editable path="Objects/Spring3"]
 [editable path="Objects/JumpPanelRamp8"]
+[editable path="Objects/JumpPanelRamp8/Ramp"]
 [editable path="Objects/CameraOverrideVolume"]
 [editable path="Objects/CameraOverrideVolume3"]
 [editable path="Objects/AutomationSpline - Skyway"]
@@ -2041,7 +1948,9 @@ skeleton = NodePath("../../Checkpoint5")
 [editable path="Objects/Rail2"]
 [editable path="CameraOverrideVolume"]
 [editable path="JumpPanelRamp"]
+[editable path="JumpPanelRamp/Ramp"]
 [editable path="JumpPanelRamp2"]
+[editable path="JumpPanelRamp2/Ramp"]
 [editable path="DashPanel"]
 [editable path="DashPanel/Mesh/DashPanelMesh"]
 [editable path="DashPanel/Mesh/DashPanelMesh/DashPanel"]
@@ -2079,10 +1988,15 @@ skeleton = NodePath("../../Checkpoint5")
 [editable path="DashPanel12/Mesh/DashPanelMesh"]
 [editable path="DashPanel12/Mesh/DashPanelMesh/DashPanel"]
 [editable path="JumpPanelRamp3"]
+[editable path="JumpPanelRamp3/Ramp"]
 [editable path="JumpPanelRamp4"]
+[editable path="JumpPanelRamp4/Ramp"]
 [editable path="JumpPanelRamp5"]
+[editable path="JumpPanelRamp5/Ramp"]
 [editable path="JumpPanelRamp6"]
+[editable path="JumpPanelRamp6/Ramp"]
 [editable path="JumpPanelRamp7"]
+[editable path="JumpPanelRamp7/Ramp"]
 [editable path="RingSpline"]
 [editable path="RingSpline2"]
 [editable path="RingSpline4"]

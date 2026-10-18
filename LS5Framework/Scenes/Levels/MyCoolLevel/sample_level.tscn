@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ysdp8w626ts4"]
 
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="1_dagco"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="1_dagco"]
 [ext_resource type="PackedScene" uid="uid://bwy4wqw33nk5x" path="res://LS5Framework/Scenes/Levels/MyCoolLevel/myAwesomeLevel.fbx" id="1_vitqo"]
 [ext_resource type="PackedScene" uid="uid://dpqdt82o1f57x" path="res://LS5Framework/Objects/Spring/Spring.tscn" id="3_bnxrr"]
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="4_0glse"]
@@ -300,9 +300,8 @@ shader_parameter/ssr_roughness_mip = 4.0
 [node name="myAwesomeLevel" parent="." unique_id=1453220111 instance=ExtResource("1_vitqo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.244, 0)
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=2087931526]
+[node name="PlayerSpawn" parent="." unique_id=2087931526 instance=ExtResource("1_dagco")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1537638, 0)
-script = ExtResource("1_dagco")
 downwarp_enabled = true
 
 [node name="LevelMusic" type="Node3D" parent="." unique_id=467135388]

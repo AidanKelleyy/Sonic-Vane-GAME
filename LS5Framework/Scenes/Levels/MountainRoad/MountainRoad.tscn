@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://chk6gk5swu5t3"]
 
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="1_losvj"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="1_losvj"]
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="2_wyhim"]
 [ext_resource type="AudioStream" uid="uid://2npg3jwamuln" path="res://LS5Framework/Sounds/Music/MysticRuin.ogg" id="3_4bq72"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="4_wbhhh"]
@@ -313,9 +313,8 @@ size = Vector3(176.50787, 140.57251, 185.71265)
 
 [node name="MountainRoad" type="Node3D" unique_id=794803344]
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1015454562]
+[node name="PlayerSpawn" parent="." unique_id=1015454562 instance=ExtResource("1_losvj")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 706.3555, 0)
-script = ExtResource("1_losvj")
 downwarp_enabled = true
 downwarp_distance = 150.0
 

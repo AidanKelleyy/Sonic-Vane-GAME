@@ -20,7 +20,7 @@
 [ext_resource type="Material" uid="uid://c3mh5p2w5s8g7" path="res://LS5Framework/Shaders/WaterShader_StayAtHomeDev/Shader/Water.tres" id="15_wojhx"]
 [ext_resource type="Shader" uid="uid://chmgmj434uopx" path="res://LS5Framework/Shaders/WaterShader_StayAtHomeDev/Shader/Water.gdshader" id="16_spoc4"]
 [ext_resource type="Texture2D" uid="uid://bc7ebln3j6r3o" path="res://LS5Framework/Scenes/Levels/EmeraldCoast/EmeraldCoast_2/wave14.png" id="17_v1koh"]
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="19_spawn"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="19_spawn"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="20_1433n"]
 [ext_resource type="PackedScene" uid="uid://by35k35q3p0d1" path="res://LS5Framework/Objects/Rail/Rail.tscn" id="20_mmchv"]
 [ext_resource type="Texture2D" uid="uid://ddvmsaux20gfe" path="res://LS5Framework/Scenes/Levels/Green Hill Ocean/GHO_23.jpg" id="21_7tbsg"]
@@ -2036,9 +2036,8 @@ strength = 100.0
 movement_lock_time = 2.0
 action_lock_time = 2.0
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=956848393]
+[node name="PlayerSpawn" parent="." unique_id=956848393 instance=ExtResource("19_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5555.499, 6.828437, -2964.2144)
-script = ExtResource("19_spawn")
 downwarp_enabled = true
 
 [node name="Lights" type="Node3D" parent="." unique_id=1038241183]

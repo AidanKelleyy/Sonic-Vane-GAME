@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b0f8eo0uvo8ow"]
 
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="1_771gn"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="1_771gn"]
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="2_e5r1c"]
 [ext_resource type="AudioStream" uid="uid://brvxqk3mstw5m" path="res://LS5Framework/Sounds/Music/Windy Hill.ogg" id="3_diivr"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="4_b3wl0"]
@@ -356,9 +356,8 @@ shader_parameter/ssr_roughness_mip = 4.0
 
 [node name="Windy_Valley" type="Node3D" unique_id=794803344]
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1015454562]
+[node name="PlayerSpawn" parent="." unique_id=1015454562 instance=ExtResource("1_771gn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -908.3095, 4.1502075, 573.65015)
-script = ExtResource("1_771gn")
 downwarp_enabled = true
 downwarp_distance = 300.0
 

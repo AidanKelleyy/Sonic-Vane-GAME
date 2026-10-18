@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://du3abhad0t7ec"]
 
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="1_lvt53"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="1_lvt53"]
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="2_eho5r"]
 [ext_resource type="AudioStream" uid="uid://7x2htwmmrsbv" path="res://LS5Framework/Scenes/Levels/White Jungle/Audio/White_Jungle.ogg" id="3_grkv5"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="4_8kxhi"]
@@ -487,9 +487,8 @@ shader_parameter/swap_time = 10693.053
 
 [node name="White_Jungle" type="Node3D" unique_id=794803344]
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1015454562]
+[node name="PlayerSpawn" parent="." unique_id=1015454562 instance=ExtResource("1_lvt53")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 164.01105, 314.51077, -1047.9944)
-script = ExtResource("1_lvt53")
 downwarp_enabled = true
 downwarp_distance = 300.0
 

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://revn1ckrrjt"]
 
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="1_ug21l"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="1_ug21l"]
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="2_ktkqb"]
 [ext_resource type="AudioStream" uid="uid://brvxqk3mstw5m" path="res://LS5Framework/Sounds/Music/Windy Hill.ogg" id="3_mhrmh"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="4_elt86"]
@@ -106,9 +106,8 @@ size = Vector3(30, 25, 30)
 
 [node name="Blueberry_Beach" type="Node3D" unique_id=794803344]
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1015454562]
+[node name="PlayerSpawn" parent="." unique_id=1015454562 instance=ExtResource("1_ug21l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.124775, 197.31477, -905.9243)
-script = ExtResource("1_ug21l")
 downwarp_enabled = true
 downwarp_distance = 300.0
 

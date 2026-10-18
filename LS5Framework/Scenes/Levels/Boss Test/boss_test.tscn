@@ -7,7 +7,7 @@
 [ext_resource type="Material" uid="uid://cdrd75vn4rhn5" path="res://LS5Framework/Scenes/Levels/Materials/NikoChecker.tres" id="5_o0xi6"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="6_yd552"]
 [ext_resource type="Shader" uid="uid://p3g0j2rv6t4n" path="res://LS5Framework/Objects/Environment/DayNightCycle/day_night_sky.gdshader" id="7_37s6u"]
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="8_jnsth"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="8_jnsth"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_flqib"]
 resource_local_to_scene = true
@@ -183,9 +183,8 @@ day_length_minutes = 14.0
 [node name="WorldEnvironment" parent="EnvironmentWeatherSystem/DayNightCycle" index="0" unique_id=1480341513]
 environment = SubResource("Environment_yvw21")
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1300281762]
+[node name="PlayerSpawn" parent="." unique_id=1300281762 instance=ExtResource("8_jnsth")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.201128, 1.0014162, 178.4553)
-script = ExtResource("8_jnsth")
 
 [editable path="EnvironmentWeatherSystem"]
 [editable path="EnvironmentWeatherSystem/DayNightCycle"]

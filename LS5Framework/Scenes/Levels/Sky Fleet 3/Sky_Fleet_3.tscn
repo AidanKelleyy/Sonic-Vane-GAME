@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dq21ar3nc65e4"]
 
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="1_aptwc"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="1_aptwc"]
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="2_kh7je"]
 [ext_resource type="AudioStream" uid="uid://ccir36fnnhaga" path="res://LS5Framework/Sounds/Music/08 - HIGH AND BROKEN.mp3" id="3_6bmmk"]
 [ext_resource type="PackedScene" uid="uid://b87lau3hld2f3" path="res://LS5Framework/Objects/Environment/DayNightCycle/DayNightCycle.tscn" id="4_ycl4k"]
@@ -552,9 +552,8 @@ shader_parameter/swap_time = 6193.537
 
 [node name="Sky_Fleet_3" type="Node3D" unique_id=794803344]
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1015454562]
+[node name="PlayerSpawn" parent="." unique_id=1015454562 instance=ExtResource("1_aptwc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.879772, 0)
-script = ExtResource("1_aptwc")
 
 [node name="Node3D" type="Node3D" parent="PlayerSpawn" unique_id=815639902]
 

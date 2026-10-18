@@ -29,7 +29,7 @@
 [ext_resource type="PackedScene" uid="uid://ghucsw5061eo" path="res://LS5Framework/Objects/Gameplay/DeathPlane.tscn" id="18_u5mvm"]
 [ext_resource type="PackedScene" uid="uid://c1g10s7pyb8t3" path="res://LS5Framework/Objects/Gameplay/Checkpoint.tscn" id="19_s3xwx"]
 [ext_resource type="PackedScene" uid="uid://by35k35q3p0d1" path="res://LS5Framework/Objects/Rail/Rail.tscn" id="22_p0x6m"]
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="23_spawn"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="23_spawn"]
 [ext_resource type="Texture2D" uid="uid://ddvmsaux20gfe" path="res://LS5Framework/Scenes/Levels/Green Hill Ocean/GHO_23.jpg" id="23_tqx1w"]
 [ext_resource type="Material" uid="uid://cdkxuup2k8gy2" path="res://LS5Framework/Scenes/Levels/NikoTest/Materials/Checker.tres" id="24_5l7yj"]
 [ext_resource type="PackedScene" uid="uid://bswvitj3v4stb" path="res://LS5Framework/Objects/Rail/RailBooster.tscn" id="24_334di"]
@@ -419,27 +419,27 @@ duration = 2.0
 [sub_resource type="BoxShape3D" id="BoxShape3D_x6a63"]
 size = Vector3(97.3692, 157.25708, 238.4136)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_ww8qt"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_344ll"]
 render_priority = 0
 shader = ExtResource("41_1i28t")
 shader_parameter/tex_flat = ExtResource("42_4rehq")
 shader_parameter/tex_glow = ExtResource("43_jfrcj")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 9943.113
+shader_parameter/swap_time = 173.39000000000001
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_ncnqb"]
 height = 8.0
 radius = 18.006348
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_0gvoy"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jsxg6"]
 render_priority = 0
 shader = ExtResource("41_1i28t")
 shader_parameter/tex_flat = ExtResource("42_4rehq")
 shader_parameter/tex_glow = ExtResource("43_jfrcj")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 9943.113
+shader_parameter/swap_time = 173.39000000000001
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vrbq5"]
 bounce = 1.0
@@ -679,6 +679,14 @@ roughness = 0.17
 [sub_resource type="SphereShape3D" id="SphereShape3D_736jh"]
 radius = 10.0
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_ww8qt"]
+resource_local_to_scene = true
+radius = 40.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_0gvoy"]
+resource_local_to_scene = true
+radius = 40.0
+
 [sub_resource type="SphereShape3D" id="SphereShape3D_lraxv"]
 resource_local_to_scene = true
 radius = 40.0
@@ -688,14 +696,6 @@ resource_local_to_scene = true
 radius = 40.0
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_bch57"]
-resource_local_to_scene = true
-radius = 40.0
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_i48ms"]
-resource_local_to_scene = true
-radius = 40.0
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_svhyb"]
 resource_local_to_scene = true
 radius = 40.0
 
@@ -711,54 +711,54 @@ height = 35.984375
 radius = 4.0
 height = 36.0
 
-[sub_resource type="Resource" id="Resource_e8hu0"]
+[sub_resource type="Resource" id="Resource_i48ms"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_16jt8"]
+[sub_resource type="Resource" id="Resource_svhyb"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 1
 amount = 69.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_2c72k"]
+[sub_resource type="Resource" id="Resource_e8hu0"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 1
 amount = 420.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_mwm1o"]
+[sub_resource type="Resource" id="Resource_16jt8"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 1
 amount = 666.6
 random_ring_pool = null
 
+[sub_resource type="Resource" id="Resource_2c72k"]
+resource_local_to_scene = true
+script = ExtResource("53_tg66e")
+reward_type = 1
+amount = 10.0
+random_ring_pool = null
+
+[sub_resource type="Resource" id="Resource_mwm1o"]
+resource_local_to_scene = true
+script = ExtResource("53_tg66e")
+reward_type = 1
+amount = 10.0
+random_ring_pool = null
+
 [sub_resource type="Resource" id="Resource_qqhw5"]
-resource_local_to_scene = true
-script = ExtResource("53_tg66e")
-reward_type = 1
-amount = 10.0
-random_ring_pool = null
-
-[sub_resource type="Resource" id="Resource_205et"]
-resource_local_to_scene = true
-script = ExtResource("53_tg66e")
-reward_type = 1
-amount = 10.0
-random_ring_pool = null
-
-[sub_resource type="Resource" id="Resource_mgnou"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 6
 amount = 1.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_1dotr"]
+[sub_resource type="Resource" id="Resource_205et"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 8
@@ -799,7 +799,7 @@ size = Vector3(195.52747, 27.85772, 131.37909)
 [sub_resource type="BoxShape3D" id="BoxShape3D_0c4yb"]
 size = Vector3(195.52747, 27.85772, 131.37909)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_avsee"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_mgnou"]
 resource_local_to_scene = true
 size = Vector3(34, 6, 12)
 
@@ -809,17 +809,17 @@ cull_mode = 2
 shading_mode = 0
 albedo_color = Color(1, 0.65, 0.12, 0.18)
 
-[sub_resource type="BoxMesh" id="BoxMesh_uwgg4"]
+[sub_resource type="BoxMesh" id="BoxMesh_1dotr"]
 resource_local_to_scene = true
 material = SubResource("Material")
 size = Vector3(34, 6, 12)
 
-[sub_resource type="Resource" id="Resource_t7kbn"]
+[sub_resource type="Resource" id="Resource_avsee"]
 resource_local_to_scene = true
 script = ExtResource("74_anuua")
 override_damage = true
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_us0iu"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_uwgg4"]
 resource_local_to_scene = true
 size = Vector3(12, 6, 12)
 
@@ -829,17 +829,17 @@ cull_mode = 2
 shading_mode = 0
 albedo_color = Color(1, 0.123482876, 0.25281653, 0.18039216)
 
-[sub_resource type="BoxMesh" id="BoxMesh_0igho"]
+[sub_resource type="BoxMesh" id="BoxMesh_t7kbn"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_te7fm")
 size = Vector3(12, 6, 12)
 
-[sub_resource type="Resource" id="Resource_cq5cr"]
+[sub_resource type="Resource" id="Resource_us0iu"]
 resource_local_to_scene = true
 script = ExtResource("77_5l7yj")
 rolling = 1
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_6xdjo"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_0igho"]
 resource_local_to_scene = true
 size = Vector3(12, 6, 12)
 
@@ -849,26 +849,26 @@ cull_mode = 2
 shading_mode = 0
 albedo_color = Color(1, 0.65, 0.12, 0.18)
 
-[sub_resource type="BoxMesh" id="BoxMesh_e6gbj"]
+[sub_resource type="BoxMesh" id="BoxMesh_cq5cr"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_w658v")
 size = Vector3(12, 6, 12)
 
-[sub_resource type="Resource" id="Resource_d0k5m"]
+[sub_resource type="Resource" id="Resource_6xdjo"]
 resource_local_to_scene = true
 script = ExtResource("77_5l7yj")
 rolling = 1
 
-[sub_resource type="Resource" id="Resource_mvlsq"]
+[sub_resource type="Resource" id="Resource_e6gbj"]
 resource_local_to_scene = true
 script = ExtResource("81_jvpi5")
 force_cling = 1
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_rqnmg"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_d0k5m"]
 resource_local_to_scene = true
 size = Vector3(16, 49.39502, 13.51416)
 
-[sub_resource type="BoxMesh" id="BoxMesh_6a74y"]
+[sub_resource type="BoxMesh" id="BoxMesh_mvlsq"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_w658v")
 size = Vector3(16, 49.39502, 13.51416)
@@ -975,26 +975,26 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="Resource" id="Resource_w8lr4"]
+[sub_resource type="Resource" id="Resource_rqnmg"]
 resource_local_to_scene = true
 script = ExtResource("81_jvpi5")
 force_cling = 1
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_2nq5r"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_6a74y"]
 resource_local_to_scene = true
 size = Vector3(31.128418, 402.48187, 174.13367)
 
-[sub_resource type="BoxMesh" id="BoxMesh_subo7"]
+[sub_resource type="BoxMesh" id="BoxMesh_w8lr4"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_w658v")
 size = Vector3(31.128418, 402.48187, 174.13367)
 
-[sub_resource type="Resource" id="Resource_fr6h1"]
+[sub_resource type="Resource" id="Resource_2nq5r"]
 resource_local_to_scene = true
 script = ExtResource("74_anuua")
 death = 1
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_kwuk6"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_subo7"]
 resource_local_to_scene = true
 size = Vector3(12, 6, 12)
 
@@ -1004,7 +1004,7 @@ cull_mode = 2
 shading_mode = 0
 albedo_color = Color(1, 0.2842292, 0.6170419, 0.18039216)
 
-[sub_resource type="BoxMesh" id="BoxMesh_rd0n2"]
+[sub_resource type="BoxMesh" id="BoxMesh_fr6h1"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_y1fnd")
 size = Vector3(12, 6, 12)
@@ -4034,9 +4034,8 @@ curve = SubResource("Curve3D_mbb5r")
 [node name="CSGPolygon3D" parent="Rail5" index="1" unique_id=231682346]
 collision_mask = 1
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1015454562]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.201128, 1.0014162, 178.4553)
-script = ExtResource("23_spawn")
+[node name="PlayerSpawn" parent="." unique_id=1015454562 instance=ExtResource("23_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.201128, -0.67849255, 178.4553)
 
 [node name="LoopCamEnter" type="Area3D" parent="." unique_id=158001678]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -284.90588, 23.443121, 169.43915)
@@ -4131,7 +4130,7 @@ race_start_path = NodePath("../RaceStart")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7411804, 0, 0)
 
 [node name="Circle" parent="RaceGoal/GoalModel/GoalRing2/Armature/Skeleton3D" index="0" unique_id=1294627438]
-material_override = SubResource("ShaderMaterial_ww8qt")
+material_override = SubResource("ShaderMaterial_344ll")
 
 [node name="SwapLight" parent="RaceGoal/GoalModel/GoalRing2" index="2" unique_id=1016145482]
 light_energy = 40.0
@@ -4183,7 +4182,7 @@ race_start_path = NodePath("../RaceStart_PARKOUR")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4013672, 1.3179932, 0)
 
 [node name="Circle" parent="RaceGoal_PARKOUR/GoalModel/GoalRing2/Armature/Skeleton3D" index="0" unique_id=1294627438]
-material_override = SubResource("ShaderMaterial_0gvoy")
+material_override = SubResource("ShaderMaterial_jsxg6")
 
 [node name="SwapLight" parent="RaceGoal_PARKOUR/GoalModel/GoalRing2" index="2" unique_id=1016145482]
 light_energy = 40.0
@@ -4788,7 +4787,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.56812, 214.32352, 322.7893
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity" index="0"]
-shape = SubResource("SphereShape3D_lraxv")
+shape = SubResource("SphereShape3D_ww8qt")
 
 [node name="GravitySurface" parent="PlanetaryGravity" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -4798,7 +4797,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -264.4319, 214.32352, 322.789
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity2" index="0"]
-shape = SubResource("SphereShape3D_a6b6k")
+shape = SubResource("SphereShape3D_0gvoy")
 
 [node name="GravitySurface" parent="PlanetaryGravity2" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -4808,7 +4807,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -344.75397, 301.76288, 322.78
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity3" index="0"]
-shape = SubResource("SphereShape3D_bch57")
+shape = SubResource("SphereShape3D_lraxv")
 
 [node name="GravitySurface" parent="PlanetaryGravity3" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -4818,7 +4817,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -102.9805, 794.6751, -55.2106
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity4" index="0"]
-shape = SubResource("SphereShape3D_i48ms")
+shape = SubResource("SphereShape3D_a6b6k")
 
 [node name="GravitySurface" parent="PlanetaryGravity4" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -4829,7 +4828,7 @@ gravity_multiplier = 1.5
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity5" index="0"]
-shape = SubResource("SphereShape3D_svhyb")
+shape = SubResource("SphereShape3D_bch57")
 
 [node name="GravitySurface" parent="PlanetaryGravity5" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -4856,48 +4855,48 @@ mesh = SubResource("CapsuleMesh_ysjdg")
 
 [node name="ItemMonitor" parent="." unique_id=69009204 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.043854, -1.511947, 138.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_e8hu0")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_i48ms")])
 leave_base_after_break = true
 
 [node name="ItemMonitor3" parent="." unique_id=946307726 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.043854, -1.511947, 138.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_16jt8")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_svhyb")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor4" parent="." unique_id=1395552001 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.043854, -1.511947, 142.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_2c72k")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_e8hu0")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor5" parent="." unique_id=1689799997 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.043854, -1.511947, 146.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_mwm1o")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_16jt8")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor6" parent="." unique_id=1850172790 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.043854, -1.511947, 150.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_qqhw5")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_2c72k")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor35" parent="." unique_id=1024913527 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -330.95615, -1.511947, 138.5572)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_205et")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_mwm1o")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor7" parent="." unique_id=517832208 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.043854, -1.511947, 138.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_mgnou")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_qqhw5")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor36" parent="." unique_id=2133404527 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.043854, -1.511947, 138.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_1dotr")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_205et")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
@@ -5471,22 +5470,22 @@ metadata/surface_force_roll = true
 
 [node name="CollisionShape3D" parent="MetadataTrigger" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 0)
-shape = SubResource("BoxShape3D_avsee")
+shape = SubResource("BoxShape3D_mgnou")
 
 [node name="VolumePreview" parent="MetadataTrigger" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 0)
-mesh = SubResource("BoxMesh_uwgg4")
+mesh = SubResource("BoxMesh_1dotr")
 show_in_game = true
 
 [node name="DamageTrigger" parent="." unique_id=58650469 instance=ExtResource("73_l23he")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.835854, -1.6765003, 363.31744)
-hazard_traits = Array[ExtResource("74_anuua")]([SubResource("Resource_t7kbn")])
+hazard_traits = Array[ExtResource("74_anuua")]([SubResource("Resource_avsee")])
 
 [node name="CollisionShape3D" parent="DamageTrigger" index="0"]
-shape = SubResource("BoxShape3D_us0iu")
+shape = SubResource("BoxShape3D_uwgg4")
 
 [node name="VolumePreview" parent="DamageTrigger" index="1"]
-mesh = SubResource("BoxMesh_0igho")
+mesh = SubResource("BoxMesh_t7kbn")
 show_in_game = true
 
 [node name="ForceRollTrigger" parent="." unique_id=638672991 instance=ExtResource("76_muffe")]
@@ -5494,7 +5493,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.236151, -1.676506, 392.3825
 enabled = true
 target_paths = Array[NodePath]([])
 behavior_priority = 0
-movement_traits = Array[ExtResource("77_5l7yj")]([SubResource("Resource_cq5cr")])
+movement_traits = Array[ExtResource("77_5l7yj")]([SubResource("Resource_us0iu")])
 attachment_traits = Array[NodePath]([])
 hazard_traits = Array[NodePath]([])
 visibility_traits = Array[NodePath]([])
@@ -5502,16 +5501,16 @@ custom_traits = Array[NodePath]([])
 
 [node name="CollisionShape3D" parent="ForceRollTrigger" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
-shape = SubResource("BoxShape3D_6xdjo")
+shape = SubResource("BoxShape3D_0igho")
 
 [node name="VolumePreview" parent="ForceRollTrigger" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
-mesh = SubResource("BoxMesh_e6gbj")
+mesh = SubResource("BoxMesh_cq5cr")
 show_in_game = true
 
 [node name="ForceRollSurface" parent="." unique_id=1854474205 instance=ExtResource("78_3yimx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.251204, -0.6765022, 406.53348)
-movement_traits = Array[ExtResource("77_5l7yj")]([SubResource("Resource_d0k5m")])
+movement_traits = Array[ExtResource("77_5l7yj")]([SubResource("Resource_6xdjo")])
 
 [node name="ShapeOverrides" parent="." unique_id=1929031563 instance=ExtResource("79_4n6d6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.29936, -0.6765022, 423.23154)
@@ -5522,18 +5521,18 @@ enabled = true
 target_paths = Array[NodePath]([])
 behavior_priority = 0
 movement_traits = Array[NodePath]([])
-attachment_traits = Array[ExtResource("81_jvpi5")]([SubResource("Resource_mvlsq")])
+attachment_traits = Array[ExtResource("81_jvpi5")]([SubResource("Resource_e6gbj")])
 hazard_traits = Array[NodePath]([])
 visibility_traits = Array[NodePath]([])
 custom_traits = Array[NodePath]([])
 
 [node name="CollisionShape3D" parent="ForceClingTrigger" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.30249, 0.7570801)
-shape = SubResource("BoxShape3D_rqnmg")
+shape = SubResource("BoxShape3D_d0k5m")
 
 [node name="VolumePreview" parent="ForceClingTrigger" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.30249, 0.7570801)
-mesh = SubResource("BoxMesh_6a74y")
+mesh = SubResource("BoxMesh_mvlsq")
 show_in_game = true
 
 [node name="CameraConstraint3" parent="." unique_id=179357554 instance=ExtResource("28_nydfv")]
@@ -5585,28 +5584,28 @@ enabled = true
 target_paths = Array[NodePath]([])
 behavior_priority = 0
 movement_traits = Array[NodePath]([])
-attachment_traits = Array[ExtResource("81_jvpi5")]([SubResource("Resource_w8lr4")])
+attachment_traits = Array[ExtResource("81_jvpi5")]([SubResource("Resource_rqnmg")])
 hazard_traits = Array[NodePath]([])
 visibility_traits = Array[NodePath]([])
 custom_traits = Array[NodePath]([])
 
 [node name="CollisionShape3D" parent="ForceClingTrigger2" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.8010254, -132.0268, 42.60309)
-shape = SubResource("BoxShape3D_2nq5r")
+shape = SubResource("BoxShape3D_6a74y")
 
 [node name="VolumePreview" parent="ForceClingTrigger2" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.8010254, -132.0268, 42.60309)
-mesh = SubResource("BoxMesh_subo7")
+mesh = SubResource("BoxMesh_w8lr4")
 
 [node name="DeathTrigger" parent="." unique_id=1923896090 instance=ExtResource("75_2pldv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.67688, -1.6765022, 377.62598)
-hazard_traits = Array[ExtResource("74_anuua")]([SubResource("Resource_fr6h1")])
+hazard_traits = Array[ExtResource("74_anuua")]([SubResource("Resource_2nq5r")])
 
 [node name="CollisionShape3D" parent="DeathTrigger" index="0"]
-shape = SubResource("BoxShape3D_kwuk6")
+shape = SubResource("BoxShape3D_subo7")
 
 [node name="VolumePreview" parent="DeathTrigger" index="1"]
-mesh = SubResource("BoxMesh_rd0n2")
+mesh = SubResource("BoxMesh_fr6h1")
 show_in_game = true
 
 [node name="AdventurePool" parent="." unique_id=627068242 instance=ExtResource("80_luhu6")]

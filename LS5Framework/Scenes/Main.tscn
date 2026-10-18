@@ -8,14 +8,13 @@
 [ext_resource type="Script" uid="uid://dnilj75i7lmy3" path="res://LS5Framework/Scripts/Net/NetworkSession.gd" id="6_net"]
 [ext_resource type="Script" uid="uid://dvcol30s2dqbm" path="res://LS5Framework/Scripts/Settings/GraphicsSettingsBinder.gd" id="8_gfx"]
 [ext_resource type="Script" uid="uid://bh61wf6unbp8c" path="res://LS5Framework/Scripts/World/LevelManager.gd" id="9_level"]
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="11_spawn"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="11_spawn"]
 
 [node name="Main" type="Node3D" unique_id=248113872]
 
 [node name="Characters" type="Node3D" parent="." unique_id=1682387528]
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1013884432]
-script = ExtResource("11_spawn")
+[node name="PlayerSpawn" parent="." unique_id=1013884432 instance=ExtResource("11_spawn")]
 
 [node name="NetworkSession" type="Node" parent="." unique_id=371832278]
 script = ExtResource("6_net")

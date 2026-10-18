@@ -31,7 +31,7 @@
 [ext_resource type="PackedScene" uid="uid://bktxefyel8i42" path="res://LS5Framework/Objects/Race/RaceGoal.tscn" id="23_gxahx"]
 [ext_resource type="Texture2D" uid="uid://cly188qsju2u6" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL.png" id="23_i5omx"]
 [ext_resource type="Texture2D" uid="uid://c1m7ix7sf8vvr" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL_GLOW.png" id="24_isflb"]
-[ext_resource type="Script" uid="uid://6wm6odvreiux" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.gd" id="24_spawn"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="24_spawn"]
 [ext_resource type="PackedScene" uid="uid://by35k35q3p0d1" path="res://LS5Framework/Objects/Rail/Rail.tscn" id="26_6ixep"]
 [ext_resource type="Texture2D" uid="uid://ddvmsaux20gfe" path="res://LS5Framework/Scenes/Levels/Green Hill Ocean/GHO_23.jpg" id="27_tslot"]
 [ext_resource type="PackedScene" uid="uid://bswvitj3v4stb" path="res://LS5Framework/Objects/Rail/RailBooster.tscn" id="28_rjpdh"]
@@ -2886,9 +2886,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 359.35522, -27.200005, -144.6
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 4.5, -3.3339844)
 shape = SubResource("BoxShape3D_3jq7h")
 
-[node name="PlayerSpawn" type="Node3D" parent="." unique_id=1436241298]
+[node name="PlayerSpawn" parent="." unique_id=1436241298 instance=ExtResource("24_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.319984, 28.038424, -63.92106)
-script = ExtResource("24_spawn")
 downwarp_enabled = true
 
 [node name="Loop guardrails" type="Node3D" parent="." unique_id=721318508]
