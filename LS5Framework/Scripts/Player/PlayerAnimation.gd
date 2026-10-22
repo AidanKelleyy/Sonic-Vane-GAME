@@ -101,8 +101,9 @@ func capture_network_snapshot() -> Dictionary:
 		var playback: AnimationNodeStateMachinePlayback = tree.get(path) as AnimationNodeStateMachinePlayback
 		if playback != null:
 			states[path] = playback.get_current_node()
+	var seeks: Dictionary[String, String] = _owner.get_animation_director().get_network_seeks()
 	for path: String in _network_value_paths:
-		values.append(tree.get(path))
+		values.append(_owner.get_animation_director().capture_seek_position(seeks[path]) if seeks.has(path) else tree.get(path))
 	snapshot["states"] = states
 	snapshot["values"] = values
 	return snapshot
@@ -116,9 +117,15 @@ func apply_network_snapshot(states: Dictionary, values: Array) -> void:
 	_sync_animation_cache(tree)
 	_anim_value_cache.clear()
 	_refresh_network_paths(tree)
+	var seeks: Dictionary[String, float] = {}
 	for index: int in mini(values.size(), _network_value_paths.size()):
 		var path: String = _network_value_paths[index]
-		if path.ends_with("/active"):
+		if path.ends_with("/seek_request"):
+			seeks[path] = maxf(float(values[index]), 0.0)
+		elif path.ends_with("/current_state"):
+			if tree.get(path) != values[index]:
+				tree.set(path.get_base_dir() + "/transition_request", values[index])
+		elif path.ends_with("/active"):
 			var active: bool = bool(values[index])
 			if bool(_network_oneshot_states.get(path, false)) != active:
 				var request_path: String = path.get_base_dir() + "/request"
@@ -143,6 +150,10 @@ func apply_network_snapshot(states: Dictionary, values: Array) -> void:
 		var playback: AnimationNodeStateMachinePlayback = tree.get(path) as AnimationNodeStateMachinePlayback
 		if playback != null and playback.get_current_node() != state:
 			playback.start(state)
+	if not seeks.is_empty():
+		tree.advance(0.0)
+		for path: String in seeks:
+			tree.set(path, seeks[path])
 
 
 func _prepare_network_puppet_tree(tree: AnimationTree) -> void:
@@ -173,7 +184,7 @@ func restore_authority_tree() -> void:
 
 func _refresh_owner_playbacks(tree: AnimationTree) -> void:
 	_owner.anim_state = tree.get(SM_BASE + "/playback") as AnimationNodeStateMachinePlayback
-	_owner.ground_state = tree.get(SM_GROUND + "/playback") as AnimationNodeStateMachinePlayback
+	_owner.ground_state = tree.get(_owner.get_animation_director().get_motion_backend().ground_path() + "/playback") as AnimationNodeStateMachinePlayback
 
 
 func _disable_network_auto_transitions(node: AnimationNode) -> void:
@@ -200,13 +211,14 @@ func _refresh_network_paths(tree: AnimationTree) -> void:
 	_network_tree_id = tree_id
 	_network_playback_paths.clear()
 	_network_value_paths.clear()
+	var seeks: Dictionary[String, String] = _owner.get_animation_director().get_network_seeks()
 	for property: Dictionary in tree.get_property_list():
 		var path: String = String(property.get("name", ""))
 		if not path.begins_with("parameters/"):
 			continue
 		if path.ends_with("/playback"):
 			_network_playback_paths.append(path)
-		elif path.contains("/conditions/") or path.ends_with("/blend_position") or path.ends_with("/blend_amount") or path.ends_with("/scale") or path.ends_with("/active"):
+		elif path.contains("/conditions/") or path.ends_with("/blend_position") or path.ends_with("/blend_amount") or path.ends_with("/scale") or path.ends_with("/active") or path.ends_with("/current_state") or seeks.has(path):
 			_network_value_paths.append(path)
 	_network_value_paths.sort()
 
@@ -234,6 +246,10 @@ func _update_animation(delta: float) -> void:
 	var anim_state: AnimationNodeStateMachinePlayback = p.anim_state
 	if anim_tree == null or anim_state == null:
 		return
+	var motion: PlayerAnimationMotionBackend = p.get_animation_director().get_motion_backend()
+	var hierarchical_motion: bool = motion.is_enabled()
+	var presentation = p.get_animation_director().get_action_backend()
+	var hierarchical_actions: bool = presentation.is_enabled()
 	if p._is_dead:
 		_set_anim_bool_param("conditions/Grounded", p.attached)
 		_set_anim_bool_param("conditions/Airborne", not p.attached)
@@ -245,7 +261,9 @@ func _update_animation(delta: float) -> void:
 		return
 
 	var rail_playback: AnimationNodeStateMachinePlayback = _get_rail_state_playback(anim_tree)
-	if p._rail_switch_active:
+	if hierarchical_actions and p._rail_switch_active and not p._rail_switch_animation_started:
+		presentation.start_rail_switch(p._rail_switch_animation_side)
+	if p._rail_switch_active and not hierarchical_actions:
 		p._pending_anim_command = &""
 		p._pending_anim_crossfade = -1.0
 		if not p._rail_switch_animation_started:
@@ -260,7 +278,7 @@ func _update_animation(delta: float) -> void:
 
 	# Force-enter the rail animation state when transitions miss.
 	var spindash_rail_active: bool = (flags & p.STATE_SPINDASHRAIL) != 0 or (p._rail_active and p._spindash_charging)
-	if (p._rail_active or p._rail_switch_active) and not spindash_rail_active and anim_state.get_current_node() != "RAIL":
+	if not hierarchical_actions and (p._rail_active or p._rail_switch_active) and not spindash_rail_active and p.get_animation_director().get_current_state() != "RAIL":
 		anim_state.travel("RAIL")
 	
 	# Force-enter GROUND_MACHINE if grounded and not in any other override state.
@@ -283,20 +301,20 @@ func _update_animation(delta: float) -> void:
 	)
 	
 	var in_override_state: bool = p._rail_active or p._rail_switch_active or st_spring or st_hard_land or st_jump or st_fall or st_roll or st_spindash or st_drift or st_skydive or st_landing_animation_override or st_carry_anim
-	var landing_node: StringName = anim_state.get_current_node()
+	var landing_node: StringName = p.get_animation_director().get_current_state()
 	var landing_animation_active: bool = (
 		landing_node == &"To_Any_Grounded_State"
 		or landing_node == &"LAND"
 		or landing_node == &"LAND_MOVING"
 		or landing_node == &"GAME_Land_Hard"
 	)
-	if not grounded or st_landing_animation_override or (
+	if not hierarchical_motion and (not grounded or st_landing_animation_override or (
 		landing_node == &"LAND" or landing_node == &"LAND_MOVING" or landing_node == &"GAME_Land_Hard" or landing_node == &"GROUND_MACHINE"
-	):
+	)):
 		p._landing_animation_pending = false
 		
-	if grounded and not in_override_state and not landing_entry_pending and not landing_animation_active:
-		if anim_state.get_current_node() != "GROUND_MACHINE":
+	if not hierarchical_motion and grounded and not in_override_state and not landing_entry_pending and not landing_animation_active:
+		if p.get_animation_director().get_current_state() != "GROUND_MACHINE":
 			anim_state.travel("GROUND_MACHINE")
 
 	# Step 1: Basic kinematics used by animations.
@@ -430,7 +448,7 @@ func _update_animation(delta: float) -> void:
 	_safe_set_anim_param(SM_BASE + "/RAIL/GRIND/blend_position", rail_blend_position)
 	_safe_set_anim_param(SM_BASE + "/RAIL/blend_position", rail_blend_position)
 
-	var current_state: StringName = anim_state.get_current_node()
+	var current_state: StringName = p.get_animation_director().get_current_state()
 	var move_time_scale: float = 1.0
 	var rail_sub_state: StringName = &""
 	if rail_playback != null:
@@ -444,6 +462,8 @@ func _update_animation(delta: float) -> void:
 	)
 
 	var in_ground_move: bool = false
+	if hierarchical_motion:
+		in_ground_move = motion.is_ground_moving()
 	if current_state == "GROUND_MACHINE" and p.ground_state != null:
 		var sub_state = p.ground_state.get_current_node()
 		if sub_state == "GroundMove" or String(sub_state).begins_with("GAME_Move"):
@@ -501,10 +521,15 @@ func _update_animation(delta: float) -> void:
 	var action_animation_scale: float = 1.0
 	if p._active_action != null and is_instance_valid(p._active_action):
 		action_animation_scale = max(p._active_action.get_animation_speed_multiplier(), 0.0)
-	_safe_set_anim_param(
-		"MoveTimeScale/scale",
-		move_time_scale * action_animation_scale * _get_animation_movement_time_scale()
-	)
+	var playback_scale: float = move_time_scale * action_animation_scale * _get_animation_movement_time_scale()
+	if hierarchical_motion:
+		var motion_rate: float = playback_scale if p.anim_state.get_current_node() == &"Motion" else 1.0
+		if motion.uses_landing_clock():
+			motion_rate = maxf(p.animation_profile.action_playback_scale, 0.0) * action_animation_scale
+		_safe_set_anim_param(PlayerAnimationMotionBackend.BASE + "/Clock/scale", motion_rate)
+	if hierarchical_actions:
+		presentation.set_clocks(playback_scale)
+	_safe_set_anim_param("MoveTimeScale/scale", 1.0 if hierarchical_actions or (hierarchical_motion and current_state == &"Motion") else playback_scale)
 
 
 func _get_speed_based_animation_scale() -> float:
@@ -519,6 +544,18 @@ func _get_animation_movement_time_scale() -> float:
 		return movement_scale
 	var tree: AnimationTree = p.anim_tree
 	if tree and tree.tree_root:
+		var presentation = p.get_animation_director().get_action_backend()
+		if presentation.is_enabled() and p.anim_state and p.get_animation_director().get_current_state() != &"Motion":
+			var active: AnimationNode = presentation.active_node()
+			return 1.0 if active and _node_excludes_movement_time(active) else movement_scale
+		var motion: PlayerAnimationMotionBackend = p.get_animation_director().get_motion_backend()
+		if motion.is_enabled() and p.anim_state and p.get_animation_director().get_current_state() == &"Motion":
+			var family: StringName = motion.get_family()
+			if family != &"":
+				var motion_node: AnimationNodeBlendTree = p._get_main_animation_state_machine().get_node(&"Motion")
+				if _is_movement_time_excluded(motion_node.get_node(family), PlayerAnimationMotionBackend.BASE + "/" + String(family), tree):
+					return 1.0
+			return movement_scale
 		var root: AnimationNode = tree.tree_root
 		if _node_excludes_movement_time(root):
 			return 1.0
@@ -566,7 +603,7 @@ func _is_movement_time_excluded(node: AnimationNode, parameter_path: String, tre
 
 
 func _get_rail_state_playback(anim_tree: AnimationTree) -> AnimationNodeStateMachinePlayback:
-	var rail_playback_path: String = SM_BASE + "/RAIL/playback"
+	var rail_playback_path: String = _owner.get_animation_director().map_parameter(SM_BASE + "/RAIL/playback")
 	if not _anim_param_exists(rail_playback_path):
 		return null
 	if not _anim_playback_cache.has(rail_playback_path):
@@ -578,9 +615,11 @@ func _update_skydive_animation_latch(delta: float) -> void:
 	var p = _owner
 	if p == null or not is_instance_valid(p):
 		return
+	if p.get_animation_director().get_action_backend().is_enabled():
+		return
 	if p._skydive_anim_exit_timer > 0.0:
 		p._skydive_anim_exit_timer = max(p._skydive_anim_exit_timer - max(delta, 0.0), 0.0)
-		var in_skydive_machine: bool = p.anim_state != null and p.anim_state.get_current_node() == &"SKYDIVE_MACHINE"
+		var in_skydive_machine: bool = p.anim_state != null and p.get_animation_director().get_current_state() == &"SKYDIVE_MACHINE"
 		if p._current_action_id != &"skydive" and not in_skydive_machine:
 			p._skydive_anim_phase = p.SKYDIVE_ANIM_NONE
 			p._skydive_anim_exit_timer = 0.0
@@ -600,6 +639,8 @@ func _safe_set_anim_param(path: String, value) -> void:
 	var full_path: String = path
 	if not full_path.begins_with("parameters/"):
 		full_path = "parameters/" + full_path
+	full_path = p.get_animation_director().get_motion_backend().map_parameter(full_path)
+	full_path = p.get_animation_director().map_parameter(full_path)
 
 	if not _anim_param_exists(full_path):
 		return
@@ -658,7 +699,7 @@ func _update_locomotion_anim(delta: float) -> void:
 	var lateral: Vector3 = v - up * vertical
 	var lateral_speed: float = lateral.length()
 
-	anim_tree.set(SM_GROUND + "/GroundMove/blend_position", Vector2(lateral_speed, _anim_turn_smooth))
+	_safe_set_anim_param(SM_GROUND + "/GroundMove/blend_position", Vector2(lateral_speed, _anim_turn_smooth))
 
 	var grounded: bool = p.attached
 	_set_anim_bool_param("conditions/Grounded", grounded)
@@ -858,7 +899,7 @@ func _debug_anim_tree_params() -> void:
 	if anim_state == null:
 		print("anim_state (%s/playback) is NULL" % SM_BASE)
 	else:
-		print("anim_state OK, current state =", anim_state.get_current_node())
+		print("anim_state OK, current state =", p.get_animation_director().get_current_state())
 
 	var paths: Array[String] = [
 		"%s/conditions/Grounded" % SM_BASE,

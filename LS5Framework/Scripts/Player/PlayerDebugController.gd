@@ -260,6 +260,11 @@ func _sync_online_debug_puppet(delta: float) -> void:
 		_reset_debug_puppet_cycle()
 		return
 	var elapsed: float = maxf(delta, 0.0)
+	p._debug_online_puppet.get_animation_director().update(elapsed)
+	if not p._debug_mode:
+		if is_instance_valid(_dummy_voice_player):
+			_dummy_voice_player.stop()
+		return
 	if _dummy_voice_player == null or not is_instance_valid(_dummy_voice_player) or _dummy_voice_clips.is_empty():
 		return
 	_dummy_voice_elapsed += elapsed
@@ -279,15 +284,13 @@ func _setup_debug_puppet_cycle(puppet: Node) -> void:
 	if model == null:
 		model = puppet
 	_dummy_animation_player = model.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	var animation_tree: AnimationTree = puppet.get("anim_tree") as AnimationTree
-	if animation_tree != null:
-		animation_tree.active = false
 	if _dummy_animation_player != null:
-		_dummy_animation_player.process_mode = Node.PROCESS_MODE_ALWAYS
 		_dummy_animation_names = _dummy_animation_player.get_animation_list()
 		_dummy_animation_names.sort()
+		puppet.set("_debug_mode", true)
+		puppet.get_animation_director().begin_debug_preview()
 		if not _dummy_animation_names.is_empty():
-			_dummy_animation_player.play(_dummy_animation_names[0])
+			puppet.get_animation_director().play_debug_animation(_dummy_animation_names[0], false)
 	if puppet.has_method("get_dialogue_player"):
 		_dummy_voice_player = puppet.call("get_dialogue_player") as AudioStreamPlayer3D
 	if _dummy_voice_player != null:
@@ -352,6 +355,8 @@ func _is_lip_sync_driver(node: Node) -> bool:
 
 
 func _play_next_debug_puppet_voice(puppet: Node) -> void:
+	if not _owner._debug_mode:
+		return
 	if _dummy_voice_player == null or not is_instance_valid(_dummy_voice_player) or _dummy_voice_clips.is_empty():
 		return
 	var clip: AudioStream = _dummy_voice_clips[_dummy_voice_index]
@@ -438,11 +443,6 @@ func _set_debug_mode(enabled: bool) -> void:
 		p.collision_layer = 0
 		p.collision_mask = 0
 
-		# Disable AnimationTree so AnimationPlayer cycling is visible/authoritative.
-		if p.anim_tree != null:
-			p._debug_saved_anim_tree_active = p.anim_tree.active
-			p.anim_tree.active = false
-
 		# Clear movement/ability state.
 		p.velocity = Vector3.ZERO
 		p.attached = false
@@ -457,6 +457,13 @@ func _set_debug_mode(enabled: bool) -> void:
 			p.call("cancel_spline_spring")
 		if p.has_method("cancel_rail_grind"):
 			p.call("cancel_rail_grind")
+		p.clear_active_action()
+		p._spindash_charging = false
+		p._bounce_state = p.BounceState.NONE
+		p._jump_dash_recent_timer = 0.0
+		p._landing_animation_pending = false
+		p._reset_drift_state()
+		p._clear_action_input_requests()
 		# Reset spring/action/movement locks and related automation state.
 		p._spring_movement_lock_timer = 0.0
 		p._spring_action_lock_timer = 0.0
@@ -512,13 +519,20 @@ func _set_debug_mode(enabled: bool) -> void:
 		p._automation_priority_frame = -1
 
 		_debug_refresh_animation_list()
+		p._audio_module.stop_remote_audio()
+		p.get_animation_director().begin_debug_preview()
 	else:
 		# Restore collisions and animation control.
 		p.collision_layer = p._debug_saved_collision_layer
 		p.collision_mask = p._debug_saved_collision_mask
-		if p.anim_tree != null:
-			p.anim_tree.active = p._debug_saved_anim_tree_active
 		p._apply_grounded_after_debug_exit()
+		p._update_main_state_and_flags(0.0)
+		p.get_animation_director().end_debug_preview()
+		p._audio_module.stop_remote_audio()
+		if is_instance_valid(_dummy_voice_player):
+			_dummy_voice_player.stop()
+		if is_instance_valid(p._debug_online_puppet):
+			p._debug_online_puppet._audio_module.stop_remote_audio()
 
 
 func _debug_refresh_animation_list() -> void:
@@ -567,7 +581,7 @@ func _debug_cycle_animation(step: int) -> void:
 		_dummy_animation_index = posmod(_dummy_animation_index + step, _dummy_animation_names.size())
 		var dummy_name: StringName = _dummy_animation_names[_dummy_animation_index]
 		if _dummy_animation_player.has_animation(dummy_name):
-			_dummy_animation_player.play(dummy_name)
+			p._debug_online_puppet.get_animation_director().play_debug_animation(dummy_name, false)
 		return
 	if p._debug_anim_player == null:
 		_debug_refresh_animation_list()
@@ -581,7 +595,7 @@ func _debug_cycle_animation(step: int) -> void:
 		p._debug_anim_index += p._debug_anim_names.size()
 	var name: StringName = p._debug_anim_names[p._debug_anim_index]
 	if p._debug_anim_player.has_animation(name):
-		p._debug_anim_player.play(name)
+		p.get_animation_director().play_debug_animation(name)
 
 
 func _find_animation_player() -> AnimationPlayer:
@@ -1002,16 +1016,16 @@ func _debug_draw() -> void:
 			legacy_text += "Audio module missing\n"
 
 		if p.anim_state != null:
-			legacy_text += "\nANIM STATE: %s\n" % str(p.anim_state.get_current_node())
+			legacy_text += "\nANIM STATE: %s\n" % str(p.get_animation_director().get_current_state())
 			legacy_text += "ANIM POS:   %.3f / %.3f\n" % [
-				p.anim_state.get_current_play_position(),
-				p.anim_state.get_current_length()
+				p.get_animation_director().get_active_playback().get_current_play_position(),
+				p.get_animation_director().get_active_playback().get_current_length()
 			]
 			if p.anim_tree != null:
 				legacy_text += "ANIM SCALE:%s\n" % str(p.anim_tree.get("parameters/MoveTimeScale/scale"))
-				if p._rail_active and p._anim_param_exists("parameters/StateMachine/RAIL/blend_position"):
+				if p._rail_active and p._anim_param_exists("parameters/StateMachine/RAIL/GRIND/blend_position"):
 					legacy_text += "RAIL BLEND:%s\n" % str(
-						p.anim_tree.get("parameters/StateMachine/RAIL/blend_position")
+						p.anim_tree.get(p.get_animation_director().map_parameter("parameters/StateMachine/RAIL/GRIND/blend_position"))
 					)
 		var formatted_text: String = _format_debug_columns(legacy_text + _build_online_debug_text())
 		if p._debug_label.text != formatted_text:

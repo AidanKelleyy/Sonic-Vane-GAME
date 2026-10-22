@@ -1,6 +1,8 @@
 extends Node
 class_name SpeedAfterImageController
 
+const PresentationRoutes = preload("res://LS5Framework/Scripts/Animation/AnimationTreePresentationRoutes.gd")
+
 ## AnimationTree inspected for animation resources whose names contain the activation marker.
 @export_node_path("AnimationTree") var animation_tree_path: NodePath = NodePath("../AnimationTree")
 ## Player pawn that supplies tangential speed. Leave empty to use the nearest ancestor CharacterBody3D.
@@ -89,7 +91,7 @@ func _collect_activation_routes(node: AnimationNode, parameter_path: String, sta
 			_collect_activation_routes(
 				blend_tree.get_node(child_name),
 				parameter_path + "/" + String(child_name),
-				state_conditions
+				PresentationRoutes.child_conditions(blend_tree, parameter_path, child_name, state_conditions)
 			)
 	elif node is AnimationNodeStateMachine:
 		var state_machine: AnimationNodeStateMachine = node as AnimationNodeStateMachine
@@ -160,6 +162,10 @@ func _get_target_alpha() -> float:
 func _is_route_active(route: Dictionary) -> bool:
 	var conditions: Array = route["conditions"]
 	for condition: Dictionary in conditions:
+		if condition.has("selector_path"):
+			if not PresentationRoutes.selector_matches(_animation_tree, condition):
+				return false
+			continue
 		var playback: AnimationNodeStateMachinePlayback = _animation_tree.get(condition["playback_path"]) as AnimationNodeStateMachinePlayback
 		if playback == null or playback.get_current_node() != condition["state_name"]:
 			return false

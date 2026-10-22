@@ -1,6 +1,8 @@
 class_name AdditivePhysicsController
 extends Node
 
+const PresentationRoutes = preload("res://LS5Framework/Scripts/Animation/AnimationTreePresentationRoutes.gd")
+
 @export_group("Node References")
 ## AnimationTree containing the configured additive blend nodes.
 @export_node_path("AnimationTree") var animation_tree_path: NodePath = NodePath("../AnimationTree")
@@ -282,7 +284,7 @@ func _collect_permission_routes(node: AnimationNode, parameter_path: String, sta
 	if node is AnimationNodeBlendTree:
 		var blend_tree: AnimationNodeBlendTree = node as AnimationNodeBlendTree
 		for child_name: StringName in blend_tree.get_node_list():
-			_collect_permission_routes(blend_tree.get_node(child_name), parameter_path + "/" + String(child_name), state_conditions)
+			_collect_permission_routes(blend_tree.get_node(child_name), parameter_path + "/" + String(child_name), PresentationRoutes.child_conditions(blend_tree, parameter_path, child_name, state_conditions))
 	elif node is AnimationNodeStateMachine:
 		var state_machine: AnimationNodeStateMachine = node as AnimationNodeStateMachine
 		for state_name: StringName in state_machine.get_node_list():
@@ -340,6 +342,10 @@ func _get_current_permissions() -> Dictionary:
 func _is_route_active(route: Dictionary) -> bool:
 	var conditions: Array = route["conditions"]
 	for condition: Dictionary in conditions:
+		if condition.has("selector_path"):
+			if not PresentationRoutes.selector_matches(animation_tree, condition):
+				return false
+			continue
 		var playback: AnimationNodeStateMachinePlayback = animation_tree.get(condition["playback_path"]) as AnimationNodeStateMachinePlayback
 		if playback == null or playback.get_current_node() != condition["state_name"]:
 			return false

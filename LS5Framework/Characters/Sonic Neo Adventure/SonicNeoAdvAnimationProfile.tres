@@ -1,0 +1,136 @@
+[gd_resource type="Resource" script_class="PlayerAnimationProfile" format=3]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/PlayerAnimationProfile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+hierarchical_motion = true
+motion_commands = Dictionary[StringName, StringName]({
+&"CMD_JUMP": &"Air/PreJump",
+&"FallBlend": &"Air/FallBlend",
+&"GAME_Land_Hard": &"Ground/LandHard",
+&"GAME_Roll_Floor": &"Ball/Roll",
+&"GROUND_MACHINE": &"Ground",
+&"JUMP": &"Air/Jump",
+&"LAND": &"Ground/Land",
+&"LAND_MOVING": &"Ground/LandMoving",
+&"PRE-JUMP": &"Air/PreJump",
+&"ROLL": &"Ball/Roll"
+})
+hierarchical_actions = true
+presentation_commands = Dictionary[StringName, StringName]({
+&"BOUNCE": &"Air/Bounce",
+&"CMD_BOUNCE": &"Air/Bounce",
+&"CMD_DEADFALL": &"Reaction/CMD_DEADFALL",
+&"CMD_DEADGROUND": &"Reaction/CMD_DEADGROUND",
+&"CMD_DEADPIT": &"Reaction/CMD_DEADPIT",
+&"CMD_HOMING": &"Air/Dash",
+&"CMD_HURT": &"Reaction/CMD_HURT",
+&"CMD_HURT_MOVING": &"Reaction/CMD_HURT_MOVING",
+&"CMD_JUMP_DASH": &"Air/Dash",
+&"CMD_LEDGE_GRAB": &"Parkour/LEDGE_GRAB",
+&"CMD_LIGHTSPEEDDASH": &"Air/LightSpeed",
+&"CMD_RAIL": &"Rail/LAND",
+&"CMD_SKYDIVE": &"Skydive/Skydive_Enter",
+&"CMD_SPINDASH": &"Ground/Spindash",
+&"CMD_SPINDASHRAIL": &"Rail/Charge",
+&"CMD_SPIN_KICK": &"Ground/SpinKick",
+&"CMD_SPRING": &"Air/Spring",
+&"CMD_TORNADO_KICK": &"Air/Tornado",
+&"CMD_TRICK_PITCH_BACK": &"Tricks/PitchBack",
+&"CMD_TRICK_PITCH_FORWARD": &"Tricks/PitchForward",
+&"CMD_TRICK_ROLL_LEFT": &"Tricks/RollLeft",
+&"CMD_TRICK_ROLL_RIGHT": &"Tricks/RollRight",
+&"CMD_TRICK_YAW_LEFT": &"Tricks/YawLeft",
+&"CMD_TRICK_YAW_RIGHT": &"Tricks/YawRight",
+&"CMD_UPPERCUT_KICK": &"Air/Uppercut",
+&"CMD_WALLCLING": &"Parkour/CMD_WALLCLING",
+&"CMD_WALLKICK_CLING": &"Parkour/CMD_WALLKICK_CLING",
+&"CMD_WALLKICK_RUN_LEFT": &"Parkour/CMD_WALLKICK_RUN_LEFT",
+&"CMD_WALLKICK_RUN_RIGHT": &"Parkour/CMD_WALLKICK_RUN_RIGHT",
+&"CMD_WALLRUN_LEFT": &"Parkour/CMD_WALLRUN_LEFT",
+&"CMD_WALLRUN_RIGHT": &"Parkour/CMD_WALLRUN_RIGHT",
+&"CMD_WALL_DETACH": &"Parkour/CMD_WALL_DETACH",
+&"DRIFT_MACHINE": &"Drift/Neutral",
+&"JUMPDASH": &"Air/Dash",
+&"LEDGE_GRAB": &"Parkour/LEDGE_GRAB",
+&"RAIL": &"Rail/LAND",
+&"SPINDASH": &"Ground/Spindash",
+&"SPINDASHRAIL": &"Rail/Charge",
+&"SPINKICK": &"Ground/SpinKick",
+&"STOMP": &"Air/Stomp",
+&"TORNADOKICK": &"Air/Tornado",
+&"Trick_Pitch_Back": &"Tricks/PitchBack",
+&"Trick_Pitch_Forward": &"Tricks/PitchForward",
+&"Trick_Roll_Left": &"Tricks/RollLeft",
+&"Trick_Roll_Right": &"Tricks/RollRight",
+&"Trick_Yaw_Left": &"Tricks/YawLeft",
+&"Trick_Yaw_Right": &"Tricks/YawRight",
+&"insta_shield_thrown": &"Air/Shield"
+})
+presentation_state_names = Dictionary[StringName, StringName]({
+&"Air/Bounce": &"BOUNCE",
+&"Air/Dash": &"JUMPDASH",
+&"Air/LightSpeed": &"CMD_LIGHTSPEEDDASH",
+&"Air/Shield": &"insta_shield_thrown",
+&"Air/Spring": &"CMD_SPRING",
+&"Air/Stomp": &"STOMP",
+&"Air/Tornado": &"TORNADOKICK",
+&"Air/Uppercut": &"CMD_UPPERCUT_KICK",
+&"Drift/Neutral": &"DRIFT_MACHINE",
+&"Ground/Land": &"LAND",
+&"Ground/LandHard": &"GAME_Land_Hard",
+&"Ground/LandMoving": &"LAND_MOVING",
+&"Ground/SpinKick": &"SPINKICK",
+&"Ground/Spindash": &"SPINDASH",
+&"Rail/Charge": &"SPINDASHRAIL",
+&"Rail/LAND": &"RAIL",
+&"Skydive/Skydive_Enter": &"CMD_SKYDIVE"
+})
+normalized_markers = true
+action_commands = Dictionary[StringName, StringName]({
+&"homing": &"JUMPDASH",
+&"jump": &"CMD_JUMP",
+&"jump_dash": &"JUMPDASH",
+&"ledge_hang": &"CMD_LEDGE_GRAB",
+&"lightspeed_dash": &"CMD_LIGHTSPEEDDASH",
+&"rail_grind": &"CMD_RAIL",
+&"roll": &"ROLL",
+&"skydive": &"CMD_SKYDIVE",
+&"spin_kick": &"CMD_SPIN_KICK",
+&"spindash": &"CMD_SPINDASH",
+&"spring": &"CMD_SPRING",
+&"tornado_kick": &"CMD_TORNADO_KICK",
+&"uppercut_kick": &"CMD_UPPERCUT_KICK",
+&"wall_cling": &"CMD_WALLCLING"
+})
+event_commands = Dictionary[StringName, StringName]({
+&"bounce_started": &"CMD_BOUNCE",
+&"death_airborne": &"CMD_DEADFALL",
+&"death_grounded": &"CMD_DEADGROUND",
+&"death_pit": &"CMD_DEADPIT",
+&"hurt": &"CMD_HURT",
+&"hurt_moving": &"CMD_HURT_MOVING",
+&"jump_launched": &"CMD_JUMP",
+&"landing_roll": &"CMD_LANDING_ROLL",
+&"rail_entered": &"CMD_RAIL",
+&"spin_kick": &"CMD_SPIN_KICK",
+&"spring_launched": &"CMD_SPRING",
+&"tornado_kick": &"CMD_TORNADO_KICK",
+&"trick_pitch_back": &"CMD_TRICK_PITCH_BACK",
+&"trick_pitch_forward": &"CMD_TRICK_PITCH_FORWARD",
+&"trick_roll_left": &"CMD_TRICK_ROLL_LEFT",
+&"trick_roll_right": &"CMD_TRICK_ROLL_RIGHT",
+&"trick_yaw_left": &"CMD_TRICK_YAW_LEFT",
+&"trick_yaw_right": &"CMD_TRICK_YAW_RIGHT",
+&"uppercut_kick": &"CMD_UPPERCUT_KICK",
+&"wall_detached": &"CMD_WALL_DETACH",
+&"wall_kick_cling": &"CMD_WALLKICK_CLING",
+&"wall_kick_left": &"CMD_WALLKICK_RUN_LEFT",
+&"wall_kick_right": &"CMD_WALLKICK_RUN_RIGHT"
+})
+phase_commands = Dictionary[StringName, StringName]({
+&"rail_grind/spindash": &"CMD_SPINDASHRAIL",
+&"spindash/charging": &"CMD_SPINDASH",
+&"spindash/released": &"ROLL"
+})

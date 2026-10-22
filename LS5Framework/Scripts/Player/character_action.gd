@@ -535,10 +535,16 @@ func _get_sorted_routes() -> Array[AbilityRoute]:
 
 
 func play_cmd_for_action(base_action_name: StringName, send_net: bool = true) -> bool:
+	return play_presentation(base_action_name, send_net)
+
+
+func play_presentation(presentation_id: StringName, send_net: bool = true) -> bool:
 	if owner_player == null:
 		return false
+	if owner_player.has_method("get_animation_director"):
+		return owner_player.get_animation_director().play_action_if_exists(presentation_id, send_net)
 	if owner_player.has_method("play_action_command_if_exists"):
-		return bool(owner_player.call("play_action_command_if_exists", base_action_name, send_net))
+		return bool(owner_player.call("play_action_command_if_exists", presentation_id, send_net))
 	return false
 
 

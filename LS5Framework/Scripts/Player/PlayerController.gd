@@ -109,7 +109,7 @@ func _resolve_air_trick_landing_boost(was_attached: bool) -> void:
 
 func _ensure_modules() -> void:
 	# The router is initialised after all shared modules.
-	if _ability_input_router != null and _anim_module != null:
+	if _ability_input_router != null and _anim_module != null and _animation_director != null:
 		return
 	if _audio_module == null:
 		_audio_module = PlayerAudio.new(self)
@@ -117,6 +117,8 @@ func _ensure_modules() -> void:
 		_item_effects_module = PlayerItemEffects.new(self)
 	if _anim_module == null:
 		_anim_module = PlayerAnimation.new(self)
+	if _animation_director == null:
+		_animation_director = PlayerAnimationDirector.new(self)
 	if _model_module == null:
 		_model_module = PlayerModel.new(self)
 	if _ui_module == null:
@@ -703,11 +705,12 @@ func _ready() -> void:
 		# To_Any_Grounded_State -> LAND/LAND_MOVING).
 		anim_tree.advance_expression_base_node = anim_tree.get_path_to(self)
 		anim_state = anim_tree.get(PlayerAnimation.SM_BASE + "/playback")
-		ground_state = anim_tree.get(PlayerAnimation.SM_GROUND + "/playback")
+		ground_state = anim_tree.get(get_animation_director().get_motion_backend().ground_path() + "/playback")
 		_carry_overlay_state = anim_tree.get(carry_overlay_playback_parameter) as AnimationNodeStateMachinePlayback
 		_configure_carry_overlay_filter()
 		_initialize_carry_overlay_animation()
 		anim_tree.active = true
+		get_animation_director().configure_tree()
 		#_dump_animtree_params()
 		if anim_state == null:
 			push_error("AnimationTree playback not found - check path '%s/playback'" % PlayerAnimation.SM_BASE)
@@ -863,6 +866,8 @@ func get_jump_animation_mode() -> int:
 func uses_fall_blend_for_jump_animation() -> bool:
 	if get_jump_animation_mode() != JumpAnimationMode.FALL_BLEND:
 		return false
+	if get_animation_director().get_motion_backend().is_enabled():
+		return true
 	return _anim_param_exists("parameters/StateMachine/conditions/UseFallBlendForJump")
 
 
@@ -2234,6 +2239,7 @@ func _process(delta: float) -> void:
 	_tick_ui(delta)
 	if _level_load_suspended:
 		return
+	get_animation_director().update_render(delta)
 	_debug_module.update_day_night_scrub(delta)
 
 	if _trick_system != null and _is_buddy_actor():
@@ -2290,6 +2296,9 @@ func _exit_tree() -> void:
 		_debug_online_puppet.queue_free()
 		_debug_online_puppet = null
 	_set_manual_camera_lock(false)
+	if _animation_director:
+		_animation_director.dispose()
+		_animation_director = null
 
 
 func _apply_character_tint() -> void:
@@ -3101,7 +3110,7 @@ func _movement_physics_process(delta: float) -> void:
 		_stop_roll_sfx()
 		velocity = Vector3.ZERO
 		_update_main_state_and_flags(delta)
-		_update_animation(delta)
+		_update_physics_animation(delta)
 		_update_jump_ball(delta)
 		_update_jump_dash_trail(delta)
 		_network_send_state(delta)
@@ -3291,7 +3300,7 @@ func _movement_physics_process(delta: float) -> void:
 			_update_hurt_invuln_visual(delta)
 			_debug_draw()
 			_update_main_state_and_flags(delta)
-			_update_animation(delta)
+			_update_physics_animation(delta)
 			_update_skid_sfx(delta, _get_lateral_speed_for_anim())
 			_update_engine_sfx(delta, _get_lateral_speed_for_anim())
 			_update_roll_sfx(delta, _get_lateral_speed_for_anim())
@@ -3329,7 +3338,7 @@ func _movement_physics_process(delta: float) -> void:
 			_update_hurt_invuln_visual(delta)
 			_debug_draw()
 			_update_main_state_and_flags(delta)
-			_update_animation(delta)
+			_update_physics_animation(delta)
 			_update_skid_sfx(delta, _get_lateral_speed_for_anim())
 			_update_engine_sfx(delta, _get_lateral_speed_for_anim())
 			_update_roll_sfx(delta, _get_lateral_speed_for_anim())
@@ -3372,7 +3381,7 @@ func _movement_physics_process(delta: float) -> void:
 			_debug_draw()
 			_update_main_state_and_flags(delta)
 			_update_air_trick_animation()
-			_update_animation(delta)
+			_update_physics_animation(delta)
 			_update_skid_sfx(delta, _get_lateral_speed_for_anim())
 			_update_engine_sfx(delta, _get_lateral_speed_for_anim())
 			_update_roll_sfx(delta, _get_lateral_speed_for_anim())
@@ -3717,7 +3726,7 @@ func _movement_physics_process(delta: float) -> void:
 	_update_attack_sources()
 	_update_air_trick_animation()
 
-	_update_animation(delta)
+	_update_physics_animation(delta)
 	_update_jump_ball(delta)
 	_update_jump_dash_trail(delta)
 	_update_carried_object_target()
@@ -4946,7 +4955,7 @@ func _perform_spindash_jump(world_up: Vector3) -> void:
 	_just_jumped = true
 
 	play_jump_sfx()
-	_trigger_anim_command(&"CMD_JUMP")
+	play_action_command_if_exists(&"jump")
 
 
 func _compute_move_direction() -> void:
@@ -7653,7 +7662,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 		_jumped_from_ground = false
 		_falling_without_jump = false
 		play_jump_sfx()
-		_trigger_anim_command(&"CMD_JUMP")
+		play_action_command_if_exists(&"jump")
 
 	# --------------------------------------------------
 	# Jump from attached state
@@ -7700,7 +7709,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 
 			_activate_jump_action_for_launch(&"ground_jump")
 			_begin_jump_hold_state(is_floorish_for_jump)
-			_trigger_anim_command(&"CMD_JUMP")
+			play_action_command_if_exists(&"jump")
 			_coyote_jump_requested = false
 
 	# --------------------------------------------------
@@ -7727,7 +7736,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 			_falling_without_jump = false
 			_begin_jump_hold_state(true)
 			play_jump_sfx()
-			_trigger_anim_command(&"CMD_JUMP")
+			play_action_command_if_exists(&"jump")
 
 	# Jump dash impulse is handled earlier (homing has priority).
 
@@ -12419,6 +12428,8 @@ func reset_score() -> void:
 		h.call("set_score", score)
 
 func _is_anim_in_trick_state() -> bool:
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_current_state() == &"TRICKS"
 	# SUMMARY: True when the AnimationTree is in a trick state or command state.
 	if anim_state == null:
 		return false
@@ -12431,7 +12442,7 @@ func _is_anim_in_trick_state() -> bool:
 			if str(p).begins_with("Trick_"):
 				return true
 
-	var current: StringName = anim_state.get_current_node()
+	var current: StringName = get_animation_director().get_current_state()
 	if current == &"TRICKS":
 		return true
 	if str(current).begins_with("Trick_"):
@@ -12633,14 +12644,16 @@ func _update_air_trick_animation() -> void:
 	if cmd == &"":
 		return
 
-	# Allow interruption of an existing trick if the new command is different.
-	# If it's the same trick, we skip to avoid jittering the animation loop.
-	var current_trick: StringName = anim_state.get_current_node()
+	# Preserve the current gesture until its command changes.
+	var current_trick: StringName = get_animation_director().get_current_state()
 	if current_trick == &"TRICKS" and anim_tree != null:
-		var trick_playback: AnimationNodeStateMachinePlayback = anim_tree.get("parameters/StateMachine/TRICKS/playback") as AnimationNodeStateMachinePlayback
-		if trick_playback != null:
-			current_trick = trick_playback.get_current_node()
-	if _is_anim_in_trick_state() and current_trick == cmd:
+		if get_animation_director().get_action_backend().is_enabled():
+			current_trick = _get_animation_group_current_node("TRICKS")
+		else:
+			var trick_playback: AnimationNodeStateMachinePlayback = get_animation_director().get_group_playback(&"TRICKS")
+			if trick_playback:
+				current_trick = trick_playback.get_current_node()
+	if _is_anim_in_trick_state() and (current_trick == cmd or (get_animation_director().get_action_backend().is_enabled() and get_animation_director().get_action_backend().is_command_current(cmd))):
 		_air_trick_animation_gesture_latched = true
 		_air_trick_animation_last_command = cmd
 		return
@@ -12672,31 +12685,21 @@ func should_play_moving_landing_animation() -> bool:
 		return _landing_animation_moving
 	return _move_input.length_squared() > 0.000001 or _get_lateral_speed_for_anim() >= 0.5
 
+func get_animation_director() -> PlayerAnimationDirector:
+	_ensure_modules()
+	return _animation_director
+
+
 func _update_animation(delta: float) -> void:
 	_ensure_modules()
-	if _anim_module != null:
-		_anim_module._update_animation(delta)
-	_apply_anim_command()
-	_update_carry_animation(delta)
-	_update_pending_carry_put_down_release()
-	_update_pending_carry_throw_release()
-	_update_carry_command_animation_exit()
+	_animation_director.update(delta)
+
+
+func _update_physics_animation(delta: float) -> void:
+	get_animation_director().update_physics(delta)
 
 func _trigger_anim_command(cmd: StringName, send_net: bool = true, crossfade: float = -1.0, force: bool = false) -> void:
-	var allow: bool = true
-	if not force and cmd != &"CMD_SPRING" and _pending_anim_command == &"CMD_SPRING":
-		allow = false
-	if not force and has_action_landing_animation_override():
-		var command_target: Dictionary = _resolve_animation_command_target(cmd, _get_main_animation_state_machine())
-		var target_machine: StringName = command_target.get("machine", &"") as StringName
-		if cmd == &"CMD_SKYDIVE" or target_machine == &"TRICKS" or target_machine == &"SKYDIVE_MACHINE":
-			allow = false
-	if not allow:
-		return
-	_pending_anim_command = cmd
-	_pending_anim_crossfade = crossfade
-	if send_net and _network_is_active() and network_replication_enabled and is_multiplayer_authority():
-		rpc("_net_anim_command", cmd)
+	get_animation_director().queue_legacy_command(cmd, send_net, crossfade, force)
 
 
 func _trigger_anim_command_immediate(cmd: StringName, send_net: bool = true) -> void:
@@ -12705,66 +12708,18 @@ func _trigger_anim_command_immediate(cmd: StringName, send_net: bool = true) -> 
 
 
 func play_action_command_if_exists(action_name: StringName, send_net: bool = true) -> bool:
-	if action_name == &"":
-		return false
-	var cmd: StringName = StringName("CMD_%s" % String(action_name).to_upper())
-	if anim_tree == null:
-		return false
-	var sm: AnimationNodeStateMachine = null
-	var root: AnimationNode = anim_tree.tree_root
-	if root is AnimationNodeStateMachine:
-		sm = root as AnimationNodeStateMachine
-	elif root is AnimationNodeBlendTree:
-		var bt: AnimationNodeBlendTree = root as AnimationNodeBlendTree
-		var sm_node_name: String = PlayerAnimation.SM_BASE.replace("parameters/", "")
-		if bt.has_node(sm_node_name):
-			sm = bt.get_node(sm_node_name) as AnimationNodeStateMachine
-	if sm != null and not _resolve_animation_command_target(cmd, sm).is_empty():
-		_trigger_anim_command(cmd, send_net)
-		return true
-	if action_name == &"homing" and sm != null and sm.has_node(&"JUMPDASH"):
-		_trigger_anim_command(&"JUMPDASH", send_net)
-		return true
-	if not _missing_anim_command_logged.has(cmd):
-		_missing_anim_command_logged[cmd] = true
-		push_warning("Missing AnimationTree state '%s'" % String(cmd))
-	return false
+	return get_animation_director().play_action_if_exists(action_name, send_net)
 
 
 func _resolve_animation_command_target(cmd: StringName, sm: AnimationNodeStateMachine) -> Dictionary:
-	if sm == null:
-		return {}
-	if sm.has_node(cmd):
-		return {"machine": &"", "state": cmd}
-	var aliases: Dictionary = {
-		&"CMD_BOUNCE": &"BOUNCE",
-		&"CMD_RAIL": &"RAIL",
-		&"CMD_SKYDIVE": &"SKYDIVE_MACHINE",
-		&"CMD_SPINDASH": &"SPINDASH",
-		&"CMD_SPINDASHRAIL": &"SPINDASHRAIL",
-		&"CMD_SPIN_KICK": &"SPINKICK",
-		&"CMD_TORNADO_KICK": &"TORNADOKICK",
-		&"CMD_LEDGE_GRAB": &"LEDGE_GRAB",
-		&"CMD_TRICK_PITCH_FORWARD": &"Trick_Pitch_Forward",
-		&"CMD_TRICK_PITCH_BACK": &"Trick_Pitch_Back",
-		&"CMD_TRICK_YAW_LEFT": &"Trick_Yaw_Left",
-		&"CMD_TRICK_YAW_RIGHT": &"Trick_Yaw_Right",
-		&"CMD_TRICK_ROLL_LEFT": &"Trick_Roll_Left",
-		&"CMD_TRICK_ROLL_RIGHT": &"Trick_Roll_Right",
-	}
-	var state: StringName = aliases.get(cmd, cmd) as StringName
-	if sm.has_node(state):
-		return {"machine": &"", "state": state}
-	for machine_name: StringName in sm.get_node_list():
-		var machine: AnimationNodeStateMachine = sm.get_node(machine_name) as AnimationNodeStateMachine
-		if machine != null and machine.has_node(state):
-			return {"machine": machine_name, "state": state}
-	return {}
+	return get_animation_director().resolve_legacy_target(cmd, sm)
 
 
 func _get_animation_group_current_node(group_name: String) -> StringName:
 	if anim_tree == null:
 		return &""
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_action_backend().group_node(StringName(group_name))
 	var playback_path: String = "%s/%s/playback" % [PlayerAnimation.SM_BASE, group_name]
 	var playback: AnimationNodeStateMachinePlayback = anim_tree.get(playback_path) as AnimationNodeStateMachinePlayback
 	if playback == null:
@@ -12775,6 +12730,11 @@ func _get_animation_group_current_node(group_name: String) -> StringName:
 func _is_animation_group_current_finished(group_name: String, empty_is_finished: bool = true) -> bool:
 	if anim_tree == null:
 		return true
+	if get_animation_director().get_action_backend().is_enabled():
+		if group_name == "TRICKS":
+			return get_animation_director().get_action_backend()._trick_finished()
+		var playback: AnimationNodeStateMachinePlayback = get_animation_director().get_group_playback(StringName(group_name))
+		return get_animation_director().get_action_backend()._finished(playback) if playback else empty_is_finished
 	var playback_path: String = "%s/%s/playback" % [PlayerAnimation.SM_BASE, group_name]
 	var playback: AnimationNodeStateMachinePlayback = anim_tree.get(playback_path) as AnimationNodeStateMachinePlayback
 	if playback == null:
@@ -12786,6 +12746,16 @@ func _is_animation_group_current_finished(group_name: String, empty_is_finished:
 
 
 func request_skydive_animation_state(state_name: StringName) -> void:
+	if get_animation_director().get_action_backend().is_enabled():
+		var phase: StringName = &"Dive"
+		if state_name in [&"Skydive_Glide", &"Skydive_Dive_To_Glide"]:
+			phase = &"Glide"
+		elif state_name == &"Skydive_Cancel":
+			phase = &"Cancel"
+		elif state_name == &"Skydive_Exit":
+			phase = &"Exit"
+		get_animation_director().get_action_backend().set_skydive_phase(phase)
+		return
 	if state_name == &"Skydive_Enter" or state_name == &"Skydive_Dive" or state_name == &"Skydive_Glide_To_Dive":
 		_skydive_anim_phase = SKYDIVE_ANIM_DIVE
 		_skydive_anim_exit_timer = 0.0
@@ -12805,30 +12775,44 @@ func _is_skydive_anim_active() -> bool:
 
 
 func _is_skydive_anim_diving() -> bool:
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_action_backend().get_skydive_phase() == &"Dive"
 	return _current_action_id == &"skydive" and _skydive_anim_phase == SKYDIVE_ANIM_DIVE
 
 
 func _is_skydive_anim_gliding() -> bool:
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_action_backend().get_skydive_phase() == &"Glide"
 	return _current_action_id == &"skydive" and _skydive_anim_phase == SKYDIVE_ANIM_GLIDE
 
 
 func _is_skydive_anim_canceling() -> bool:
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_action_backend().get_skydive_phase() == &"Cancel" and not _is_skydive_anim_finished()
 	return _skydive_anim_phase == SKYDIVE_ANIM_CANCEL and not _is_skydive_terminal_complete(&"Skydive_Cancel")
 
 
 func _is_skydive_anim_exiting() -> bool:
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_action_backend().get_skydive_phase() == &"Exit" and not _is_skydive_anim_finished()
 	return _skydive_anim_phase == SKYDIVE_ANIM_EXIT and not _is_skydive_terminal_complete(&"Skydive_Exit")
 
 
 func _is_skydive_anim_cancel_complete() -> bool:
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_action_backend().get_skydive_phase() == &"Cancel" and _is_skydive_anim_finished()
 	return _skydive_anim_phase == SKYDIVE_ANIM_CANCEL and _is_skydive_terminal_complete(&"Skydive_Cancel")
 
 
 func _is_skydive_anim_exit_complete() -> bool:
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_action_backend().get_skydive_phase() == &"Exit" and _is_skydive_anim_finished()
 	return _skydive_anim_phase == SKYDIVE_ANIM_EXIT and _is_skydive_terminal_complete(&"Skydive_Exit")
 
 
 func _is_skydive_anim_finished() -> bool:
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_action_backend().skydive_finished()
 	if _skydive_anim_phase == SKYDIVE_ANIM_NONE:
 		return true
 	if _skydive_anim_phase == SKYDIVE_ANIM_CANCEL:
@@ -12839,6 +12823,8 @@ func _is_skydive_anim_finished() -> bool:
 
 
 func _is_skydive_terminal_complete(state_name: StringName) -> bool:
+	if get_animation_director().get_action_backend().is_enabled():
+		return get_animation_director().get_action_backend().skydive_finished()
 	if _current_action_id == &"skydive":
 		return false
 	if anim_tree == null:
@@ -12858,101 +12844,11 @@ func _is_skydive_terminal_complete(state_name: StringName) -> bool:
 
 
 func _apply_anim_command(force_direct: bool = false) -> void:
-	if _pending_anim_command == &"":
-		return
-	if anim_state == null:
-		return
-	
-	var cmd: StringName = _pending_anim_command
-	var xfade: float = _pending_anim_crossfade
-	for action in _actions:
-		if action != null and is_instance_valid(action) and action.try_handle_animation_command(cmd):
-			_pending_anim_command = &""
-			_pending_anim_crossfade = -1.0
-			return
-	var sm: AnimationNodeStateMachine = _get_main_animation_state_machine()
-	var command_target: Dictionary = _resolve_animation_command_target(cmd, sm)
-	if not command_target.is_empty():
-		var requested_command: StringName = cmd
-		var machine_name: StringName = command_target["machine"]
-		cmd = command_target["state"]
-		if machine_name != &"":
-			var force_restart: bool = has_action_landing_animation_override()
-			if force_restart or anim_state.get_current_node() != machine_name:
-				anim_state.start(machine_name, true)
-			var playback_path: String = "%s/%s/playback" % [PlayerAnimation.SM_BASE, machine_name]
-			var nested_playback: AnimationNodeStateMachinePlayback = anim_tree.get(playback_path) as AnimationNodeStateMachinePlayback
-			if nested_playback != null:
-				var current_nested: StringName = nested_playback.get_current_node()
-				var can_crossfade_trick: bool = (
-					machine_name == &"TRICKS"
-					and anim_state.get_current_node() == &"TRICKS"
-					and String(current_nested).begins_with("Trick_")
-					and current_nested != cmd
-				)
-				if can_crossfade_trick:
-					var trick_machine: AnimationNodeStateMachine = sm.get_node(machine_name) as AnimationNodeStateMachine
-					var trick_fade: float = maxf(xfade if xfade >= 0.0 else trick_anim_crossfade, 0.0)
-					var trick_transition: AnimationNodeStateMachineTransition = null
-					for transition_index: int in trick_machine.get_transition_count():
-						if trick_machine.get_transition_from(transition_index) == current_nested and trick_machine.get_transition_to(transition_index) == cmd:
-							trick_transition = trick_machine.get_transition(transition_index)
-							break
-					if trick_transition == null:
-						trick_transition = AnimationNodeStateMachineTransition.new()
-						trick_transition.switch_mode = AnimationNodeStateMachineTransition.SWITCH_MODE_IMMEDIATE
-						trick_transition.advance_mode = AnimationNodeStateMachineTransition.ADVANCE_MODE_ENABLED
-						trick_machine.add_transition(current_nested, cmd, trick_transition)
-					trick_transition.xfade_time = trick_fade
-					nested_playback.travel(cmd)
-				else:
-					nested_playback.start(cmd, true)
-			_pending_anim_command = &""
-			_pending_anim_crossfade = -1.0
-			return
-		if cmd != requested_command:
-			anim_state.start(cmd)
-			_pending_anim_command = &""
-			_pending_anim_crossfade = -1.0
-			return
-	if force_direct and sm != null and sm.has_node(cmd):
-		anim_state.start(cmd, true)
-		_pending_anim_command = &""
-		_pending_anim_crossfade = -1.0
-		return
-	
-	if (cmd == &"CMD_SPRING" or cmd == &"CMD_HOMING" or cmd == &"JUMPDASH" or cmd == &"ROLL") and anim_state.has_method("start"):
-		anim_state.start(cmd)
-	else:
-		if xfade >= 0.0:
-			# In Godot 4 State Machines, crossfade time is a property of the Transition resource.
-			# We must find the actual StateMachine resource to modify its transitions.
-			if sm != null:
-				var from = anim_state.get_current_node()
-				var found_transition: bool = false
-				
-				# Update existing transitions leading to the target command.
-				for i in sm.get_transition_count():
-					if sm.get_transition_to(i) == cmd:
-						if from == &"" or sm.get_transition_from(i) == from:
-							var trans = sm.get_transition(i)
-							if trans:
-								trans.xfade_time = xfade
-								found_transition = true
-				
-				# If no transition exists, travel() will snap immediately.
-				# We can try to add a temporary one from the current state if it's missing.
-				if not found_transition and from != &"" and from != cmd:
-					var new_trans = AnimationNodeStateMachineTransition.new()
-					new_trans.xfade_time = xfade
-					new_trans.switch_mode = AnimationNodeStateMachineTransition.SWITCH_MODE_IMMEDIATE
-					new_trans.advance_mode = AnimationNodeStateMachineTransition.ADVANCE_MODE_ENABLED
-					sm.add_transition(from, cmd, new_trans)
-		
-		anim_state.travel(cmd)
-	
-	_pending_anim_command = &""
-	_pending_anim_crossfade = -1.0
+	get_animation_director().apply_legacy_command(force_direct)
+
+
+func _animation_marker(event_id: StringName, phase: StringName = &"") -> void:
+	get_animation_director().capture_marker(event_id, phase)
 	
 
 func _update_carry_animation(delta: float) -> void:

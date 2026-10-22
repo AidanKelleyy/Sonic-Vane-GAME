@@ -131,7 +131,10 @@ var _collision_support_normal: Vector3 = Vector3.ZERO
 ## Jump ball effect shown around airborne attacking players.
 @export var jump_ball: Node3D
 
+## AnimationTree used by the character's presentation director and tree adapter.
 @export var anim_tree: AnimationTree
+## Character-specific semantic action, phase and event bindings.
+@export var animation_profile: PlayerAnimationProfile
 var anim_state: AnimationNodeStateMachinePlayback
 var ground_state: AnimationNodeStateMachinePlayback
 var _carry_overlay_state: AnimationNodeStateMachinePlayback
@@ -161,6 +164,7 @@ var _carry_overlay_state: AnimationNodeStateMachinePlayback
 var _audio_module = null
 var _item_effects_module = null
 var _anim_module = null
+var _animation_director: PlayerAnimationDirector = null
 var _model_module = null
 var _ui_module = null
 var _network_module = null

@@ -538,6 +538,11 @@ func _current_animation_allows_jump_ball() -> bool:
 	if state == &"" or not machine.has_node(state):
 		return true
 	var animation_node: AnimationNode = machine.get_node(state)
+	var motion_node: AnimationNode = p.get_animation_director().get_motion_backend().get_active_node()
+	if p.get_animation_director().get_action_backend().is_enabled():
+		motion_node = p.get_animation_director().get_action_backend().active_node()
+	if motion_node:
+		animation_node = motion_node
 	if animation_node == null:
 		return true
 	for argument: String in animation_node.resource_name.to_lower().split(";", false):

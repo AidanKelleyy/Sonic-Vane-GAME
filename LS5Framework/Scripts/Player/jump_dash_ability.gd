@@ -79,7 +79,7 @@ func execute(context: Dictionary = {}) -> bool:
 			return false
 	if not activate(context):
 		return false
-	play_cmd_for_action(action_id)
+	play_presentation(action_id)
 	return true
 
 

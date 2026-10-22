@@ -409,7 +409,7 @@ func _notify_roll_changed(rolling_now: bool) -> void:
 	if rolling_now and owner_player.has_method("_trigger_anim_command"):
 		var spindash_action = _get_spindash_action()
 		if spindash_action == null or not spindash_action.is_charging:
-			owner_player._trigger_anim_command(&"ROLL")
+			owner_player.play_action_command_if_exists(&"roll")
 	if owner_player.has_method("_notify_buddy_leader_roll_changed"):
 		owner_player._notify_buddy_leader_roll_changed(rolling_now)
 

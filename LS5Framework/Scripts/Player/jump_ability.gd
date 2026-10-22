@@ -69,7 +69,7 @@ func on_action_pressed() -> void:
 	if owner_player.attached:
 		if owner_player.has_method("queue_jump"):
 			if owner_player.queue_jump() and activate({"reason": &"ground_jump"}):
-				play_cmd_for_action(action_id)
+				play_presentation(action_id)
 		return
 
 	if process_ability_routes(
@@ -164,7 +164,7 @@ func execute(context: Dictionary = {}) -> bool:
 				return false
 		if not activate(context):
 			return false
-		play_cmd_for_action(action_id)
+		play_presentation(action_id)
 		return true
 	return true
 

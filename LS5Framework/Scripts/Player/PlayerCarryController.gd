@@ -98,6 +98,9 @@ func _put_down_carried_object() -> void:
 	p._carry_put_down_pending_release = true
 	p._carry_put_down_anim_started = false
 	p._carry_put_down_release_wait_frames = 2
+	if p.get_animation_director().get_overlay_backend().is_enabled():
+		p.get_animation_director().get_overlay_backend().request_carry(&"Carry_PutDown")
+		return
 	_force_carry_overlay_blend_visible()
 	if _play_carry_overlay_state(p.carry_put_down_overlay_state):
 		return
@@ -157,6 +160,9 @@ func _throw_carried_object() -> void:
 	p._carry_throw_pending_release = true
 	p._carry_throw_anim_started = false
 	p._carry_throw_release_wait_frames = 2
+	if p.get_animation_director().get_overlay_backend().is_enabled():
+		p.get_animation_director().get_overlay_backend().request_carry(&"Carry_Throw")
+		return
 	if p.carry_throw_anim_command != &"":
 		p._trigger_anim_command(p.carry_throw_anim_command)
 		return
@@ -722,6 +728,8 @@ func _get_carry_forward(up: Vector3) -> Vector3:
 
 func _update_carry_animation(delta: float) -> void:
 	var p = _owner
+	if p.get_animation_director().get_overlay_backend().is_enabled():
+		return
 	if p.carry_hold_blend_parameter == "":
 		return
 	_update_carry_overlay_state()
@@ -738,6 +746,8 @@ func _update_carry_animation(delta: float) -> void:
 
 func _force_carry_overlay_blend_visible() -> void:
 	var p = _owner
+	if p.get_animation_director().get_overlay_backend().is_enabled():
+		return
 	p._carry_hold_blend_value = 1.0
 	if p.carry_hold_blend_parameter != "":
 		p._safe_set_anim_param(p.carry_hold_blend_parameter, p._carry_hold_blend_value)
@@ -771,6 +781,8 @@ func _initialize_carry_overlay_animation() -> void:
 
 func _update_carry_overlay_state() -> void:
 	var p = _owner
+	if p.get_animation_director().get_overlay_backend().is_enabled():
+		return
 	if p._carry_overlay_state == null:
 		return
 	if not _has_carried_object() or p._carry_throw_pending_release:
@@ -802,6 +814,8 @@ func _update_carry_overlay_state() -> void:
 
 func _play_carry_overlay_state(state_name: StringName) -> bool:
 	var p = _owner
+	if p.get_animation_director().get_overlay_backend().is_enabled():
+		return p.get_animation_director().get_overlay_backend().request_carry(state_name)
 	if state_name == &"":
 		return false
 	if p._carry_overlay_state == null:
@@ -884,6 +898,8 @@ func _request_anim_oneshot(parameter_path: String) -> void:
 
 func _update_pending_carry_put_down_release() -> void:
 	var p = _owner
+	if p.get_animation_director().get_overlay_backend().is_enabled():
+		return
 	if not p._carry_put_down_pending_release:
 		return
 	if p.carry_put_down_overlay_state != &"" and p._carry_overlay_state != null:
@@ -927,6 +943,8 @@ func _update_pending_carry_put_down_release() -> void:
 
 func _update_pending_carry_throw_release() -> void:
 	var p = _owner
+	if p.get_animation_director().get_overlay_backend().is_enabled():
+		return
 	if not p._carry_throw_pending_release:
 		return
 	if p.carry_throw_anim_command == &"":
@@ -954,6 +972,8 @@ func _update_pending_carry_throw_release() -> void:
 
 func _update_carry_command_animation_exit() -> void:
 	var p = _owner
+	if p.get_animation_director().get_overlay_backend().is_enabled():
+		return
 	if p.anim_state == null:
 		return
 	var current_node: StringName = p.anim_state.get_current_node()
@@ -1010,6 +1030,9 @@ func _travel_to_carry_animation_return_state(crossfade: float = 0.0) -> void:
 func _travel_anim_state_with_crossfade(target_state: StringName, crossfade: float) -> void:
 	var p = _owner
 	if p.anim_state == null:
+		return
+	if target_state == &"Motion" and p.get_animation_director().get_motion_backend().is_enabled():
+		p.anim_state.travel(target_state)
 		return
 	if crossfade <= 0.0:
 		p.anim_state.travel(target_state)

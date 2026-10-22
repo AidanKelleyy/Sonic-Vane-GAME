@@ -111,11 +111,11 @@ func execute(context: Dictionary = {}) -> bool:
 	if owner_player.attached:
 		_play_kick_sound(spin_kick_sound)
 		if owner_player.has_method("_trigger_anim_command"):
-			owner_player._trigger_anim_command(&"CMD_SPIN_KICK")
+			play_presentation(&"spin_kick")
 	else:
 		_play_kick_sound(tornado_kick_sound)
 		if owner_player.has_method("_trigger_anim_command"):
-			owner_player._trigger_anim_command(&"CMD_TORNADO_KICK")
+			play_presentation(&"tornado_kick")
 	return true
 
 func on_action_exit(_next_action: CharacterAction) -> void:

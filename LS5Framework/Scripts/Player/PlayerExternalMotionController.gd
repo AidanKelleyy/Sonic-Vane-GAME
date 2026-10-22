@@ -316,7 +316,7 @@ func launch_from_vault_bar(
 	_seed_vault_bar_torque(angular_velocity, pitch_trick_command)
 	p._pending_anim_command = &""
 	if p.anim_state:
-		p.anim_state.travel(&"FallBlend")
+		p.get_animation_director().resume_movement()
 	_trigger_vault_bar_trick_animation()
 	p._refresh_carried_object_target_after_external_motion()
 	return true
@@ -338,7 +338,7 @@ func cancel_vault_bar(source: Node = null) -> void:
 	p._air_torque_segment_allowed = false
 	p.velocity = Vector3.ZERO
 	if p.anim_state:
-		p.anim_state.travel(&"FallBlend")
+		p.get_animation_director().resume_movement()
 	if previous_source and is_instance_valid(previous_source):
 		if previous_source.has_method("on_vault_bar_player_cancelled"):
 			previous_source.call("on_vault_bar_player_cancelled", p)
@@ -1281,7 +1281,7 @@ func apply_ramp_impulse(
 		p._skydive_anim_phase = p.SKYDIVE_ANIM_NONE
 		p._skydive_anim_exit_timer = 0.0
 		if p.anim_state != null:
-			p.anim_state.travel(&"FallBlend")
+			p.get_animation_director().resume_movement()
 
 
 func start_spline_spring(

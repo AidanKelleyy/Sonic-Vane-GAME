@@ -534,6 +534,8 @@ func blocks_surface_attachment() -> bool:
 func is_landing_animation_override_active() -> bool:
 	if not owner_player or landing_roll_animation_command == &"":
 		return false
+	if owner_player.get_animation_director().get_overlay_backend().is_enabled():
+		return owner_player._pending_anim_command == landing_roll_animation_command or owner_player.get_animation_director().get_overlay_backend().landing_active()
 	if owner_player._pending_anim_command == landing_roll_animation_command:
 		return true
 	if Time.get_ticks_msec() < _landing_roll_animation_grace_until_msec:
@@ -544,16 +546,18 @@ func is_landing_animation_override_active() -> bool:
 			return true
 	if owner_player.anim_state == null:
 		return false
-	var current_state: StringName = owner_player.anim_state.get_current_node()
+	var current_state: StringName = owner_player.get_animation_director().get_current_state()
 	if current_state == landing_roll_animation_command:
 		return true
 	if current_state != &"PARKOUR" or owner_player.anim_tree == null:
 		return false
-	var playback: AnimationNodeStateMachinePlayback = owner_player.anim_tree.get("parameters/StateMachine/PARKOUR/playback") as AnimationNodeStateMachinePlayback
+	var playback: AnimationNodeStateMachinePlayback = owner_player.get_animation_director().get_group_playback(&"PARKOUR")
 	return playback != null and playback.get_current_node() == landing_roll_animation_command
 
 
 func try_handle_animation_command(command: StringName) -> bool:
+	if owner_player and command == landing_roll_animation_command and owner_player.get_animation_director().get_overlay_backend().is_enabled():
+		return owner_player.get_animation_director().get_overlay_backend().request_landing_roll()
 	if command != landing_roll_animation_command or owner_player == null or owner_player.anim_tree == null or landing_roll_override_parameter == "":
 		return false
 	var override_path: String = _landing_roll_override_path()
@@ -563,7 +567,8 @@ func try_handle_animation_command(command: StringName) -> bool:
 		return true
 	_landing_roll_animation_grace_until_msec = Time.get_ticks_msec() + 250
 	if owner_player.attached and owner_player.anim_state != null:
-		owner_player.anim_state.start(&"GROUND_MACHINE", true)
+		if not owner_player.get_animation_director().restart_movement():
+			owner_player.anim_state.start(&"GROUND_MACHINE", true)
 	owner_player.anim_tree.set(override_path, AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 	return true
 
@@ -2363,10 +2368,10 @@ func _update_wall_exit_animation(delta: float) -> void:
 		return
 	_wall_exit_animation_elapsed += max(delta, 0.0)
 	var animation_finished: bool = _wall_exit_animation_elapsed >= _wall_exit_animation_duration
-	if owner_player.anim_state != null and owner_player.anim_state.get_current_node() == _wall_exit_animation_command:
-		var animation_length: float = owner_player.anim_state.get_current_length()
+	if owner_player.anim_state != null and owner_player.get_animation_director().get_current_state() == _wall_exit_animation_command:
+		var animation_length: float = owner_player.get_animation_director().get_active_playback().get_current_length()
 		if animation_length > 0.001:
-			animation_finished = owner_player.anim_state.get_current_play_position() >= animation_length - 0.02
+			animation_finished = owner_player.get_animation_director().get_active_playback().get_current_play_position() >= animation_length - 0.02
 	if not animation_finished:
 		return
 	_wall_exit_animation_pending = false

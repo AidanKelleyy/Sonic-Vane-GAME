@@ -1480,7 +1480,7 @@ func _end_rail(jumped: bool, world_up: Vector3) -> void:
 		p._jumped_from_ground = true
 		p._falling_without_jump = false
 		p.play_jump_sfx()
-		p._trigger_anim_command(&"CMD_JUMP")
+		p.play_action_command_if_exists(&"jump")
 	else:
 		p._is_jumping = false
 		p._jump_variable = false

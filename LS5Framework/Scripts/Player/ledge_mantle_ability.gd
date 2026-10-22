@@ -880,7 +880,7 @@ func _launch_mantle_jump() -> void:
 	if owner_player.has_method("register_combo_feat"):
 		owner_player.register_combo_feat(&"ledge_mantle", "Ledge Mantle", 225.0, 1.0)
 	_play_ledge_sound(ledge_jump_sound)
-	owner_player._trigger_anim_command(&"CMD_JUMP")
+	owner_player.play_action_command_if_exists(&"jump")
 
 
 func _reject_candidate(reason: StringName) -> Dictionary:

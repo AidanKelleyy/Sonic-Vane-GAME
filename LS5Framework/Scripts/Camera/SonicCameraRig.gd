@@ -1909,8 +1909,9 @@ func _get_auto_follow_velocity(include_preview: bool = true) -> Vector3:
 	return Vector3.ZERO
 
 
-func _reset_dolly_tracking(source_position: Vector3, source_velocity: Vector3) -> void:
-	_camera_collision_initialized = false
+func _reset_dolly_tracking(source_position: Vector3, source_velocity: Vector3, reset_collision: bool = true) -> void:
+	if reset_collision:
+		_camera_collision_initialized = false
 	_dolly_initialized = true
 	_dolly_position = source_position
 	_dolly_velocity = source_velocity
@@ -2210,6 +2211,9 @@ func _apply_dolly_leash(
 func _update_dolly_follow(delta: float, up: Vector3) -> Vector3:
 	var source_position: Vector3 = target.global_position
 	var reported_velocity: Vector3 = _get_auto_follow_velocity(false)
+	if _rear_view_active:
+		_reset_dolly_tracking(source_position, reported_velocity, false)
+		return source_position
 	if not _dolly_initialized or _dolly_target_ref != target:
 		_reset_dolly_tracking(source_position, reported_velocity)
 
@@ -3100,7 +3104,7 @@ func _update_transform(delta: float) -> void:
 	var rig_pos: Vector3 = global_position
 	if proximity_blend and _influence_free_pivot_valid:
 		rig_pos = _influence_free_pivot
-	if (presenting and not proximity_blend) or _teleport_snap_timer > 0.0 or dolly_follow_enabled:
+	if (presenting and not proximity_blend) or _teleport_snap_timer > 0.0 or dolly_follow_enabled or _rear_view_active:
 		rig_pos = desired_target_pos
 	elif smooth_follow:
 		var follow_speed: float = _get_dolly_response(0.0)

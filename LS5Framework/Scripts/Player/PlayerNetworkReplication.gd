@@ -77,19 +77,20 @@ func configure_for_role() -> void:
 	if player == null:
 		return
 	if not is_active() or not player.network_replication_enabled:
-		player._anim_module.restore_authority_tree()
+		player.get_animation_director().restore_authority_tree()
 		_restore_collision(player)
 		_remove_netfox_nodes()
 		return
 
 	var puppet: bool = not player.is_multiplayer_authority()
 	if puppet:
+		player.get_animation_director().prepare_remote_playback()
 		player.collision_layer = 0
 		player.collision_mask = 0
 		player.lock_cursor_to_game = false
 		_stop_local_only_effects(player)
 	else:
-		player._anim_module.restore_authority_tree()
+		player.get_animation_director().restore_authority_tree()
 		_restore_collision(player)
 	_ensure_netfox_nodes(puppet)
 
@@ -185,7 +186,8 @@ func puppet_tick(delta: float) -> void:
 	if player._net_animation_states.is_empty():
 		player._update_animation(delta)
 	else:
-		player._anim_module.apply_network_snapshot(player._net_animation_states, player._net_animation_values)
+		player.get_animation_director().apply_network_snapshot(player._net_animation_states, player._net_animation_values)
+		player.get_animation_director().advance_remote(delta)
 	player._update_jump_ball(delta)
 	player._update_jump_dash_trail(delta)
 	player._update_skid_sfx(delta, player._get_lateral_speed_for_anim())
@@ -218,7 +220,7 @@ func capture_state(_delta: float) -> void:
 	player._net_target_move_direction = player._move_direction
 	player._net_target_barrier_blast_gauge = clamp(player._barrier_blast_gauge, 0.0, 1.0)
 	player._net_target_action_id = player._current_action_id
-	var animation_snapshot: Dictionary = player._anim_module.capture_network_snapshot()
+	var animation_snapshot: Dictionary = player.get_animation_director().capture_network_snapshot()
 	player._net_animation_states = animation_snapshot.get("states", {})
 	player._net_animation_values = animation_snapshot.get("values", [])
 	var presentation: PackedFloat32Array = PackedFloat32Array()

@@ -1,0 +1,186 @@
+[gd_resource type="AnimationLibrary" format=3]
+
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/BrakeStop.res" id="1_02h5a"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/BrakeStop_End.res" id="2_cgcax"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/BrakeStop_Enter.res" id="3_k1yeb"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/CAMMOD_Quills_Left.res" id="4_887fa"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/CAMMOD_Quills_Right.res" id="5_62pqb"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Carry_Hold.res" id="6_pk118"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Carry_Pickup.res" id="7_ryel2"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Presentation/Carry_PutDown.tres" id="8_5adve"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Presentation/Carry_Throw.tres" id="9_ibtvq"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Drift_Left.res" id="10_5ljxt"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Drift_Right.res" id="11_w1ydr"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/EYES_Down.res" id="12_yomss"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/EYES_Forward.res" id="13_ykcge"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/EYES_Left.res" id="14_7o6rn"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/EYES_Right.res" id="15_abc0g"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/EYES_Up.res" id="16_sc6ol"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Fall.res" id="17_5he1n"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Fall_Forward.res" id="18_87m08"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Grind_Backwards_Fast.res" id="19_s7x7m"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Grind_Backwards_Med.res" id="20_lubst"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Grind_Backwards_Slow.res" id="21_uhw87"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Grind_Forwards_Fast.res" id="22_tpq67"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Grind_Forwards_Med.res" id="23_4e8aa"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Grind_Forwards_Slow.res" id="24_yert7"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Grind_Switch_Land.res" id="25_52kb7"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Grind_Switch_Left.res" id="26_8g4fd"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Grind_Switch_Right.res" id="27_cfac5"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Hurt_Backwards.res" id="28_n8qch"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Hurt_Dead.res" id="29_u56f0"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Hurt_Deadfall.res" id="30_a6akx"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Hurt_Forwards.res" id="31_4omip"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Idle.res" id="32_pbcky"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Idle_To_Walk.res" id="33_wlnys"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Idle_Wait_1.res" id="34_cyg6b"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Jump.res" id="35_u7il8"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Land.res" id="36_s4lag"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Land_Moving.res" id="37_o3ypa"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Land_Roll.res" id="38_w7pye"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Ledge_Grab.res" id="39_56suv"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move1_Walk.res" id="40_3d4ox"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move1_Walk_Left.res" id="41_csq2n"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move1_Walk_Right.res" id="42_ey2gb"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move2_Jog.res" id="43_cnof3"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move2_Jog_Left.res" id="44_8yapw"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move2_Jog_Right.res" id="45_4wi7a"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move3_Run.res" id="46_egcge"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move3_Run_Left.res" id="47_xnx6w"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move3_Run_Right.res" id="48_w13v6"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move4_TopRun.res" id="49_q1red"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move4_TopRun_Left.res" id="50_cw8oc"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move4_TopRun_Right.res" id="51_wewgf"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move5_MaxRun.res" id="52_hh6f3"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move5_MaxRun_Left.res" id="53_qtqml"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Move5_MaxRun_Right.res" id="54_kjkoy"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/PHYSICS_Ears_Additive.res" id="55_ng4f0"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/PHYSICS_Quill_Additive.res" id="56_27c3p"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Pre-Jump.res" id="57_3u2xo"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/RESET.res" id="58_76um3"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/RollFloor.res" id="59_b8smb"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/SkyDive_Cancel.res" id="60_8w4th"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Skydive_Dive.res" id="61_sulhm"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Skydive_Dive_To_Glide.res" id="62_i01ge"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Skydive_Enter.res" id="63_s1wm1"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Skydive_Exit.res" id="64_8fvgu"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Skydive_Glide.res" id="65_2a5t5"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Skydive_Glide_To_Dive.res" id="66_q67qa"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/SpinKick.res" id="67_l2igx"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Spring.res" id="68_2y6lc"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Spring_Forward.res" id="69_vdh7t"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/T-Pose.res" id="70_m7s8s"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/TornadoKick.res" id="71_3gtcv"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Trick_Pitch_Back.res" id="72_okahl"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Trick_Pitch_Forward.res" id="73_hnmvw"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Trick_Roll_Left.res" id="74_ho7gg"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Trick_Roll_Right.res" id="75_r534j"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Trick_Yaw_Left.res" id="76_0tcty"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Trick_Yaw_Right.res" id="77_js12f"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/UppercutKick.res" id="78_gtpsb"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/VaultBar_Swing_Over.res" id="79_4upml"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/VaultBar_Swing_Under.res" id="80_jf5si"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Walk_Left_To_Idle.res" id="81_00c4v"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/Walk_Right_To_Idle.res" id="82_jnqo0"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallCling_Enter.res" id="83_tev37"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallCling_Loop.res" id="84_me3yv"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallKick_Cling.res" id="85_8tsdp"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallKick_Left.res" id="86_ve4lw"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallKick_Right.res" id="87_phvm1"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallRun_Left.res" id="88_2kyaf"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/WallRun_Right.res" id="89_0pl0n"]
+[ext_resource type="Animation" path="res://LS5Framework/Characters/Sonic Neo Adventure/Animations/_POSES_VictoryPoseRender.res" id="90_stbfs"]
+
+[resource]
+_data = {
+&"BrakeStop": ExtResource("1_02h5a"),
+&"BrakeStop_End": ExtResource("2_cgcax"),
+&"BrakeStop_Enter": ExtResource("3_k1yeb"),
+&"CAMMOD_Quills_Left": ExtResource("4_887fa"),
+&"CAMMOD_Quills_Right": ExtResource("5_62pqb"),
+&"Carry_Hold": ExtResource("6_pk118"),
+&"Carry_Pickup": ExtResource("7_ryel2"),
+&"Carry_PutDown": ExtResource("8_5adve"),
+&"Carry_Throw": ExtResource("9_ibtvq"),
+&"Drift_Left": ExtResource("10_5ljxt"),
+&"Drift_Right": ExtResource("11_w1ydr"),
+&"EYES_Down": ExtResource("12_yomss"),
+&"EYES_Forward": ExtResource("13_ykcge"),
+&"EYES_Left": ExtResource("14_7o6rn"),
+&"EYES_Right": ExtResource("15_abc0g"),
+&"EYES_Up": ExtResource("16_sc6ol"),
+&"Fall": ExtResource("17_5he1n"),
+&"Fall_Forward": ExtResource("18_87m08"),
+&"Grind_Backwards_Fast": ExtResource("19_s7x7m"),
+&"Grind_Backwards_Med": ExtResource("20_lubst"),
+&"Grind_Backwards_Slow": ExtResource("21_uhw87"),
+&"Grind_Forwards_Fast": ExtResource("22_tpq67"),
+&"Grind_Forwards_Med": ExtResource("23_4e8aa"),
+&"Grind_Forwards_Slow": ExtResource("24_yert7"),
+&"Grind_Switch_Land": ExtResource("25_52kb7"),
+&"Grind_Switch_Left": ExtResource("26_8g4fd"),
+&"Grind_Switch_Right": ExtResource("27_cfac5"),
+&"Hurt_Backwards": ExtResource("28_n8qch"),
+&"Hurt_Dead": ExtResource("29_u56f0"),
+&"Hurt_DeadFall": ExtResource("30_a6akx"),
+&"Hurt_Forwards": ExtResource("31_4omip"),
+&"Idle": ExtResource("32_pbcky"),
+&"Idle_To_Walk": ExtResource("33_wlnys"),
+&"Idle_Wait_1": ExtResource("34_cyg6b"),
+&"Jump": ExtResource("35_u7il8"),
+&"Land": ExtResource("36_s4lag"),
+&"Land_Moving": ExtResource("37_o3ypa"),
+&"Land_Roll": ExtResource("38_w7pye"),
+&"Ledge_Grab": ExtResource("39_56suv"),
+&"Move1_Walk": ExtResource("40_3d4ox"),
+&"Move1_Walk_Left": ExtResource("41_csq2n"),
+&"Move1_Walk_Right": ExtResource("42_ey2gb"),
+&"Move2_Jog": ExtResource("43_cnof3"),
+&"Move2_Jog_Left": ExtResource("44_8yapw"),
+&"Move2_Jog_Right": ExtResource("45_4wi7a"),
+&"Move3_Run": ExtResource("46_egcge"),
+&"Move3_Run_Left": ExtResource("47_xnx6w"),
+&"Move3_Run_Right": ExtResource("48_w13v6"),
+&"Move4_TopRun": ExtResource("49_q1red"),
+&"Move4_TopRun_Left": ExtResource("50_cw8oc"),
+&"Move4_TopRun_Right": ExtResource("51_wewgf"),
+&"Move5_MaxRun": ExtResource("52_hh6f3"),
+&"Move5_MaxRun_Left": ExtResource("53_qtqml"),
+&"Move5_MaxRun_Right": ExtResource("54_kjkoy"),
+&"PHYSICS_Ears_Additive": ExtResource("55_ng4f0"),
+&"PHYSICS_Quill_Additive": ExtResource("56_27c3p"),
+&"Pre-Jump": ExtResource("57_3u2xo"),
+&"RESET": ExtResource("58_76um3"),
+&"RollFloor": ExtResource("59_b8smb"),
+&"Skydive_Cancel": ExtResource("60_8w4th"),
+&"Skydive_Dive": ExtResource("61_sulhm"),
+&"Skydive_Dive_To_Glide": ExtResource("62_i01ge"),
+&"Skydive_Enter": ExtResource("63_s1wm1"),
+&"Skydive_Exit": ExtResource("64_8fvgu"),
+&"Skydive_Glide": ExtResource("65_2a5t5"),
+&"Skydive_Glide_To_Dive": ExtResource("66_q67qa"),
+&"SpinKick": ExtResource("67_l2igx"),
+&"Spring": ExtResource("68_2y6lc"),
+&"Spring_Forward": ExtResource("69_vdh7t"),
+&"T-Pose": ExtResource("70_m7s8s"),
+&"TornadoKick": ExtResource("71_3gtcv"),
+&"Trick_Pitch_Back": ExtResource("72_okahl"),
+&"Trick_Pitch_Forward": ExtResource("73_hnmvw"),
+&"Trick_Roll_Left": ExtResource("74_ho7gg"),
+&"Trick_Roll_Right": ExtResource("75_r534j"),
+&"Trick_Yaw_Left": ExtResource("76_0tcty"),
+&"Trick_Yaw_Right": ExtResource("77_js12f"),
+&"UppercutKick": ExtResource("78_gtpsb"),
+&"VaultBar_Swing_Over": ExtResource("79_4upml"),
+&"VaultBar_Swing_Under": ExtResource("80_jf5si"),
+&"Walk_Left_To_Idle": ExtResource("81_00c4v"),
+&"Walk_Right_To_Idle": ExtResource("82_jnqo0"),
+&"WallCling_Enter": ExtResource("83_tev37"),
+&"WallCling_Loop": ExtResource("84_me3yv"),
+&"WallKick_Cling": ExtResource("85_8tsdp"),
+&"WallKick_Left": ExtResource("86_ve4lw"),
+&"WallKick_Right": ExtResource("87_phvm1"),
+&"WallRun_Left": ExtResource("88_2kyaf"),
+&"WallRun_Right": ExtResource("89_0pl0n"),
+&"_POSES_VictoryPoseRender": ExtResource("90_stbfs")
+}

@@ -1,6 +1,8 @@
 class_name CameraAngleOverlay3D
 extends SkeletonModifier3D
 
+const PresentationRoutes = preload("res://LS5Framework/Scripts/Animation/AnimationTreePresentationRoutes.gd")
+
 @export_group("Node References")
 ## AnimationTree whose active resource names control overlay permission.
 @export_node_path("AnimationTree") var animation_tree_path: NodePath
@@ -300,7 +302,7 @@ func _collect_routes(node: AnimationNode, path: String, conditions: Array) -> vo
 			_collect_routes(node.get_node(state), path + "/" + String(state), child_conditions)
 	elif node is AnimationNodeBlendTree:
 		for child: StringName in node.get_node_list():
-			_collect_routes(node.get_node(child), path + "/" + String(child), conditions)
+			_collect_routes(node.get_node(child), path + "/" + String(child), PresentationRoutes.child_conditions(node, path, child, conditions))
 	elif node is AnimationNodeBlendSpace1D or node is AnimationNodeBlendSpace2D:
 		for point: int in node.get_blend_point_count():
 			_collect_routes(node.get_blend_point_node(point), path, conditions)
@@ -311,6 +313,11 @@ func _is_overlay_allowed() -> bool:
 	for route: Dictionary in _routes:
 		var matched: bool = true
 		for condition: Dictionary in route["conditions"]:
+			if condition.has("selector_path"):
+				if not PresentationRoutes.selector_matches(_animation_tree, condition):
+					matched = false
+					break
+				continue
 			var playback: AnimationNodeStateMachinePlayback = _animation_tree.get(condition["path"]) as AnimationNodeStateMachinePlayback
 			if not playback or playback.get_current_node() != condition["state"]:
 				matched = false

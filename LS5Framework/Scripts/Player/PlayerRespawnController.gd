@@ -131,8 +131,9 @@ func _apply_respawn_transform(
 
 func _restart_animation_state_machine_for_respawn() -> void:
 	var p = _owner
-	p._pending_anim_command = &""
-	p._pending_anim_crossfade = -1.0
+	p.get_animation_director().reset(&"respawn")
+	if p.get_animation_director().restart_movement():
+		return
 	var start_node: StringName = _get_respawn_animation_start_node()
 	if p.anim_state != null and p.anim_state.has_method("start"):
 		p.anim_state.start(start_node)
@@ -147,6 +148,8 @@ func _restart_animation_state_machine_for_respawn() -> void:
 
 func _get_respawn_animation_start_node() -> StringName:
 	var p = _owner
+	if p.get_animation_director().get_motion_backend().is_enabled():
+		return &"Motion"
 	if p.attached:
 		return &"GROUND_MACHINE"
 	var sm: AnimationNodeStateMachine = _get_main_animation_state_machine()
@@ -191,6 +194,9 @@ func _get_respawn_ground_animation_start_node() -> StringName:
 func _get_ground_animation_state_machine() -> AnimationNodeStateMachine:
 	var p = _owner
 	var sm: AnimationNodeStateMachine = _get_main_animation_state_machine()
+	if sm and p.get_animation_director().get_motion_backend().is_enabled():
+		var motion: AnimationNodeBlendTree = sm.get_node(&"Motion")
+		return motion.get_node(&"Ground") as AnimationNodeStateMachine
 	if sm == null or not sm.has_node(&"GROUND_MACHINE"):
 		return null
 	return sm.get_node(&"GROUND_MACHINE") as AnimationNodeStateMachine

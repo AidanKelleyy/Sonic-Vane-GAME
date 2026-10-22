@@ -191,7 +191,7 @@ func _movement_physics_process(delta: float) -> void:
 			_update_model_orientation(delta)
 			_debug_draw()
 			_update_main_state_and_flags(delta)
-			_update_animation(delta)
+			_update_physics_animation(delta)
 			_update_jump_dash_trail(delta)
 			_network_send_state(delta)
 			_sync_online_debug_puppet(delta)
