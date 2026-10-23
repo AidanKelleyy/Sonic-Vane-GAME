@@ -120,7 +120,8 @@ func update(delta: float) -> void:
 	if _landing and (not _owner.attached or _owner.rolling):
 		_landing = false
 		_owner.anim_tree.set("parameters/LandingRollOverride/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT)
-	var allowed: bool = carrying and _carry_allowed()
+	var recovering: bool = _released and not _gesture_finished()
+	var allowed: bool = (carrying or recovering) and _carry_allowed()
 	var speed: float = maxf(_owner.carry_hold_blend_speed, 0.0)
 	_weight = (1.0 if allowed else 0.0) if speed <= 0.0 or delta <= 0.0 else move_toward(_weight, 1.0 if allowed else 0.0, delta * speed)
 	_owner.anim_tree.set("parameters/CarryOverlay/blend_amount", _weight)
@@ -150,13 +151,16 @@ func after_advance() -> void:
 		marker_consumed.emit(generation, &"carry_release", kind)
 	if _landing and not bool(_owner.anim_tree.get("parameters/LandingRollOverride/active")) and int(_owner.anim_tree.get("parameters/LandingRollOverride/request")) == AnimationNodeOneShot.ONE_SHOT_REQUEST_NONE:
 		_landing = false
-	var playback: AnimationNodeStateMachinePlayback = _playback()
-	if _gesture != &"Carry_Hold" and playback.get_current_length() > 0.001 and playback.get_current_play_position() >= playback.get_current_length() - 0.001:
+	if _gesture != &"Carry_Hold" and _gesture_finished():
 		if _release_kind != &"":
 			_cancel_release(&"missing_marker")
-		else:
-			_gesture = &"Carry_Hold"
-			playback.start(_gesture, true)
+		elif not _released or (_owner._carried_object and is_instance_valid(_owner._carried_object)) or is_zero_approx(_weight):
+			_cancel_release(&"completed")
+
+
+func _gesture_finished() -> bool:
+	var playback: AnimationNodeStateMachinePlayback = _playback()
+	return playback.get_current_node() == _gesture and playback.get_current_length() > 0.001 and playback.get_current_play_position() >= playback.get_current_length() - 0.001
 
 
 func _carry_allowed() -> bool:

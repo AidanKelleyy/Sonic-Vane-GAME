@@ -43,20 +43,39 @@ signal contact_damage_applied(target: Node, amount: int)
 
 var _actor: Node3D = null
 var _impact_cooldown: float = 0.0
+## Dynamic contacts awaiting sufficient closing speed or the current impact cooldown.
+var _pending_dynamic_impacts: Dictionary = {}
 
 
 func setup(actor: Node3D) -> void:
 	_actor = actor
 	if not body_entered.is_connected(_on_body_entered):
 		body_entered.connect(_on_body_entered)
+	if not body_exited.is_connected(_on_body_exited):
+		body_exited.connect(_on_body_exited)
 
 
 func physics_tick(delta: float) -> void:
 	_impact_cooldown = max(_impact_cooldown - delta, 0.0)
+	if not is_instance_valid(_actor) or not dynamic_body_damage_enabled or _impact_cooldown > 0.0 or _is_actor_dead():
+		return
+	for id: int in _pending_dynamic_impacts.keys():
+		var reference: WeakRef = _pending_dynamic_impacts[id]
+		var body: PhysicsBody3D = reference.get_ref() as PhysicsBody3D
+		if not is_instance_valid(body) or not overlaps_body(body):
+			_pending_dynamic_impacts.erase(id)
+			continue
+		if _try_dynamic_impact(body):
+			break
 
 
 func reset_hurtbox() -> void:
 	_impact_cooldown = 0.0
+	_pending_dynamic_impacts.clear()
+
+
+func _on_body_exited(body: Node) -> void:
+	_pending_dynamic_impacts.erase(body.get_instance_id())
 
 
 func _on_body_entered(body: Node) -> void:
@@ -66,6 +85,8 @@ func _on_body_entered(body: Node) -> void:
 		return
 	if _try_dynamic_impact(body):
 		return
+	if body is PhysicsBody3D and not _is_player(body) and (body is RigidBody3D or (dynamic_body_group != &"" and body.is_in_group(dynamic_body_group))):
+		_pending_dynamic_impacts[body.get_instance_id()] = weakref(body)
 	if not _is_player(body) or (_is_player_invulnerable(body) and not _is_player_invincible(body)):
 		return
 	if _is_player_attacking(body):
@@ -116,6 +137,9 @@ func _try_dynamic_impact(body: Node) -> bool:
 	if dynamic_body_destroy_min_speed > 0.0 and impact_speed >= dynamic_body_destroy_min_speed:
 		damage = 1000000
 	_actor.call("apply_damage", damage, body)
+	_pending_dynamic_impacts.erase(body.get_instance_id())
+	if body.has_method("stop_throw_assistance"):
+		body.call("stop_throw_assistance")
 	if disable_collision_when_attacked and not _is_actor_dead() and _actor.has_method("disable_collision_for"):
 		_actor.call("disable_collision_for", collision_disable_time_sec)
 	_impact_cooldown = max(dynamic_body_damage_cooldown, 0.0)

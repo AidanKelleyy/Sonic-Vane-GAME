@@ -52,6 +52,7 @@ var _tracked_bodies: Dictionary = {}
 
 
 func _ready() -> void:
+	add_to_group(&"PlanetaryGravitySource")
 	collision_mask |= gravity_follower_collision_mask
 	_gravity_center = get_node_or_null(gravity_center_path) as Node3D
 	_gravity_surface = get_node_or_null(gravity_surface_path) as Node3D
@@ -127,8 +128,14 @@ func _unregister_all_bodies() -> void:
 func get_planetary_gravity_vector(body: Node3D) -> Vector3:
 	if not active or body == null or not is_instance_valid(body):
 		return Vector3.ZERO
+	return get_gravity_vector_at(body.global_position, body)
+
+
+func get_gravity_vector_at(sample_position: Vector3, body: Node3D) -> Vector3:
+	if not active or not is_instance_valid(body) or not _is_gravity_body(body):
+		return Vector3.ZERO
 	var center: Vector3 = _get_gravity_center_position()
-	var to_center: Vector3 = center - body.global_position
+	var to_center: Vector3 = center - sample_position
 	var distance: float = to_center.length()
 	if distance < 0.001:
 		return Vector3.ZERO
@@ -137,7 +144,7 @@ func get_planetary_gravity_vector(body: Node3D) -> Vector3:
 		return Vector3.ZERO
 	var gravity_down: Vector3 = to_center / distance
 	if prefer_surface_raycast:
-		var surface_down: Vector3 = _get_surface_gravity_down(body, center, gravity_down)
+		var surface_down: Vector3 = _get_surface_gravity_down(body, center, gravity_down, sample_position)
 		if surface_down.length() >= 0.001:
 			gravity_down = surface_down
 	var strength_factor: float = max(gravity_multiplier, 0.0) * _get_falloff_multiplier(distance, radius)
@@ -147,7 +154,8 @@ func get_planetary_gravity_vector(body: Node3D) -> Vector3:
 func _get_surface_gravity_down(
 	body: Node3D,
 	center: Vector3,
-	center_down: Vector3
+	center_down: Vector3,
+	sample_position: Vector3
 ) -> Vector3:
 	if _gravity_surface == null or not is_instance_valid(_gravity_surface):
 		return Vector3.ZERO
@@ -155,14 +163,15 @@ func _get_surface_gravity_down(
 	if world == null:
 		return Vector3.ZERO
 	var ray_end: Vector3 = center + center_down * max(surface_raycast_extra_distance, 0.0)
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(body.global_position, ray_end)
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(sample_position, ray_end)
 	query.collision_mask = surface_raycast_mask
 	query.collide_with_areas = true
 	query.collide_with_bodies = true
 	query.hit_back_faces = true
 	query.hit_from_inside = true
+	query.exclude = [get_rid()]
 	if body is CollisionObject3D:
-		query.exclude = [(body as CollisionObject3D).get_rid()]
+		query.exclude = [get_rid(), (body as CollisionObject3D).get_rid()]
 	var hit: Dictionary = world.direct_space_state.intersect_ray(query)
 	if hit.is_empty() or not _is_gravity_surface_collider(hit.get("collider")):
 		return Vector3.ZERO

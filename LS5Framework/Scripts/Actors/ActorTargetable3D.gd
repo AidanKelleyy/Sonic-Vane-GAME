@@ -4,6 +4,8 @@ class_name ActorTargetable3D
 @export_group("Homing")
 ## Registers this point as a homing target while the actor is alive.
 @export var homing_target_enabled: bool = true
+## Allows carried objects to target this point when homing targeting is active.
+@export var thrown_object_targeting_enabled: bool = true
 ## Maximum distance from the player for homing targeting. Zero uses the player targeting range.
 @export_range(0.0, 1000.0, 0.1, "or_greater", "suffix:m") var homing_target_max_distance: float = 0.0
 ## Overrides the player's post-hit pop-up speed when zero or greater.
@@ -29,9 +31,12 @@ class_name ActorTargetable3D
 
 var _registered: bool = false
 var _cell_timer: float = 0.0
+## Actor owning the target point and its incoming-impact settings.
+var _actor: Node3D = null
 
 
-func setup(_actor: Node3D) -> void:
+func setup(actor: Node3D) -> void:
+	_actor = actor
 	set_meta(&"npc_affiliation", &"enemy")
 	set_enabled(true)
 
@@ -64,6 +69,14 @@ func physics_tick(delta: float, moved: bool) -> void:
 
 func get_homing_target_position(_origin: Vector3 = Vector3.ZERO) -> Vector3:
 	return global_position
+
+
+func get_throw_target_minimum_impact_speed() -> float:
+	if not is_instance_valid(_actor):
+		return 0.0
+	var path: Variant = _actor.get("hurtbox_component_path")
+	var hurtbox: ActorHurtbox3D = _actor.get_node_or_null(path if path is NodePath else ^"Hurtbox") as ActorHurtbox3D
+	return maxf(hurtbox.dynamic_body_damage_min_speed, 0.0) if hurtbox and hurtbox.dynamic_body_damage_enabled else 0.0
 
 
 func get_attack_magnetism_position(_context: Variant = null) -> Vector3:

@@ -29,6 +29,28 @@ Add one or more `PropTarget3D` markers beneath the body and assign their **Prop*
 
 ## Physics and water
 
+### Targeted throws
+
+Carried throws preview a reachable homing target while carrying, commit it when the throw begins, and recheck its arc at the animation release frame. Target ranking uses model facing relative to carry up, with angle taking priority over distance. A four-degree switching margin keeps previews stable between nearby targets. Release clearance, target invalidation, and blocked or unreachable arcs retain the ordinary throw or existing side-placement fallback.
+
+Normalized carry animations commit the selected target after the overlay accepts the throw transition and clears the previous release state. Subsequent animation interruptions still cancel that commitment.
+
+Player carry settings control targeting enablement, range, horizontal and vertical angles, flight-time limits, and maximum launch speed relative to inherited player momentum. Defaults are a 24-meter base range, a 90-meter speed-scaled range cap, a 30-degree horizontal half-angle, a 60-degree elevation limit, 0.2–1.6 seconds, and 42 meters per second. Range follows the homing formula: base range plus player speed multiplied by range per speed, clamped to the configured limits. **Carry Throw Target Range Per Speed** defaults to -1, which uses the character's current homing range-per-speed setting; zero restores a fixed range, and a positive value overrides the scaling. Preview, acquisition, and release use the same resolved range. `Thrown Object Targeting Enabled` on homing markers and actor/prop target markers independently disables acquisition.
+
+Rails and their child target markers are always excluded from thrown targeting, including rail beginnings and ends. Their homing registrations and rail-entry behavior remain unchanged.
+
+The solver predicts gravity and damping for both prop simulation modes, including their different gravity integration order. Built-in planetary sources expose a position-sampling API; the solver refines candidate arcs against gravity sampled along their paths, including influence-radius transitions and falloff. Prediction leaves prop transforms unchanged. Arc clearance uses an enclosing sphere around the prop's collision shapes, allowing rotation without reducing clearance. This conservative volume can reject tight openings. Target contact still uses the existing physical impact receivers.
+
+Moving-target lead uses character/body velocity, `get_throw_target_velocity()` when supplied, or sampled target motion for transform-driven markers. Prediction clamps target speed to 40 meters per second by default. Preview searches run at ten physics updates per second. Facing and range checks hide stale previews immediately; committed throws recheck obstruction at the preview rate without switching targets. Visibility respects local authority, HUD visibility, menus, and the throw-reticle toggle; no additional aiming input is required.
+
+Throw previews use `Images/Throw_Reticle.png`; ordinary homing uses `Images/Homing_Reticle.png`. Character texture overrides remain independent. Both 512-pixel icons retain the display size authored for the previous 2000-pixel texture: pixel size is multiplied by reference width divided by actual texture width. **Homing Reticle Reference Width** defaults to 2000 and applies to both icons. Throw tint defaults to white to retain the artwork's colors. The shared acquisition sound and distance scaling remain active.
+
+Actor targets expose their hurtbox's minimum dynamic-impact speed to the throw solver. Candidate arcs retain a 15-percent arrival-speed margin for early volume contact, while launch-speed limits and existing damage thresholds remain unchanged. Hurtboxes recheck slow or cooldown-blocked dynamic contacts only while they overlap, discard pending contacts on separation, and stop assistance on accepted impacts. One accepted overlap is not repeatedly damaged by those pending-contact checks.
+
+Released props can apply limited corrections through `ThrownObjectFlight`. Defaults allow 18 meters per second squared of acceleration and six meters per second of total velocity correction. Flight retains the committed target and ends assistance on impact, pickup, respawn, external kicks or launches, invalid targets, arrival timeout, or target deviation beyond eight meters from the original intercept. Small prediction errors below ten centimeters receive no correction. Assistance preserves normal collision responses and cannot grant damage without contact.
+
+Submerged props retain ordinary throws. Water changes along the flight, Area3D damping overrides, timed directional-gravity modifier expiration, and planetary providers without the position-sampling API remain outside the prediction model. Target acceleration beyond the correction budget can still cause a miss.
+
 `ObjectPhysicsBody3D` preserves rigid/simplified modes, gravity modifiers, planetary gravity, support/rest logic, surface effects, springs, and carry APIs. `CarryableObject` remains a compatibility adapter through `PropBody3D`, so existing Chao/Aidan scenes gain the same optional capabilities while destruction stays disabled. Carry examples now include dynamic-object collision for stacking. Supplemental motion safety sweeps the actual compound body; **Carry Intangible** defaults on: held bodies disable collision layers/masks and follow the carry target through geometry. Release placement checks the full active compound shape using the saved collision mask, then uses the player’s side-placement fallback when obstructed. Collision filters restore on release, cancellation, destruction, and respawn. Disable **Carry Intangible** to retain obstruction-limited held movement.
 
 Simplified props with active collision shapes sweep their complete body and probe the same footprint for support. Collision shapes, offsets, compound parts, and the body's collision mask determine contact; include the dynamic-object layer when authoring stacks. **Simplified Static Friction** holds quiet objects on shallow slopes, while **Simplified Friction** applies time-based sliding resistance. Settled props can support other props; carrying, removing, or moving a support releases the objects above it. Water forces participate in settling, so enabling buoyancy does not keep dry objects awake. Movement and support use object gravity-up. The existing upright policy remains active; shapeless legacy objects retain radius-based fallback checks.
@@ -42,6 +64,12 @@ The shared fracture emitter accepts a source-motion context and additional templ
 ## Validation and current limits
 
 Focused runtime checks are in `LS5Engine3_CodexFiles/prop_system_checks.tscn`. Run with Godot 4.7.2 and the project path. The existing contact, homing re-input, and uppercut checks remain applicable.
+
+Throw validation uses `throw_targeting_checks.tscn`, `throw_targeting_advanced_checks.tscn`, `throw_enemy_playtest_checks.tscn`, and `throw_reticle_checks.tscn` in the same folder. The enemy suite throws the authored wood crate at the authored grounded enemy over 8, 16, and 24 meters in both simulation modes. Reticle checks cover texture switching, custom textures, cached and committed previews, and 1280×720, 1920×1080, and 2560×1080 proportions. Run the reticle scene with rendering enabled and `-- --capture-reticles` to save reference screenshots there.
+
+`throw_animation_target_checks.tscn` exercises the normalized carry backend and the native Sonic scene with an actual carry prop. It verifies commitment, preview retention, authored-marker release, aimed launch velocity, flight assistance, grounded targeting, and interruption cancellation.
+
+`throw_speed_target_checks.tscn` covers speed-based acquisition and release, character homing scaling, throw-specific overrides, range caps, and exclusion of actual rails and endpoint markers. The animation suite also tests moving through a throw windup with a target beyond the stationary range.
 
 Validated: 177 prop assertions, 42 homing re-input assertions, and the existing object-contact and uppercut-fatigue suites pass. A rendered preview verifies intact/fractured wood alignment. Shared, Objects, and Audio export lists include the new dependencies; no executable was rebuilt.
 

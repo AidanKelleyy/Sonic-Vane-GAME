@@ -4,6 +4,8 @@ class_name PlayerUI
 const DEBUG_SHOW_FPS: bool = true
 const WORLD_TEXT_MODEL_SCRIPT: Script = preload("res://LS5Framework/Scripts/UI/YawBillboardTextModel.gd")
 const DEFAULT_HOMING_RETICLE_SOUND: AudioStream = preload("res://LS5Framework/Sounds/General/reticle.wav")
+const DEFAULT_HOMING_RETICLE_TEXTURE: Texture2D = preload("res://LS5Framework/Images/Homing_Reticle.png")
+const DEFAULT_THROW_RETICLE_TEXTURE: Texture2D = preload("res://LS5Framework/Images/Throw_Reticle.png")
 
 # SUMMARY:
 # - UI/HUD helpers for player-facing elements (HUD, chat bubble, reticles, and effects).
@@ -332,7 +334,8 @@ func _update_homing_reticle() -> void:
 	if not SettingsManager.hud_visible:
 		_hide_homing_reticle()
 		return
-	if not p.homing_reticle_enabled:
+	var throw_preview: bool = p._carry_module and p._carry_module.is_carrying_object()
+	if (throw_preview and not p.carry_throw_reticle_enabled) or (not throw_preview and not p.homing_reticle_enabled):
 		_hide_homing_reticle()
 		return
 	if p._homing_active:
@@ -342,7 +345,7 @@ func _update_homing_reticle() -> void:
 		_hide_homing_reticle()
 		return
 
-	var target: Node3D = p._get_homing_reticle_target()
+	var target: Node3D = p._carry_module.get_throw_preview_target() if throw_preview else p._get_homing_reticle_target()
 	if target == null or not is_instance_valid(target):
 		_hide_homing_reticle()
 		return
@@ -350,6 +353,8 @@ func _update_homing_reticle() -> void:
 	_ensure_homing_reticle()
 	if _homing_reticle == null:
 		return
+	_apply_homing_reticle_texture(throw_preview)
+	_homing_reticle.modulate = p.carry_throw_reticle_color if throw_preview else Color.WHITE
 
 	var target_id: int = int(target.get_instance_id())
 	if target_id != _homing_reticle_target_id:
@@ -357,11 +362,14 @@ func _update_homing_reticle() -> void:
 		_play_homing_reticle_sound()
 
 	var tpos: Vector3 = target.global_position
-	if p.has_method("get_homing_reticle_target_position"):
+	if throw_preview:
+		tpos = p._carry_module.get_throw_preview_position(target)
+	elif p.has_method("get_homing_reticle_target_position"):
 		var sampled_position: Variant = p.call("get_homing_reticle_target_position", target)
 		if sampled_position is Vector3:
 			tpos = sampled_position
-	tpos.y += p.homing_reticle_height_offset
+	if not throw_preview:
+		tpos.y += p.homing_reticle_height_offset
 	_homing_reticle.global_position = tpos
 	_homing_reticle.visible = true
 
@@ -478,11 +486,7 @@ func _ensure_center_reticle() -> void:
 	_center_reticle = dot
 
 
-func _apply_homing_reticle_texture() -> void:
-	# SUMMARY: Apply the reticle texture, using a fallback if needed.
-	# STEPS:
-	# - Step 1: Prefer exported texture if provided.
-	# - Step 2: Load the default reticle texture path.
+func _apply_homing_reticle_texture(throw_preview: bool = false) -> void:
 	var p
 	p = _owner
 	if p == null or not is_instance_valid(p):
@@ -490,13 +494,13 @@ func _apply_homing_reticle_texture() -> void:
 	if _homing_reticle == null:
 		return
 
-	var tex: Texture2D = p.homing_reticle_texture
-	if tex == null:
-		var loaded: Resource = load("res://LS5Framework/Images/Homing_Reticle.png")
-		if loaded is Texture2D:
-			tex = loaded
-
-	_homing_reticle.texture = tex
+	var tex: Texture2D = p.carry_throw_reticle_texture if throw_preview else p.homing_reticle_texture
+	if not tex:
+		tex = DEFAULT_THROW_RETICLE_TEXTURE if throw_preview else DEFAULT_HOMING_RETICLE_TEXTURE
+	if _homing_reticle.texture != tex:
+		_homing_reticle.texture = tex
+	var size_compensation: float = maxf(p.homing_reticle_reference_width, 1.0) / maxf(float(tex.get_width()), 1.0)
+	_homing_reticle.pixel_size = maxf(p.homing_reticle_pixel_size, 0.001) * size_compensation
 
 
 func _update_speedometer(delta: float) -> void:

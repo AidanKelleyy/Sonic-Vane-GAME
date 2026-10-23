@@ -1439,6 +1439,46 @@ var airborne_landing_align_movement_yaw_full_speed: float = 30.0
 @export var carry_throw_forward_speed: float = 20.0
 ## Upward speed applied when throwing a carried object.
 @export var carry_throw_up_speed: float = 14.0
+## Allows carried throws to calculate an arc toward nearby homing targets.
+@export var carry_throw_targeting_enabled: bool = true
+## Base distance from the release position to a throw target before speed scaling.
+@export_range(0.1, 100.0, 0.1, "or_greater") var carry_throw_target_range: float = 24.0
+## Maximum throw targeting distance after speed scaling.
+@export_range(0.1, 150.0, 0.1, "or_greater") var carry_throw_target_max_range: float = 90.0
+## Targeting range added per unit of player speed. Negative uses the character's homing range-per-speed setting.
+@export_range(-1.0, 2.0, 0.01, "or_greater") var carry_throw_target_range_per_speed: float = -1.0
+## Maximum horizontal angle from throw facing to a target, in degrees.
+@export_range(0.0, 89.0, 0.5) var carry_throw_target_angle: float = 30.0
+## Maximum elevation angle from the carry plane to a target, in degrees.
+@export_range(0.0, 89.0, 0.5) var carry_throw_target_vertical_angle: float = 60.0
+## Minimum flight time considered for a targeted throw.
+@export_range(0.05, 2.0, 0.01) var carry_throw_target_min_time: float = 0.2
+## Maximum flight time considered for a targeted throw.
+@export_range(0.1, 4.0, 0.01) var carry_throw_target_max_time: float = 1.6
+## Maximum launch speed relative to the inherited player velocity.
+@export_range(1.0, 150.0, 0.5) var carry_throw_target_max_speed: float = 42.0
+## Predicts target movement when calculating the launch arc.
+@export var carry_throw_target_lead_enabled: bool = true
+## Maximum target speed used for throw prediction, in meters per second.
+@export_range(0.0, 100.0, 0.5) var carry_throw_target_lead_max_speed: float = 40.0
+## Enables bounded trajectory corrections after a targeted release.
+@export var carry_throw_assistance_enabled: bool = true
+## Maximum acceleration applied by throw assistance, in meters per second squared.
+@export_range(0.0, 100.0, 0.5) var carry_throw_assistance_acceleration: float = 18.0
+## Total velocity correction available during one throw, in meters per second.
+@export_range(0.0, 30.0, 0.1) var carry_throw_assistance_budget: float = 6.0
+## Maximum distance a target can deviate from its predicted intercept before assistance ends.
+@export_range(0.1, 30.0, 0.1) var carry_throw_assistance_max_deviation: float = 8.0
+## Shows the existing target reticle for reachable carried throws.
+@export var carry_throw_reticle_enabled: bool = true
+## Texture used for carried throw previews. Empty uses the shared throw icon.
+@export var carry_throw_reticle_texture: Texture2D
+## Tint multiplied with the authored throw icon.
+@export var carry_throw_reticle_color: Color = Color.WHITE
+## Maximum frequency of carried throw preview searches.
+@export_range(1.0, 30.0, 1.0) var carry_throw_preview_rate: float = 10.0
+## Facing-angle advantage needed to switch away from the current throw preview target.
+@export_range(0.0, 15.0, 0.5) var carry_throw_target_switch_angle: float = 4.0
 ## Portion of player velocity inherited by released carryable objects.
 @export var carry_release_inherit_velocity_scale: float = 1.0
 ## Time released carryable objects ignore the carrier collision.
@@ -2716,6 +2756,8 @@ var _water_logic_speed_elapsed: float = 0.0
 @export_subgroup("UI/Homing Reticle")
 @export var homing_reticle_enabled: bool = true
 @export var homing_reticle_texture: Texture2D
+## Texture width used by the authored reticle size settings. Smaller textures retain the same displayed size.
+@export_range(1.0, 4096.0, 1.0, "or_greater") var homing_reticle_reference_width: float = 2000.0
 @export var homing_reticle_pixel_size: float = 0.01
 @export var homing_reticle_height_offset: float = 0.0
 @export var homing_reticle_scale_base: float = 0.1

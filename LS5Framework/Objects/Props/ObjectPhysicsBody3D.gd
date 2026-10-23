@@ -268,6 +268,8 @@ var _gravity_modifier_sequence: int = 0
 var _planetary_gravity_sources: Dictionary = {}
 var _resolved_gravity_up: Vector3 = Vector3.UP
 var _resolved_gravity_multiplier: float = 1.0
+## Optional assistance state for the most recent targeted throw.
+var _throw_flight: RefCounted = null
 
 
 func _ready() -> void:
@@ -346,6 +348,10 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		return
 	if is_carried() or anchored:
 		return
+	if state.get_contact_count():
+		stop_throw_assistance()
+	elif _throw_flight:
+		state.linear_velocity = _throw_flight.update_velocity(state.linear_velocity, state.step)
 	if _rigid_resting and not state.sleeping:
 		_clear_rigid_rest_state()
 	if follow_gravity_pull and not _rigid_resting:
@@ -373,6 +379,7 @@ func can_be_carried_by(_player: Node) -> bool:
 func begin_carry(player: Node, target_transform: Transform3D, release_collision_lock: float = 0.35) -> bool:
 	if not can_be_carried_by(player):
 		return false
+	stop_throw_assistance()
 	carry_holder = player as Node3D
 	impact_instigator = carry_holder
 	_carry_target_transform = target_transform
@@ -408,7 +415,85 @@ func throw_from_carry(release_transform: Transform3D, release_velocity: Vector3,
 	release_carry(release_transform, release_velocity, release_collision_lock)
 
 
+func get_throw_prediction_parameters() -> Dictionary:
+	if buoyancy_component and buoyancy_component.submerged_fraction > 0.0:
+		return {}
+	var gravity: Vector3 = get_prop_gravity_vector()
+	var damping: float = maxf(carry_linear_damp, 0.0)
+	if carry_physics_mode == CarryPhysicsMode.SIMPLIFIED:
+		gravity = -get_gravity_up() * _get_resolved_gravity_strength(maxf(simplified_gravity_strength, 0.0))
+		damping = 0.0
+	elif not follow_gravity_pull:
+		var direction: Vector3 = ProjectSettings.get_setting("physics/3d/default_gravity_vector", Vector3.DOWN)
+		gravity = direction * _get_rigid_base_gravity_strength()
+	if carry_physics_mode == CarryPhysicsMode.RIGID_BODY and linear_damp_mode == RigidBody3D.DAMP_MODE_COMBINE:
+		damping += float(ProjectSettings.get_setting("physics/3d/default_linear_damp", 0.1))
+	var motion: Dictionary = {
+		"gravity": gravity,
+		"damping": damping,
+		"step": maxf(Engine.time_scale, 0.001) / float(Engine.physics_ticks_per_second),
+		"gravity_after_motion": carry_physics_mode == CarryPhysicsMode.RIGID_BODY and follow_gravity_pull,
+	}
+	if follow_gravity_pull and not get_tree().get_nodes_in_group(&"PlanetaryGravitySource").is_empty():
+		motion["gravity_sampler"] = Callable(self, "sample_throw_gravity")
+	return motion
+
+
+func sample_throw_gravity(sample_position: Vector3) -> Vector3:
+	var base_strength: float = simplified_gravity_strength if carry_physics_mode == CarryPhysicsMode.SIMPLIFIED else _get_rigid_base_gravity_strength()
+	var planetary: Vector3 = Vector3.ZERO
+	for source: Node in get_tree().get_nodes_in_group(&"PlanetaryGravitySource"):
+		if source.has_method("get_gravity_vector_at"):
+			planetary += source.call("get_gravity_vector_at", sample_position, self) as Vector3
+	var selected: Dictionary = {}
+	for modifier: Dictionary in _gravity_modifiers.values():
+		if selected.is_empty() or int(modifier["priority"]) > int(selected["priority"]) or (int(modifier["priority"]) == int(selected["priority"]) and int(modifier["sequence"]) > int(selected["sequence"])):
+			selected = modifier
+	var down: Vector3 = -_get_base_gravity_up()
+	if not selected.is_empty():
+		down = -(selected["up"] as Vector3).normalized() * maxf(float(selected["multiplier"]), 0.0)
+		if bool(selected.get("blend_planetary", false)):
+			down += planetary
+	elif not planetary.is_zero_approx():
+		down = planetary
+	return down * maxf(base_strength, 0.0)
+
+
+func start_throw_assistance(target: Node3D, solution: Dictionary, settings: Dictionary) -> void:
+	if not _throw_flight:
+		_throw_flight = load("res://LS5Framework/Objects/Props/ThrownObjectFlight.gd").new(self)
+	_throw_flight.start(target, solution, settings)
+
+
+func stop_throw_assistance() -> void:
+	if _throw_flight:
+		_throw_flight.stop()
+
+
+func is_throw_assistance_active() -> bool:
+	return _throw_flight and _throw_flight.is_active()
+
+
+func get_throw_collision_mask() -> int:
+	return _carry_collision_mask if _carry_collisions_suspended else collision_mask
+
+
+func get_throw_clearance_radius() -> float:
+	var radius: float = 0.0
+	for owner_id: int in get_shape_owners():
+		if is_shape_owner_disabled(owner_id):
+			continue
+		var local_transform: Transform3D = shape_owner_get_transform(owner_id)
+		for index: int in range(shape_owner_get_shape_count(owner_id)):
+			var shape: Shape3D = shape_owner_get_shape(owner_id, index)
+			var bounds: AABB = shape.get_debug_mesh().get_aabb()
+			for corner: int in range(8):
+				radius = maxf(radius, (global_basis * (local_transform * bounds.get_endpoint(corner))).length())
+	return radius
+
+
 func release_carry(release_transform: Transform3D, release_velocity: Vector3, release_collision_lock: float = 0.35) -> void:
+	stop_throw_assistance()
 	if is_instance_valid(carry_holder):
 		set_influence_owner(carry_holder)
 	_restore_carry_collisions()
@@ -884,6 +969,8 @@ func _update_carry_ease(delta: float) -> void:
 
 
 func _update_simplified_physics(delta: float) -> void:
+	if _throw_flight:
+		_manual_velocity = _throw_flight.update_velocity(_manual_velocity, delta)
 	if not _has_simplified_collision_shapes():
 		_update_simplified_ray_physics(delta)
 		return
@@ -1743,6 +1830,7 @@ func _update_gimmick_velocity(delta: float) -> void:
 
 
 func _apply_directional_impulse(direction: Vector3, strength: float, stop_momentum: bool, additive_mode: int, min_additive_launch_speed: float, mirrored_bounce_ratio: float = 0.0, max_launch_speed: float = 0.0) -> void:
+	stop_throw_assistance()
 	var launch_speed: float = max(strength, 0.0)
 	var current_velocity: Vector3 = _get_object_velocity()
 	var new_velocity: Vector3 = direction * launch_speed
@@ -1772,6 +1860,7 @@ func _apply_directional_impulse(direction: Vector3, strength: float, stop_moment
 
 
 func _release_for_gimmick() -> void:
+	stop_throw_assistance()
 	if _carry_state != CarryState.FREE:
 		_carry_state = CarryState.FREE
 		_apply_physics_attributes()
@@ -1883,6 +1972,7 @@ func _remove_collision_exception() -> void:
 func apply_kick_impulse(impulse: Vector3, instigator: Node3D = null) -> bool:
 	if is_carried() or (carry_physics_mode == CarryPhysicsMode.RIGID_BODY and freeze):
 		return false
+	stop_throw_assistance()
 	if is_instance_valid(instigator) and impulse.length() >= influence_minimum_impulse and not impulse.is_zero_approx():
 		set_influence_owner(instigator)
 	_simplified_resting = false
@@ -1933,6 +2023,7 @@ func _update_influence_ownership(delta: float) -> void:
 
 
 func clear_carry_owner() -> void:
+	stop_throw_assistance()
 	_restore_carry_collisions()
 	if is_instance_valid(carry_holder) and carry_holder.get("_carried_object") == self:
 		carry_holder.set("_carried_object", null)
@@ -2061,6 +2152,7 @@ func _refresh_buoyancy_samples() -> void:
 
 
 func record_object_impact(_point: Vector3, normal: Vector3, relative_velocity: Vector3, collider: Node3D) -> void:
+	stop_throw_assistance()
 	var recipient: Node3D = get_score_award_recipient()
 	if is_carried() or not is_instance_valid(collider) or not recipient:
 		return

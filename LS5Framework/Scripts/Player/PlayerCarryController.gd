@@ -2,9 +2,18 @@ extends RefCounted
 class_name PlayerCarryController
 
 const CharacterActionType = preload("res://LS5Framework/Scripts/Player/character_action.gd")
+const ThrowTargeting = preload("res://LS5Framework/Scripts/Player/ThrownObjectTargeting.gd")
+const THROW_IMPACT_SPEED_MARGIN: float = 1.15
 
 # Carryable discovery, ownership, placement, throwing, and animation integration.
 var _owner: Node = null
+## Target committed for the pending throw animation.
+var _throw_target: WeakRef = null
+## Reachable target retained between preview searches.
+var _throw_preview: WeakRef = null
+var _throw_preview_frame: int = -1000000
+var _throw_preview_prop_id: int = 0
+var _throw_preview_reachable: bool = false
 
 
 func _init(owner: Node) -> void:
@@ -155,14 +164,19 @@ func _throw_carried_object() -> void:
 	if not _has_carried_object():
 		p._carried_object = null
 		return
+	_throw_target = null
+	var target: Node3D = get_throw_preview_target(true)
 	p._carry_throw_release_transform = Transform3D.IDENTITY
 	p._carry_throw_release_velocity = Vector3.ZERO
 	p._carry_throw_pending_release = true
 	p._carry_throw_anim_started = false
 	p._carry_throw_release_wait_frames = 2
 	if p.get_animation_director().get_overlay_backend().is_enabled():
-		p.get_animation_director().get_overlay_backend().request_carry(&"Carry_Throw")
+		if p.get_animation_director().get_overlay_backend().request_carry(&"Carry_Throw"):
+			_throw_target = weakref(target) if is_instance_valid(target) else null
+			_throw_preview_frame = -1000000
 		return
+	_throw_target = weakref(target) if is_instance_valid(target) else null
 	if p.carry_throw_anim_command != &"":
 		p._trigger_anim_command(p.carry_throw_anim_command)
 		return
@@ -185,12 +199,29 @@ func release_carried_object_from_throw_animation() -> void:
 	var release_transform: Transform3D = release_data.get("transform", _get_carry_fallback_target_transform())
 	release_velocity = release_data.get("velocity", release_velocity)
 	var side_fallback: bool = bool(release_data.get("side_fallback", false))
+	var targeted_solution: Dictionary = {}
+	var targeted_node: Node3D = null
+	if not side_fallback and _throw_target:
+		var target: Node3D = _throw_target.get_ref() as Node3D
+		var solution: Dictionary = _solve_targeted_throw(carryable, target, release_transform)
+		if not solution.is_empty():
+			release_velocity = solution["velocity"]
+			targeted_solution = solution
+			targeted_node = target
 	if side_fallback and carryable.has_method("put_down"):
 		carryable.call("put_down", release_transform, release_velocity, p.carry_release_player_collision_lock)
 	elif carryable.has_method("throw_from_carry"):
 		carryable.call("throw_from_carry", release_transform, release_velocity, p.carry_release_player_collision_lock)
 	elif carryable.has_method("release_carry"):
 		carryable.call("release_carry", release_transform, release_velocity, p.carry_release_player_collision_lock)
+	if not targeted_solution.is_empty() and p.carry_throw_assistance_enabled and carryable is ObjectPhysicsBody3D:
+		carryable.start_throw_assistance(targeted_node, targeted_solution, {
+			"acceleration": p.carry_throw_assistance_acceleration,
+			"budget": p.carry_throw_assistance_budget,
+			"max_deviation": p.carry_throw_assistance_max_deviation,
+			"lead_max_speed": p.carry_throw_target_lead_max_speed,
+			"lead_enabled": p.carry_throw_target_lead_enabled,
+		})
 	if not side_fallback:
 		p.play_voice_event(&"carry_throw")
 		if p.has_method("register_combo_feat"):
@@ -205,6 +236,112 @@ func _get_carry_throw_release_velocity() -> Vector3:
 	var forward: Vector3 = _get_carry_forward(up)
 	var inherited_velocity: Vector3 = p.velocity * max(p.carry_release_inherit_velocity_scale, 0.0)
 	return inherited_velocity + forward * max(p.carry_throw_forward_speed, 0.0) + up * p.carry_throw_up_speed
+
+
+func get_throw_preview_target(force_refresh: bool = false) -> Node3D:
+	var p = _owner
+	if not _has_carried_object() or not p.carry_throw_targeting_enabled or p._carry_put_down_pending_release or p._is_dead or p._hurt_active or p._local_pause_enabled or p._ui_input_blocked or p._debug_mode:
+		_throw_preview = null
+		_throw_preview_reachable = false
+		_throw_preview_prop_id = 0
+		return null
+	var prop: Node3D = p._carried_object
+	var previous: Node3D = _throw_preview.get_ref() as Node3D if _throw_preview else null
+	var frame: int = Engine.get_physics_frames()
+	var interval: int = maxi(ceili(float(Engine.physics_ticks_per_second) / maxf(p.carry_throw_preview_rate, 1.0)), 1)
+	var release: Transform3D = _get_standard_carry_release_transform(true, p.global_position)
+	if p._carry_throw_pending_release:
+		var committed: Node3D = _throw_target.get_ref() as Node3D if _throw_target else null
+		if not ThrowTargeting.is_target_available(committed, prop) or not _is_throw_target_in_facing_range(committed, release):
+			return null
+		if force_refresh or frame - _throw_preview_frame >= interval:
+			_throw_preview_frame = frame
+			_throw_preview_reachable = not _solve_targeted_throw(prop, committed, release).is_empty()
+		return committed if _throw_preview_reachable else null
+	if not force_refresh and _throw_preview_prop_id == prop.get_instance_id() and frame - _throw_preview_frame < interval:
+		return previous if _throw_preview_reachable and ThrowTargeting.is_target_available(previous, prop) and _is_throw_target_in_facing_range(previous, release) else null
+	_throw_preview_frame = frame
+	_throw_preview_prop_id = prop.get_instance_id()
+	var selected: Node3D = _find_throw_target(prop, previous)
+	_throw_preview = weakref(selected) if selected else null
+	_throw_preview_reachable = selected != null
+	return selected
+
+
+func get_throw_preview_position(target: Node3D) -> Vector3:
+	var release: Transform3D = _get_standard_carry_release_transform(true, _owner.global_position)
+	return ThrowTargeting.target_position(target, release.origin) + _get_carry_up() * _owner.homing_reticle_height_offset
+
+
+func _get_throw_target_range() -> float:
+	var p = _owner
+	var base_range: float = maxf(p.carry_throw_target_range, 0.0)
+	var max_range: float = maxf(p.carry_throw_target_max_range, base_range)
+	var speed_scale: float = p.carry_throw_target_range_per_speed
+	if speed_scale < 0.0:
+		speed_scale = p.homing_range_per_speed
+	return clampf(base_range + p.velocity.length() * maxf(speed_scale, 0.0), base_range, max_range)
+
+
+func _find_throw_target(carryable: Node3D, preferred: Node3D = null) -> Node3D:
+	var p = _owner
+	if not p.carry_throw_targeting_enabled or not carryable is ObjectPhysicsBody3D:
+		return null
+	var manager: Node = p.get_node_or_null("/root/HomingTargetManager")
+	if not manager:
+		return null
+	var release: Transform3D = _get_standard_carry_release_transform(true, p.global_position)
+	var up: Vector3 = _get_carry_up()
+	var forward: Vector3 = _get_carry_forward(up)
+	var target_range: float = _get_throw_target_range()
+	var ranked: Array[Dictionary] = []
+	for candidate: Node3D in manager.get_targets_in_range(release.origin, target_range):
+		if not ThrowTargeting.is_target_available(candidate, carryable):
+			continue
+		var offset: Vector3 = ThrowTargeting.target_position(candidate, release.origin) - release.origin
+		var score: float = ThrowTargeting.facing_score(offset, forward, up, target_range, p.carry_throw_target_angle, p.carry_throw_target_vertical_angle)
+		ThrowTargeting.target_velocity(candidate, p.carry_throw_target_lead_max_speed)
+		if candidate == preferred:
+			score -= deg_to_rad(p.carry_throw_target_switch_angle)
+		if is_finite(score):
+			ranked.append({"target": candidate, "score": score})
+	ranked.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["score"]) < float(b["score"]))
+	for entry: Dictionary in ranked:
+		var candidate: Node3D = entry["target"]
+		if not _solve_targeted_throw(carryable, candidate, release).is_empty():
+			return candidate
+	return null
+
+
+func _solve_targeted_throw(carryable: Node3D, target: Node3D, release: Transform3D) -> Dictionary:
+	var p = _owner
+	if not p.carry_throw_targeting_enabled or not carryable is ObjectPhysicsBody3D:
+		return {}
+	if not ThrowTargeting.is_target_available(target, carryable):
+		return {}
+	var destination: Vector3 = ThrowTargeting.target_position(target, release.origin)
+	var up: Vector3 = _get_carry_up()
+	if not _is_throw_target_in_facing_range(target, release):
+		return {}
+	var motion: Dictionary = carryable.get_throw_prediction_parameters()
+	var inherited: Vector3 = p.velocity * maxf(p.carry_release_inherit_velocity_scale, 0.0)
+	var target_motion: Vector3 = ThrowTargeting.target_velocity(target, p.carry_throw_target_lead_max_speed) if p.carry_throw_target_lead_enabled else Vector3.ZERO
+	var minimum_impact_speed: float = float(target.call("get_throw_target_minimum_impact_speed")) * THROW_IMPACT_SPEED_MARGIN if target.has_method("get_throw_target_minimum_impact_speed") else 0.0
+	var solutions: Array[Dictionary] = ThrowTargeting.solve(release.origin, destination, _get_carry_throw_release_velocity(), inherited, motion, p.carry_throw_target_min_time, p.carry_throw_target_max_time, p.carry_throw_target_max_speed, target_motion, minimum_impact_speed)
+	for solution: Dictionary in solutions:
+		var relative_launch: Vector3 = (solution["velocity"] as Vector3) - inherited
+		if relative_launch.slide(up).dot(_get_carry_forward(up)) <= 0.0:
+			continue
+		if ThrowTargeting.arc_is_clear(carryable, p, target, release, solution, motion):
+			return solution
+	return {}
+
+
+func _is_throw_target_in_facing_range(target: Node3D, release: Transform3D) -> bool:
+	var p = _owner
+	var up: Vector3 = _get_carry_up()
+	var offset: Vector3 = ThrowTargeting.target_position(target, release.origin) - release.origin
+	return is_finite(ThrowTargeting.facing_score(offset, _get_carry_forward(up), up, _get_throw_target_range(), p.carry_throw_target_angle, p.carry_throw_target_vertical_angle))
 
 
 func _prepare_carry_release(carryable: Node3D, is_throw: bool, release_velocity: Vector3) -> Dictionary:
@@ -1062,6 +1199,9 @@ func _travel_anim_state_with_crossfade(target_state: StringName, crossfade: floa
 
 
 func _clear_pending_carry_throw() -> void:
+	_throw_target = null
+	_throw_preview = null
+	_throw_preview_reachable = false
 	var p = _owner
 	p._carry_pickup_pending_overlay = false
 	p._carry_pickup_overlay_started = false
