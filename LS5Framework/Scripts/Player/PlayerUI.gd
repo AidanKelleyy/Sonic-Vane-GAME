@@ -520,14 +520,11 @@ func _update_speedometer(delta: float) -> void:
 	if p.has_method("get_active_top_speed_multiplier"):
 		top_speed_val *= max(float(p.call("get_active_top_speed_multiplier")), 0.0)
 	h.call("set_speedometer_value", speed, max_speed_val, top_speed_val, delta)
+	if h.has_method("set_barrier_blast_enabled"):
+		h.call("set_barrier_blast_enabled", p.barrier_blast_enabled)
 
 
 func _update_speed_lines(delta: float) -> void:
-	# SUMMARY: Spawn and update speed line VFX based on barrier blast buildup.
-	# STEPS:
-	# - Step 1: Validate local authority and settings.
-	# - Step 2: Spawn new lines as gauge builds.
-	# - Step 3: Update existing lines (motion, scale, fade, cleanup).
 	var p
 	p = _owner
 	if p == null or not is_instance_valid(p):
@@ -535,22 +532,23 @@ func _update_speed_lines(delta: float) -> void:
 	if not p._network_is_local_authority():
 		_clear_speed_lines()
 		return
-	if not p.speed_lines_enabled or not p.barrier_blast_enabled:
+	if not p.speed_lines_enabled:
 		_clear_speed_lines()
 		return
 
 	var speed: float = p.velocity.length()
-	var min_speed: float = max(p.barrier_blast_fill_min_speed, 0.0)
-	var can_build: bool = min_speed > 0.0 and speed >= min_speed
-	var gauge_t: float = clamp(p._barrier_blast_gauge, 0.0, 1.0)
+	var min_speed: float = maxf(p.speed_lines_min_speed, 0.0)
+	var full_speed: float = maxf(p.speed_lines_full_speed, min_speed + 0.001)
+	var can_spawn: bool = speed > 0.001 and speed >= min_speed
+	var strength: float = clampf((speed - min_speed) / (full_speed - min_speed), 0.0, 1.0)
 
-	if can_build:
-		var spawn_rate: float = lerp(p.speed_lines_spawn_rate_min, p.speed_lines_spawn_rate_max, gauge_t)
+	if can_spawn:
+		var spawn_rate: float = lerp(p.speed_lines_spawn_rate_min, p.speed_lines_spawn_rate_max, strength)
 		spawn_rate = max(spawn_rate, 0.0)
 		_speed_lines_spawn_accum += delta * spawn_rate
 		while _speed_lines_spawn_accum >= 1.0:
 			_speed_lines_spawn_accum -= 1.0
-			_spawn_speed_line(speed, gauge_t)
+			_spawn_speed_line(speed, strength)
 	else:
 		_speed_lines_spawn_accum = 0.0
 
@@ -650,7 +648,7 @@ func _update_speed_line_instances(delta: float) -> void:
 	_speed_lines = remaining
 
 
-func _spawn_speed_line(speed: float, gauge_t: float) -> void:
+func _spawn_speed_line(speed: float, strength: float) -> void:
 	var p
 	p = _owner
 	if p == null or not is_instance_valid(p):
@@ -696,7 +694,7 @@ func _spawn_speed_line(speed: float, gauge_t: float) -> void:
 	var angle: float = _speed_line_rng.randf_range(0.0, TAU)
 	var offset: Vector3 = right * cos(angle) * radius + up * sin(angle) * radius_vert
 
-	var length_scale: float = lerp(1.0, max(p.speed_lines_length_scale_max, 1.0), gauge_t)
+	var length_scale: float = lerp(1.0, max(p.speed_lines_length_scale_max, 1.0), strength)
 	var length_variance: float = max(p.speed_lines_length_variance, 0.0)
 	var length_random_scale: float = 1.0 + _speed_line_rng.randf_range(-length_variance, length_variance)
 	var length: float = max(p.speed_lines_length * length_random_scale, 0.01) * length_scale
@@ -709,7 +707,7 @@ func _spawn_speed_line(speed: float, gauge_t: float) -> void:
 	var back_offset_variance: float = max(p.speed_lines_spawn_back_offset_variance, 0.0)
 	back_offset *= 1.0 + _speed_line_rng.randf_range(-back_offset_variance, back_offset_variance)
 
-	var base_alpha: float = lerp(p.speed_lines_alpha_min, p.speed_lines_alpha_max, gauge_t)
+	var base_alpha: float = lerp(p.speed_lines_alpha_min, p.speed_lines_alpha_max, strength)
 	var alpha_variance: float = max(p.speed_lines_alpha_variance, 0.0)
 	base_alpha *= 1.0 + _speed_line_rng.randf_range(-alpha_variance, alpha_variance)
 	base_alpha = clamp(base_alpha, 0.0, 1.0)

@@ -52,8 +52,9 @@ func _process(delta: float) -> void:
 	if not _sources_resolved:
 		_resolve_sources()
 
-	var active: bool = bool(_player.barrier_foot_trails_enabled and _player._barrier_blast_active)
-	_update_activation(delta, active)
+	var target_alpha: float = _get_target_alpha()
+	var active: bool = target_alpha > 0.0
+	_update_activation(delta, target_alpha)
 	_update_material_parameters()
 	_update_existing_points(delta)
 	if active:
@@ -164,11 +165,24 @@ func _get_source_position(foot_index: int) -> Vector3:
 	return Vector3.ZERO
 
 
-func _update_activation(delta: float, active: bool) -> void:
-	var target_alpha: float = 1.0 if active else 0.0
+func _get_target_alpha() -> float:
+	if not _player.barrier_foot_trails_enabled or _player._is_dead:
+		return 0.0
+	if _player.barrier_blast_enabled:
+		return 1.0 if _player._barrier_blast_active else 0.0
+	var speed: float = _player.velocity.length()
+	var min_speed: float = maxf(_player.barrier_foot_trail_min_speed, 0.0)
+	if speed < min_speed:
+		return 0.0
+	var full_speed: float = maxf(_player.barrier_foot_trail_full_speed, min_speed + 0.001)
+	var strength: float = clampf((speed - min_speed) / (full_speed - min_speed), 0.0, 1.0)
+	return lerpf(clampf(_player.barrier_foot_trail_min_opacity, 0.0, 1.0), 1.0, strength)
+
+
+func _update_activation(delta: float, target_alpha: float) -> void:
 	var duration: float = (
 		max(_player.barrier_foot_trail_fade_in_time, 0.0)
-		if active
+		if target_alpha > _activation_alpha
 		else max(_player.barrier_foot_trail_fade_out_time, 0.0)
 	)
 	if duration <= 0.0:

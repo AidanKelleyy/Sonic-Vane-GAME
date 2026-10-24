@@ -92,6 +92,17 @@ func set_elapsed_time(seconds: float) -> void:
 	elapsed_time = max(seconds, 0.0)
 	_update_time_label()
 
+## Sets availability of the Barrier Blast speedometer indicator.
+func set_barrier_blast_enabled(enabled: bool) -> void:
+	if not speedometer:
+		if not is_node_ready():
+			call_deferred("set_barrier_blast_enabled", enabled)
+			return
+		_ensure_nodes()
+	if speedometer and speedometer.has_method("set_barrier_blast_enabled"):
+		speedometer.call("set_barrier_blast_enabled", enabled)
+
+
 func set_special_gauge(fraction: float) -> void:
 	if speedometer == null:
 		if not is_node_ready():

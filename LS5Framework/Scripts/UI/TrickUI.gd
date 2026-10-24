@@ -44,8 +44,8 @@ var _is_hurt: bool = false
 var _pause_hidden: bool = false
 var _combo_system_enabled: bool = true
 var _last_history_width: float = 0.0
-var _active_base_position: Vector2 = Vector2.ZERO
-var _result_base_position: Vector2 = Vector2.ZERO
+var _active_base_offset: Vector2 = Vector2.ZERO
+var _result_base_offset: Vector2 = Vector2.ZERO
 var _result_phase: ResultPhase = ResultPhase.NONE
 var _result_score: float = 0.0
 var _result_score_linger: float = 0.0
@@ -64,8 +64,8 @@ func _ready() -> void:
 	call_deferred("_initialize_layout")
 
 func _initialize_layout() -> void:
-	_active_base_position = _active_container.position
-	_result_base_position = _result_container.position
+	_active_base_offset = Vector2(_active_container.offset_left, _active_container.offset_top)
+	_result_base_offset = Vector2(_result_container.offset_left, _result_container.offset_top)
 	UIExcitementEffects.set_center_pivot(_score_label)
 	UIExcitementEffects.set_center_pivot(_rating_label)
 	UIExcitementEffects.set_center_pivot(_final_score_label)
@@ -158,7 +158,7 @@ func fail_combo(_score: float, history: Array[String]) -> void:
 	_failure_timer = FAILURE_DURATION
 	_jitter_timer = JITTER_DURATION
 	_is_hurt = true
-	_active_container.position = _active_base_position
+	UIExcitementEffects.set_anchor_offset(_active_container, _active_base_offset)
 	_active_container.modulate.a = 1.0
 	_set_active_text_color(Color(1.0, 0.08, 0.08, 1.0))
 	_set_history_lines()
@@ -252,7 +252,7 @@ func _cancel_result_sequence() -> void:
 	_result_container.modulate = Color.WHITE
 	_rating_label.visible = false
 	_final_score_label.visible = false
-	_result_container.position = _result_base_position
+	UIExcitementEffects.set_anchor_offset(_result_container, _result_base_offset)
 
 func _kill_tween(tween: Tween) -> void:
 	if tween != null and tween.is_valid():
@@ -261,19 +261,19 @@ func _kill_tween(tween: Tween) -> void:
 func _move_result_for_overlap(animated: bool) -> void:
 	if _result_phase == ResultPhase.NONE:
 		return
-	var target_position: Vector2 = _result_base_position
+	var target_offset: Vector2 = _result_base_offset
 	if _combo_active:
-		target_position.y -= RESULT_OVERLAP_OFFSET
+		target_offset.y -= RESULT_OVERLAP_OFFSET
 	_kill_tween(_result_move_tween)
 	_result_move_tween = null
 	if not animated:
-		_result_container.position = target_position
+		UIExcitementEffects.set_anchor_offset(_result_container, target_offset)
 		return
 	_result_move_tween = create_tween()
-	_result_move_tween.tween_property(
+	UIExcitementEffects.tween_anchor_offset(
+		_result_move_tween,
 		_result_container,
-		"position",
-		target_position,
+		target_offset,
 		0.24
 	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
 
@@ -327,9 +327,9 @@ func _update_failure(delta: float) -> void:
 			randf_range(-1.0, 1.0),
 			randf_range(-1.0, 1.0)
 		) * JITTER_STRENGTH
-		_active_container.position = _active_base_position + offset
+		UIExcitementEffects.set_anchor_offset(_active_container, _active_base_offset + offset)
 	else:
-		_active_container.position = _active_base_position
+		UIExcitementEffects.set_anchor_offset(_active_container, _active_base_offset)
 	_active_container.modulate.a = clampf(_failure_timer / FAILURE_DURATION, 0.0, 1.0)
 	if _failure_timer <= 0.0:
 		_cancel_failure_state()
@@ -338,7 +338,7 @@ func _cancel_failure_state() -> void:
 	_failure_timer = 0.0
 	_jitter_timer = 0.0
 	_is_hurt = false
-	_active_container.position = _active_base_position
+	UIExcitementEffects.set_anchor_offset(_active_container, _active_base_offset)
 	_active_container.modulate.a = 1.0
 	_set_active_text_color(Color.WHITE)
 

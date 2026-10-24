@@ -2,6 +2,24 @@ extends RefCounted
 class_name UIExcitementEffects
 
 
+## Sets the rectangle's displacement from its anchors.
+static func set_anchor_offset(control: Control, offset: Vector2) -> void:
+	if not is_instance_valid(control):
+		return
+	control.position += offset - Vector2(control.offset_left, control.offset_top)
+
+
+## Animates anchor-relative displacement while allowing viewport layout changes.
+static func tween_anchor_offset(tween: Tween, control: Control, target_offset: Vector2, duration: float) -> MethodTweener:
+	var start_offset: Vector2 = Vector2(control.offset_left, control.offset_top)
+	return tween.tween_method(
+		func(offset: Vector2) -> void: set_anchor_offset(control, offset),
+		start_offset,
+		target_offset,
+		maxf(duration, 0.01)
+	)
+
+
 static func set_center_pivot(control: Control) -> void:
 	if control == null:
 		return
@@ -45,13 +63,13 @@ static func sweep_in(
 	if control == null:
 		return null
 	set_center_pivot(control)
-	var target_position: Vector2 = control.position
-	control.position = target_position + start_offset
+	var target_offset: Vector2 = Vector2(control.offset_left, control.offset_top)
+	set_anchor_offset(control, target_offset + start_offset)
 	control.scale = Vector2.ONE * max(start_scale, 0.0)
 	control.modulate.a = 0.0
 	var tween: Tween = control.create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(control, "position", target_position, max(duration, 0.01)).set_trans(
+	tween_anchor_offset(tween, control, target_offset, duration).set_trans(
 		Tween.TRANS_QUINT
 	).set_ease(Tween.EASE_OUT)
 	tween.tween_property(control, "scale", Vector2.ONE, max(duration, 0.01)).set_trans(
@@ -70,10 +88,10 @@ static func sweep_out(
 	) -> Tween:
 	if control == null:
 		return null
-	var target_position: Vector2 = control.position + target_offset
+	var end_offset: Vector2 = Vector2(control.offset_left, control.offset_top) + target_offset
 	var tween: Tween = control.create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(control, "position", target_position, max(duration, 0.01)).set_trans(
+	tween_anchor_offset(tween, control, end_offset, duration).set_trans(
 		Tween.TRANS_QUINT
 	).set_ease(Tween.EASE_IN)
 	tween.tween_property(

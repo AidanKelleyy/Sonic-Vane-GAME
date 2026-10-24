@@ -256,7 +256,7 @@ var _menu_music_controller: MusicController = null
 var _loading_started: bool = false
 var _online_connection_mode: int = ONLINE_CONNECTION_INTERNET
 var _menu_panels: Array[Control] = []
-var _menu_panel_positions: Dictionary = {}
+var _menu_panel_offsets: Dictionary = {}
 var _active_panel: Control = null
 var _menu_transition: Tween = null
 var _menu_transition_active: bool = false
@@ -975,21 +975,21 @@ func _show_credits() -> void:
 
 func _register_menu_panels() -> void:
 	_menu_panels = [panel_main, panel_character, panel_level, panel_online, panel_options, panel_credits]
-	_menu_panel_positions.clear()
+	_menu_panel_offsets.clear()
 	for panel in _menu_panels:
 		if panel != null:
-			_menu_panel_positions[panel.get_instance_id()] = panel.position
+			_menu_panel_offsets[panel.get_instance_id()] = Vector2(panel.offset_left, panel.offset_top)
 
 
 func _transition_to_panel(target: Control, direction: int = 1, immediate: bool = false) -> void:
 	if target == null or _menu_transition_active:
 		return
-	var target_position: Vector2 = _get_menu_panel_position(target)
+	var target_offset: Vector2 = _get_menu_panel_offset(target)
 	if immediate:
 		for panel in _menu_panels:
 			if panel != null:
 				panel.visible = panel == target
-				panel.position = _get_menu_panel_position(panel)
+				UIExcitementEffects.set_anchor_offset(panel, _get_menu_panel_offset(panel))
 				panel.modulate = Color.WHITE
 		_active_panel = target
 		call_deferred("_focus_visible_panel")
@@ -1003,16 +1003,16 @@ func _transition_to_panel(target: Control, direction: int = 1, immediate: bool =
 		previous = null
 	var travel: float = MENU_TRANSITION_OFFSET * float(direction)
 	target.visible = true
-	target.position = target_position + Vector2(travel, 0.0)
+	UIExcitementEffects.set_anchor_offset(target, target_offset + Vector2(travel, 0.0))
 	target.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	_menu_transition = create_tween()
 	_menu_transition.set_parallel(true)
 	_menu_transition.set_trans(Tween.TRANS_QUAD)
 	_menu_transition.set_ease(Tween.EASE_OUT)
 	if previous:
-		_menu_transition.tween_property(previous, "position", _get_menu_panel_position(previous) - Vector2(travel * 0.45, 0.0), MENU_TRANSITION_DURATION)
+		UIExcitementEffects.tween_anchor_offset(_menu_transition, previous, _get_menu_panel_offset(previous) - Vector2(travel * 0.45, 0.0), MENU_TRANSITION_DURATION)
 		_menu_transition.tween_property(previous, "modulate:a", 0.0, MENU_TRANSITION_DURATION)
-	_menu_transition.tween_property(target, "position", target_position, MENU_TRANSITION_DURATION)
+	UIExcitementEffects.tween_anchor_offset(_menu_transition, target, target_offset, MENU_TRANSITION_DURATION)
 	_menu_transition.tween_property(target, "modulate:a", 1.0, MENU_TRANSITION_DURATION)
 	_menu_transition.finished.connect(_finish_menu_transition.bind(previous, target))
 
@@ -1020,11 +1020,11 @@ func _transition_to_panel(target: Control, direction: int = 1, immediate: bool =
 func _finish_menu_transition(previous: Control, target: Control) -> void:
 	if previous != null and is_instance_valid(previous):
 		previous.visible = false
-		previous.position = _get_menu_panel_position(previous)
+		UIExcitementEffects.set_anchor_offset(previous, _get_menu_panel_offset(previous))
 		previous.modulate = Color.WHITE
 	if target != null and is_instance_valid(target):
 		target.visible = true
-		target.position = _get_menu_panel_position(target)
+		UIExcitementEffects.set_anchor_offset(target, _get_menu_panel_offset(target))
 		target.modulate = Color.WHITE
 	_active_panel = target
 	_menu_transition_active = false
@@ -1032,13 +1032,13 @@ func _finish_menu_transition(previous: Control, target: Control) -> void:
 	call_deferred("_focus_visible_panel")
 
 
-func _get_menu_panel_position(panel: Control) -> Vector2:
+func _get_menu_panel_offset(panel: Control) -> Vector2:
 	if panel == null:
 		return Vector2.ZERO
-	var stored_position: Variant = _menu_panel_positions.get(panel.get_instance_id(), panel.position)
-	if stored_position is Vector2:
-		return stored_position
-	return panel.position
+	var stored_offset: Variant = _menu_panel_offsets.get(panel.get_instance_id(), Vector2(panel.offset_left, panel.offset_top))
+	if stored_offset is Vector2:
+		return stored_offset
+	return Vector2(panel.offset_left, panel.offset_top)
 
 
 # =========================================

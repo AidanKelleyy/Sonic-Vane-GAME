@@ -49,7 +49,7 @@ extends CharacterAction
 @export var slope_uphill_decel_curve: Curve
 ## Uphill speed range used to blend continuously from downhill response to uphill response.
 @export var slope_uphill_response_blend_speed: float = 4.0
-## Final grounded slope response power by surface angle.
+## Uphill slope response power by surface angle; values above one also amplify downhill response.
 ## X: surface angle in degrees, Y: power multiplier.
 @export var slope_gravity_angle_curve: Curve
 ## Uphill speed below which walkable-slope traction prevents immediate backward sliding.

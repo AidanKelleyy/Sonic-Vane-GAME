@@ -3568,10 +3568,14 @@ func _movement_physics_process(delta: float) -> void:
 		_landing_animation_pending = true
 		_apply_landing_momentum(surface_normal, landing_vel)
 		_landing_animation_moving = not stops_on_landing and (_move_input.length_squared() > 0.000001 or velocity.slide(ground_hit_normal).length() >= 0.5)
+		var landing_momentum_resolved: bool = false
 		for action in _actions:
 			if action != null and is_instance_valid(action):
 				if action.resolve_landing_momentum(surface_normal, landing_vel):
+					landing_momentum_resolved = true
 					break
+		if not landing_momentum_resolved:
+			_apply_intent_radial_landing_boost(surface_normal, landing_vel)
 
 		_is_jumping = false
 		_jump_variable = false
@@ -5564,7 +5568,15 @@ func _apply_steered_locomotion_velocity(
 		pullback_t
 	)
 	var brake_rate: float = max(brake_decel, 0.0) * opposing_t * pullback_brake_scale
-	new_speed = max(new_speed - (turn_loss_rate + brake_rate) * dt, 0.0)
+	var slowdown_rate: float = turn_loss_rate + brake_rate
+	if intent_dot < 0.0 and slowdown_rate > 0.0 and slowdown_rate * dt >= speed:
+		var restart_delta: float = maxf(dt - speed / slowdown_rate, 0.0)
+		var restart_speed: float = min(
+			max(target_speed, 0.0),
+			max(drive_accel, 0.0) * strength * restart_delta
+		)
+		return steer_dir * restart_speed
+	new_speed = max(new_speed - slowdown_rate * dt, 0.0)
 	return turned_dir * new_speed
 
 
@@ -7038,7 +7050,11 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 								off_wall_axis = off_wall_axis.move_toward(Vector3.ZERO, wall_decel_step)
 								lateral = wall_dir * new_wall_speed + off_wall_axis
 					elif lateral_speed < 0.01:
-						var gained: float = min(target_speed, used_accel_final * movement_input_strength * delta)
+						var gained: float = min(
+							target_speed,
+							maxf(lateral.dot(steering_move_dir), 0.0)
+							+ used_accel_final * movement_input_strength * delta
+						)
 						lateral = steering_move_dir * gained
 					else:
 						var vel_dir: Vector3 = lateral / lateral_speed
@@ -7455,6 +7471,12 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 				slope_angle_deg,
 				1.0
 			), 0.0)
+			if not is_rolling and not _barrier_blast_active:
+				angle_response = lerpf(
+					maxf(angle_response, 1.0),
+					angle_response,
+					uphill_response_weight
+				)
 			var rigid_response: float = lerp(
 				rigid_downhill_scale,
 				1.0,
@@ -7494,6 +7516,8 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 					* traction_debt_availability
 					* slope_control_uphill_alignment
 				)
+				if traction_weight > 0.0:
+					vertical = maxf(vertical, 0.0)
 				var downhill_acceleration: float = max(
 					slope_acceleration.dot(downhill_dir),
 					0.0
@@ -7825,7 +7849,6 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 	# Apply soft cap outside states that preserve earned or temporary speed.
 	if _homing_retain_timer <= 0.0 \
 			and not in_spring_state \
-			and (movement_input_active or auto_active) \
 			and rolling_soft_cap_allowed \
 			and not downhill_soft_cap_bypass_active \
 			and not drift_speed_target_blocks_slowdown \
@@ -7840,8 +7863,6 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 		var base_bleed: float = ground_decel_effective
 		if not soft_cap_attached:
 			base_bleed = air_decel_effective
-		if not movement_input_active and not movement_release_decel_bypass:
-			base_bleed *= movement_release_decel_scale
 
 		var slowdown_strength: float = top_speed_slowdown_strength
 		var slowdown_strength_curve: Curve = top_speed_slowdown_strength_curve
@@ -8273,6 +8294,67 @@ func _apply_landing_momentum(landing_normal: Vector3, incoming_velocity: Vector3
 		final_speed = max(final_speed, landing_stop_speed_threshold * 0.25)
 
 	velocity = v_tangent.normalized() * final_speed
+
+
+func _apply_intent_radial_landing_boost(landing_normal: Vector3, incoming_velocity: Vector3) -> bool:
+	if not radial_landing_boost_enabled or _is_dead or _hurt_active or _ui_input_blocked or _local_pause_enabled or race_in_countdown:
+		return false
+	var input_strength: float = clampf(_move_input.length(), 0.0, 1.0)
+	if input_strength <= 0.001 or input_strength < radial_landing_boost_min_input_strength:
+		return false
+	var normal: Vector3 = landing_normal.normalized()
+	if normal.length_squared() < 0.001:
+		return false
+	var incoming_tangent: Vector3 = incoming_velocity.slide(normal)
+	var tangent_speed: float = incoming_tangent.length()
+	if tangent_speed < maxf(radial_landing_min_speed, 0.001):
+		return false
+	var input_direction: Vector3 = _move_direction.slide(normal)
+	if input_direction.length_squared() < 0.001:
+		return false
+	var tangent_direction: Vector3 = incoming_tangent / tangent_speed
+	var alignment: float = input_direction.normalized().dot(tangent_direction)
+	if alignment <= 0.0 or alignment < radial_landing_boost_min_alignment:
+		return false
+	var impact_speed: float = maxf(-incoming_velocity.dot(normal), 0.0)
+	var boost: float = minf(
+		impact_speed * clampf(radial_landing_boost_impact_ratio, 0.0, 1.0) * input_strength * alignment,
+		maxf(radial_landing_boost_limit, 0.0)
+	)
+	var current_tangent: Vector3 = velocity.slide(normal)
+	if current_tangent.dot(tangent_direction) < 0.0:
+		return false
+	var current_speed: float = current_tangent.length()
+	var soft_cap: float = _get_radial_landing_boost_soft_cap()
+	var retention_weight: float = 0.0
+	if soft_cap > 0.001:
+		var taper_start: float = soft_cap * clampf(radial_landing_boost_taper_start_ratio, 0.0, 1.0)
+		var reference_speed: float = maxf(tangent_speed, current_speed)
+		retention_weight = 1.0 if reference_speed >= soft_cap else _smoothstep_unit(
+			(reference_speed - taper_start) / maxf(soft_cap - taper_start, 0.001)
+		)
+	var retained_speed: float = lerpf(current_speed, maxf(current_speed, tangent_speed), retention_weight)
+	boost *= 1.0 - retention_weight
+	if soft_cap > 0.001:
+		boost = minf(boost, maxf(soft_cap - retained_speed, 0.0))
+	var available_speed: float = maxf(incoming_velocity.length() - current_speed, 0.0)
+	var recovery: float = minf(retained_speed - current_speed + boost, available_speed)
+	if recovery <= 0.001:
+		return false
+	velocity += tangent_direction * recovery
+	return true
+
+
+func _get_radial_landing_boost_soft_cap() -> float:
+	var top_speed: float = maxf(run_top_speed, 0.0)
+	if (_barrier_blast_active or (rolling and _barrier_blast_gauge >= 1.0)) and barrier_blast_run_top_speed > 0.0:
+		top_speed = barrier_blast_run_top_speed
+	if _walk_input_held:
+		top_speed = maxf(walk_top_speed, 0.0)
+	top_speed *= maxf(get_active_top_speed_multiplier(), 0.0)
+	if water_physics_enabled and not water_logic_speed_enabled and _in_water_volume and not _running_on_water_surface:
+		top_speed *= maxf(water_top_speed_multiplier, 0.0)
+	return top_speed
 
 
 func _should_land_stationary(landing_normal: Vector3, incoming_velocity: Vector3) -> bool:

@@ -67,6 +67,7 @@ var _needle_color: Color = needle_color_default
 var _displayed_needle_angle: float = PI
 var _barrier_blast_fraction: float = 0.0
 var _barrier_blast_available: bool = false
+var _barrier_blast_enabled: bool = true
 var _full_gauge_emissive_elapsed: float = 0.0
 var _frame_style: StyleBoxFlat = null
 var _readout_style: StyleBoxFlat = null
@@ -238,9 +239,17 @@ func _center_readout_effect_pivots() -> void:
 		readout_effect.pivot_offset = readout_effect.size * 0.5
 
 
+## Controls availability of the Barrier Blast indicator.
+func set_barrier_blast_enabled(enabled: bool) -> void:
+	if _barrier_blast_enabled == enabled:
+		return
+	_barrier_blast_enabled = enabled
+	_set_barrier_blast_available(enabled and _barrier_blast_fraction >= 1.0, not enabled)
+
+
 func set_barrier_blast_fraction(fraction: float) -> void:
 	_barrier_blast_fraction = clamp(fraction, 0.0, 1.0)
-	_set_barrier_blast_available(_barrier_blast_fraction >= 1.0)
+	_set_barrier_blast_available(_barrier_blast_enabled and _barrier_blast_fraction >= 1.0)
 	queue_redraw()
 
 

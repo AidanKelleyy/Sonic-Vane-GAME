@@ -22,6 +22,7 @@ var _secondary_color: Color = Color(0.05, 0.45, 1.0)
 var _landing_tween: Tween
 var _barrier_flash_tween: Tween
 var _barrier_active: bool = false
+var _barrier_blast_enabled: bool = true
 
 ## Displays the masked speed fill and its dark background.
 @onready var speed_mask: TextureRect = $Art/SpeedMask
@@ -72,6 +73,14 @@ func _set_current_digits(value: String) -> void:
 	for slot: int in range(current_digit_labels.size()):
 		var digit_index: int = value.length() - current_digit_labels.size() + slot
 		current_digit_labels[slot].text = value.substr(digit_index, 1) if digit_index >= 0 else ""
+
+
+## Controls visibility of the Barrier Blast indicator.
+func set_barrier_blast_enabled(enabled: bool) -> void:
+	if _barrier_blast_enabled == enabled:
+		return
+	_barrier_blast_enabled = enabled
+	_set_barrier_indicator(true)
 
 
 func set_barrier_blast_fraction(fraction: float) -> void:
@@ -137,7 +146,8 @@ func _update_gauges() -> void:
 func _set_barrier_indicator(force: bool = false) -> void:
 	if not is_node_ready():
 		return
-	var active: bool = _target_barrier_fraction >= 1.0
+	barrier_label.visible = _barrier_blast_enabled
+	var active: bool = _barrier_blast_enabled and _target_barrier_fraction >= 1.0
 	if active == _barrier_active and not force:
 		return
 	_barrier_active = active

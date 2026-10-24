@@ -2967,10 +2967,12 @@ buddy_catchup_multiplier_max = 3.0
 buddy_catchup_exponent = 1.5
 air_top_speed = 90.0
 max_speed = 190.0
+movement_correction_enabled = false
 movement_correction_lookahead_time = 0.2
 movement_correction_max_lookahead_radii = 50.0
 movement_correction_side_probe_radii = 30.0
-movement_correction_ledges_enabled = true
+movement_correction_empty_space_check_enabled = false
+movement_correction_terrain_enabled = false
 movement_correction_ledge_strength = 0.5
 movement_correction_low_speed_accel = 15.0
 movement_correction_high_speed_accel = 110.0
@@ -3000,6 +3002,7 @@ character_visual_profile = ExtResource("5_iatkf")
 anim_movespeed_min_scale = 1.0
 anim_movespeed_max_scale = 1.0
 anim_movespeed_scale_curve = SubResource("Curve_kknf1")
+barrier_blast_enabled = false
 barrier_blast_fill_min_speed = 89.0
 barrier_blast_fill_max_speed = 89.0
 barrier_blast_fill_rate_min = 0.077
@@ -3036,6 +3039,10 @@ air_brake_decel = 85.0
 air_pullback_start_angle_deg = 95.0
 air_pullback_turn_rate_multiplier = 0.25
 air_pullback_brake_multiplier = 1.8
+radial_landing_boost_enabled = true
+radial_landing_boost_impact_ratio = 0.45
+radial_landing_boost_limit = 18.0
+radial_landing_boost_min_alignment = 0.3
 surface_preview_max_lookahead_radii = 90.0
 surface_preview_max_samples = 20
 floor_like_max_angle_deg = 10.0
@@ -3216,14 +3223,18 @@ activation_voice_chance = 0.6
 
 [node name="Parkour" type="Node" parent="Abilities" unique_id=2084939969]
 script = ExtResource("91_h8d1i")
+entry_angle_speed_conversion_limit = 20.0
+landing_roll_enabled = false
 landing_roll_tangential_recovery = 0.2
 landing_roll_recovery_limit = 14.0
 landing_roll_barrier_blast_tangential_recovery = 0.25
 landing_roll_barrier_blast_recovery_limit = 18.0
+wall_run_kick_entry_outward_multiplier = 1.1
+wall_cling_kick_entry_upward_multiplier = 1.45
 
 [node name="Grounded" type="Node" parent="Abilities" unique_id=2051000001]
 script = ExtResource("92_eyj1t")
-run_top_speed = 95.0
+run_top_speed = 130.0
 ground_decel_curve = ExtResource("decel_ground")
 ground_accel_curve = ExtResource("93_ows6n")
 walk_ground_accel_curve = ExtResource("94_hlsp5")
@@ -3238,6 +3249,7 @@ slope_downhill_accel_curve = ExtResource("98_i20ek")
 slope_uphill_decel = 28.0
 slope_uphill_decel_curve = ExtResource("99_qqlw0")
 slope_gravity_angle_curve = ExtResource("100_n7qph")
+slope_reversal_guard_enabled = false
 slope_reversal_guard_recovery_distance = 150.0
 slope_reversal_guard_momentum_preserve_speed = 200.0
 slope_uphill_control_ratio_curve = ExtResource("101_xg20j")
@@ -3282,7 +3294,7 @@ script = ExtResource("108_ve7ne")
 spindash_charge_time_max = 0.7
 spindash_rail_charge_time_max = 0.7
 spindash_min_launch_speed = 70.0
-spindash_max_launch_speed = 95.0
+spindash_max_launch_speed = 110.0
 spindash_barrier_blast_overcharge_cap = 0.5
 spindash_barrier_blast_overcharge_duration = 2.5
 on_spindash_jump_action = NodePath("../Jump")
@@ -3295,6 +3307,7 @@ combat_class = 1
 
 [node name="Drift" type="Node" parent="Abilities" unique_id=2051000004]
 script = ExtResource("109_pvyl6")
+drift_enabled = false
 drift_base_turn_deg_per_sec = 115.0
 drift_tight_turn_multiplier = 1.65
 drift_counter_turn_multiplier = 0.35
@@ -3374,6 +3387,7 @@ combat_class = 1
 
 [node name="Skydive" type="Node" parent="Abilities" unique_id=1632605993]
 script = ExtResource("120_lmd4n")
+skydive_enabled = false
 on_roll_action = NodePath("../Roll")
 
 [node name="Bounce" type="Node" parent="Abilities" unique_id=2105886231]

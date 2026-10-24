@@ -81,6 +81,8 @@ enum WallLiftPhase { NONE, SETTLING, HOLD, RELEASE }
 @export var wall_run_dash_panel_mode_hold_time: float = 0.35
 ## Optional entry speed top-up. Zero disables it; faster momentum is preserved.
 @export var run_entry_speed_target: float = 0.0
+## Ground-deceleration multiplier for wall-parallel speed above the character's run top speed. Zero disables slowdown.
+@export_range(0.0, 2.0, 0.01, "or_greater") var run_top_speed_slowdown_strength: float = 0.1
 ## Fractional wall-parallel speed boost granted on fresh wall-run entry.
 @export_range(0.0, 1.0, 0.01) var entry_forward_boost: float = 0.12
 ## Maximum additional wall-parallel speed granted on fresh wall-run entry.
@@ -163,6 +165,8 @@ enum WallLiftPhase { NONE, SETTLING, HOLD, RELEASE }
 @export var cling_final_gravity_scale: float = 1.0
 
 @export_subgroup("Landing Roll")
+## Enables timed landing rolls without disabling wall Parkour.
+@export var landing_roll_enabled: bool = true
 ## Time before landing during which a Parkour press may trigger a landing roll.
 @export var landing_roll_input_window: float = 0.9
 ## Time after landing during which a Parkour press may trigger a landing roll from captured impact momentum.
@@ -629,6 +633,8 @@ func get_input_prompt(_context: Dictionary = {}) -> Dictionary:
 	var wall_prompt: Dictionary = _get_wall_proximity_prompt()
 	if not wall_prompt.is_empty():
 		return wall_prompt
+	if not landing_roll_enabled:
+		return {}
 	if owner_player.attached:
 		if _landing_roll_memory_remaining <= 0.0:
 			return {}
@@ -651,7 +657,7 @@ func get_input_prompt_stage() -> int:
 
 func update_landing_roll_prompt_prediction() -> void:
 	_landing_roll_prompt_prediction = {}
-	if not input_prompt_enabled or not enabled or not owner_player or _in_contact or _landing_roll_input_buffer > 0.0:
+	if not landing_roll_enabled or not input_prompt_enabled or not enabled or not owner_player or _in_contact or _landing_roll_input_buffer > 0.0:
 		return
 	if not owner_player.can_offer_action_prompts():
 		return
@@ -889,6 +895,7 @@ func prepare_priority_input(delta: float) -> bool:
 		owner_player.attached
 		and not _in_contact
 		and enabled
+		and landing_roll_enabled
 		and _landing_roll_memory_remaining > 0.0
 		and owner_player._network_is_local_authority()
 		and not owner_player._is_dead
@@ -912,6 +919,7 @@ func prepare_priority_input(delta: float) -> bool:
 	if (
 		not owner_player.attached
 		and not _in_contact
+		and landing_roll_enabled
 		and owner_player._network_is_local_authority()
 		and not owner_player._is_dead
 		and not owner_player._hurt_active
@@ -921,7 +929,7 @@ func prepare_priority_input(delta: float) -> bool:
 		and parkour_just_pressed
 	):
 		_landing_roll_input_buffer = max(landing_roll_input_window, delta)
-	elif owner_player.attached:
+	elif owner_player.attached or not landing_roll_enabled:
 		_landing_roll_input_buffer = 0.0
 	if _try_begin_grounded_wall_parkour():
 		return true
@@ -1037,7 +1045,7 @@ func resolve_movement_contact(entry_velocity: Vector3) -> void:
 
 
 func resolve_landing_momentum(landing_normal: Vector3, incoming_velocity: Vector3) -> bool:
-	var input_was_buffered: bool = _landing_roll_input_buffer > 0.0
+	var input_was_buffered: bool = landing_roll_enabled and _landing_roll_input_buffer > 0.0
 	var landing_airborne_time: float = max(owner_player._pending_landing_airborne_time, 0.0) if owner_player else 0.0
 	var requires_airborne_time: bool = _landing_roll_requires_airborne_time or (owner_player != null and owner_player._jumped_from_ground)
 	_landing_roll_input_buffer = 0.0
@@ -1106,6 +1114,8 @@ func _get_rough_landing_intensity(landing_normal: Vector3, incoming_velocity: Ve
 
 
 func _landing_roll_invalid_reason(landing_normal: Vector3, incoming_velocity: Vector3, requires_airborne_time: bool) -> StringName:
+	if not landing_roll_enabled:
+		return &"disabled"
 	var normal: Vector3 = landing_normal.normalized()
 	var up: Vector3 = get_owner_gravity_up()
 	if normal.length_squared() < 0.001:
@@ -1609,6 +1619,8 @@ func physics_update_action(delta: float) -> void:
 		else:
 			var progress: float = clamp(_elapsed / max(_assistance_duration, 0.001), 0.0, 1.0)
 			gravity_scale = lerp(1.0 - (1.0 - run_initial_gravity_scale) * _entry_strength, 1.0, smoothstep(0.0, 1.0, progress))
+		parallel = _apply_wall_run_top_speed_slowdown(parallel, motion_delta)
+		_run_parallel_speed = parallel
 	else:
 		_cling_elapsed += delta
 		if vertical > 0.0 and not _cling_started_from_floor_attach:
@@ -1641,6 +1653,22 @@ func physics_update_action(delta: float) -> void:
 		var pressure_normal: Vector3 = _normal.slide(up).normalized()
 		if pressure_normal.length_squared() > 0.001:
 			owner_player.velocity -= pressure_normal * max(contact_pressure_speed, 0.0)
+
+
+func _apply_wall_run_top_speed_slowdown(parallel_speed: float, delta: float) -> float:
+	if not owner_player or run_top_speed_slowdown_strength <= 0.0 or delta <= 0.0:
+		return parallel_speed
+	if _dash_panel_run_lock_remaining > 0.0 or owner_player.is_speed_shoes_active():
+		return parallel_speed
+	var top_speed: float = maxf(owner_player.run_top_speed, 0.0) * maxf(owner_player.get_active_top_speed_multiplier(), 0.0)
+	var speed: float = absf(parallel_speed)
+	if top_speed <= 0.0 or speed <= top_speed:
+		return parallel_speed
+	var deceleration: float = maxf(owner_player._sample_curve_by_speed(
+		owner_player.ground_decel_curve, speed, owner_player.decel
+	), 0.0)
+	var drop: float = minf(speed - top_speed, deceleration * run_top_speed_slowdown_strength * delta)
+	return signf(parallel_speed) * (speed - drop)
 
 
 func _update_wall_lift(delta: float, vertical: float, parallel_speed: float) -> float:

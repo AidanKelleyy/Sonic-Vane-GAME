@@ -337,7 +337,9 @@ func bake_custom_geometry() -> void:
 	_update_materials()
 	notify_property_list_changed()
 	if Engine.is_editor_hint():
-		EditorInterface.mark_scene_as_unsaved()
+		var editor_interface: Object = Engine.get_singleton("EditorInterface")
+		if editor_interface:
+			editor_interface.call("mark_scene_as_unsaved")
 
 
 func _primitive_mesh() -> ArrayMesh:
@@ -694,8 +696,11 @@ func _get_render_sources() -> Array[Viewport]:
 	if Engine.is_editor_hint():
 		if _render_sources.is_empty() or not is_instance_valid(_render_sources[0]):
 			_render_sources.clear()
+			var editor_interface: Object = Engine.get_singleton("EditorInterface")
+			if not editor_interface:
+				return _render_sources
 			for index: int in range(4):
-				var source: SubViewport = EditorInterface.get_editor_viewport_3d(index)
+				var source: SubViewport = editor_interface.call("get_editor_viewport_3d", index) as SubViewport
 				if is_instance_valid(source):
 					_render_sources.append(source)
 	elif _render_sources.is_empty() or _render_sources[0] != get_viewport():

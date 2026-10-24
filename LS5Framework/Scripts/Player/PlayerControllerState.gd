@@ -435,9 +435,11 @@ var _enemy_targeting_spawn_input_received: bool = false
 @export_group("Movement")
 @export_subgroup("Speed/Acceleration")
 ## Ground soft-cap slowdown strength above run top speed.
+## Independent of movement-input release grace.
 @export var top_speed_slowdown_strength: float = 0.215
 
 ## Airborne soft-cap slowdown strength above air top speed.
+## Independent of movement-input release grace.
 @export var air_top_speed_slowdown_strength: float = 0.215
 
 ## Optional multiplier curve for top speed slowdown strength by lateral speed.
@@ -1908,6 +1910,20 @@ var _smoothed_surface_normal: Vector3 = Vector3.UP
 ## Minimum tangential speed required to attach via radial landing on walls/ceilings.
 @export var radial_landing_min_speed: float = 7.0
 
+@export_subgroup("Radial Landing/Intent Boost")
+## Converts impact momentum into surface speed when held movement input follows the landing trajectory.
+@export var radial_landing_boost_enabled: bool = false
+## Fraction of into-surface impact speed converted into tangential speed.
+@export_range(0.0, 1.0, 0.01) var radial_landing_boost_impact_ratio: float = 0.2
+## Maximum impact-conversion bonus per intentional landing. Tangential-speed retention is separate.
+@export var radial_landing_boost_limit: float = 14.0
+## Fraction of the effective run soft cap where impact recovery begins fading into tangential-speed retention.
+@export_range(0.0, 1.0, 0.01) var radial_landing_boost_taper_start_ratio: float = 0.8
+## Minimum held movement-input strength required for an intentional landing boost.
+@export_range(0.0, 1.0, 0.01) var radial_landing_boost_min_input_strength: float = 0.5
+## Minimum alignment between held movement input and incoming tangential travel.
+@export_range(0.0, 1.0, 0.01) var radial_landing_boost_min_alignment: float = 0.5
+
 @export_subgroup("Radial Landing/Surface Preview")
 ## Enables geometry-aware validation for airborne attachment to non-floor surfaces.
 @export var surface_preview_enabled: bool = true
@@ -2787,7 +2803,12 @@ var _water_logic_speed_elapsed: float = 0.0
 @export_range(0.05, 3.0, 0.05) var ground_action_dust_lifetime: float = 0.9
 
 @export_subgroup("Effects/Speed Lines")
+## Enables speed lines that increase in strength with movement speed.
 @export var speed_lines_enabled: bool = true
+## Movement speed where faint speed lines begin appearing.
+@export var speed_lines_min_speed: float = 90.0
+## Movement speed where speed lines reach maximum density, length, and opacity.
+@export var speed_lines_full_speed: float = 180.0
 @export var speed_lines_follow_speed_scale: float = 0.7
 ## Maximum influence of the player's current trajectory on lingering speed lines.
 @export_range(0.0, 1.0, 0.01) var speed_lines_trajectory_follow_influence: float = 0.75
@@ -2826,8 +2847,14 @@ var _water_logic_speed_elapsed: float = 0.0
 @export_range(0.1, 4.0, 0.05) var speed_lines_surface_fade_power: float = 0.85
 
 @export_subgroup("Effects/Barrier Foot Trails")
-## Enables dual-foot emissive path ribbons while Barrier Blast is active.
+## Enables dual-foot emissive ribbons during Barrier Blast, or at high speed when the ability is disabled.
 @export var barrier_foot_trails_enabled: bool = false
+## Minimum movement speed for foot trails when Barrier Blast is disabled.
+@export var barrier_foot_trail_min_speed: float = 145.0
+## Movement speed for full foot-trail opacity when Barrier Blast is disabled.
+@export var barrier_foot_trail_full_speed: float = 180.0
+## Foot-trail opacity at the minimum speed when Barrier Blast is disabled.
+@export_range(0.0, 1.0, 0.01) var barrier_foot_trail_min_opacity: float = 0.1
 ## Optional Skeleton3D path used to resolve the foot trail bones. Empty searches under ModelRoot.
 @export_node_path("Skeleton3D") var barrier_foot_trail_skeleton_path: NodePath = NodePath("")
 ## Optional left-foot marker node path relative to the player. This overrides the left bone source.
