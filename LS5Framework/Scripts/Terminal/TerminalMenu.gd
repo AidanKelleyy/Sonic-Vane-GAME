@@ -22,6 +22,7 @@ var _current_screen: StringName = &"parent"
 
 
 func _ready() -> void:
+	MenuNavigation.register_menu(self, _menu_navigation_scope, 20)
 	layer = 60
 	visible = true
 	add_to_group("ModalMenu")
@@ -49,18 +50,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_cancel()
 
 
-func _process(delta: float) -> void:
-	var scroll_input: float = SettingsManager.get_signed_action_axis(&"camera_down", &"camera_up", SettingsManager.get_right_stick_deadzone(), &"gamepad")
-	if absf(scroll_input) < 0.05:
-		return
-	var scroll_container: ScrollContainer = _get_scroll_container()
-	if scroll_container == null:
-		return
-	var scroll_bar: VScrollBar = scroll_container.get_v_scroll_bar()
-	if scroll_bar == null:
-		return
-	var new_scroll: float = float(scroll_container.scroll_vertical) - scroll_input * 900.0 * delta
-	scroll_container.scroll_vertical = int(clamp(new_scroll, 0.0, scroll_bar.max_value))
+func _process(_delta: float) -> void:
+	pass
 
 
 func set_level_entries(entries: Array) -> void:
@@ -81,7 +72,14 @@ func _resolve_level_data_dir() -> void:
 		level_data_dir = "res://LS5Framework/Scenes/Levels"
 
 
+## Centered browser shared by terminal content selection screens.
+var _browser: CenteredMenuBrowser
+
+
 func _show_parent_menu() -> void:
+	panel.show()
+	if is_instance_valid(_browser):
+		_browser.hide()
 	_current_screen = &"parent"
 	_clear_vbox()
 	_add_title(_get_title_text())
@@ -96,60 +94,26 @@ func _show_parent_menu() -> void:
 
 func _show_character_select() -> void:
 	_current_screen = &"character"
-	_clear_vbox()
-	_add_title("Select a Character")
-	var list: VBoxContainer = _add_scroll_list()
 	_character_entries = CharacterCatalog.load_character_entries(character_data_dir)
-	var selected_id: String = SettingsManager.chosen_character_id
-	var buddy_marker_id: String = SettingsManager.chosen_buddy_character_id if SettingsManager.buddy_active else ""
-	var added: int = MenuSelectList.populate(
-		list,
-		_character_entries,
-		selected_id,
-		Callable(self, "_on_character_entry_pressed"),
-		&"MenuButtons",
-		Callable(self, "_on_character_entry_right_pressed"),
-		buddy_marker_id,
-		"Buddy"
-	)
-	if added <= 0:
-		_add_empty_label("No characters found")
-	_add_back_buttons()
-	call_deferred("_focus_default_control")
+	_prepare_browser()
+	_browser.clear_buddy = Callable()
+	_browser.configure(_character_entries, "CHARACTER SELECT", SettingsManager.chosen_character_id, _on_character_entry_pressed, _show_parent_menu, _on_character_entry_right_pressed, SettingsManager.chosen_buddy_character_id if SettingsManager.buddy_active else "")
+	MenuNavigation.restore_focus()
 
 
 func _show_buddy_select() -> void:
 	_current_screen = &"buddy"
-	_clear_vbox()
-	_add_title("Buddies")
-	var list: VBoxContainer = _add_scroll_list()
 	_character_entries = CharacterCatalog.load_character_entries(character_data_dir)
-	var selected_id: String = SettingsManager.chosen_buddy_character_id if SettingsManager.buddy_active else ""
-	var added: int = MenuSelectList.populate(
-		list,
-		_character_entries,
-		selected_id,
-		Callable(self, "_on_buddy_entry_pressed"),
-		&"MenuButtons"
-	)
-	if added <= 0:
-		_add_empty_label("No characters found")
-	var buttons: HBoxContainer = _add_back_buttons(false)
-	var despawn: Button = Button.new()
-	despawn.text = "Despawn"
-	despawn.pressed.connect(_on_buddy_despawn_pressed)
-	buttons.add_child(despawn)
-	call_deferred("_focus_default_control")
+	_prepare_browser()
+	_browser.clear_buddy = _on_buddy_despawn_pressed
+	_browser.configure(_character_entries, "BUDDY SELECT", "", _on_buddy_entry_pressed, _show_parent_menu, _on_character_entry_right_pressed, SettingsManager.chosen_buddy_character_id if SettingsManager.buddy_active else "")
+	MenuNavigation.restore_focus()
 
 
 func _show_level_select() -> void:
 	_current_screen = &"level"
-	_clear_vbox()
-	_add_title("Select a Level")
-	_add_scroll_list()
-	_add_back_buttons()
-	call_deferred("_build_level_list_after_packs")
-	call_deferred("_focus_default_control")
+	_prepare_browser()
+	_build_level_list_after_packs()
 
 
 func _build_level_list_after_packs() -> void:
@@ -186,15 +150,12 @@ func _on_packs_loaded() -> void:
 func _build_level_list() -> void:
 	if _current_screen != &"level":
 		return
-	var list: VBoxContainer = _get_active_list()
-	if list == null:
-		return
 	if _level_entries.is_empty():
 		_level_entries = LevelCatalog.load_level_entries(level_data_dir)
-	var added: int = MenuSelectList.populate(list, _level_entries, "", Callable(self, "_on_level_entry_pressed"))
-	if added <= 0:
-		_add_empty_label("No levels found")
-	call_deferred("_focus_default_control")
+	_prepare_browser()
+	_browser.clear_buddy = Callable()
+	_browser.configure(_level_entries, "LEVEL SELECT", "", _on_level_entry_pressed, _show_parent_menu)
+	MenuNavigation.restore_focus()
 
 
 func _on_character_entry_pressed(entry: Dictionary) -> void:
@@ -369,8 +330,7 @@ func _cancel() -> void:
 
 
 func _focus_default_control() -> void:
-	if vbox != null and _focus_first_focusable_control(vbox):
-		return
+	MenuNavigation.restore_focus()
 
 
 func _focus_first_focusable_control(root: Node) -> bool:
@@ -447,3 +407,22 @@ func _get_level_manager() -> Node:
 	if list != null and list.size() > 0:
 		return list[0]
 	return get_tree().root.find_child("LevelManager", true, false)
+
+
+func _menu_navigation_scope() -> Dictionary:
+	if not visible:
+		return {}
+	if _current_screen != &"parent" and is_instance_valid(_browser):
+		return {"root": _browser, "page": String(_current_screen), "default": _browser}
+	return {"root": panel, "page": "parent"}
+
+
+
+
+func _prepare_browser() -> void:
+	panel.hide()
+	if not is_instance_valid(_browser):
+		_browser = CenteredMenuBrowser.new()
+		get_node("Root").add_child(_browser)
+		_browser.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_browser.show()

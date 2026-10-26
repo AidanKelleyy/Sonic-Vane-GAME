@@ -53,6 +53,7 @@ var _multiple_ghosts_preference: bool = false
 var _ghost_count_preference: int = DEFAULT_GHOST_COUNT
 
 func _ready() -> void:
+	MenuNavigation.register_menu(self, _menu_navigation_scope, 20)
 	layer = 60
 	visible = true
 	add_to_group("ModalMenu")
@@ -269,14 +270,8 @@ func _cancel() -> void:
 
 
 func _focus_default_control() -> void:
-	if button_start != null and button_start.is_visible_in_tree():
-		button_start.grab_focus()
-		return
-	if slider_dnf != null and slider_dnf.is_visible_in_tree():
-		slider_dnf.grab_focus()
-		return
-	if button_cancel != null:
-		button_cancel.grab_focus()
+	MenuNavigation.restore_focus()
+
 
 func _get_dnf_value() -> float:
 	if slider_dnf != null:
@@ -400,3 +395,10 @@ func _get_settings_manager() -> Node:
 	if root == null:
 		return null
 	return root.get_node_or_null("SettingsManager")
+
+
+func _menu_navigation_scope() -> Dictionary:
+	var scope_root: Control = get_node("Root/Panel")
+	if not scope_root or not scope_root.is_visible_in_tree():
+		return {}
+	return {"root": scope_root, "page": ""}

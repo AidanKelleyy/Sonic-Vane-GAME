@@ -41,6 +41,7 @@ NetworkEvents="*uid://bdmobxxptryj0"
 NetworkPerformance="*uid://cqgf7aqmjfoa3"
 Noray="*uid://gu4bv4tgms3x"
 PacketHandshake="*uid://tt3j25a05n7c"
+MenuNavigation="*res://LS5Framework/Scripts/UI/MenuNavigation.gd"
 CharacterProfileManager="*res://LS5Framework/Scripts/Settings/CharacterProfileManager.gd"
 EmoteWheel="*res://LS5Framework/Scenes/UI/EmoteWheel.tscn"
 

@@ -34,7 +34,7 @@ func _create_pause_shortcut_prompts() -> void:
 		_shortcut_cards.append(card)
 
 func _can_use_pause_shortcuts() -> bool:
-	return _is_open and panel_pause.visible and not panel_options.visible and not _pause_preview_hidden and not _is_input_binding_active() and not is_instance_valid(_character_settings_menu) and not graphics_confirm_dialog.visible and not unsaved_graphics_dialog.visible and not reset_defaults_dialog.visible and not _is_text_input_focused()
+	return _is_open and not (is_instance_valid(_navigation_confirmation) and _navigation_confirmation.visible) and not _online_navigation_active and panel_pause.visible and not panel_options.visible and not _pause_preview_hidden and not _is_input_binding_active() and not is_instance_valid(_character_settings_menu) and not graphics_confirm_dialog.visible and not unsaved_graphics_dialog.visible and not reset_defaults_dialog.visible and not _is_text_input_focused()
 
 func _cancel_pause_shortcut_hold() -> void:
 	_shortcut_pending = &""
@@ -66,18 +66,7 @@ func _update_pause_shortcuts(delta: float) -> void:
 		if _shortcut_hold_time >= race_restart_hold_duration:
 			_shortcut_hold_consumed = true
 			_do_quick_restart()
-	var scale_factor: float = minf(1.0, minf(maxf(size.y - 40.0, 1.0) / (panel_pause.size.y + 96.0), maxf(size.x - 32.0, 1.0) / (1000.0 if online_panel.visible else 560.0)))
-	panel_pause.pivot_offset = panel_pause.size * 0.5
-	panel_pause.scale = Vector2.ONE * scale_factor
-	panel_pause.offset_top = -panel_pause.size.y * 0.5 - 44.0 * scale_factor
-	panel_pause.offset_bottom = panel_pause.offset_top + panel_pause.size.y
-	if online_panel.visible:
-		panel_pause.offset_left = -280.0 + 190.0 * scale_factor
-		panel_pause.offset_right = panel_pause.offset_left + 560.0
-		online_panel.pivot_offset = online_panel.size * 0.5
-		online_panel.scale = Vector2.ONE * scale_factor
-		online_panel.offset_left = -180.0 - 290.0 * scale_factor
-		online_panel.offset_right = online_panel.offset_left + 360.0
+
 
 func _handle_pause_shortcut(event: InputEvent) -> bool:
 	if event is InputEventKey and event.echo:
@@ -347,7 +336,13 @@ func _set_hud_visible(value: bool) -> void:
 
 
 func _ready() -> void:
+	MenuNavigation.register_menu(self, _menu_navigation_scope)
+	_create_pause_viewport()
+	_create_pause_panel_guides()
 	_create_pause_shortcut_prompts()
+	_menu_audio = preload("res://LS5Framework/Scripts/UI/MenuAudioFeedback.gd").new()
+	_menu_audio.host = self
+	add_child(_menu_audio)
 	SettingsManager.input_bindings_changed.connect(func() -> void: _shortcut_signature = "")
 	Input.joy_connection_changed.connect(func(_device: int, connected: bool) -> void:
 		if not connected:
@@ -401,6 +396,8 @@ func _wire_online_signals() -> void:
 
 
 func _process(delta: float) -> void:
+	if _is_open and panel_pause.visible:
+		_layout_pause_viewport()
 	_update_pause_shortcuts(delta)
 	if is_instance_valid(_character_settings_menu):
 		return
@@ -431,6 +428,9 @@ func _process(delta: float) -> void:
 
 
 func _update_pause_preview_visibility() -> void:
+	if is_instance_valid(_navigation_confirmation) and _navigation_confirmation.visible:
+		_set_pause_preview_hidden(false)
+		return
 	if _is_input_binding_active():
 		_pause_preview_binding_suppressed = true
 		_set_pause_preview_hidden(false)
@@ -475,6 +475,9 @@ func _set_pause_preview_hidden(hidden: bool) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	SettingsManager.track_input_device(event)
+	if is_instance_valid(_navigation_confirmation) and _navigation_confirmation.visible:
+		return
 	if is_instance_valid(_character_settings_menu):
 		return
 	if _is_input_binding_active():
@@ -489,10 +492,10 @@ func _input(event: InputEvent) -> void:
 		return
 	if _pause_preview_hidden:
 		return
-	if _handle_options_tab_input(event):
-		get_viewport().set_input_as_handled()
-		return
 	if not panel_pause.visible or panel_options.visible:
+		return
+	if _handle_pause_panel_switch(event):
+		get_viewport().set_input_as_handled()
 		return
 	if _can_use_pause_shortcuts() and _handle_pause_shortcut(event):
 		get_viewport().set_input_as_handled()
@@ -500,6 +503,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_instance_valid(_navigation_confirmation) and _navigation_confirmation.visible:
+		return
 	if is_instance_valid(_character_settings_menu):
 		return
 	if event == null or _is_input_binding_active():
@@ -526,6 +531,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not cancel_pressed and not pause_pressed:
 		return
 	if _is_open:
+		_menu_audio.play_back()
+		if _online_navigation_active:
+			_online_navigation_active = false
+			MenuNavigation.restore_focus()
+			get_viewport().set_input_as_handled()
+			return
 		get_viewport().set_input_as_handled()
 		if panel_options.visible:
 			_on_ButtonOptionsBack_pressed()
@@ -573,6 +584,8 @@ func _can_open_pause() -> bool:
 
 
 func _open_pause() -> void:
+	MenuNavigation.forget_focus(panel_pause)
+	_online_navigation_active = false
 	_set_pause_preview_hidden(false)
 	visible = true
 	_show_pause_panel()
@@ -972,32 +985,6 @@ func _organize_gameplay_sections() -> void:
 		content.move_child(reticle_offset_row, race_heading.get_index())
 
 
-func _handle_options_tab_input(event: InputEvent) -> bool:
-	if not panel_options.visible or tabs_options == null:
-		return false
-	var direction: int = 0
-	if event.is_action_pressed("ui_page_up"):
-		direction = -1
-	elif event.is_action_pressed("ui_page_down"):
-		direction = 1
-	elif event is InputEventJoypadButton:
-		var joy_event: InputEventJoypadButton = event
-		if joy_event.pressed:
-			if joy_event.button_index == JOY_BUTTON_LEFT_SHOULDER:
-				direction = -1
-			elif joy_event.button_index == JOY_BUTTON_RIGHT_SHOULDER:
-				direction = 1
-	if direction == 0:
-		return false
-	_stop_camera_preview()
-	var tab_count: int = tabs_options.get_tab_count()
-	if tab_count <= 0:
-		return false
-	tabs_options.current_tab = wrapi(tabs_options.current_tab + direction, 0, tab_count)
-	call_deferred("_focus_visible_panel")
-	return true
-
-
 func _on_options_tab_changed(tab: int) -> void:
 	if _changing_options_tab:
 		return
@@ -1078,7 +1065,8 @@ func _refresh_player_list() -> void:
 		if c is Color:
 			pcolor = c
 
-		var row := HBoxContainer.new()
+		var row: VBoxContainer = VBoxContainer.new()
+		row.name = "Peer_%d" % peer_id
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		player_list.add_child(row)
 
@@ -1086,18 +1074,28 @@ func _refresh_player_list() -> void:
 		name_label.text = pname
 		name_label.modulate = pcolor
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		row.add_child(name_label)
+		var actions: HBoxContainer = HBoxContainer.new()
+		actions.name = "Actions"
+		row.add_child(actions)
 
 		var btn_tp := Button.new()
 		btn_tp.text = "Teleport"
+		btn_tp.name = "Teleport"
+		btn_tp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_tp.add_theme_font_size_override("font_size", 18)
 		btn_tp.set_meta(&"online_teleport", true)
 		btn_tp.disabled = _is_online_teleport_blocked()
 		btn_tp.tooltip_text = "Teleporting to players is unavailable during a race." if btn_tp.disabled else ""
 		btn_tp.pressed.connect(_on_teleport_pressed.bind(peer_id))
-		row.add_child(btn_tp)
+		actions.add_child(btn_tp)
 
 		if race_active and peer_id == race_starter_id:
 			var btn_join := Button.new()
+			btn_join.name = "JoinRace"
+			btn_join.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn_join.add_theme_font_size_override("font_size", 18)
 			if race_joined:
 				btn_join.text = "Joined"
 				btn_join.disabled = true
@@ -1108,7 +1106,7 @@ func _refresh_player_list() -> void:
 				btn_join.text = "Join Race"
 				btn_join.disabled = false
 				btn_join.pressed.connect(_on_join_race_pressed.bind(btn_join))
-			row.add_child(btn_join)
+			actions.add_child(btn_join)
 	call_deferred("_configure_pause_frame_focus")
 
 
@@ -1180,7 +1178,7 @@ func _refresh_online_teleport_buttons() -> void:
 	var changed: bool = false
 	var refocus: bool = false
 	for row: Node in player_list.get_children():
-		for child: Node in row.get_children():
+		for child: Node in row.find_children("*", "Button", true, false):
 			if not (child is Button) or not child.has_meta(&"online_teleport"):
 				continue
 			var button: Button = child as Button
@@ -1212,10 +1210,16 @@ func _on_teleport_pressed(peer_id: int) -> void:
 		return
 
 	_resume_game(true)
-	_teleport_to_online_player(local_player, target as Node3D)
+	var player_name: String = "Player"
+	if _net_session.has_method("get_peer_info_list"):
+		for info: Dictionary in _net_session.call("get_peer_info_list"):
+			if int(info.get("peer_id", 0)) == peer_id:
+				player_name = String(info.get("name", "Player"))
+				break
+	_teleport_to_online_player(local_player, target as Node3D, player_name)
 
 
-func _teleport_to_online_player(local_player: Node, target_player: Node3D) -> void:
+func _teleport_to_online_player(local_player: Node, target_player: Node3D, player_name: String = "Player") -> void:
 	if local_player == null or target_player == null:
 		return
 	if not is_instance_valid(local_player) or not is_instance_valid(target_player):
@@ -1224,6 +1228,10 @@ func _teleport_to_online_player(local_player: Node, target_player: Node3D) -> vo
 		return
 
 	var target_level_id: StringName = _get_online_level_id_from_player(target_player)
+	if target_level_id == &"":
+		if local_player.has_method("show_prompt"):
+			local_player.call("show_prompt", "That player's position is not ready yet.", 3.0)
+		return
 	var level_manager = _get_level_manager()
 	var current_level_id: StringName = &""
 	var current_scene_path: String = ""
@@ -1279,33 +1287,55 @@ func _teleport_to_online_player(local_player: Node, target_player: Node3D) -> vo
 					true,
 					true
 				))
-		if not is_instance_valid(local_player) or not is_instance_valid(target_player) or _is_online_teleport_blocked(local_player):
+		if not _online_teleport_target_matches(target_player, target_level_id):
+			_notify_online_teleport_level_changed(player_name)
+			return
+		if not is_instance_valid(local_player) or _is_online_teleport_blocked(local_player):
 			return
 		if not level_ready:
 			if local_player.has_method("show_prompt"):
 				local_player.call("show_prompt", "Unable to load that player's level.", 3.0)
 			return
 
-	var state_sequence: int = _get_online_player_state_sequence(target_player)
+	var previous_receipt: int = _get_online_teleport_receipt(target_player)
 	if target_player.has_method("_network_request_authoritative_teleport"):
 		target_player.call("_network_request_authoritative_teleport")
-	var received_fresh_state: bool = await _wait_for_online_player_state(target_player, state_sequence)
-	if not is_instance_valid(local_player) or not is_instance_valid(target_player) or _is_online_teleport_blocked(local_player):
+	var received_fresh_state: bool = await _wait_for_online_teleport_state(target_player, previous_receipt)
+	if not _online_teleport_target_matches(target_player, target_level_id):
+		_notify_online_teleport_level_changed(player_name)
+		return
+	if not is_instance_valid(local_player) or _is_online_teleport_blocked(local_player):
 		return
 	if not received_fresh_state:
 		if local_player.has_method("show_prompt"):
 			local_player.call("show_prompt", "That player's position is not ready yet.", 3.0)
 		return
-	if local_player.has_method("teleport_near_node"):
-		local_player.call("teleport_near_node", target_player)
+	var teleport_state: Dictionary = target_player.call("_network_get_authoritative_teleport_state")
+	if StringName(teleport_state.get("level_id", &"")) != target_level_id:
+		_notify_online_teleport_level_changed(player_name)
+		return
+	if local_player.has_method("teleport_near_transform") and teleport_state.get("transform") is Transform3D:
+		local_player.call("teleport_near_transform", teleport_state["transform"])
 
 
-func _wait_for_online_player_state(target_player: Node, previous_sequence: int) -> bool:
+func _online_teleport_target_matches(target_player: Node, expected_level_id: StringName) -> bool:
+	return is_instance_valid(target_player) and expected_level_id != &"" and _get_online_level_id_from_player(target_player) == expected_level_id
+
+
+func _notify_online_teleport_level_changed(player_name: String) -> void:
+	HUDMusicTrackDisplay.post_notification(
+		get_tree(),
+		"%s has entered a new level. Try teleporting again." % player_name
+	)
+
+
+func _wait_for_online_teleport_state(target_player: Node, previous_receipt: int) -> bool:
+	var expected_level_id: StringName = _get_online_level_id_from_player(target_player)
 	for _frame_index: int in range(ONLINE_TELEPORT_STATE_WAIT_FRAMES):
-		if target_player == null or not is_instance_valid(target_player):
+		if not _online_teleport_target_matches(target_player, expected_level_id):
 			return false
-		var current_sequence: int = _get_online_player_state_sequence(target_player)
-		if current_sequence > 0 and current_sequence != previous_sequence:
+		var current_receipt: int = _get_online_teleport_receipt(target_player)
+		if current_receipt > previous_receipt:
 			return true
 		if get_tree() == null:
 			return false
@@ -1313,11 +1343,12 @@ func _wait_for_online_player_state(target_player: Node, previous_sequence: int) 
 	return false
 
 
-func _get_online_player_state_sequence(player: Node) -> int:
+func _get_online_teleport_receipt(player: Node) -> int:
 	if player == null or not is_instance_valid(player):
 		return 0
-	if player.has_method("_network_get_state_sequence"):
-		return int(player.call("_network_get_state_sequence"))
+	if player.has_method("_network_get_authoritative_teleport_state"):
+		var state: Dictionary = player.call("_network_get_authoritative_teleport_state")
+		return int(state.get("receipt", 0))
 	return 0
 
 
@@ -1449,26 +1480,27 @@ func _is_online_solo() -> bool:
 	return total_peers <= 1
 
 
-func _on_ButtonLeaveRace_pressed() -> void:
+func _execute_ButtonLeaveRace_pressed() -> void:
 	var p = _get_local_player()
 	if p != null and p.has_method("leave_race"):
 		p.call("leave_race", false)
 	_resume_game(true)
 
 
-func _on_ButtonQuickRestart_pressed() -> void:
+func _execute_ButtonQuickRestart_pressed() -> void:
 	if not _can_quick_restart():
 		return
 	_do_quick_restart()
 
 
-func _on_ButtonReturnHub_pressed() -> void:
+func _execute_ButtonReturnHub_pressed() -> void:
 	_resume_game(true)
 	_cleanup_race_ui()
 	_return_to_hub()
 
 
 func _show_pause_panel() -> void:
+	_refresh_exit_action()
 	_stop_camera_preview()
 	if _deadzone_visual != null:
 		_deadzone_visual.visible = false
@@ -1492,67 +1524,7 @@ func _update_pause_panel_layout() -> void:
 
 
 func _configure_pause_frame_focus() -> void:
-	_configure_frame_vertical_focus(panel_pause)
-	_configure_frame_vertical_focus(online_panel)
-
-
-func _configure_frame_vertical_focus(frame: Control) -> void:
-	if frame == null or not frame.is_visible_in_tree():
-		return
-	var targets: Array[Control] = []
-	_collect_frame_focus_targets(frame, targets)
-	if targets.is_empty():
-		return
-	for target in targets:
-		var center: Vector2 = target.get_global_rect().get_center()
-		var above: Control = null
-		var below: Control = null
-		var above_distance: float = INF
-		var below_distance: float = INF
-		for candidate in targets:
-			if candidate == target:
-				continue
-			var candidate_center: Vector2 = candidate.get_global_rect().get_center()
-			var vertical: float = candidate_center.y - center.y
-			var horizontal: float = absf(candidate_center.x - center.x)
-			if vertical < -2.0:
-				var distance: float = -vertical * 1000.0 + horizontal
-				if distance < above_distance:
-					above_distance = distance
-					above = candidate
-			elif vertical > 2.0:
-				var distance: float = vertical * 1000.0 + horizontal
-				if distance < below_distance:
-					below_distance = distance
-					below = candidate
-		if above == null:
-			above = _frame_edge_focus_target(targets, true, center.x)
-		if below == null:
-			below = _frame_edge_focus_target(targets, false, center.x)
-		target.focus_neighbor_top = target.get_path_to(above)
-		target.focus_neighbor_bottom = target.get_path_to(below)
-
-
-func _frame_edge_focus_target(targets: Array[Control], bottom: bool, from_x: float) -> Control:
-	var chosen: Control = targets[0]
-	for target in targets:
-		var target_center: Vector2 = target.get_global_rect().get_center()
-		var chosen_center: Vector2 = chosen.get_global_rect().get_center()
-		if (bottom and target_center.y > chosen_center.y + 2.0) or (not bottom and target_center.y < chosen_center.y - 2.0):
-			chosen = target
-		elif absf(target_center.y - chosen_center.y) <= 2.0 and absf(target_center.x - from_x) < absf(chosen_center.x - from_x):
-			chosen = target
-	return chosen
-
-
-func _collect_frame_focus_targets(root: Node, targets: Array[Control]) -> void:
-	for child in root.get_children():
-		if child is Control:
-			var control: Control = child
-			if control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE and _is_menu_focus_target(control):
-				if not (control is BaseButton and (control as BaseButton).disabled):
-					targets.append(control)
-		_collect_frame_focus_targets(child, targets)
+	pass
 
 
 func _show_options_panel() -> void:
@@ -1570,7 +1542,7 @@ func _on_ButtonOptions_pressed() -> void:
 	_show_options_panel()
 
 
-func _on_ButtonRestart_pressed() -> void:
+func _execute_ButtonRestart_pressed() -> void:
 	_do_reload_level()
 
 
@@ -1682,71 +1654,11 @@ func _on_ButtonRespawnCheckpoint_pressed() -> void:
 
 
 func _focus_visible_panel() -> void:
-	if graphics_confirm_dialog.visible:
-		button_confirm_graphics.grab_focus()
-		return
-	if unsaved_graphics_dialog.visible:
-		button_save_unsaved_graphics.grab_focus()
-		return
-	if panel_options.visible:
-		var current_tab: Control = null
-		if tabs_options != null and tabs_options.current_tab >= 0:
-			current_tab = tabs_options.get_tab_control(tabs_options.current_tab)
-		if current_tab != null and _focus_first_focusable_control(current_tab):
-			return
-		if _focus_first_focusable_control(panel_options):
-			return
-	if panel_pause.visible:
-		if _focus_first_focusable_control(panel_pause):
-			return
-	if online_panel.visible:
-		if _focus_first_focusable_control(online_panel):
-			return
+	MenuNavigation.restore_focus()
 
 
-func _focus_first_focusable_control(root: Node) -> bool:
-	if root == null or not is_instance_valid(root):
-		return false
-	if root is Control:
-		var control: Control = root
-		if control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE and _is_menu_focus_target(control):
-			control.grab_focus()
-			call_deferred("_ensure_control_visible", control)
-			return true
-	for child in root.get_children():
-		if _focus_first_focusable_control(child):
-			return true
-	return false
-
-
-func _is_menu_focus_target(control: Control) -> bool:
-	return control is BaseButton or control is LineEdit or control is TextEdit or control is Range or control is ItemList
-
-
-func _ensure_control_visible(control: Control) -> void:
-	if control == null or not is_instance_valid(control):
-		return
-	if SettingsManager.is_mouse_input_active():
-		return
-	var scroll_container: ScrollContainer = _find_scroll_container_upwards(control, panel_options)
-	if scroll_container != null:
-		scroll_container.ensure_control_visible(control)
-
-
-func _handle_right_stick_scroll(delta: float) -> void:
-	if _is_text_input_focused():
-		return
-	var scroll_input: float = SettingsManager.get_signed_action_axis(&"camera_down", &"camera_up", SettingsManager.get_right_stick_deadzone(), &"gamepad")
-	if absf(scroll_input) < 0.05:
-		return
-	var scroll_container: ScrollContainer = _get_active_scroll_container()
-	if scroll_container == null:
-		return
-	var scroll_bar: VScrollBar = scroll_container.get_v_scroll_bar()
-	if scroll_bar == null:
-		return
-	var new_scroll: float = float(scroll_container.scroll_vertical) - scroll_input * 900.0 * delta
-	scroll_container.scroll_vertical = int(clamp(new_scroll, 0.0, scroll_bar.max_value))
+func _handle_right_stick_scroll(_delta: float) -> void:
+	pass
 
 
 func _get_active_scroll_container() -> ScrollContainer:
@@ -1894,7 +1806,7 @@ func _on_reset_defaults_confirmed() -> void:
 	button_reset_defaults.grab_focus()
 
 
-func _on_ButtonMenu_pressed() -> void:
+func _execute_ButtonMenu_pressed() -> void:
 	_resume_game(false)
 	_cleanup_race_ui()
 	var net = get_node_or_null("/root/NetworkManager")
@@ -2822,3 +2734,208 @@ func _stop_camera_preview() -> void:
 func _on_CheckRememberEmotePage_toggled(pressed: bool) -> void:
 	SettingsManager.set_remember_emote_page(pressed)
 	SettingsManager.save_now()
+
+
+func _menu_navigation_scope() -> Dictionary:
+	if not _is_open or _pause_preview_hidden:
+		return {}
+	if reset_defaults_dialog.visible:
+		return {"root": reset_defaults_dialog, "default": button_cancel_reset_defaults}
+	if graphics_confirm_dialog.visible:
+		return {"root": graphics_confirm_dialog, "default": button_revert_graphics}
+	if unsaved_graphics_dialog.visible:
+		return {"root": unsaved_graphics_dialog, "default": button_go_back_unsaved_graphics}
+	if panel_options.visible:
+		return {"root": panel_options, "tabs": tabs_options, "page": str(tabs_options.current_tab), "suspended": _is_input_binding_active(), "description": panel_options.get_node_or_null("Panel/VBoxOptions/MenuDescription")}
+	if _online_navigation_active and online_panel.visible:
+		return {"root": online_panel, "panel_switch": _handle_pause_panel_switch, "pointer_focus": _focus_pause_panel_at_pointer}
+	if panel_pause.visible:
+		return {"root": panel_pause, "default": _resume_navigation_button, "panel_switch": _handle_pause_panel_switch, "pointer_focus": _focus_pause_panel_at_pointer}
+	return {}
+
+
+var _online_navigation_active: bool = false
+## Shows the shoulder binding above each online pause panel.
+var _panel_guides: Array[HeldButtonPrompt] = []
+var _panel_guide_signature: String = ""
+## Scrolls session details and player actions within the online frame.
+var _online_menu_scroll: ScrollContainer
+## Contains session details and the online player action list.
+var _online_menu_content: VBoxContainer
+## Shared hover, press, and activation sounds for pause controls.
+var _menu_audio: Node
+## Initial pause action restored at the start of each pause session.
+var _resume_navigation_button: Button
+## Leaves the current level or closes the active online session.
+var _exit_navigation_button: Button
+## Scrollable pause action list.
+var _pause_menu_scroll: ScrollContainer
+## Ordered actions shown inside the pause viewport.
+var _pause_menu_content: VBoxContainer
+
+
+func _create_pause_panel_guides() -> void:
+	for frame: Control in [online_panel, panel_pause]:
+		var guide: HeldButtonPrompt = HELD_BUTTON_PROMPT_SCENE.instantiate()
+		frame.add_child(guide)
+		guide.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		guide.fit_to_content()
+		_panel_guides.append(guide)
+	_panel_guide_signature = ""
+
+
+func _create_pause_viewport() -> void:
+	_pause_menu_content = panel_pause.get_node("VBoxPause") as VBoxContainer
+	_resume_navigation_button = _pause_menu_content.get_node("ButtonResume") as Button
+	_exit_navigation_button = _pause_menu_content.get_node("ButtonMenu") as Button
+	_refresh_exit_action()
+	_pause_menu_scroll = ScrollContainer.new()
+	_pause_menu_scroll.name = "MenuViewport"
+	_pause_menu_scroll.focus_mode = Control.FOCUS_NONE
+	_pause_menu_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	panel_pause.add_child(_pause_menu_scroll)
+	_pause_menu_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_pause_menu_scroll.offset_left = 22.0
+	_pause_menu_scroll.offset_top = 22.0
+	_pause_menu_scroll.offset_right = -22.0
+	_pause_menu_scroll.offset_bottom = -22.0
+	_pause_menu_content.reparent(_pause_menu_scroll, false)
+	_pause_menu_content.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	_pause_menu_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pause_menu_content.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_online_menu_content = online_panel.get_node("VBoxOnline") as VBoxContainer
+	_online_menu_scroll = ScrollContainer.new()
+	_online_menu_scroll.name = "MenuViewport"
+	_online_menu_scroll.focus_mode = Control.FOCUS_NONE
+	_online_menu_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	online_panel.add_child(_online_menu_scroll)
+	_online_menu_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_online_menu_scroll.offset_left = 18.0
+	_online_menu_scroll.offset_right = -18.0
+	_online_menu_scroll.offset_top = 18.0
+	_online_menu_scroll.offset_bottom = -18.0
+	_online_menu_content.reparent(_online_menu_scroll, false)
+	_online_menu_content.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	_online_menu_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_online_menu_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	player_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var players_scroll: ScrollContainer = player_list.get_parent() as ScrollContainer
+	players_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	players_scroll.custom_minimum_size.y = 80.0
+	_layout_pause_viewport()
+
+
+func _on_ButtonMenu_pressed() -> void:
+	if _is_online():
+		_request_navigation_confirmation("Close online session?", "Disconnect from the online session and exit to the main menu.", _execute_ButtonMenu_pressed, "Exit")
+	else:
+		_request_navigation_confirmation("Exit to menu?", "Leave the current level and exit to the main menu.", _execute_ButtonMenu_pressed, "Exit")
+
+
+func _layout_pause_viewport() -> void:
+	_refresh_exit_action()
+	panel_pause.scale = Vector2.ONE
+	panel_pause.custom_minimum_size = Vector2.ZERO
+	panel_pause.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	var width: float = maxf(size.x - 40.0, 1.0)
+	var pause_scrollbar: float = _pause_menu_scroll.get_v_scroll_bar().get_combined_minimum_size().x
+	var pause_width: float = minf(maxf(560.0, _pause_menu_content.get_combined_minimum_size().x + 44.0 + pause_scrollbar), width)
+	var pause_height: float = _pause_menu_content.get_combined_minimum_size().y + 44.0
+	if not online_panel.visible:
+		panel_pause.size = Vector2(pause_width, minf(pause_height, maxf(size.y - 136.0, 1.0)))
+		panel_pause.position = (size - panel_pause.size) * 0.5 - Vector2(0.0, 40.0)
+	else:
+		online_panel.scale = Vector2.ONE
+		online_panel.custom_minimum_size = Vector2.ZERO
+		online_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		var online_scrollbar: float = _online_menu_scroll.get_v_scroll_bar().get_combined_minimum_size().x
+		var online_width: float = maxf(360.0, _online_menu_content.get_combined_minimum_size().x + 36.0 + online_scrollbar)
+		var total_width: float = pause_width + online_width + 24.0
+		var online_height: float = _online_menu_content.get_combined_minimum_size().y + 36.0
+		if total_width <= width:
+			var height: float = minf(maxf(pause_height, online_height), maxf(size.y - 182.0, 1.0))
+			var origin: Vector2 = Vector2((size.x - total_width) * 0.5, 76.0 + (size.y - 182.0 - height) * 0.5)
+			online_panel.size = Vector2(online_width, height)
+			online_panel.position = origin
+			panel_pause.size = Vector2(pause_width, height)
+			panel_pause.position = origin + Vector2(online_width + 24.0, 0.0)
+		else:
+			var height: float = maxf((size.y - 258.0) * 0.5, 1.0)
+			var stacked_width: float = minf(maxf(pause_width, online_width), width)
+			online_panel.size = Vector2(stacked_width, height)
+			panel_pause.size = Vector2(stacked_width, height)
+			online_panel.position = Vector2((size.x - stacked_width) * 0.5, 76.0)
+			panel_pause.position = online_panel.position + Vector2(0.0, height + 76.0)
+	_update_pause_panel_guides()
+
+
+func _update_pause_panel_guides() -> void:
+	var controller: bool = SettingsManager.is_controller_input_active()
+	var signature: String = "%s:%s:%s" % [controller, InputBindingGlyphs.resolve_style(), SettingsManager.get_preferred_joypad_device()]
+	for index: int in range(_panel_guides.size()):
+		var guide: HeldButtonPrompt = _panel_guides[index]
+		guide.visible = online_panel.visible and panel_pause.visible and not SettingsManager.is_mouse_input_active()
+		guide.modulate.a = 1.0 if _online_navigation_active == (index == 0) else 0.55
+		if signature != _panel_guide_signature:
+			var glyph: Dictionary = InputBindingGlyphs.describe_binding({"type": "joy_button", "button": JOY_BUTTON_LEFT_SHOULDER if index == 0 else JOY_BUTTON_RIGHT_SHOULDER}) if controller else {"label": "PgUp" if index == 0 else "PgDn"}
+			guide.configure(glyph, "Players / Session" if index == 0 else "Pause Actions")
+		guide.size = guide.get_combined_minimum_size()
+		var frame: Control = guide.get_parent() as Control
+		guide.position = Vector2((frame.size.x - guide.size.x) * 0.5, -guide.size.y - 8.0)
+	_panel_guide_signature = signature
+
+
+func _handle_pause_panel_switch(event: InputEvent) -> bool:
+	if not online_panel.visible or not panel_pause.visible or not event.is_pressed() or event.is_echo():
+		return false
+	var left: bool = event.is_action_pressed(&"ui_page_up")
+	var right: bool = event.is_action_pressed(&"ui_page_down")
+	if event is InputEventJoypadButton:
+		left = event.button_index == JOY_BUTTON_LEFT_SHOULDER
+		right = event.button_index == JOY_BUTTON_RIGHT_SHOULDER
+	if not left and not right:
+		return false
+	if _online_navigation_active != left:
+		_online_navigation_active = left
+		MenuNavigation.restore_focus()
+	return true
+
+
+func _focus_pause_panel_at_pointer(control: Control) -> void:
+	var online: bool = control == online_panel or online_panel.is_ancestor_of(control)
+	var pause: bool = control == panel_pause or panel_pause.is_ancestor_of(control)
+	if (online or pause) and _online_navigation_active != online:
+		_online_navigation_active = online
+
+
+func _on_ButtonRestart_pressed() -> void:
+	_request_navigation_confirmation("Reload this level?", "Current progress in this level will be reset.", _execute_ButtonRestart_pressed, "Reload")
+
+
+func _on_ButtonQuickRestart_pressed() -> void:
+	_request_navigation_confirmation("Restart this race?", "The current race attempt will be reset.", _execute_ButtonQuickRestart_pressed)
+
+
+func _on_ButtonReturnHub_pressed() -> void:
+	_request_navigation_confirmation("Return to hub?", "Leave the current level and return to the hub.", _execute_ButtonReturnHub_pressed)
+
+
+func _on_ButtonLeaveRace_pressed() -> void:
+	_request_navigation_confirmation("Leave this race?", "Leave the current race session.", _execute_ButtonLeaveRace_pressed)
+
+
+## Confirms scene changes and race exits before discarding progress.
+var _navigation_confirmation: Control
+
+
+func _request_navigation_confirmation(title: String, body: String, action: Callable, confirm_text: String = "Continue") -> void:
+	if not is_instance_valid(_navigation_confirmation):
+		_navigation_confirmation = preload("res://LS5Framework/Scripts/UI/MenuActionConfirmation.gd").new()
+		overlay.add_child(_navigation_confirmation)
+	_navigation_confirmation.open(title, body, action, confirm_text)
+	_play_sfx(sfx_warning)
+
+
+func _refresh_exit_action() -> void:
+	if _exit_navigation_button:
+		_exit_navigation_button.text = "Close Online Session" if _is_online() else "Exit to Menu"

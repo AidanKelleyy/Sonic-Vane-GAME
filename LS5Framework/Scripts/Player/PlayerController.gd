@@ -468,6 +468,11 @@ func _network_get_state_sequence() -> int:
 	return _network_module.get_state_sequence()
 
 
+func _network_get_authoritative_teleport_state() -> Dictionary:
+	_ensure_modules()
+	return _network_module.get_authoritative_teleport_state()
+
+
 @rpc("any_peer", "reliable", "call_remote")
 func _net_request_authoritative_teleport() -> void:
 	_ensure_modules()
@@ -509,7 +514,8 @@ func _net_authoritative_teleport(
 		state_sequence: int,
 		animation_states: Dictionary,
 		animation_values: Array,
-		presentation_state: PackedFloat32Array
+		presentation_state: PackedFloat32Array,
+		level_id: StringName = &""
 	) -> void:
 	_ensure_modules()
 	_network_module.receive_authoritative_teleport(
@@ -526,7 +532,8 @@ func _net_authoritative_teleport(
 		state_sequence,
 		animation_states,
 		animation_values,
-		presentation_state
+		presentation_state,
+		level_id
 	)
 
 
@@ -1796,14 +1803,20 @@ func can_teleport_to_online_player() -> bool:
 
 
 func teleport_near_node(target: Node3D, offset: Vector3 = Vector3(0.0, 1.0, 0.0)) -> void:
+	if not can_teleport_to_online_player() or not _network_is_local_authority():
+		return
+	if target == null or not is_instance_valid(target):
+		return
+	teleport_near_transform(target.global_transform, offset)
+
+
+func teleport_near_transform(target_transform: Transform3D, offset: Vector3 = Vector3(0.0, 1.0, 0.0)) -> void:
 	if not can_teleport_to_online_player():
 		return
 	if not _network_is_local_authority():
 		return
-	if target == null or not is_instance_valid(target):
-		return
 	var t: Transform3D = global_transform
-	t.origin = target.global_position + offset
+	t.origin = target_transform.origin + offset
 	_apply_respawn_transform(t, false)
 	stop_all_momentum_and_special_movement()
 

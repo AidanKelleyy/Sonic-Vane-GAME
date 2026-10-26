@@ -75,6 +75,7 @@ var _countdown_text_tween: Tween = null
 
 
 func _ready() -> void:
+	MenuNavigation.register_menu(self, _menu_navigation_scope, 15)
 	layer = 50
 	visible = true
 	set_process_unhandled_input(true)
@@ -520,3 +521,10 @@ func _emit_option_and_close(option: StringName) -> void:
 	option_selected.emit(option)
 	visible = false
 	queue_free()
+
+
+func _menu_navigation_scope() -> Dictionary:
+	var scope_root: Control = panel_options
+	if not scope_root or not scope_root.is_visible_in_tree():
+		return {}
+	return {"root": scope_root, "page": "", "default": button_stay}

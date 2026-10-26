@@ -98,7 +98,13 @@ func _on_tree_node_added(node: Node) -> void:
 	if target_root == null or not is_instance_valid(target_root):
 		return
 	if node == target_root or target_root.is_ancestor_of(node):
-		call_deferred("_apply_to_branch", node)
+		call_deferred("_apply_to_instance", node.get_instance_id())
+
+
+func _apply_to_instance(instance_id: int) -> void:
+	var node: Node = instance_from_id(instance_id) as Node
+	if is_instance_valid(node):
+		_apply_to_branch(node)
 
 
 func _apply_to_branch(node: Node) -> void:
@@ -120,6 +126,8 @@ func _apply_to_branch(node: Node) -> void:
 
 
 func _is_background_control(control: Control) -> bool:
+	if bool(control.get_meta(&"crt_background_exempt", false)):
+		return false
 	return (
 		control is Button
 		or control is Panel

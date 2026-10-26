@@ -54,6 +54,8 @@ var _remote_interpolation_started: bool = false
 var _level_present: bool = true
 var _teleport_state_floor: int = 0
 var _teleport_state: Dictionary = {}
+var _teleport_receipt: int = 0
+var _authoritative_teleport_state: Dictionary = {}
 
 
 func _init(owner: Node) -> void:
@@ -269,6 +271,7 @@ func prepare_remote_scene_state(spawn_transform: Transform3D) -> void:
 	player._net_presentation_state = PackedFloat32Array()
 	_teleport_state_floor = 0
 	_teleport_state.clear()
+	_authoritative_teleport_state.clear()
 	_begin_remote_interpolation_bootstrap()
 
 
@@ -277,6 +280,10 @@ func get_state_sequence() -> int:
 	if player == null:
 		return 0
 	return player._net_state_sequence
+
+
+func get_authoritative_teleport_state() -> Dictionary:
+	return _authoritative_teleport_state.duplicate()
 
 
 func request_authoritative_teleport() -> void:
@@ -321,7 +328,8 @@ func publish_teleport_state(target_peer_id: int = 0) -> void:
 			player._net_state_sequence,
 			player._net_animation_states,
 			player._net_animation_values,
-			player._net_presentation_state
+			player._net_presentation_state,
+			StringName(player.get_meta("online_level_id", &""))
 		)
 	else:
 		player.rpc(
@@ -339,7 +347,8 @@ func publish_teleport_state(target_peer_id: int = 0) -> void:
 			player._net_state_sequence,
 			player._net_animation_states,
 			player._net_animation_values,
-			player._net_presentation_state
+			player._net_presentation_state,
+			StringName(player.get_meta("online_level_id", &""))
 		)
 
 
@@ -367,7 +376,8 @@ func receive_authoritative_teleport(
 		state_sequence: int,
 		animation_states: Dictionary,
 		animation_values: Array,
-		presentation_state: PackedFloat32Array
+		presentation_state: PackedFloat32Array,
+		level_id: StringName = &""
 	) -> void:
 	var player = _owner
 	if player == null or not is_active() or player.is_multiplayer_authority():
@@ -378,6 +388,12 @@ func receive_authoritative_teleport(
 	if state_sequence < _teleport_state_floor:
 		return
 	_teleport_state_floor = state_sequence
+	_teleport_receipt += 1
+	_authoritative_teleport_state = {
+		"receipt": _teleport_receipt,
+		"level_id": level_id,
+		"transform": transform_value,
+	}
 	player._net_target_transform = transform_value
 	player._net_target_velocity = velocity_value
 	player._net_target_attached = attached_value

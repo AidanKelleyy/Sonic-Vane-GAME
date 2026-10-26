@@ -82,3 +82,9 @@ func configure(glyph: Dictionary, caption: String, held: bool = false) -> void:
 func set_hold_progress(ratio: float) -> void:
 	if _progress != null:
 		_progress.value = clampf(ratio, 0.0, 1.0)
+
+
+func fit_to_content() -> void:
+	_caption.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_caption.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	reset_size()

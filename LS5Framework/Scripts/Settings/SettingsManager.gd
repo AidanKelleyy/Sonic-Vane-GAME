@@ -123,7 +123,7 @@ const CAMERA_FOV_MAX: float = 120.0
 var camera_far_cutoff: float = 4560.0
 var camera_default_fov: float = 66.0
 var camera_follow_smoothing: float = 39.0
-var camera_dolly_enabled: bool = false
+var camera_dolly_enabled: bool = true
 var camera_player_up_enabled: bool = false
 var camera_target_lookahead_enabled: bool = true
 var camera_target_lookahead_amount: float = 100.0
@@ -177,7 +177,7 @@ const HOMING_TARGETING_CAMERA: int = 1
 const HOMING_TARGETING_HYBRID: int = 2
 
 var homing_targeting_mode: int = HOMING_TARGETING_HYBRID
-var homing_mouse_targeting_mode: int = HOMING_TARGETING_CAMERA
+var homing_mouse_targeting_mode: int = HOMING_TARGETING_HYBRID
 var homing_targeting_separate_by_device: bool = true
 var homing_camera_radius: float = 535.0
 var center_reticle_enabled: bool = true
@@ -346,7 +346,14 @@ func _apply_fps_counter_visibility() -> void:
 # INPUT (F1 reset resolution)
 # =========================================
 func _input(event: InputEvent) -> void:
-	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+	track_input_device(event)
+	# Set "reset_resolution" action to F1 in Input Map
+	if event.is_action_pressed("reset_resolution") and not _is_text_input_focused():
+		_reset_resolution_to_default()
+
+
+func track_input_device(event: InputEvent) -> void:
+	if (event is InputEventJoypadButton and event.pressed) or (event is InputEventJoypadMotion and absf(event.axis_value) >= 0.35):
 		var joy_device: int = int(event.device)
 		if joy_device >= 0:
 			preferred_joypad_device = joy_device
@@ -355,11 +362,11 @@ func _input(event: InputEvent) -> void:
 			_last_input_was_controller = true
 			_last_input_was_mouse = false
 	elif event is InputEventJoypadMotion:
-		if abs(event.axis_value) >= 0.2:
+		if absf(event.axis_value) >= 0.35:
 			_last_input_was_controller = true
 			_last_input_was_mouse = false
 	elif event is InputEventMouseMotion:
-		if event.relative.length_squared() > 0.0:
+		if event.relative.length_squared() > 16.0:
 			_last_input_was_controller = false
 			_last_input_was_mouse = true
 	elif event is InputEventMouseButton:
@@ -370,9 +377,6 @@ func _input(event: InputEvent) -> void:
 		if event.pressed:
 			_last_input_was_controller = false
 			_last_input_was_mouse = false
-	# Set "reset_resolution" action to F1 in Input Map
-	if event.is_action_pressed("reset_resolution") and not _is_text_input_focused():
-		_reset_resolution_to_default()
 
 
 func _is_text_input_focused() -> bool:
@@ -1590,7 +1594,7 @@ func reset_control_settings_to_defaults(action_names: Array) -> void:
 	trick_rotation_acceleration_percent = DEFAULT_TRICK_ROTATION_ACCELERATION_PERCENT
 	mouse_trick_sensitivity_percent = DEFAULT_MOUSE_TRICK_SENSITIVITY_PERCENT
 	homing_targeting_mode = HOMING_TARGETING_HYBRID
-	homing_mouse_targeting_mode = HOMING_TARGETING_CAMERA
+	homing_mouse_targeting_mode = HOMING_TARGETING_HYBRID
 	homing_targeting_separate_by_device = true
 	camera_auto_follow_controller_only = true
 	reset_input_bindings_to_project_defaults(action_names)

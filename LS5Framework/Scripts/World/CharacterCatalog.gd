@@ -208,6 +208,7 @@ static func _load_character_doc_resource(doc_path: String) -> Dictionary:
 	if character_id == "":
 		character_id = character_name.to_snake_case()
 
+	entry["thumbnail"] = res.get("thumbnail")
 	entry["source"] = doc_path
 	entry["name"] = character_name
 	entry["id"] = character_id

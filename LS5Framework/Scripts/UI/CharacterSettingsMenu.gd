@@ -6,16 +6,7 @@ signal closed
 const HOLD_TIME_MIN: float = 0.01
 const HOLD_TIME_MAX: float = 2.0
 const HOLD_TIME_STEP: float = 0.01
-const NAVIGATION_REPEAT_DELAY: float = 0.35
-const NAVIGATION_REPEAT_INTERVAL: float = 0.085
-const NAVIGATION_ROW_TOLERANCE: float = 24.0
 const MENU_VERTICAL_MARGIN: float = 32.0
-const NAVIGATION_ACTIONS: Array[StringName] = [
-	&"ui_up",
-	&"ui_down",
-	&"ui_left",
-	&"ui_right",
-]
 
 @onready var title_label: Label = $Dimmer/Center/Panel/Margin/Content/Title
 ## Panel resized to preserve the menu's viewport border margins.
@@ -33,8 +24,6 @@ const NAVIGATION_ACTIONS: Array[StringName] = [
 
 var _entry: Dictionary = {}
 var _profile: CharacterSettingsProfile = null
-var _held_navigation_action: StringName = &""
-var _navigation_repeat_remaining: float = 0.0
 ## Generated rows for the exposed character attributes.
 var _attribute_rows: VBoxContainer
 ## Scrolling viewport for the generated attribute rows.
@@ -54,6 +43,7 @@ var _attribute_lock_elapsed: float = 0.0
 
 
 func _ready() -> void:
+	MenuNavigation.register_menu(self, _menu_navigation_scope, 30)
 	set_process(true)
 	set_process_input(true)
 	set_process_unhandled_input(true)
@@ -117,256 +107,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _input(event: InputEvent) -> void:
-	if not visible:
-		return
-	if _has_open_option_popup(loadout_rows) or _has_open_option_popup(route_rows) or _has_open_option_popup(_attribute_rows):
-		return
-	if _handle_tab_input(event):
-		_clear_navigation_repeat()
-		get_viewport().set_input_as_handled()
-		return
-	if _held_navigation_action != &"" and event.is_action_released(_held_navigation_action):
-		_clear_navigation_repeat()
-	var navigation_action: StringName = _get_navigation_action_from_event(event)
-	if navigation_action == &"" or _has_open_option_popup(loadout_rows) or _has_open_option_popup(route_rows) or _has_open_option_popup(_attribute_rows):
-		return
-	if navigation_action == _held_navigation_action:
-		get_viewport().set_input_as_handled()
-		return
-	_held_navigation_action = navigation_action
-	_navigation_repeat_remaining = NAVIGATION_REPEAT_DELAY
-	_navigate_focus(navigation_action)
-	get_viewport().set_input_as_handled()
-
-
 func _process(delta: float) -> void:
 	if visible and _attribute_rows:
 		_attribute_lock_elapsed += delta
 		if _attribute_lock_elapsed >= 0.25:
 			_attribute_lock_elapsed = 0.0
 			_refresh_attribute_controls()
-	if not visible or SettingsManager.is_mouse_input_active():
-		_clear_navigation_repeat()
-		return
-	if _held_navigation_action == &"" or not Input.is_action_pressed(_held_navigation_action):
-		_clear_navigation_repeat()
-		return
-	if _has_open_option_popup(loadout_rows) or _has_open_option_popup(route_rows) or _has_open_option_popup(_attribute_rows):
-		_clear_navigation_repeat()
-		return
-	_navigation_repeat_remaining -= delta
-	while _navigation_repeat_remaining <= 0.0:
-		_navigate_focus(_held_navigation_action)
-		_navigation_repeat_remaining += NAVIGATION_REPEAT_INTERVAL
-
-
-func _get_navigation_action_from_event(event: InputEvent) -> StringName:
-	if not (event is InputEventKey or event is InputEventJoypadButton or event is InputEventJoypadMotion):
-		return &""
-	for action: StringName in NAVIGATION_ACTIONS:
-		if event.is_action_pressed(action):
-			return action
-	return &""
-
-
-func _clear_navigation_repeat() -> void:
-	_held_navigation_action = &""
-	_navigation_repeat_remaining = 0.0
-
-
-func _navigate_focus(action: StringName) -> void:
-	var groups: Array = _get_navigation_groups()
-	if groups.is_empty():
-		return
-	var focus_owner: Control = get_viewport().gui_get_focus_owner()
-	var location: Vector2i = _find_navigation_location(groups, focus_owner)
-	if location.x < 0:
-		var first_group: Array = groups[0]
-		if not first_group.is_empty():
-			_grab_navigation_focus(first_group[0] as Control)
-		return
-	var target: Control = null
-	if action == &"ui_left" or action == &"ui_right":
-		target = _get_horizontal_navigation_target(groups, location, action)
-	else:
-		target = _get_vertical_navigation_target(groups, location, action)
-	if target != null and target != focus_owner:
-		_grab_navigation_focus(target)
-
-
-func _grab_navigation_focus(control: Control) -> void:
-	if control == null or not is_instance_valid(control):
-		return
-	control.grab_focus()
-	SettingsManager.call_deferred("ensure_navigation_focus_visible", control)
-
-
-func _get_navigation_groups() -> Array:
-	var groups: Array = []
-	var loadout_tab: Control = tabs.get_node("Loadout") as Control
-	var routes_tab: Control = tabs.get_node("Routes") as Control
-	if tabs.current_tab == tabs.get_tab_idx_from_control(loadout_tab):
-		_append_loadout_navigation_groups(groups)
-	elif tabs.current_tab == tabs.get_tab_idx_from_control(routes_tab):
-		_append_routes_navigation_groups(groups)
-	elif tabs.get_current_tab_control().name == &"Attributes":
-		for child: Node in _attribute_rows.get_children():
-			var controls: Array[Control] = []
-			_collect_primary_focus_targets(child, controls)
-			_append_navigation_group(groups, controls)
-		var buttons: Array[Control] = []
-		for button: Button in [_attribute_apply, _attribute_discard, _attribute_reset]:
-			if not button.disabled:
-				buttons.append(button)
-		_append_navigation_group(groups, buttons)
-	_append_footer_navigation_group(groups)
-	return groups
-
-
-func _append_loadout_navigation_groups(groups: Array) -> void:
-	for child: Node in loadout_rows.get_children():
-		if not (child is VBoxContainer):
-			continue
-		var controls: Array[Control] = []
-		_collect_primary_focus_targets(child, controls)
-		_append_navigation_group(groups, controls)
-
-
-func _append_routes_navigation_groups(groups: Array) -> void:
-	var add_route_controls: Array[Control] = [add_route_button]
-	_append_navigation_group(groups, add_route_controls)
-	for child: Node in route_rows.get_children():
-		if not (child is VBoxContainer):
-			continue
-		var controls: Array[Control] = []
-		_collect_primary_focus_targets(child, controls)
-		_append_visual_navigation_rows(groups, controls)
-
-
-func _append_footer_navigation_group(groups: Array) -> void:
-	var footer_controls: Array[Control] = [reset_button, reset_routes_button, close_button]
-	_append_navigation_group(groups, footer_controls)
-
-
-func _append_visual_navigation_rows(groups: Array, controls: Array[Control]) -> void:
-	if controls.is_empty():
-		return
-	controls.sort_custom(func(first: Control, second: Control) -> bool:
-		return first.get_global_rect().get_center().y < second.get_global_rect().get_center().y
-	)
-	var current_row: Array[Control] = []
-	var row_center_y: float = 0.0
-	for control: Control in controls:
-		var center_y: float = control.get_global_rect().get_center().y
-		if current_row.is_empty() or abs(center_y - row_center_y) <= NAVIGATION_ROW_TOLERANCE:
-			current_row.append(control)
-			row_center_y = _get_average_control_center_y(current_row)
-			continue
-		current_row.sort_custom(func(first: Control, second: Control) -> bool:
-			return first.get_global_rect().get_center().x < second.get_global_rect().get_center().x
-		)
-		_append_navigation_group(groups, current_row)
-		current_row.clear()
-		current_row.append(control)
-		row_center_y = center_y
-	if not current_row.is_empty():
-		current_row.sort_custom(func(first: Control, second: Control) -> bool:
-			return first.get_global_rect().get_center().x < second.get_global_rect().get_center().x
-		)
-		_append_navigation_group(groups, current_row)
-
-
-func _get_average_control_center_y(controls: Array[Control]) -> float:
-	var total: float = 0.0
-	for control: Control in controls:
-		total += control.get_global_rect().get_center().y
-	return total / float(controls.size())
-
-
-func _append_navigation_group(groups: Array, controls: Array[Control]) -> void:
-	var valid_controls: Array[Control] = []
-	for control: Control in controls:
-		if _is_navigation_focus_target(control):
-			valid_controls.append(control)
-	if not valid_controls.is_empty():
-		groups.append(valid_controls)
-
-
-func _collect_primary_focus_targets(root: Node, controls: Array[Control]) -> void:
-	if root == null or not is_instance_valid(root):
-		return
-	if root is Control:
-		var control: Control = root as Control
-		if not control.is_visible_in_tree():
-			return
-		if _is_navigation_focus_target(control):
-			controls.append(control)
-			return
-	for child: Node in root.get_children():
-		_collect_primary_focus_targets(child, controls)
-
-
-func _is_navigation_focus_target(control: Control) -> bool:
-	if control == null or not is_instance_valid(control):
-		return false
-	if not control.is_visible_in_tree() or control.focus_mode == Control.FOCUS_NONE:
-		return false
-	if control is BaseButton and (control as BaseButton).disabled:
-		return false
-	return control is BaseButton or control is LineEdit or control is Range or control is ItemList
-
-
-func _find_navigation_location(groups: Array, focus_owner: Control) -> Vector2i:
-	if focus_owner == null or not is_instance_valid(focus_owner):
-		return Vector2i(-1, -1)
-	for group_index: int in range(groups.size()):
-		var group: Array = groups[group_index]
-		for control_index: int in range(group.size()):
-			var control: Control = group[control_index] as Control
-			if focus_owner == control or control.is_ancestor_of(focus_owner):
-				return Vector2i(group_index, control_index)
-	return Vector2i(-1, -1)
-
-
-func _get_horizontal_navigation_target(groups: Array, location: Vector2i, action: StringName) -> Control:
-	var group: Array = groups[location.x]
-	var direction: int = -1 if action == &"ui_left" else 1
-	var target_index: int = clampi(location.y + direction, 0, group.size() - 1)
-	return group[target_index] as Control
-
-
-func _get_vertical_navigation_target(groups: Array, location: Vector2i, action: StringName) -> Control:
-	var direction: int = -1 if action == &"ui_up" else 1
-	var target_group_index: int = clampi(location.x + direction, 0, groups.size() - 1)
-	var current_group: Array = groups[location.x]
-	var target_group: Array = groups[target_group_index]
-	var current_control: Control = current_group[location.y] as Control
-	var current_center_x: float = current_control.get_global_rect().get_center().x
-	var target: Control = target_group[0] as Control
-	var best_distance: float = abs(target.get_global_rect().get_center().x - current_center_x)
-	for candidate_value: Variant in target_group:
-		var candidate: Control = candidate_value as Control
-		var distance: float = abs(candidate.get_global_rect().get_center().x - current_center_x)
-		if distance < best_distance:
-			target = candidate
-			best_distance = distance
-	return target
-
-
-func _has_open_option_popup(root: Node) -> bool:
-	if root == null or not is_instance_valid(root):
-		return false
-	if root is OptionButton:
-		var popup: PopupMenu = (root as OptionButton).get_popup()
-		if popup != null and popup.visible:
-			return true
-	if root is ColorPickerButton and (root as ColorPickerButton).get_popup().visible:
-		return true
-	for child: Node in root.get_children():
-		if _has_open_option_popup(child):
-			return true
-	return false
 
 
 func _configure_scroll_focus(scroll_container: ScrollContainer) -> void:
@@ -375,29 +121,6 @@ func _configure_scroll_focus(scroll_container: ScrollContainer) -> void:
 	scroll_container.focus_mode = Control.FOCUS_NONE
 	scroll_container.get_v_scroll_bar().focus_mode = Control.FOCUS_NONE
 	scroll_container.get_h_scroll_bar().focus_mode = Control.FOCUS_NONE
-
-
-func _handle_tab_input(event: InputEvent) -> bool:
-	var direction: int = 0
-	if event.is_action_pressed("ui_page_up"):
-		direction = -1
-	elif event.is_action_pressed("ui_page_down"):
-		direction = 1
-	elif event is InputEventJoypadButton:
-		var joy_event: InputEventJoypadButton = event as InputEventJoypadButton
-		if joy_event.pressed:
-			if joy_event.button_index == JOY_BUTTON_LEFT_SHOULDER:
-				direction = -1
-			elif joy_event.button_index == JOY_BUTTON_RIGHT_SHOULDER:
-				direction = 1
-	if direction == 0:
-		return false
-	var tab_count: int = tabs.get_tab_count()
-	if tab_count <= 0:
-		return false
-	tabs.current_tab = wrapi(tabs.current_tab + direction, 0, tab_count)
-	call_deferred("_focus_active_tab")
-	return true
 
 
 func _on_tab_changed(_tab: int) -> void:
@@ -1029,44 +752,10 @@ func _on_reset_routes_pressed() -> void:
 func _on_visibility_changed() -> void:
 	if visible:
 		call_deferred("_focus_active_tab")
-	else:
-		_clear_navigation_repeat()
 
 
 func _focus_active_tab() -> void:
-	if not visible or tabs == null:
-		return
-	if tabs.get_current_tab_control().name == &"Attributes":
-		if _focus_first_control(_attribute_rows):
-			return
-		close_button.grab_focus()
-		return
-	var loadout_tab: Control = tabs.get_node("Loadout") as Control
-	var routes_tab: Control = tabs.get_node("Routes") as Control
-	if tabs.current_tab == tabs.get_tab_idx_from_control(loadout_tab):
-		_focus_first_loadout_control()
-		return
-	if tabs.current_tab == tabs.get_tab_idx_from_control(routes_tab):
-		if add_route_button.visible and not add_route_button.disabled:
-			add_route_button.grab_focus()
-			return
-		if _focus_first_control(route_rows):
-			return
-	close_button.grab_focus()
-
-
-func _focus_first_control(root: Node) -> bool:
-	if root == null or not is_instance_valid(root):
-		return false
-	if root is Control:
-		var control: Control = root as Control
-		if _is_navigation_focus_target(control):
-			control.grab_focus()
-			return true
-	for child: Node in root.get_children():
-		if _focus_first_control(child):
-			return true
-	return false
+	MenuNavigation.restore_focus()
 
 
 func _create_attributes_tab() -> void:
@@ -1281,15 +970,7 @@ func _set_attribute_row_disabled(root: Node, disabled: bool) -> void:
 	for child: Node in root.get_children():
 		_set_attribute_row_disabled(child, disabled)
 
-func _focus_first_loadout_control() -> void:
-	for child: Node in loadout_rows.get_children():
-		if not (child is VBoxContainer):
-			continue
-		var controls: HBoxContainer = child.get_child(1) as HBoxContainer
-		var slot_option: OptionButton = null
-		if controls != null:
-			slot_option = controls.get_node_or_null("Slot") as OptionButton
-		if slot_option != null:
-			slot_option.grab_focus()
-			return
-	close_button.grab_focus()
+func _menu_navigation_scope() -> Dictionary:
+	if not is_visible_in_tree():
+		return {}
+	return {"root": self, "tabs": tabs, "page": str(tabs.current_tab)}

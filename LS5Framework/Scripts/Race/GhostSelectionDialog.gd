@@ -33,6 +33,7 @@ var _focus_before_confirmation: Control = null
 
 
 func _ready() -> void:
+	MenuNavigation.register_menu(self, _menu_navigation_scope, 40)
 	layer = 80
 	visible = true
 	add_to_group("ModalMenu")
@@ -77,11 +78,6 @@ func _input(event: InputEvent) -> void:
 		return
 	if confirm_dialog != null and confirm_dialog.visible:
 		return
-	if ghost_list == null or ghost_list.item_count == 0 or get_viewport().gui_get_focus_owner() != ghost_list:
-		return
-	if event.is_action_pressed("ui_right") or (event.is_action_pressed("ui_down") and _get_selected_index() >= ghost_list.item_count - 1):
-		get_viewport().set_input_as_handled()
-		_focus_list_exit()
 
 
 func _wire_signals() -> void:
@@ -340,21 +336,7 @@ func _cancel() -> void:
 
 
 func _focus_default_control() -> void:
-	if ghost_list != null and ghost_list.item_count > 0:
-		ghost_list.grab_focus()
-		if _get_selected_index() < 0 and ghost_list.item_count > 0:
-			ghost_list.select(0)
-			_update_details()
-			_refresh_buttons()
-		return
-	if button_clear_all != null and not button_clear_all.disabled:
-		button_clear_all.grab_focus()
-		return
-	if button_cancel != null:
-		button_cancel.grab_focus()
-		return
-	if button_select != null:
-		button_select.grab_focus()
+	MenuNavigation.restore_focus()
 
 
 func _focus_list_exit() -> void:
@@ -362,3 +344,10 @@ func _focus_list_exit() -> void:
 		if button != null and not button.disabled:
 			button.grab_focus()
 			return
+
+
+func _menu_navigation_scope() -> Dictionary:
+	var scope_root: Control = confirm_dialog if confirm_dialog.visible else get_node("Root/Panel")
+	if not scope_root or not scope_root.is_visible_in_tree():
+		return {}
+	return {"root": scope_root, "page": ""}

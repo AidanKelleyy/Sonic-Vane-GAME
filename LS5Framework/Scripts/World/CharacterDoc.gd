@@ -26,3 +26,8 @@ class_name CharacterDoc
 @export_group("Attributes")
 ## Optional key/value metadata parsed by gameplay systems.
 @export var attributes: Dictionary = {}
+
+
+@export_group("Menu Presentation")
+## Thumbnail displayed by the centered selection browser.
+@export var thumbnail: Texture2D

@@ -340,6 +340,7 @@ func _ready() -> void:
 			if n != null and is_instance_valid(n):
 				n.queue_free()
 
+	MenuNavigation.register_menu(self, _menu_navigation_scope)
 	# Panels
 	_register_menu_panels()
 	_ensure_camera_tab()
@@ -1323,27 +1324,18 @@ func _on_packs_loaded() -> void:
 	_build_level_list()
 
 
+## Centered category browser for playable characters.
+var _character_browser: CenteredMenuBrowser
+## Centered category browser for playable levels.
+var _level_browser: CenteredMenuBrowser
+
+
 func _build_character_list() -> void:
-	if character_list == null:
-		return
 	_character_entries = CharacterCatalog.load_character_entries(character_data_dir)
-	print("MainMenu: character_entries=%d" % _character_entries.size())
-	if _character_entries.is_empty():
-		print("MainMenu: no character entries found.")
-	var buddy_marker_id: String = SettingsManager.chosen_buddy_character_id if SettingsManager.buddy_active else ""
-	MenuSelectList.populate(
-		character_list,
-		_character_entries,
-		SettingsManager.chosen_character_id,
-		Callable(self, "_on_character_button_pressed"),
-		&"MenuButtons",
-		Callable(self, "_on_character_button_right_pressed"),
-		buddy_marker_id,
-		"Buddy",
-		Callable(self, "_on_character_settings_pressed"),
-		CHARACTER_SETTINGS_ICON
-	)
-	call_deferred("_focus_visible_panel")
+	if not is_instance_valid(_character_browser):
+		_character_browser = _create_centered_browser(panel_character)
+	var buddy_id: String = SettingsManager.chosen_buddy_character_id if SettingsManager.buddy_active else ""
+	_character_browser.configure(_character_entries, "CHARACTER SELECT", SettingsManager.chosen_character_id, _on_character_button_pressed, _on_ButtonCharacterBack_pressed, _on_character_button_right_pressed, buddy_id, _on_character_settings_pressed)
 
 
 func _play_character_ui_voice(voice_class: StringName) -> bool:
@@ -1360,11 +1352,9 @@ func _play_character_ui_voice(voice_class: StringName) -> bool:
 
 func _build_level_list() -> void:
 	_level_entries = LevelCatalog.load_level_entries(level_data_dir)
-	print("MainMenu: level_entries=%d" % _level_entries.size())
-	if _level_entries.is_empty():
-		print("MainMenu: no level entries found.")
-	MenuSelectList.populate(level_list, _level_entries, "", Callable(self, "_on_level_entry_pressed"))
-	call_deferred("_focus_visible_panel")
+	if not is_instance_valid(_level_browser):
+		_level_browser = _create_centered_browser(panel_level)
+	_level_browser.configure(_level_entries, "LEVEL SELECT", "", _on_level_entry_pressed, _on_ButtonLevelBack_pressed)
 
 
 func _on_level_entry_pressed(entry: Dictionary) -> void:
@@ -1623,20 +1613,10 @@ func _process(delta: float) -> void:
 		return
 	if _is_text_input_focused():
 		return
-	var scroll_input: float = SettingsManager.get_signed_action_axis(&"camera_down", &"camera_up", SettingsManager.get_right_stick_deadzone(), &"gamepad")
-	if absf(scroll_input) < 0.05:
-		return
-	var scroll_container: ScrollContainer = _get_active_scroll_container()
-	if scroll_container == null:
-		return
-	var scroll_bar: VScrollBar = scroll_container.get_v_scroll_bar()
-	if scroll_bar == null:
-		return
-	var new_scroll: float = float(scroll_container.scroll_vertical) - scroll_input * 900.0 * delta
-	scroll_container.scroll_vertical = int(clamp(new_scroll, 0.0, scroll_bar.max_value))
 
 
 func _input(event: InputEvent) -> void:
+	SettingsManager.track_input_device(event)
 	if event is InputEventKey:
 		var debug_key_event: InputEventKey = event as InputEventKey
 		if debug_key_event.pressed and not debug_key_event.echo \
@@ -1692,9 +1672,6 @@ func _input(event: InputEvent) -> void:
 	if _menu_transition_active:
 		if event is InputEventKey or event is InputEventJoypadButton or event is InputEventMouseButton:
 			get_viewport().set_input_as_handled()
-		return
-	if _handle_options_tab_input(event):
-		get_viewport().set_input_as_handled()
 		return
 	if _is_confirm_press_event(event):
 		_suppress_hover_after_press()
@@ -2094,31 +2071,6 @@ func _organize_gameplay_sections() -> void:
 		content.move_child(reticle_offset_row, race_heading.get_index())
 
 
-func _handle_options_tab_input(event: InputEvent) -> bool:
-	if not panel_options.visible or tabs_options == null:
-		return false
-	var direction: int = 0
-	if event.is_action_pressed("ui_page_up"):
-		direction = -1
-	elif event.is_action_pressed("ui_page_down"):
-		direction = 1
-	elif event is InputEventJoypadButton:
-		var joy_event: InputEventJoypadButton = event
-		if joy_event.pressed:
-			if joy_event.button_index == JOY_BUTTON_LEFT_SHOULDER:
-				direction = -1
-			elif joy_event.button_index == JOY_BUTTON_RIGHT_SHOULDER:
-				direction = 1
-	if direction == 0:
-		return false
-	var tab_count: int = tabs_options.get_tab_count()
-	if tab_count <= 0:
-		return false
-	tabs_options.current_tab = wrapi(tabs_options.current_tab + direction, 0, tab_count)
-	call_deferred("_focus_visible_panel")
-	return true
-
-
 func _on_options_tab_changed(tab: int) -> void:
 	if _changing_options_tab:
 		return
@@ -2146,72 +2098,7 @@ func _set_tab_title(tab_node: Control, title: String) -> void:
 
 
 func _focus_visible_panel() -> void:
-	if _title_active or (_exit_dialog and _exit_dialog.visible):
-		return
-	if graphics_confirm_dialog.visible:
-		button_confirm_graphics.grab_focus()
-		return
-	if unsaved_graphics_dialog.visible:
-		button_save_unsaved_graphics.grab_focus()
-		return
-	if missing_data_warning.visible:
-		button_dismiss_missing_data.grab_focus()
-		return
-	if panel_main.visible:
-		_focus_first_focusable_control(panel_main)
-		return
-	if panel_character.visible:
-		if not _focus_first_focusable_control(character_list):
-			_focus_first_focusable_control(panel_character)
-		return
-	if panel_level.visible:
-		if not _focus_first_focusable_control(level_list):
-			_focus_first_focusable_control(panel_level)
-		return
-	if panel_online.visible:
-		var online_root: Node = get_node_or_null("Overlay/OnlinePanel/Panel/VBoxOnline/HBoxButtons")
-		if not _focus_first_focusable_control(online_root):
-			_focus_first_focusable_control(panel_online)
-		return
-	if panel_options.visible:
-		var current_tab: Control = null
-		if tabs_options != null and tabs_options.current_tab >= 0:
-			current_tab = tabs_options.get_tab_control(tabs_options.current_tab)
-		if current_tab != null and _focus_first_focusable_control(current_tab):
-			return
-		_focus_first_focusable_control(panel_options)
-		return
-	if panel_credits.visible:
-		_focus_first_focusable_control(panel_credits)
-
-
-func _focus_first_focusable_control(root: Node) -> bool:
-	if root == null or not is_instance_valid(root):
-		return false
-	if root is Control:
-		var control: Control = root
-		if control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE and _is_menu_focus_target(control):
-			control.grab_focus()
-			call_deferred("_ensure_control_visible", control)
-			return true
-	for child in root.get_children():
-		if _focus_first_focusable_control(child):
-			return true
-	return false
-
-
-func _is_menu_focus_target(control: Control) -> bool:
-	return control is BaseButton or control is LineEdit or control is TextEdit or control is Range or control is ItemList
-
-
-func _ensure_control_visible(control: Control) -> void:
-	if control == null or not is_instance_valid(control):
-		return
-	if SettingsManager.is_mouse_input_active():
-		return
-	var scroll_container: ScrollContainer = _find_scroll_container_upwards(control, panel_options)
-	if scroll_container != null:
-		scroll_container.ensure_control_visible(control)
+	MenuNavigation.restore_focus()
 
 
 func _is_text_input_focused() -> bool:
@@ -3081,3 +2968,36 @@ func _cancel_exit() -> void:
 func _on_CheckRememberEmotePage_toggled(pressed: bool) -> void:
 	SettingsManager.set_remember_emote_page(pressed)
 	SettingsManager.save_now()
+
+
+func _menu_navigation_scope() -> Dictionary:
+	if _exit_dialog and _exit_dialog.visible:
+		return {"root": _exit_dialog, "default": _button_exit_cancel}
+	if _loading_started or _title_active or _menu_transition_active:
+		return {}
+	if missing_data_warning.visible:
+		return {"root": missing_data_warning, "default": button_dismiss_missing_data}
+	if reset_defaults_dialog.visible:
+		return {"root": reset_defaults_dialog, "default": button_cancel_reset_defaults}
+	if graphics_confirm_dialog.visible:
+		return {"root": graphics_confirm_dialog, "default": button_revert_graphics}
+	if unsaved_graphics_dialog.visible:
+		return {"root": unsaved_graphics_dialog, "default": button_go_back_unsaved_graphics}
+	if panel_options.visible:
+		return {"root": panel_options, "tabs": tabs_options, "page": str(tabs_options.current_tab), "suspended": _is_input_binding_active(), "description": panel_options.get_node_or_null("Panel/VBoxOptions/MenuDescription")}
+	if panel_character.visible:
+		return {"root": panel_character, "default": _character_browser}
+	if panel_level.visible:
+		return {"root": panel_level, "default": _level_browser}
+	for screen: Control in [panel_main, panel_online, panel_credits]:
+		if screen.visible:
+			return {"root": screen}
+	return {}
+
+
+func _create_centered_browser(screen: Control) -> CenteredMenuBrowser:
+	screen.get_node("Panel").hide()
+	var browser: CenteredMenuBrowser = CenteredMenuBrowser.new()
+	screen.add_child(browser)
+	browser.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	return browser

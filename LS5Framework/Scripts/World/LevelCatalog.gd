@@ -195,6 +195,7 @@ static func _load_level_doc_resource(doc_path: String) -> Dictionary:
 		_log_debug("_load_level_doc_resource: missing name/scene in %s" % doc_path)
 		return {}
 
+	entry["thumbnail"] = res.get("thumbnail")
 	entry["source"] = doc_path
 	entry["name"] = level_name
 	if level_id != "":
