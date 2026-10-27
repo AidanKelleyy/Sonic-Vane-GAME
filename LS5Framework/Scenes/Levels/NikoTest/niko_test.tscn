@@ -1,188 +1,105 @@
 [gd_scene format=3 uid="uid://dn565ekblu308"]
 
 [ext_resource type="PackedScene" uid="uid://bdltank6nne8b" path="res://LS5Framework/Objects/Rings/Ring.tscn" id="1_22v2l"]
-
 [ext_resource type="PackedScene" uid="uid://dab7ow5oahfhc" path="res://LS5Framework/Objects/Homing/HomingTarget.tscn" id="2_7graj"]
-
 [ext_resource type="PackedScene" uid="uid://b2jkv0kca2k6q" path="res://LS5Framework/Objects/Rings/RingSpline.tscn" id="3_ehlmr"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WorldEnvironmentTrigger.tscn" id="3_fgwhi"]
-
 [ext_resource type="PackedScene" uid="uid://c12m0rampjump" path="res://LS5Framework/Objects/Ramps/JumpPanelRamp.tscn" id="4_18sbj"]
-
 [ext_resource type="PackedScene" uid="uid://dyl836mb3fewl" path="res://LS5Framework/Scenes/Levels/BlitzTest/blitz_sonic_test.tscn" id="5_65k7s"]
-
 [ext_resource type="Material" uid="uid://cdrd75vn4rhn5" path="res://LS5Framework/Scenes/Levels/Materials/NikoChecker.tres" id="6_pfl74"]
-
 [ext_resource type="PackedScene" uid="uid://bdko3pequhfe2" path="res://LS5Framework/Scenes/Levels/NikoTest/TestScaled.tscn" id="7_b56cm"]
-
+[ext_resource type="Script" uid="uid://skuwrr20hryx" path="res://LS5Framework/Scenes/Effects/CameraFlare/CameraFlareElement.gd" id="8_bch57"]
 [ext_resource type="PackedScene" uid="uid://dpqdt82o1f57x" path="res://LS5Framework/Objects/Spring/Spring.tscn" id="8_y46bu"]
-
 [ext_resource type="AudioStream" uid="uid://ddq565nrvg0g0" path="res://LS5Framework/Sounds/Music/Collision Chaos 'G' Mix US.ogg" id="9_ehlmr"]
-
 [ext_resource type="PackedScene" uid="uid://e1tkwisehr5p" path="res://LS5Framework/Objects/DashPanels/DashPanel.tscn" id="9_g2p7k"]
-
+[ext_resource type="Texture2D" uid="uid://2psk5tt3epwh" path="res://LS5Framework/Images/Effects/Sun_Flare.png" id="9_i48ms"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="9_mu1lr"]
-
 [ext_resource type="PackedScene" uid="uid://cu32rahix62jt" path="res://LS5Framework/Scenes/Levels/NikoTest/test_circle_1.tscn" id="10_0vtvo"]
-
 [ext_resource type="PackedScene" uid="uid://dpnhnshhijr7l" path="res://LS5Framework/Objects/Actors/Chao/Chao.tscn" id="10_5mp8f"]
-
 [ext_resource type="Shader" uid="uid://p3g0j2rv6t4n" path="res://LS5Framework/Objects/Environment/DayNightCycle/day_night_sky.gdshader" id="10_e4tho"]
-
+[ext_resource type="Texture2D" uid="uid://b8g6kgbrudl3v" path="res://LS5Framework/Images/Effects/Sun_Flare_Thin.png" id="10_svhyb"]
 [ext_resource type="PackedScene" uid="uid://c6xyvqm8rq2k2" path="res://LS5Framework/Objects/Enemies/GroundedBlockout/GroundedEnemyBlockout.tscn" id="11_a6a28"]
-
 [ext_resource type="PackedScene" uid="uid://d1okvbdxqc08b" path="res://LS5Framework/Objects/VaultBar/VaultBar.tscn" id="13_07blk"]
-
 [ext_resource type="PackedScene" uid="uid://vypkwgl0dpr8" path="res://LS5Framework/Objects/Bumper/Test/Bumper_Directional.tscn" id="13_ega4b"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedGuided.tscn" id="13_ijfms"]
-
 [ext_resource type="PackedScene" uid="uid://dcow1cl6vd0n3" path="res://LS5Framework/Objects/Music/MusicTrigger.tscn" id="14_8fh1j"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Race/RaceObjectLayout.tscn" id="14_ax8r5"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Bumper/Test/Bumper_Overcharged.tscn" id="14_iwaxd"]
-
 [ext_resource type="AudioStream" uid="uid://bhr1hmgim63vb" path="res://LS5Framework/Sounds/Music/1-20 Letz Get This Party Started.mp3" id="15_01uw4"]
-
 [ext_resource type="PackedScene" uid="uid://bl1xupocp4dlw" path="res://LS5Framework/Objects/Bumper/Test/Bumper_RadialClassic.tscn" id="15_pmxsj"]
-
 [ext_resource type="PackedScene" uid="uid://dcok1e2uobeqg" path="res://LS5Framework/Objects/Bumper/Test/Bumper_SurfaceNormal.tscn" id="16_ak7f8"]
-
 [ext_resource type="PackedScene" uid="uid://yb5utiaqix3e" path="res://LS5Framework/Objects/Bumper/Test/Bumper_SurfaceNormal_SADXHeadTest.tscn" id="17_iwaxd"]
-
 [ext_resource type="PackedScene" uid="uid://ghucsw5061eo" path="res://LS5Framework/Objects/Gameplay/DeathPlane.tscn" id="18_u5mvm"]
-
 [ext_resource type="PackedScene" uid="uid://c1g10s7pyb8t3" path="res://LS5Framework/Objects/Gameplay/Checkpoint.tscn" id="19_s3xwx"]
-
 [ext_resource type="PackedScene" uid="uid://by35k35q3p0d1" path="res://LS5Framework/Objects/Rail/Rail.tscn" id="22_p0x6m"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="23_spawn"]
-
 [ext_resource type="Texture2D" uid="uid://ddvmsaux20gfe" path="res://LS5Framework/Scenes/Levels/Green Hill Ocean/GHO_23.jpg" id="23_tqx1w"]
-
 [ext_resource type="Material" uid="uid://cdkxuup2k8gy2" path="res://LS5Framework/Scenes/Levels/NikoTest/Materials/Checker.tres" id="24_5l7yj"]
-
 [ext_resource type="PackedScene" uid="uid://bswvitj3v4stb" path="res://LS5Framework/Objects/Rail/RailBooster.tscn" id="24_334di"]
-
 [ext_resource type="PackedScene" uid="uid://cyglqqs3uhsy0" path="res://LS5Framework/Objects/Camera/CameraConstraint.tscn" id="28_nydfv"]
-
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="31_x6a63"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/PhysicsShapeEmitter.tscn" id="33_58wob"]
-
 [ext_resource type="PackedScene" uid="uid://b6t3r2nak1q0p" path="res://LS5Framework/Objects/Terminal/Terminal.tscn" id="34_a5p52"]
-
 [ext_resource type="PackedScene" uid="uid://bucbdoyievjwl" path="res://LS5Framework/Objects/Race/RaceStart.tscn" id="35_ftftv"]
-
 [ext_resource type="PackedScene" uid="uid://bktxefyel8i42" path="res://LS5Framework/Objects/Race/RaceGoal.tscn" id="36_vrbq5"]
-
 [ext_resource type="Script" uid="uid://04dv4knhynpt" path="res://LS5Framework/Objects/MovingPlatform/RigidBodyPlatform.gd" id="37_2ywqk"]
-
 [ext_resource type="Shader" uid="uid://coo7mvt00c0xt" path="res://LS5Framework/Objects/Race/GoalRing/goal_ring_swap.gdshader" id="41_1i28t"]
-
 [ext_resource type="PackedScene" uid="uid://dm7cuouef12s7" path="res://LS5Framework/Scenes/Levels/NikoTest/TestRampHalf_Narrow_1.glb" id="41_i15uf"]
-
 [ext_resource type="Texture2D" uid="uid://cly188qsju2u6" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL.png" id="42_4rehq"]
-
 [ext_resource type="PackedScene" uid="uid://bc2xismjbxyaw" path="res://LS5Framework/Scenes/Levels/NikoTest/TestRamp_45Ramp.glb" id="42_u8dme"]
-
 [ext_resource type="Texture2D" uid="uid://c1m7ix7sf8vvr" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL_GLOW.png" id="43_jfrcj"]
-
 [ext_resource type="AudioStream" uid="uid://db86jppyv14ec" path="res://LS5Framework/Sounds/Music/Ska Cha Cha.ogg" id="44_07blk"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gravity/PlanetaryGravity.tscn" id="45_qirib"]
-
 [ext_resource type="PackedScene" uid="uid://bc31meew3vcbi" path="res://LS5Framework/Objects/Testing/Sphere_Inverted.glb" id="50_736jh"]
-
 [ext_resource type="Script" uid="uid://c2vkgx1ocpd33" path="res://LS5Framework/Objects/Props/PropBody3D.gd" id="51_a6a28"]
-
 [ext_resource type="PackedScene" uid="uid://ddj7d3ue1la8i" path="res://LS5Framework/Objects/Carry/CarryableCrate.tscn" id="52_ak7f8"]
-
 [ext_resource type="PackedScene" uid="uid://cwsdj34dkp0dx" path="res://LS5Framework/Objects/ItemMonitor/ItemMonitor.tscn" id="52_mu1lr"]
-
 [ext_resource type="Script" uid="uid://bgccl8q6bo21v" path="res://LS5Framework/Scripts/Camera/Constraints/CameraInfluenceTrait.gd" id="52_syfp7"]
-
 [ext_resource type="PackedScene" uid="uid://c3gu5qijp7yb3" path="res://LS5Framework/Objects/Enemies/SpikeBall/SpikeBall.tscn" id="53_mu1lr"]
-
 [ext_resource type="Script" uid="uid://bbqjenpejk0mi" path="res://LS5Framework/Objects/ItemMonitor/ItemMonitorReward.gd" id="53_tg66e"]
-
 [ext_resource type="PackedScene" uid="uid://crpqw8jeu0oih" path="res://LS5Framework/Objects/Testing/Sphere_parameters.glb" id="54_tg66e"]
-
 [ext_resource type="PackedScene" uid="uid://d0twxxsygymbf" path="res://LS5Framework/Objects/Enemies/MonoBeetle_SA2/FlyingEnemy_SA2MonoBeetle.tscn" id="57_5mp8f"]
-
 [ext_resource type="PackedScene" uid="uid://cl7c1iu4xvpq7" path="res://LS5Framework/Objects/Gameplay/GazeTarget.tscn" id="57_blvjp"]
-
 [ext_resource type="Script" uid="uid://h8r2mdi12h8a" path="res://LS5Framework/Objects/Enemies/Core/Components/EnemySelfDestructOnContactDamage.gd" id="58_5mp8f"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedRibbon.tscn" id="60_sq2vv"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedDepthProfile.tscn" id="61_depth_profile"]
-
 [ext_resource type="PackedScene" uid="uid://t1db85176ty3" path="res://LS5Framework/Objects/Reference/RULER/Ruler.tscn" id="64_1i28t"]
-
 [ext_resource type="PackedScene" uid="uid://c5gr2xrmhumi6" path="res://LS5Framework/Objects/Reference/CharacterReference.tscn" id="64_ebmlk"]
-
 [ext_resource type="PackedScene" uid="uid://mfeo556qvxlx" path="res://LS5Framework/Objects/Testing/Cube_intangible_forceroll.glb" id="70_r8jnm"]
-
 [ext_resource type="PackedScene" uid="uid://bmyw2thfo3cal" path="res://LS5Framework/Objects/Testing/Cube _forcecling.glb" id="71_ncnqb"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/MetadataExamples/MetadataTrigger.tscn" id="72_c1j06"]
-
 [ext_resource type="PackedScene" uid="uid://c15vrcyi6ollv" path="res://LS5Framework/Objects/Surface/Examples/DamageTrigger.tscn" id="73_l23he"]
-
 [ext_resource type="Script" uid="uid://b5g1878ghq72j" path="res://LS5Framework/Scripts/World/SurfaceTraits/SurfaceHazardTrait.gd" id="74_anuua"]
-
 [ext_resource type="PackedScene" uid="uid://dw238kqstk7l0" path="res://LS5Framework/Objects/Surface/Examples/DeathTrigger.tscn" id="75_2pldv"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Surface/Examples/ForceRollTrigger.tscn" id="76_muffe"]
-
 [ext_resource type="Script" uid="uid://ct0qqxifr786k" path="res://LS5Framework/Scripts/World/SurfaceTraits/SurfaceMovementTrait.gd" id="77_5l7yj"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Surface/Examples/ForceRollSurface.tscn" id="78_3yimx"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Surface/Examples/ShapeOverrides.tscn" id="79_4n6d6"]
-
 [ext_resource type="PackedScene" uid="uid://dyafo7cq17b5h" path="res://LS5Framework/Objects/Water/Examples/Adventure_Pool.tscn" id="80_luhu6"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Surface/Examples/ForceClingTrigger.tscn" id="80_tt4we"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Water_Sphere.tscn" id="81_anuua"]
-
 [ext_resource type="Script" uid="uid://e0l7hayvgaxs" path="res://LS5Framework/Scripts/World/SurfaceTraits/SurfaceAttachmentTrait.gd" id="81_jvpi5"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Tilted_Box.tscn" id="82_2pldv"]
-
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Presets/GuidedRun.tscn" id="95_e8hu0"]
+[ext_resource type="Script" uid="uid://fgg8dytkclkp" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSurfaceTrait.gd" id="96_16jt8"]
+[ext_resource type="Script" uid="uid://c4y54qtbrrfqu" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationTransitionTrait.gd" id="97_2c72k"]
+[ext_resource type="Script" uid="uid://b7uk5wd1l6es3" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInfluenceTrait.gd" id="98_mwm1o"]
 [ext_resource type="Script" uid="uid://cdupr030jgwkv" path="res://LS5Framework/Scripts/Camera/Constraints/CameraActivationTrait.gd" id="cam_trait_activation"]
-
 [ext_resource type="Script" uid="uid://dyshixousqyx8" path="res://LS5Framework/Scripts/Camera/Constraints/CameraLensTrait.gd" id="cam_trait_lens"]
-
 [ext_resource type="Script" uid="uid://c3qjp7m108bma" path="res://LS5Framework/Scripts/Camera/Constraints/CameraOrientationTrait.gd" id="cam_trait_orientation"]
-
 [ext_resource type="Script" uid="uid://ejxv0c1rj01v" path="res://LS5Framework/Scripts/Camera/Constraints/CameraPositionTrait.gd" id="cam_trait_position"]
-
 [ext_resource type="Script" uid="uid://upi4v3qbppsx" path="res://LS5Framework/Scripts/Camera/Constraints/CameraTransitionTrait.gd" id="cam_trait_transition"]
-
+[ext_resource type="Script" uid="uid://co1fa4o3qwtnm" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationCameraTrait.gd" id="phase6_AutomationCameraTrait"]
+[ext_resource type="Script" uid="uid://bs4ckgoufdhv8" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="phase6_AutomationInputTrait"]
+[ext_resource type="Script" uid="uid://bnlde333urbaw" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="phase6_AutomationPositionTrait"]
+[ext_resource type="Script" uid="uid://nxjyy5t3b5te" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationRibbonTrait.gd" id="phase6_AutomationRibbonTrait"]
+[ext_resource type="Script" uid="uid://6kwtvu2yoo6c" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSpeedTrait.gd" id="phase6_AutomationSpeedTrait"]
+[ext_resource type="Script" uid="uid://dckb0huih8mcp" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="phase6_AutomationSteeringTrait"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Props/BadnikBounceTarget.tscn" id="prop_bounce"]
-
 [ext_resource type="PackedScene" uid="uid://3oynpvht654i" path="res://LS5Framework/Objects/Crates/Wood/CarryableWoodCrate.tscn" id="prop_carry_wood"]
-
 [ext_resource type="PackedScene" uid="uid://d1aw6tx6bcf3m" path="res://LS5Framework/Objects/Crates/Wood/WoodCrate.tscn" id="prop_wood"]
 
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="phase6_AutomationInputTrait"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="phase6_AutomationSteeringTrait"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="phase6_AutomationPositionTrait"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSpeedTrait.gd" id="phase6_AutomationSpeedTrait"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationRibbonTrait.gd" id="phase6_AutomationRibbonTrait"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationCameraTrait.gd" id="phase6_AutomationCameraTrait"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_5l7yj"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qqhw5"]
 resource_local_to_scene = true
 shader = ExtResource("10_e4tho")
 shader_parameter/sun_direction = Vector3(0.7071068, 0.7071068, 0)
@@ -240,16 +157,16 @@ shader_parameter/below_horizon_detail = 1.0
 shader_parameter/below_horizon_curvature = 1.0
 shader_parameter/below_horizon_haze_strength = 0.72
 
-[sub_resource type="Sky" id="Sky_3yimx"]
+[sub_resource type="Sky" id="Sky_205et"]
 resource_local_to_scene = true
-sky_material = SubResource("ShaderMaterial_5l7yj")
+sky_material = SubResource("ShaderMaterial_qqhw5")
 process_mode = 3
 
-[sub_resource type="Environment" id="Environment_4n6d6"]
+[sub_resource type="Environment" id="Environment_mgnou"]
 resource_local_to_scene = true
 background_mode = 2
 background_energy_multiplier = 1.0000001
-sky = SubResource("Sky_3yimx")
+sky = SubResource("Sky_205et")
 ambient_light_source = 3
 ambient_light_color = Color(0.14947294, 0.39137825, 0.8443084, 1)
 ambient_light_sky_contribution = 0.82
@@ -277,6 +194,38 @@ fog_sky_affect = 0.35
 fog_depth_begin = 0.0
 fog_depth_end = 4000.0
 adjustment_enabled = true
+
+[sub_resource type="Resource" id="Resource_1dotr"]
+resource_local_to_scene = true
+script = ExtResource("8_bch57")
+texture = ExtResource("9_i48ms")
+axis_position = 0.55
+diameter = 0.44
+tint = Color(0.75, 0.88, 1, 0.38)
+
+[sub_resource type="Resource" id="Resource_avsee"]
+resource_local_to_scene = true
+script = ExtResource("8_bch57")
+texture = ExtResource("10_svhyb")
+axis_position = 0.2
+diameter = 0.16
+tint = Color(0.8, 1, 0.9, 0.28)
+
+[sub_resource type="Resource" id="Resource_uwgg4"]
+resource_local_to_scene = true
+script = ExtResource("8_bch57")
+texture = ExtResource("9_i48ms")
+axis_position = 1.05
+diameter = 0.075
+tint = Color(0.65, 0.85, 1, 0.3)
+
+[sub_resource type="Resource" id="Resource_t7kbn"]
+resource_local_to_scene = true
+script = ExtResource("8_bch57")
+texture = ExtResource("10_svhyb")
+axis_position = 1.65
+diameter = 0.22
+tint = Color(0.85, 0.75, 1, 0.2)
 
 [sub_resource type="Curve3D" id="Curve3D_o3xuo"]
 _data = {
@@ -327,11 +276,11 @@ _data = {
 }
 point_count = 3
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_tt4we"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_us0iu"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_jvpi5"]
+[sub_resource type="Curve3D" id="Curve3D_0igho"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -339,11 +288,11 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_pkwk4"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_cq5cr"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_ydo33"]
+[sub_resource type="Curve3D" id="Curve3D_6xdjo"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 13.835, 0, -55.915, 106.51, 0.295, 0, 0, 0, 0, -98.39, -19.43, 0, 0, 0, 7.03, 71.747, 14.025),
@@ -375,6 +324,56 @@ emission_energy_multiplier = 3.0
 backlight = Color(0.7204674, 0.7204675, 0.7204674, 1)
 uv1_scale = Vector3(4.695, 4.695, 4.695)
 texture_filter = 0
+
+[sub_resource type="Resource" id="Resource_e6gbj"]
+resource_local_to_scene = true
+resource_name = "Canonical heading"
+script = ExtResource("phase6_AutomationSteeringTrait")
+canonical_direction = true
+strength = 1.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_d0k5m"]
+resource_local_to_scene = true
+resource_name = "Authored turn limit"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 1
+canonical_direction = true
+turn_rate = 240.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_mvlsq"]
+resource_local_to_scene = true
+resource_name = "Speed-scaled attraction"
+script = ExtResource("phase6_AutomationPositionTrait")
+mode = 3
+attraction_acceleration = 3.0
+attraction_per_speed = 0.035
+attraction_speed_scale = 0.02
+max_acceleration = 1000000.0
+
+[sub_resource type="Resource" id="Resource_rqnmg"]
+resource_local_to_scene = true
+resource_name = "Canonical propulsion"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 1
+canonical_direction = true
+allow_braking = false
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_6a74y"]
+resource_local_to_scene = true
+resource_name = "Authored player soft cap"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 2
+player_top_speed = true
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_w8lr4"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+allow_braking = false
 
 [sub_resource type="Curve3D" id="Curve3D_dpt8e"]
 _data = {
@@ -515,27 +514,27 @@ duration = 2.0
 [sub_resource type="BoxShape3D" id="BoxShape3D_x6a63"]
 size = Vector3(97.3692, 157.25708, 238.4136)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_344ll"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2nq5r"]
 render_priority = 0
 shader = ExtResource("41_1i28t")
 shader_parameter/tex_flat = ExtResource("42_4rehq")
 shader_parameter/tex_glow = ExtResource("43_jfrcj")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 408.651
+shader_parameter/swap_time = 4384.274
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_ncnqb"]
 height = 8.0
 radius = 18.006348
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_jsxg6"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_subo7"]
 render_priority = 0
 shader = ExtResource("41_1i28t")
 shader_parameter/tex_flat = ExtResource("42_4rehq")
 shader_parameter/tex_glow = ExtResource("43_jfrcj")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 408.651
+shader_parameter/swap_time = 4384.274
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vrbq5"]
 bounce = 1.0
@@ -775,23 +774,23 @@ roughness = 0.17
 [sub_resource type="SphereShape3D" id="SphereShape3D_736jh"]
 radius = 10.0
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_ww8qt"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_fr6h1"]
 resource_local_to_scene = true
 radius = 40.0
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_0gvoy"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_kwuk6"]
 resource_local_to_scene = true
 radius = 40.0
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_lraxv"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_rd0n2"]
 resource_local_to_scene = true
 radius = 40.0
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_a6b6k"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_w658v"]
 resource_local_to_scene = true
 radius = 40.0
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_bch57"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_u8ox3"]
 resource_local_to_scene = true
 radius = 40.0
 
@@ -807,59 +806,103 @@ height = 35.984375
 radius = 4.0
 height = 36.0
 
-[sub_resource type="Resource" id="Resource_i48ms"]
+[sub_resource type="Resource" id="Resource_anhwa"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_svhyb"]
+[sub_resource type="Resource" id="Resource_e6665"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 1
 amount = 69.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_e8hu0"]
+[sub_resource type="Resource" id="Resource_vlmwq"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 1
 amount = 420.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_16jt8"]
+[sub_resource type="Resource" id="Resource_d2gvb"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 1
 amount = 666.6
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_2c72k"]
+[sub_resource type="Resource" id="Resource_7fvdp"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 1
 amount = 10.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_mwm1o"]
+[sub_resource type="Resource" id="Resource_axs3y"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 1
 amount = 10.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_qqhw5"]
+[sub_resource type="Resource" id="Resource_en26y"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 6
 amount = 1.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_205et"]
+[sub_resource type="Resource" id="Resource_66fii"]
 resource_local_to_scene = true
 script = ExtResource("53_tg66e")
 reward_type = 8
 amount = 1.0
 random_ring_pool = null
+
+[sub_resource type="Resource" id="Resource_o440e"]
+resource_local_to_scene = true
+resource_name = "Authored terrain ribbon"
+script = ExtResource("phase6_AutomationRibbonTrait")
+entry_blend_distance = 18.0
+exit_blend_distance = 18.0
+capture_entry_depth_offset = false
+adaptive_centerline_strength = 6.0
+adaptive_centerline_max_speed = 16.0
+adaptive_centerline_max_offset = 30.0
+max_position_correction_speed = 20.0
+mode = 2
+airborne = true
+
+[sub_resource type="Resource" id="Resource_mhc45"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+allow_braking = false
+block_drift = true
+airborne = true
+
+[sub_resource type="Resource" id="Resource_vhwvb"]
+resource_local_to_scene = true
+resource_name = "Signed ribbon input"
+script = ExtResource("phase6_AutomationInputTrait")
+mode = 1
+input_deadzone = 0.05
+airborne = true
+
+[sub_resource type="Resource" id="Resource_vol7w"]
+resource_local_to_scene = true
+resource_name = "Authored side-view camera"
+script = ExtResource("phase6_AutomationCameraTrait")
+aim_offset_uses_player_up = true
+camera_path_lead_distance = 2.5
+camera_velocity_lead_time = 0.08
+camera_max_lead_distance = 8.0
+camera_lead_direction_speed = 2.0
+camera_lead_smoothing = 3.0
+camera_lead_recenter_smoothing = 2.5
+camera_lead_max_adjustment_speed = 12.0
+entry_smoothing_enabled = true
 
 [sub_resource type="Curve3D" id="Curve3D_ejlbq"]
 bake_interval = 0.1
@@ -895,7 +938,7 @@ size = Vector3(195.52747, 27.85772, 131.37909)
 [sub_resource type="BoxShape3D" id="BoxShape3D_0c4yb"]
 size = Vector3(195.52747, 27.85772, 131.37909)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_mgnou"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_im67i"]
 resource_local_to_scene = true
 size = Vector3(34, 6, 12)
 
@@ -905,17 +948,17 @@ cull_mode = 2
 shading_mode = 0
 albedo_color = Color(1, 0.65, 0.12, 0.18)
 
-[sub_resource type="BoxMesh" id="BoxMesh_1dotr"]
+[sub_resource type="BoxMesh" id="BoxMesh_jpcak"]
 resource_local_to_scene = true
 material = SubResource("Material")
 size = Vector3(34, 6, 12)
 
-[sub_resource type="Resource" id="Resource_avsee"]
+[sub_resource type="Resource" id="Resource_b0xqo"]
 resource_local_to_scene = true
 script = ExtResource("74_anuua")
 override_damage = true
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_uwgg4"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_cnotl"]
 resource_local_to_scene = true
 size = Vector3(12, 6, 12)
 
@@ -925,17 +968,17 @@ cull_mode = 2
 shading_mode = 0
 albedo_color = Color(1, 0.123482876, 0.25281653, 0.18039216)
 
-[sub_resource type="BoxMesh" id="BoxMesh_t7kbn"]
+[sub_resource type="BoxMesh" id="BoxMesh_k0vg4"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_te7fm")
 size = Vector3(12, 6, 12)
 
-[sub_resource type="Resource" id="Resource_us0iu"]
+[sub_resource type="Resource" id="Resource_2btkb"]
 resource_local_to_scene = true
 script = ExtResource("77_5l7yj")
 rolling = 1
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_0igho"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_4y3dw"]
 resource_local_to_scene = true
 size = Vector3(12, 6, 12)
 
@@ -945,26 +988,26 @@ cull_mode = 2
 shading_mode = 0
 albedo_color = Color(1, 0.65, 0.12, 0.18)
 
-[sub_resource type="BoxMesh" id="BoxMesh_cq5cr"]
+[sub_resource type="BoxMesh" id="BoxMesh_147he"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_w658v")
 size = Vector3(12, 6, 12)
 
-[sub_resource type="Resource" id="Resource_6xdjo"]
+[sub_resource type="Resource" id="Resource_w402f"]
 resource_local_to_scene = true
 script = ExtResource("77_5l7yj")
 rolling = 1
 
-[sub_resource type="Resource" id="Resource_e6gbj"]
+[sub_resource type="Resource" id="Resource_0a7mq"]
 resource_local_to_scene = true
 script = ExtResource("81_jvpi5")
 force_cling = 1
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_d0k5m"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_krjiy"]
 resource_local_to_scene = true
 size = Vector3(16, 49.39502, 13.51416)
 
-[sub_resource type="BoxMesh" id="BoxMesh_mvlsq"]
+[sub_resource type="BoxMesh" id="BoxMesh_qcmj1"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_w658v")
 size = Vector3(16, 49.39502, 13.51416)
@@ -1071,26 +1114,26 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="Resource" id="Resource_rqnmg"]
+[sub_resource type="Resource" id="Resource_6udsc"]
 resource_local_to_scene = true
 script = ExtResource("81_jvpi5")
 force_cling = 1
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_6a74y"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_h6tk4"]
 resource_local_to_scene = true
 size = Vector3(31.128418, 402.48187, 174.13367)
 
-[sub_resource type="BoxMesh" id="BoxMesh_w8lr4"]
+[sub_resource type="BoxMesh" id="BoxMesh_yft5e"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_w658v")
 size = Vector3(31.128418, 402.48187, 174.13367)
 
-[sub_resource type="Resource" id="Resource_2nq5r"]
+[sub_resource type="Resource" id="Resource_e5sao"]
 resource_local_to_scene = true
 script = ExtResource("74_anuua")
 death = 1
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_subo7"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_2ebkm"]
 resource_local_to_scene = true
 size = Vector3(12, 6, 12)
 
@@ -1100,201 +1143,93 @@ cull_mode = 2
 shading_mode = 0
 albedo_color = Color(1, 0.2842292, 0.6170419, 0.18039216)
 
-[sub_resource type="BoxMesh" id="BoxMesh_fr6h1"]
+[sub_resource type="BoxMesh" id="BoxMesh_06dbv"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_y1fnd")
 size = Vector3(12, 6, 12)
 
-[sub_resource type="Resource" id="phase6_14_0"]
+[sub_resource type="Resource" id="Resource_usq3r"]
 resource_local_to_scene = true
-script = ExtResource("phase6_AutomationInputTrait")
-resource_name = "Authored action permissions"
-grounded = true
-airborne = false
-block_movement = false
-block_jump = false
-block_roll_spindash = false
-block_abilities = false
-block_drift = false
-allow_braking = false
-
-[sub_resource type="Resource" id="phase6_14_1"]
-resource_local_to_scene = true
+resource_name = "Guided heading"
 script = ExtResource("phase6_AutomationSteeringTrait")
-resource_name = "Canonical heading"
-grounded = true
-airborne = false
-mode = 0
-strength = 1.0
-canonical_direction = true
-allow_pullback = false
+strength = 0.5
 
-[sub_resource type="Resource" id="phase6_14_2"]
+[sub_resource type="Resource" id="Resource_7wg4m"]
 resource_local_to_scene = true
+resource_name = "Momentum alignment"
 script = ExtResource("phase6_AutomationSteeringTrait")
-resource_name = "Authored turn limit"
-grounded = true
-airborne = false
 mode = 1
-turn_rate = 240.0
-canonical_direction = true
-allow_pullback = false
+turn_rate = 350.0
 
-[sub_resource type="Resource" id="phase6_14_3"]
+[sub_resource type="Resource" id="Resource_7xrdd"]
 resource_local_to_scene = true
+resource_name = "Guided corridor"
 script = ExtResource("phase6_AutomationPositionTrait")
-resource_name = "Speed-scaled attraction"
-grounded = true
-airborne = false
-mode = 3
-attraction_acceleration = 3.0
-attraction_per_speed = 0.035
-attraction_speed_scale = 0.02
-attraction_radius = 0.0
-max_acceleration = 1000000.0
+attraction_acceleration = 238.0
+attraction_per_speed = 2.38
+attraction_speed_scale = 0.004
+free_radius = 50.0
+max_acceleration = 29.0
 
-[sub_resource type="Resource" id="phase6_14_4"]
+[sub_resource type="Resource" id="Resource_paqjp"]
 resource_local_to_scene = true
+resource_name = "Input speed assistance"
 script = ExtResource("phase6_AutomationSpeedTrait")
-resource_name = "Canonical propulsion"
-grounded = true
-airborne = false
-mode = 1
-canonical_direction = true
-target_speed = 35.0
-acceleration = 18.0
-affect_rolling = true
-allow_braking = false
+target_speed = 45.0
+acceleration = 25.0
 
-[sub_resource type="Resource" id="phase6_14_5"]
+[sub_resource type="Resource" id="Resource_ywpar"]
 resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSpeedTrait")
-resource_name = "Authored player soft cap"
-grounded = true
-airborne = false
-mode = 2
-target_speed = 35.0
-player_top_speed = true
-affect_rolling = true
+resource_name = "Terrain frame"
+script = ExtResource("96_16jt8")
 
-[sub_resource type="Resource" id="phase6_15_0"]
+[sub_resource type="Resource" id="Resource_b8x8u"]
 resource_local_to_scene = true
+resource_name = "Jump breakaway"
 script = ExtResource("phase6_AutomationInputTrait")
-resource_name = "Authored action permissions"
-grounded = true
-airborne = true
-block_movement = false
-block_jump = false
-block_roll_spindash = false
-block_abilities = false
-block_drift = true
-allow_braking = false
 
-[sub_resource type="Resource" id="phase6_15_1"]
+[sub_resource type="Resource" id="Resource_oykjf"]
 resource_local_to_scene = true
-script = ExtResource("phase6_AutomationRibbonTrait")
-resource_name = "Authored terrain ribbon"
-grounded = true
-airborne = true
-entry_blend_distance = 18.0
-exit_blend_distance = 18.0
-transition_ease = 2
-constrain_airborne = true
-constrain_special_moves = true
-cubic_path_sampling = true
-tangent_lookahead = 0.5
-plane_frame_mode = 0
-reverse_plane_normal = false
-preserve_frame_through_degenerate_segments = true
-surface_frame_enabled = true
-surface_traversal_mode = 1
-surface_frame_preserve_ribbon_normal = true
-surface_frame_influence = 1.0
-surface_frame_uses_velocity = false
-surface_frame_min_speed = 2.0
-terrain_tangent_alignment_strength = 6.0
-capture_entry_depth_offset = false
-captured_depth_transition_enabled = true
-follow_unanchored_surface_depth = false
-adaptive_centerline_enabled = true
-adaptive_centerline_grounded_only = true
-adaptive_centerline_strength = 6.0
-adaptive_centerline_max_speed = 16.0
-adaptive_centerline_max_offset = 30.0
-adaptive_centerline_deadzone = 0.02
-terrain_piece_anchors_enabled = false
-terrain_piece_anchor_metadata = &"automation_25d_centerline_anchor"
-terrain_piece_anchor_parent_search = 8
-depth_offset_splines_enabled = true
-strict_position_lock = true
-post_slide_constraint_pass_enabled = true
-position_lock_strength = 12.0
-max_position_correction_speed = 20.0
-position_lock_deadzone = 0.005
-strict_velocity_lock = true
-disable_turning_slowdown = true
-velocity_lock_strength = 18.0
-sideways_removal_speed_preservation = 0.0
+resource_name = "Entry"
+script = ExtResource("97_2c72k")
+channels = 7
+duration = 0.25
 
-[sub_resource type="Resource" id="phase6_15_2"]
+[sub_resource type="Resource" id="Resource_xfcha"]
 resource_local_to_scene = true
-script = ExtResource("phase6_AutomationInputTrait")
-resource_name = "Signed ribbon input"
-grounded = true
-airborne = true
-mode = 1
-reverse_axis = false
-input_deadzone = 0.05
+resource_name = "Exit"
+script = ExtResource("97_2c72k")
+phase = 1
+channels = 7
+duration = 0.25
 
-[sub_resource type="Resource" id="phase6_15_3"]
+[sub_resource type="Resource" id="Resource_bjeau"]
 resource_local_to_scene = true
-script = ExtResource("phase6_AutomationCameraTrait")
-resource_name = "Authored side-view camera"
-camera_enabled = true
-constraint_priority = 10
-override_previous_camera_constraints = false
-camera_side = 0
-camera_up_mode = 0
-disable_camera_controls = true
-face_player = false
-aim_strength = 1.0
-aim_smooth = 14.0
-aim_target_offset = Vector3(0, 1.5, 0)
-aim_offset_uses_player_up = true
-aim_up_uses_player_up = false
-allow_roll = false
-roll_deg = 0.0
-override_use_player_up = true
-target_use_player_up = false
-distance_override_enabled = true
-distance_override = 18.0
-camera_vertical_offset = 2.0
-camera_path_lead_distance = 2.5
-camera_velocity_lead_time = 0.08
-camera_max_lead_distance = 8.0
-camera_lead_direction_speed = 2.0
-camera_idle_lead_mode = 0
-camera_lead_smoothing = 3.0
-camera_lead_recenter_smoothing = 2.5
-camera_lead_max_adjustment_speed = 12.0
-camera_center_on_plane = true
-fov_override_enabled = false
-fov_override = 55.0
-fov_distance_based_enabled = false
-fov_distance_near_fov = 55.0
-fov_distance_far_fov = 45.0
-fov_distance_near = 0.0
-fov_distance_far = 30.0
-entry_smoothing_enabled = true
-entry_smoothing_duration = 0.25
-exit_smoothing_enabled = true
-exit_smoothing_duration = 0.35
-position_smoothing = 14.0
-rotation_smoothing = 10.0
-fov_smoothing = 8.0
-fov_smoothing_independent = true
-override_camera_collision = false
-camera_collision_enabled_override = true
+resource_name = "Endpoint ramps"
+script = ExtResource("98_mwm1o")
+channels = 7
+start_ramp = 2.0
+end_ramp = 2.0
+
+[sub_resource type="Curve3D" id="Curve3D_2ojxj"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -299),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xi4w6"]
+resource_local_to_scene = true
+size = Vector3(52, 16, 200)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nksqe"]
+resource_local_to_scene = true
+size = Vector3(50.394043, 16, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bch57"]
+resource_local_to_scene = true
+size = Vector3(50.54492, 13.434326, 2)
 
 [node name="NIKO_TEST" type="Node3D" unique_id=794803344]
 
@@ -1538,7 +1473,10 @@ initial_time_of_day_hours = 8.0
 day_length_minutes = 14.0
 
 [node name="WorldEnvironment" parent="ENVIRONMENT/EnvironmentWeatherSystem/DayNightCycle" index="0" unique_id=1480341513]
-environment = SubResource("Environment_4n6d6")
+environment = SubResource("Environment_mgnou")
+
+[node name="SunFlare" parent="ENVIRONMENT/EnvironmentWeatherSystem" index="2"]
+lens_elements = Array[ExtResource("8_bch57")]([SubResource("Resource_1dotr"), SubResource("Resource_avsee"), SubResource("Resource_uwgg4"), SubResource("Resource_t7kbn")])
 
 [node name="OBJECTS" type="Node3D" parent="." unique_id=1812384607]
 
@@ -1727,14 +1665,14 @@ trajectory_arc_height = 20.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="CollisionShape3D" parent="OBJECTS/SPRINGS/Spring18" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_tt4we")
+shape = SubResource("CylinderShape3D_us0iu")
 
 [node name="TrajectorySolver" parent="OBJECTS/SPRINGS/Spring18" index="1" unique_id=1153799601]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 22.910889, -14.737915)
 visible = true
 
 [node name="SplinePath" parent="OBJECTS/SPRINGS/Spring18" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_jvpi5")
+curve = SubResource("Curve3D_0igho")
 
 [node name="Mesh" parent="OBJECTS/SPRINGS/Spring18" index="5" unique_id=1922896033]
 transform = Transform3D(1, 0, 0, 0, 0.98990047, 0.14176409, 0, -0.14176409, 0.98990047, 0, 0, 0)
@@ -1870,10 +1808,10 @@ spline_enabled = true
 spline_speed = 120.0
 
 [node name="CollisionShape3D" parent="OBJECTS/SPRINGS/Spring26" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_pkwk4")
+shape = SubResource("CylinderShape3D_cq5cr")
 
 [node name="SplinePath" parent="OBJECTS/SPRINGS/Spring26" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_ydo33")
+curve = SubResource("Curve3D_6xdjo")
 
 [node name="Chao" parent="OBJECTS" unique_id=174097419 instance=ExtResource("10_5mp8f")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 4.9301453, -1.1765022, 216.18994)
@@ -4163,21 +4101,13 @@ action_lock_time = 1.0
 [node name="AutomationSpline" parent="." unique_id=858870673 instance=ExtResource("13_ijfms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 235.34773, -1.676506, 411.77374)
 enabled = false
-priority = 0
-require_group = &"player"
-path_path = NodePath("Path3D")
-volume_path = NodePath("Area3D")
-capture_distance = 0.0
-release_at_path_ends = false
-tracking_window = 6.0
-activation_mode = 0
 integrate_before_speed_limits = true
 sample_lookahead = 1.0
 recovery_distance = 20.0
-steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("phase6_14_1"), SubResource("phase6_14_2")])
-position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("phase6_14_3")])
-speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("phase6_14_4"), SubResource("phase6_14_5")])
-input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_14_0")])
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_e6gbj"), SubResource("Resource_d0k5m")])
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("Resource_mvlsq")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_rqnmg"), SubResource("Resource_6a74y")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_w8lr4")])
 metadata/automation_migration_id = "LS5Framework/Scenes/Levels/NikoTest/niko_test.tscn::AutomationSpline"
 
 [node name="Path3D" parent="AutomationSpline" index="0" unique_id=716481439]
@@ -4432,7 +4362,7 @@ race_start_path = NodePath("../RaceStart")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7411804, 0, 0)
 
 [node name="Circle" parent="RaceGoal/GoalModel/GoalRing2/Armature/Skeleton3D" index="0" unique_id=1294627438]
-material_override = SubResource("ShaderMaterial_344ll")
+material_override = SubResource("ShaderMaterial_2nq5r")
 
 [node name="RaceStart_Ring" parent="." unique_id=1344341188 instance=ExtResource("35_ftftv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 125.36255, -1.373987, 163.94717)
@@ -4481,7 +4411,7 @@ race_start_path = NodePath("../RaceStart_PARKOUR")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4013672, 1.3179932, 0)
 
 [node name="Circle" parent="RaceGoal_PARKOUR/GoalModel/GoalRing2/Armature/Skeleton3D" index="0" unique_id=1294627438]
-material_override = SubResource("ShaderMaterial_jsxg6")
+material_override = SubResource("ShaderMaterial_subo7")
 
 [node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1781754792]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -686.3259, 109.0742, 569.9366)
@@ -4918,7 +4848,7 @@ mesh = SubResource("BoxMesh_mu1lr")
 gaze_max_distance = 10.0
 
 [node name="VehicleBody3D" type="VehicleBody3D" parent="." unique_id=836479946]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 895.1824, 191.56236, 342.177)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 895.1824, 191.56236, 423.99075)
 gravity_scale = 4.0
 script = SubResource("GDScript_a6a28")
 
@@ -5083,7 +5013,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.56812, 214.32352, 322.7893
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity" index="0"]
-shape = SubResource("SphereShape3D_ww8qt")
+shape = SubResource("SphereShape3D_fr6h1")
 
 [node name="GravitySurface" parent="PlanetaryGravity" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -5093,7 +5023,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -264.4319, 214.32352, 322.789
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity2" index="0"]
-shape = SubResource("SphereShape3D_0gvoy")
+shape = SubResource("SphereShape3D_kwuk6")
 
 [node name="GravitySurface" parent="PlanetaryGravity2" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -5103,7 +5033,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -344.75397, 301.76288, 322.78
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity3" index="0"]
-shape = SubResource("SphereShape3D_lraxv")
+shape = SubResource("SphereShape3D_rd0n2")
 
 [node name="GravitySurface" parent="PlanetaryGravity3" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -5113,7 +5043,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -102.9805, 794.6751, -55.2106
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity4" index="0"]
-shape = SubResource("SphereShape3D_a6b6k")
+shape = SubResource("SphereShape3D_w658v")
 
 [node name="GravitySurface" parent="PlanetaryGravity4" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -5124,7 +5054,7 @@ gravity_multiplier = 1.5
 influence_radius = 100.0
 
 [node name="InfluenceShape" parent="PlanetaryGravity5" index="0"]
-shape = SubResource("SphereShape3D_bch57")
+shape = SubResource("SphereShape3D_u8ox3")
 
 [node name="GravitySurface" parent="PlanetaryGravity5" index="2"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -5151,48 +5081,48 @@ mesh = SubResource("CapsuleMesh_ysjdg")
 
 [node name="ItemMonitor" parent="." unique_id=69009204 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.043854, -1.511947, 138.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_i48ms")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_anhwa")])
 leave_base_after_break = true
 
 [node name="ItemMonitor3" parent="." unique_id=946307726 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.043854, -1.511947, 138.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_svhyb")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_e6665")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor4" parent="." unique_id=1395552001 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.043854, -1.511947, 142.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_e8hu0")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_vlmwq")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor5" parent="." unique_id=1689799997 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.043854, -1.511947, 146.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_16jt8")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_d2gvb")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor6" parent="." unique_id=1850172790 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.043854, -1.511947, 150.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_2c72k")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_7fvdp")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor35" parent="." unique_id=1024913527 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -330.95615, -1.511947, 138.5572)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_mwm1o")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_axs3y")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor7" parent="." unique_id=517832208 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.043854, -1.511947, 138.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_qqhw5")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_en26y")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
 [node name="ItemMonitor36" parent="." unique_id=2133404527 instance=ExtResource("52_mu1lr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.043854, -1.511947, 138.42613)
-rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_205et")])
+rewards = Array[ExtResource("53_tg66e")]([SubResource("Resource_66fii")])
 leave_base_after_break = true
 respawn_delay_sec = 10.0
 
@@ -5624,6 +5554,20 @@ size = Vector3(1, 49, 62.90918)
 material = ExtResource("24_5l7yj")
 metadata/surface_attach_max_angle_deg = 0.0
 
+[node name="CSGBox3D106" type="CSGBox3D" parent="." unique_id=1009916016 groups=["level", "navmesh"]]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 0.9999999, 0, -1, 0, -4.371139e-08, 945.44495, 4.119993, 319.2057)
+use_collision = true
+size = Vector3(1, 13, 202)
+material = ExtResource("24_5l7yj")
+metadata/surface_attach_max_angle_deg = 0.0
+
+[node name="CSGBox3D107" type="CSGBox3D" parent="." unique_id=1378010495 groups=["level", "navmesh"]]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 0.9999999, 0, -1, 0, -4.371139e-08, 946.44495, 4.119993, 370.2057)
+use_collision = true
+size = Vector3(1, 13, 200)
+material = ExtResource("24_5l7yj")
+metadata/surface_attach_max_angle_deg = 0.0
+
 [node name="CSGBox3D102" type="CSGBox3D" parent="." unique_id=1534213215 groups=["level", "navmesh"]]
 transform = Transform3D(-2.8680768e-08, 0.026264193, 0.99965507, -0.14517486, 0.9890645, -0.02598595, -0.9894059, -0.14512493, 0.0038128789, 895.98895, 79.55149, 625.9257)
 use_collision = true
@@ -5640,21 +5584,12 @@ metadata/surface_attach_max_angle_deg = 0.0
 
 [node name="AutomationSpline2_5D" parent="." unique_id=1270435751 instance=ExtResource("60_sq2vv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 896.4588, -1.6765022, 620.78516)
-enabled = true
-priority = 0
-require_group = &"player"
-path_path = NodePath("Path3D")
-volume_path = NodePath("Area3D")
-capture_distance = 0.0
-release_at_path_ends = false
-tracking_window = 12.0
-activation_mode = 0
-recovery_distance = 20.0
 maximum_tracking_window = 100.0
-travel_window_multiplier = 2.0
-position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("phase6_15_1")])
-input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_15_0"), SubResource("phase6_15_2")])
-camera_traits = Array[ExtResource("phase6_AutomationCameraTrait")]([SubResource("phase6_15_3")])
+tracking_window = 12.0
+recovery_distance = 20.0
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("Resource_o440e")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_mhc45"), SubResource("Resource_vhwvb")])
+camera_traits = Array[ExtResource("phase6_AutomationCameraTrait")]([SubResource("Resource_vol7w")])
 metadata/automation_migration_id = "LS5Framework/Scenes/Levels/NikoTest/niko_test.tscn::AutomationSpline2_5D"
 
 [node name="Path3D" parent="AutomationSpline2_5D" index="0"]
@@ -5665,38 +5600,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48.149902, 29, 125)
 shape = SubResource("BoxShape3D_g6lj7")
 
 [node name="LoopDepthProfile" parent="AutomationSpline2_5D" unique_id=1898075613 instance=ExtResource("61_depth_profile")]
-enabled = true
-priority = 0
-require_group = &"player"
-path_path = NodePath("Path3D")
-volume_path = NodePath("Area3D")
-capture_distance = 20.0
-release_at_path_ends = false
-tracking_window = 12.0
+bidirectional_endpoint_areas = false
+automation_spline_path = NodePath("..")
+failsafe_exit_distance = 20.0
+follow_while_airborne = true
+centerline_response_mode = 2
+minimum_constraint_adherence = 1.0
+override_position_constraint = true
+position_lock_strength = 60.0
 activation_mode = 1
 start_gate_path = NodePath("Entrance")
 end_gate_path = NodePath("Exit")
-automation_spline_path = NodePath("..")
-failsafe_exit_distance = 20.0
-depth_bias = 0.0
-reverse_depth = false
-follow_while_airborne = true
-cubic_profile_sampling = true
-centerline_response_mode = 2
-centerline_strength = 40.0
-centerline_max_speed = 40.0
-override_centerline_offset_limit = false
-centerline_max_offset = 0.0
-minimum_constraint_adherence = 1.0
-override_position_constraint = true
-strict_position_lock = true
-position_lock_strength = 60.0
-max_position_correction_speed = 0.0
-position_lock_deadzone = 0.005
-bidirectional_endpoint_areas = false
-recovery_distance = 14.0
+capture_distance = 20.0
 maximum_tracking_window = 100.0
-travel_window_multiplier = 2.0
+tracking_window = 12.0
+recovery_distance = 14.0
 metadata/automation_migration_id = "LS5Framework/Scenes/Levels/NikoTest/niko_test.tscn::AutomationSpline2_5D/LoopDepthProfile"
 
 [node name="Path3D" parent="AutomationSpline2_5D/LoopDepthProfile" index="0"]
@@ -5787,22 +5705,22 @@ metadata/surface_force_roll = true
 
 [node name="CollisionShape3D" parent="MetadataTrigger" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 0)
-shape = SubResource("BoxShape3D_mgnou")
+shape = SubResource("BoxShape3D_im67i")
 
 [node name="VolumePreview" parent="MetadataTrigger" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 0)
-mesh = SubResource("BoxMesh_1dotr")
+mesh = SubResource("BoxMesh_jpcak")
 show_in_game = true
 
 [node name="DamageTrigger" parent="." unique_id=58650469 instance=ExtResource("73_l23he")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.835854, -1.6765003, 363.31744)
-hazard_traits = Array[ExtResource("74_anuua")]([SubResource("Resource_avsee")])
+hazard_traits = Array[ExtResource("74_anuua")]([SubResource("Resource_b0xqo")])
 
 [node name="CollisionShape3D" parent="DamageTrigger" index="0"]
-shape = SubResource("BoxShape3D_uwgg4")
+shape = SubResource("BoxShape3D_cnotl")
 
 [node name="VolumePreview" parent="DamageTrigger" index="1"]
-mesh = SubResource("BoxMesh_t7kbn")
+mesh = SubResource("BoxMesh_k0vg4")
 show_in_game = true
 
 [node name="ForceRollTrigger" parent="." unique_id=638672991 instance=ExtResource("76_muffe")]
@@ -5810,7 +5728,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.236151, -1.676506, 392.3825
 enabled = true
 target_paths = Array[NodePath]([])
 behavior_priority = 0
-movement_traits = Array[ExtResource("77_5l7yj")]([SubResource("Resource_us0iu")])
+movement_traits = Array[ExtResource("77_5l7yj")]([SubResource("Resource_2btkb")])
 attachment_traits = Array[NodePath]([])
 hazard_traits = Array[NodePath]([])
 visibility_traits = Array[NodePath]([])
@@ -5818,16 +5736,16 @@ custom_traits = Array[NodePath]([])
 
 [node name="CollisionShape3D" parent="ForceRollTrigger" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
-shape = SubResource("BoxShape3D_0igho")
+shape = SubResource("BoxShape3D_4y3dw")
 
 [node name="VolumePreview" parent="ForceRollTrigger" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
-mesh = SubResource("BoxMesh_cq5cr")
+mesh = SubResource("BoxMesh_147he")
 show_in_game = true
 
 [node name="ForceRollSurface" parent="." unique_id=1854474205 instance=ExtResource("78_3yimx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.251204, -0.6765022, 406.53348)
-movement_traits = Array[ExtResource("77_5l7yj")]([SubResource("Resource_6xdjo")])
+movement_traits = Array[ExtResource("77_5l7yj")]([SubResource("Resource_w402f")])
 
 [node name="ShapeOverrides" parent="." unique_id=1929031563 instance=ExtResource("79_4n6d6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.29936, -0.6765022, 423.23154)
@@ -5838,18 +5756,18 @@ enabled = true
 target_paths = Array[NodePath]([])
 behavior_priority = 0
 movement_traits = Array[NodePath]([])
-attachment_traits = Array[ExtResource("81_jvpi5")]([SubResource("Resource_e6gbj")])
+attachment_traits = Array[ExtResource("81_jvpi5")]([SubResource("Resource_0a7mq")])
 hazard_traits = Array[NodePath]([])
 visibility_traits = Array[NodePath]([])
 custom_traits = Array[NodePath]([])
 
 [node name="CollisionShape3D" parent="ForceClingTrigger" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.30249, 0.7570801)
-shape = SubResource("BoxShape3D_d0k5m")
+shape = SubResource("BoxShape3D_krjiy")
 
 [node name="VolumePreview" parent="ForceClingTrigger" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.30249, 0.7570801)
-mesh = SubResource("BoxMesh_mvlsq")
+mesh = SubResource("BoxMesh_qcmj1")
 show_in_game = true
 
 [node name="CameraConstraint3" parent="." unique_id=179357554 instance=ExtResource("28_nydfv")]
@@ -5901,28 +5819,28 @@ enabled = true
 target_paths = Array[NodePath]([])
 behavior_priority = 0
 movement_traits = Array[NodePath]([])
-attachment_traits = Array[ExtResource("81_jvpi5")]([SubResource("Resource_rqnmg")])
+attachment_traits = Array[ExtResource("81_jvpi5")]([SubResource("Resource_6udsc")])
 hazard_traits = Array[NodePath]([])
 visibility_traits = Array[NodePath]([])
 custom_traits = Array[NodePath]([])
 
 [node name="CollisionShape3D" parent="ForceClingTrigger2" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.8010254, -132.0268, 42.60309)
-shape = SubResource("BoxShape3D_6a74y")
+shape = SubResource("BoxShape3D_h6tk4")
 
 [node name="VolumePreview" parent="ForceClingTrigger2" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.8010254, -132.0268, 42.60309)
-mesh = SubResource("BoxMesh_w8lr4")
+mesh = SubResource("BoxMesh_yft5e")
 
 [node name="DeathTrigger" parent="." unique_id=1923896090 instance=ExtResource("75_2pldv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.67688, -1.6765022, 377.62598)
-hazard_traits = Array[ExtResource("74_anuua")]([SubResource("Resource_2nq5r")])
+hazard_traits = Array[ExtResource("74_anuua")]([SubResource("Resource_e5sao")])
 
 [node name="CollisionShape3D" parent="DeathTrigger" index="0"]
-shape = SubResource("BoxShape3D_subo7")
+shape = SubResource("BoxShape3D_2ebkm")
 
 [node name="VolumePreview" parent="DeathTrigger" index="1"]
-mesh = SubResource("BoxMesh_fr6h1")
+mesh = SubResource("BoxMesh_06dbv")
 show_in_game = true
 
 [node name="AdventurePool" parent="." unique_id=627068242 instance=ExtResource("80_luhu6")]
@@ -6009,276 +5927,173 @@ surface_effect_probe_correction_min_speed = 0.5
 [node name="PropBounceTarget" parent="." unique_id=298097978 instance=ExtResource("prop_bounce")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 1, 216)
 
+[node name="GuidedRun" parent="." unique_id=1591071199 instance=ExtResource("95_e8hu0")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 845.93524, -1.676506, 343.9181)
+capture_distance = 25.0
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_usq3r"), SubResource("Resource_7wg4m")])
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("Resource_7xrdd")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_paqjp")])
+surface_traits = Array[ExtResource("96_16jt8")]([SubResource("Resource_ywpar")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_b8x8u")])
+transition_traits = Array[ExtResource("97_2c72k")]([SubResource("Resource_oykjf"), SubResource("Resource_xfcha")])
+influence_traits = Array[ExtResource("98_mwm1o")]([SubResource("Resource_bjeau")])
+
+[node name="Path3D" parent="GuidedRun" index="0"]
+curve = SubResource("Curve3D_2ojxj")
+
+[node name="Volume" parent="GuidedRun" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15)
+
+[node name="CollisionShape3D" parent="GuidedRun/Volume" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -84)
+shape = SubResource("BoxShape3D_xi4w6")
+
+[node name="CollisionShape3D" parent="GuidedRun/Start" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8029785, 7, 0)
+shape = SubResource("BoxShape3D_nksqe")
+
+[node name="End" parent="GuidedRun" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -198)
+
+[node name="CollisionShape3D" parent="GuidedRun/End" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.94970703, 5.76062, 0)
+shape = SubResource("BoxShape3D_bch57")
+
 [editable path="ENVIRONMENT/EnvironmentWeatherSystem"]
-
 [editable path="ENVIRONMENT/EnvironmentWeatherSystem/DayNightCycle"]
-
 [editable path="OBJECTS/RINGS/RingSpline"]
-
 [editable path="OBJECTS/RINGS/RingSpline2"]
-
 [editable path="OBJECTS/RINGS/RingSpline4"]
-
 [editable path="OBJECTS/RINGS/RingSpline5"]
-
 [editable path="OBJECTS/RINGS/RingSpline6"]
-
 [editable path="OBJECTS/RINGS/RingSpline7"]
-
 [editable path="OBJECTS/RINGS/RingSpline8"]
-
 [editable path="OBJECTS/RINGS/RingSpline9"]
-
 [editable path="OBJECTS/RINGS/RingSpline10"]
-
 [editable path="OBJECTS/RINGS/RingSpline11"]
-
 [editable path="OBJECTS/RINGS/RingSpline12"]
-
 [editable path="OBJECTS/RINGS/RingSpline13"]
-
 [editable path="OBJECTS/RINGS/RingSpline14"]
-
 [editable path="OBJECTS/RINGS/RingSpline3"]
-
 [editable path="OBJECTS/SPRINGS/Spring18"]
-
 [editable path="OBJECTS/SPRINGS/Spring26"]
-
 [editable path="OBJECTS/GroundedEnemyBlockout"]
-
 [editable path="OBJECTS/GroundedEnemyBlockout3"]
-
 [editable path="OBJECTS/GroundedEnemyBlockout2"]
-
 [editable path="OBJECTS/RaceObjectLayout_Parkour1/DeathPlane3"]
-
 [editable path="AutomationSpline"]
-
 [editable path="DeathPlane2"]
-
 [editable path="Checkpoint"]
-
 [editable path="Checkpoint2"]
-
 [editable path="Checkpoint3"]
-
 [editable path="Checkpoint5"]
-
 [editable path="Checkpoint4"]
-
 [editable path="Rail"]
-
 [editable path="Rail8"]
-
 [editable path="Rail2"]
-
 [editable path="Rail3"]
-
 [editable path="Rail6"]
-
 [editable path="Rail7"]
-
 [editable path="Rail4"]
-
 [editable path="Rail5"]
-
 [editable path="CameraConstraint"]
-
 [editable path="RaceStart"]
-
 [editable path="RaceGoal"]
-
 [editable path="RaceGoal/GoalModel"]
-
 [editable path="RaceGoal/GoalModel/GoalRing2"]
-
 [editable path="RaceStart_Ring"]
-
 [editable path="RaceStart_PARKOUR"]
-
 [editable path="RaceGoal_PARKOUR"]
-
 [editable path="RaceGoal_PARKOUR/GoalModel"]
-
 [editable path="RaceGoal_PARKOUR/GoalModel/GoalRing2"]
-
 [editable path="RingSpline"]
-
 [editable path="CameraConstraint2"]
-
 [editable path="CameraConstraint_ParkourBox"]
-
 [editable path="CameraConstraint_ParkourBox2"]
-
 [editable path="TestRampHalf_Narrow_42_forcerolltest"]
-
 [editable path="TestRampHalf_Narrow_43_forcerolltest"]
-
 [editable path="CarryableCrate"]
-
 [editable path="CarryableCrate3"]
-
 [editable path="Sphere_Inverted"]
-
 [editable path="CarryableCrate4"]
-
 [editable path="CarryableCrate2"]
-
 [editable path="PlanetaryGravity"]
-
 [editable path="PlanetaryGravity2"]
-
 [editable path="PlanetaryGravity3"]
-
 [editable path="PlanetaryGravity4"]
-
 [editable path="PlanetaryGravity5"]
-
 [editable path="PlanetaryGravity6"]
-
 [editable path="GUNMonoBeetle"]
-
 [editable path="GUNMonoBeetle/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle2"]
-
 [editable path="GUNMonoBeetle2/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle2/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle3"]
-
 [editable path="GUNMonoBeetle3/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle3/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle4"]
-
 [editable path="GUNMonoBeetle4/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle4/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle5"]
-
 [editable path="GUNMonoBeetle5/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle5/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle6"]
-
 [editable path="GUNMonoBeetle6/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle6/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle7"]
-
 [editable path="GUNMonoBeetle7/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle7/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle8"]
-
 [editable path="GUNMonoBeetle8/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle8/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle9"]
-
 [editable path="GUNMonoBeetle9/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle9/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle10"]
-
 [editable path="GUNMonoBeetle10/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle10/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle11"]
-
 [editable path="GUNMonoBeetle11/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle11/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle12"]
-
 [editable path="GUNMonoBeetle12/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle12/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle13"]
-
 [editable path="GUNMonoBeetle13/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle13/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle17"]
-
 [editable path="GUNMonoBeetle17/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle17/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle18"]
-
 [editable path="GUNMonoBeetle18/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle18/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle19"]
-
 [editable path="GUNMonoBeetle19/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle19/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle20"]
-
 [editable path="GUNMonoBeetle20/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle20/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle21"]
-
 [editable path="GUNMonoBeetle21/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle21/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle14"]
-
 [editable path="GUNMonoBeetle14/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle14/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle15"]
-
 [editable path="GUNMonoBeetle15/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle15/MonoBeetle_Fractures"]
-
 [editable path="GUNMonoBeetle16"]
-
 [editable path="GUNMonoBeetle16/Visual/MonoBeetle"]
-
 [editable path="GUNMonoBeetle16/MonoBeetle_Fractures"]
-
 [editable path="AutomationSpline2_5D"]
-
 [editable path="AutomationSpline2_5D/LoopDepthProfile"]
-
 [editable path="MetadataTrigger"]
-
 [editable path="DamageTrigger"]
-
 [editable path="ForceRollTrigger"]
-
 [editable path="ForceClingTrigger"]
-
 [editable path="CameraConstraint3"]
-
 [editable path="CameraConstraint4"]
-
 [editable path="ForceClingTrigger2"]
-
 [editable path="DeathTrigger"]
+[editable path="GuidedRun"]
