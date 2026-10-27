@@ -2339,9 +2339,9 @@ var _smoothed_surface_normal: Vector3 = Vector3.UP
 ## Audio player used for character voice clips.
 @export var dialogue_player: AudioStreamPlayer3D
 ## Maximum audible distance for replicated player voices.
-@export_range(1.0, 1000.0, 0.1, "or_greater", "suffix:m") var remote_voice_max_distance: float = 80.0
-## Distance at which replicated player voices begin attenuating.
-@export_range(0.1, 1000.0, 0.1, "or_greater", "suffix:m") var remote_voice_unit_size: float = 12.0
+@export_range(1.0, 1000.0, 0.1, "or_greater", "suffix:m") var remote_voice_max_distance: float = 360.0
+## Distance attenuation scale for replicated player voices, subject to the shared voice profile minimum.
+@export_range(0.1, 1000.0, 0.1, "or_greater", "suffix:m") var remote_voice_unit_size: float = 90.0
 @export var jump_sounds: Array[AudioStream] = [
 	preload("res://LS5Framework/Sounds/Abilities/SA_Jump_1.wav"),
 	preload("res://LS5Framework/Sounds/Abilities/SA_Jump_2.wav"),

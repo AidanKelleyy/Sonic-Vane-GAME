@@ -1722,8 +1722,8 @@ func play_replicated_voice(stream: AudioStream, priority: int) -> void:
 	_voice_queue.clear()
 	_current_voice_priority = priority
 	_ensure_dialogue_finished_connection(player)
-	player.volume_db = minf(player.volume_db, player.max_db)
 	player.unit_size = maxf(_owner.remote_voice_unit_size, 0.1)
 	player.max_distance = maxf(_owner.remote_voice_max_distance, player.unit_size)
+	SpatialAudioPolicy.apply(player, SpatialAudioPolicy.VOICE)
 	player.stream = stream
 	player.play()

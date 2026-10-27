@@ -10,6 +10,15 @@ extends Node3D
 ## Camera receiving the final evaluated pose and lens.
 @export var camera: Camera3D
 
+@export_group("Audio Listener")
+## Listener position blend from the camera (zero) to the tracked player (one), retaining camera orientation.
+@export_range(0.0, 1.0, 0.01) var audio_listener_player_blend: float = 1.0
+## Listener height above the tracked player's origin along the player's gravity-up direction.
+@export_range(0.0, 5.0, 0.01, "suffix:m") var audio_listener_height: float = 1.0
+
+## Active camera's listener, positioned independently of camera zoom.
+var _audio_listener: AudioListener3D
+
 @export_group("Update Timing")
 ## Updates camera input and presentation at the rendered frame rate while collision queries remain on physics ticks.
 @export var render_rate_camera_updates: bool = false:
@@ -881,6 +890,7 @@ func _process(delta: float) -> void:
 		_update_camera_input(delta)
 		_apply_render_input_orientation()
 		_update_post_process_exempt_3d_pass()
+	_update_audio_listener()
 
 
 func _physics_process(delta: float) -> void:
@@ -892,6 +902,24 @@ func _physics_process(delta: float) -> void:
 		_render_mouse_strength_pending = 0.0
 	_update_camera(delta, not render_rate_camera_updates)
 	_render_input_orientation_dirty = false
+	_update_audio_listener()
+
+
+func _update_audio_listener() -> void:
+	if not is_instance_valid(camera):
+		return
+	if not is_instance_valid(_audio_listener) or _audio_listener.get_parent() != camera:
+		_audio_listener = camera.get_node_or_null("AudioListener3D") as AudioListener3D
+	if not _audio_listener:
+		return
+	var listener_position: Vector3 = camera.global_position
+	if is_instance_valid(target):
+		var player_up: Vector3 = target.global_basis.y.normalized()
+		if target.has_method("get_gravity_up"):
+			player_up = target.call("get_gravity_up")
+		var player_position: Vector3 = target.global_position + player_up * audio_listener_height
+		listener_position = listener_position.lerp(player_position, audio_listener_player_blend)
+	_audio_listener.global_transform = Transform3D(camera.global_basis.orthonormalized(), listener_position)
 
 
 func _update_camera(delta: float, update_input: bool = true) -> void:

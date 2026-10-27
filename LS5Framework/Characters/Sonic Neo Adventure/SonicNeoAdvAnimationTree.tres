@@ -572,7 +572,7 @@ resource_local_to_scene = true
 resource_name = "_jump-ball-enabled=false"
 animation = &"WallKick_Right"
 use_custom_timeline = true
-timeline_length = 0.5
+timeline_length = 0.7
 stretch_time_scale = true
 start_offset = 0.0
 loop_mode = 0
@@ -582,7 +582,7 @@ resource_local_to_scene = true
 resource_name = "_jump-ball-enabled=false"
 animation = &"WallKick_Left"
 use_custom_timeline = true
-timeline_length = 0.5
+timeline_length = 0.7
 stretch_time_scale = true
 start_offset = 0.0
 loop_mode = 0
@@ -911,27 +911,27 @@ xfade_time = 0.08
 resource_local_to_scene = true
 resource_name = "Parkour;_camera-overlay-enabled=true"
 states/CMD_LANDING_ROLL/node = SubResource("AnimationNodeAnimation_w0jf4")
-states/CMD_LANDING_ROLL/position = Vector2(510, 240)
+states/CMD_LANDING_ROLL/position = Vector2(677, 421)
 states/CMD_WALLCLING/node = SubResource("AnimationNodeStateMachine_ak7vg")
-states/CMD_WALLCLING/position = Vector2(510, 0)
+states/CMD_WALLCLING/position = Vector2(664, -15)
 states/CMD_WALLKICK_CLING/node = SubResource("AnimationNodeAnimation_mvdcj")
-states/CMD_WALLKICK_CLING/position = Vector2(510, 120)
+states/CMD_WALLKICK_CLING/position = Vector2(664, 171)
 states/CMD_WALLKICK_RUN_LEFT/node = SubResource("AnimationNodeAnimation_rimo5")
-states/CMD_WALLKICK_RUN_LEFT/position = Vector2(50, 120)
+states/CMD_WALLKICK_RUN_LEFT/position = Vector2(-279, 45)
 states/CMD_WALLKICK_RUN_RIGHT/node = SubResource("AnimationNodeAnimation_eau2y")
-states/CMD_WALLKICK_RUN_RIGHT/position = Vector2(280, 120)
+states/CMD_WALLKICK_RUN_RIGHT/position = Vector2(135, 119)
 states/CMD_WALLRUN_LEFT/node = SubResource("AnimationNodeAnimation_xyhv5")
-states/CMD_WALLRUN_LEFT/position = Vector2(50, 0)
+states/CMD_WALLRUN_LEFT/position = Vector2(-92, -137)
 states/CMD_WALLRUN_RIGHT/node = SubResource("AnimationNodeAnimation_v3722")
-states/CMD_WALLRUN_RIGHT/position = Vector2(280, 0)
+states/CMD_WALLRUN_RIGHT/position = Vector2(280, -137)
 states/CMD_WALL_DETACH/node = SubResource("AnimationNodeAnimation_uyauq")
-states/CMD_WALL_DETACH/position = Vector2(50, 240)
+states/CMD_WALL_DETACH/position = Vector2(-212, 410)
 states/End/position = Vector2(760, 100)
 states/LEDGE_GRAB/node = SubResource("AnimationNodeAnimation_yep4e")
-states/LEDGE_GRAB/position = Vector2(280, 240)
-states/Start/position = Vector2(-180, 100)
+states/LEDGE_GRAB/position = Vector2(223, 498)
+states/Start/position = Vector2(-387, 148)
 transitions = ["Start", "LEDGE_GRAB", SubResource("AnimationNodeStateMachineTransition_8ic1x"), "CMD_LANDING_ROLL", "CMD_WALLCLING", SubResource("AnimationNodeStateMachineTransition_vsb11"), "CMD_LANDING_ROLL", "CMD_WALLKICK_CLING", SubResource("AnimationNodeStateMachineTransition_i0jeu"), "CMD_LANDING_ROLL", "CMD_WALLKICK_RUN_LEFT", SubResource("AnimationNodeStateMachineTransition_6o23s"), "CMD_LANDING_ROLL", "CMD_WALLKICK_RUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_rfpum"), "CMD_LANDING_ROLL", "CMD_WALLRUN_LEFT", SubResource("AnimationNodeStateMachineTransition_7xs0p"), "CMD_LANDING_ROLL", "CMD_WALLRUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_k24tp"), "CMD_LANDING_ROLL", "CMD_WALL_DETACH", SubResource("AnimationNodeStateMachineTransition_uyd2y"), "CMD_LANDING_ROLL", "LEDGE_GRAB", SubResource("AnimationNodeStateMachineTransition_0x1cy"), "CMD_WALLCLING", "CMD_LANDING_ROLL", SubResource("AnimationNodeStateMachineTransition_q4xmk"), "CMD_WALLCLING", "CMD_WALLKICK_CLING", SubResource("AnimationNodeStateMachineTransition_p0fdw"), "CMD_WALLCLING", "CMD_WALLKICK_RUN_LEFT", SubResource("AnimationNodeStateMachineTransition_c22nn"), "CMD_WALLCLING", "CMD_WALLKICK_RUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_t53f5"), "CMD_WALLCLING", "CMD_WALLRUN_LEFT", SubResource("AnimationNodeStateMachineTransition_c6o5k"), "CMD_WALLCLING", "CMD_WALLRUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_ko42a"), "CMD_WALLCLING", "CMD_WALL_DETACH", SubResource("AnimationNodeStateMachineTransition_ku1lk"), "CMD_WALLCLING", "LEDGE_GRAB", SubResource("AnimationNodeStateMachineTransition_vbe8v"), "CMD_WALLKICK_CLING", "CMD_LANDING_ROLL", SubResource("AnimationNodeStateMachineTransition_w4ktd"), "CMD_WALLKICK_CLING", "CMD_WALLCLING", SubResource("AnimationNodeStateMachineTransition_vdhly"), "CMD_WALLKICK_CLING", "CMD_WALLKICK_RUN_LEFT", SubResource("AnimationNodeStateMachineTransition_sooaj"), "CMD_WALLKICK_CLING", "CMD_WALLKICK_RUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_0g4g5"), "CMD_WALLKICK_CLING", "CMD_WALLRUN_LEFT", SubResource("AnimationNodeStateMachineTransition_o5j1v"), "CMD_WALLKICK_CLING", "CMD_WALLRUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_5o3w0"), "CMD_WALLKICK_CLING", "CMD_WALL_DETACH", SubResource("AnimationNodeStateMachineTransition_8c3si"), "CMD_WALLKICK_CLING", "LEDGE_GRAB", SubResource("AnimationNodeStateMachineTransition_7nupj"), "CMD_WALLKICK_RUN_LEFT", "CMD_LANDING_ROLL", SubResource("AnimationNodeStateMachineTransition_8806q"), "CMD_WALLKICK_RUN_LEFT", "CMD_WALLCLING", SubResource("AnimationNodeStateMachineTransition_blq3y"), "CMD_WALLKICK_RUN_LEFT", "CMD_WALLKICK_CLING", SubResource("AnimationNodeStateMachineTransition_v432f"), "CMD_WALLKICK_RUN_LEFT", "CMD_WALLKICK_RUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_y2qyp"), "CMD_WALLKICK_RUN_LEFT", "CMD_WALLRUN_LEFT", SubResource("AnimationNodeStateMachineTransition_a7wif"), "CMD_WALLKICK_RUN_LEFT", "CMD_WALLRUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_syu1c"), "CMD_WALLKICK_RUN_LEFT", "CMD_WALL_DETACH", SubResource("AnimationNodeStateMachineTransition_lo7ua"), "CMD_WALLKICK_RUN_LEFT", "LEDGE_GRAB", SubResource("AnimationNodeStateMachineTransition_hhl68"), "CMD_WALLKICK_RUN_RIGHT", "CMD_LANDING_ROLL", SubResource("AnimationNodeStateMachineTransition_2yhfk"), "CMD_WALLKICK_RUN_RIGHT", "CMD_WALLCLING", SubResource("AnimationNodeStateMachineTransition_skv2c"), "CMD_WALLKICK_RUN_RIGHT", "CMD_WALLKICK_CLING", SubResource("AnimationNodeStateMachineTransition_cfj5g"), "CMD_WALLKICK_RUN_RIGHT", "CMD_WALLKICK_RUN_LEFT", SubResource("AnimationNodeStateMachineTransition_uvd8b"), "CMD_WALLKICK_RUN_RIGHT", "CMD_WALLRUN_LEFT", SubResource("AnimationNodeStateMachineTransition_h1q4m"), "CMD_WALLKICK_RUN_RIGHT", "CMD_WALLRUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_ebaxu"), "CMD_WALLKICK_RUN_RIGHT", "CMD_WALL_DETACH", SubResource("AnimationNodeStateMachineTransition_4m18r"), "CMD_WALLKICK_RUN_RIGHT", "LEDGE_GRAB", SubResource("AnimationNodeStateMachineTransition_v11to"), "CMD_WALLRUN_LEFT", "CMD_LANDING_ROLL", SubResource("AnimationNodeStateMachineTransition_wlyft"), "CMD_WALLRUN_LEFT", "CMD_WALLCLING", SubResource("AnimationNodeStateMachineTransition_ccojp"), "CMD_WALLRUN_LEFT", "CMD_WALLKICK_CLING", SubResource("AnimationNodeStateMachineTransition_2gdbx"), "CMD_WALLRUN_LEFT", "CMD_WALLKICK_RUN_LEFT", SubResource("AnimationNodeStateMachineTransition_o35qa"), "CMD_WALLRUN_LEFT", "CMD_WALLKICK_RUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_mlsev"), "CMD_WALLRUN_LEFT", "CMD_WALLRUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_nioa8"), "CMD_WALLRUN_LEFT", "CMD_WALL_DETACH", SubResource("AnimationNodeStateMachineTransition_1oi14"), "CMD_WALLRUN_LEFT", "LEDGE_GRAB", SubResource("AnimationNodeStateMachineTransition_bs0bw"), "CMD_WALLRUN_RIGHT", "CMD_LANDING_ROLL", SubResource("AnimationNodeStateMachineTransition_urdme"), "CMD_WALLRUN_RIGHT", "CMD_WALLCLING", SubResource("AnimationNodeStateMachineTransition_8y8cm"), "CMD_WALLRUN_RIGHT", "CMD_WALLKICK_CLING", SubResource("AnimationNodeStateMachineTransition_qetr4"), "CMD_WALLRUN_RIGHT", "CMD_WALLKICK_RUN_LEFT", SubResource("AnimationNodeStateMachineTransition_3ovh6"), "CMD_WALLRUN_RIGHT", "CMD_WALLKICK_RUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_3jx23"), "CMD_WALLRUN_RIGHT", "CMD_WALLRUN_LEFT", SubResource("AnimationNodeStateMachineTransition_fsbo0"), "CMD_WALLRUN_RIGHT", "CMD_WALL_DETACH", SubResource("AnimationNodeStateMachineTransition_kb1gx"), "CMD_WALLRUN_RIGHT", "LEDGE_GRAB", SubResource("AnimationNodeStateMachineTransition_ypsjf"), "CMD_WALL_DETACH", "CMD_LANDING_ROLL", SubResource("AnimationNodeStateMachineTransition_8rrmt"), "CMD_WALL_DETACH", "CMD_WALLCLING", SubResource("AnimationNodeStateMachineTransition_y5u7p"), "CMD_WALL_DETACH", "CMD_WALLKICK_CLING", SubResource("AnimationNodeStateMachineTransition_tsbqw"), "CMD_WALL_DETACH", "CMD_WALLKICK_RUN_LEFT", SubResource("AnimationNodeStateMachineTransition_q3t4h"), "CMD_WALL_DETACH", "CMD_WALLKICK_RUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_c8vns"), "CMD_WALL_DETACH", "CMD_WALLRUN_LEFT", SubResource("AnimationNodeStateMachineTransition_e0bpx"), "CMD_WALL_DETACH", "CMD_WALLRUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_ai577"), "CMD_WALL_DETACH", "LEDGE_GRAB", SubResource("AnimationNodeStateMachineTransition_sed7d"), "LEDGE_GRAB", "CMD_LANDING_ROLL", SubResource("AnimationNodeStateMachineTransition_j8e8a"), "LEDGE_GRAB", "CMD_WALLCLING", SubResource("AnimationNodeStateMachineTransition_cq8me"), "LEDGE_GRAB", "CMD_WALLKICK_CLING", SubResource("AnimationNodeStateMachineTransition_4a3ph"), "LEDGE_GRAB", "CMD_WALLKICK_RUN_LEFT", SubResource("AnimationNodeStateMachineTransition_e1s4b"), "LEDGE_GRAB", "CMD_WALLKICK_RUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_d5x18"), "LEDGE_GRAB", "CMD_WALLRUN_LEFT", SubResource("AnimationNodeStateMachineTransition_yl7fe"), "LEDGE_GRAB", "CMD_WALLRUN_RIGHT", SubResource("AnimationNodeStateMachineTransition_vkdwp"), "LEDGE_GRAB", "CMD_WALL_DETACH", SubResource("AnimationNodeStateMachineTransition_hh5sy")]
-graph_offset = Vector2(-180, -30)
+graph_offset = Vector2(-614, -134)
 
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_bfrwq"]
 resource_local_to_scene = true
@@ -1615,7 +1615,7 @@ resource_local_to_scene = true
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_x8dvm"]
 resource_local_to_scene = true
-graph_offset = Vector2(-1069.1223, -359.43677)
+graph_offset = Vector2(-1247.1223, -7.4367676)
 nodes/output/position = Vector2(350, 300)
 nodes/Ground/node = SubResource("AnimationNodeStateMachine_n6wxo")
 nodes/Ground/position = Vector2(-820, -260)
@@ -2460,6 +2460,7 @@ graph_offset = Vector2(-320, -146)
 
 [resource]
 resource_local_to_scene = true
+graph_offset = Vector2(-718, -253)
 nodes/output/position = Vector2(1860, 60)
 nodes/AdditivePhysicsEars/node = SubResource("AnimationNodeAdd2_60fi3")
 nodes/AdditivePhysicsEars/position = Vector2(580, -80)

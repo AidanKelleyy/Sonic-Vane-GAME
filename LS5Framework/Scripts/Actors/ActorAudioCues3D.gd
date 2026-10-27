@@ -137,13 +137,13 @@ func _update_limited_idle() -> void:
 	if not _idle_requested:
 		_idle_player.stop()
 		return
-	var camera: Camera3D = get_viewport().get_camera_3d()
-	if camera == null:
+	if not get_viewport().get_audio_listener_3d() and not get_viewport().get_camera_3d():
 		_idle_player.stop()
 		return
-	var listener_position: Vector3 = camera.global_position
+	var listener_position: Vector3 = SpatialAudioPolicy.get_listener_position(self)
 	var distance_squared: float = global_position.distance_squared_to(listener_position)
-	if distance_squared > idle_max_distance * idle_max_distance:
+	var audible_distance: float = _idle_player.max_distance
+	if audible_distance > 0.0 and distance_squared > audible_distance * audible_distance:
 		_idle_player.stop()
 		return
 	var closer_count: int = 0
@@ -152,7 +152,8 @@ func _update_limited_idle() -> void:
 		if other == null or other == self or not other._idle_requested:
 			continue
 		var other_distance_squared: float = other.global_position.distance_squared_to(listener_position)
-		if other_distance_squared > other.idle_max_distance * other.idle_max_distance:
+		var other_distance: float = other._idle_player.max_distance if is_instance_valid(other._idle_player) else other.idle_max_distance
+		if other_distance > 0.0 and other_distance_squared > other_distance * other_distance:
 			continue
 		if other_distance_squared < distance_squared or (
 			is_equal_approx(other_distance_squared, distance_squared)

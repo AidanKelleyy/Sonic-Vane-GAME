@@ -273,6 +273,8 @@ func _queue_mesh_probe() -> void:
 		_mesh_probe.size = Vector2i(16, 16)
 		_mesh_probe.transparent_bg = true
 		_mesh_probe.gui_disable_input = true
+		_mesh_probe.audio_listener_enable_3d = false
+		_mesh_probe.audio_listener_enable_2d = false
 		_mesh_probe.render_target_update_mode = SubViewport.UPDATE_DISABLED
 		_mesh_probe.canvas_cull_mask = 0
 		_mesh_probe.debug_draw = Viewport.DEBUG_DRAW_UNSHADED

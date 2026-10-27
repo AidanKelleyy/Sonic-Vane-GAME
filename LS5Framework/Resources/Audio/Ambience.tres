@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SpatialAudioProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Audio/SpatialAudioProfile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+minimum_unit_size = 60.0
+minimum_max_distance = 320.0
+maximum_level_db = -9.0
