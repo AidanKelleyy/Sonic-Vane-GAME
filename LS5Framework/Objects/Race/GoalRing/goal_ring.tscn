@@ -1,7 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://crry8l805lrqc"]
+[gd_scene format=3 uid="uid://crry8l805lrqc"]
 
 [ext_resource type="PackedScene" uid="uid://cyfprciob25q4" path="res://LS5Framework/Objects/Race/GoalRing/goal_ring_model.tscn" id="1_3e8uw"]
+[ext_resource type="Shader" uid="uid://coo7mvt00c0xt" path="res://LS5Framework/Objects/Race/GoalRing/goal_ring_swap.gdshader" id="2_4buny"]
+[ext_resource type="Texture2D" uid="uid://cly188qsju2u6" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL.png" id="3_gyiwg"]
+[ext_resource type="Texture2D" uid="uid://c1m7ix7sf8vvr" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL_GLOW.png" id="4_x5jge"]
 
-[node name="Node3D" type="Node3D"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wvajm"]
+render_priority = 0
+shader = ExtResource("2_4buny")
+shader_parameter/tex_flat = ExtResource("3_gyiwg")
+shader_parameter/tex_glow = ExtResource("4_x5jge")
+shader_parameter/swap_interval = 1.0
+shader_parameter/use_emission = true
+shader_parameter/swap_time = 5413.883
 
-[node name="GoalRing2" parent="." instance=ExtResource("1_3e8uw")]
+[node name="Node3D" type="Node3D" unique_id=264366495]
+
+[node name="GoalRing2" parent="." unique_id=52793995 instance=ExtResource("1_3e8uw")]
+
+[node name="Circle" parent="GoalRing2/Armature/Skeleton3D" parent_id_path=PackedInt32Array(52793995, 744465181) index="0" unique_id=1294627438]
+material_override = SubResource("ShaderMaterial_wvajm")
+
+[editable path="GoalRing2"]

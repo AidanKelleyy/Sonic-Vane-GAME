@@ -17,7 +17,7 @@ shader_parameter/tex_flat = ExtResource("5_wm1k7")
 shader_parameter/tex_glow = ExtResource("6_kkook")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 36.684
+shader_parameter/swap_time = 5384.8240000000005
 
 [node name="RaceGoal" type="Area3D" unique_id=767008932]
 script = ExtResource("1_rg")
@@ -49,6 +49,7 @@ material_override = SubResource("ShaderMaterial_oqkmk")
 
 [node name="SwapLight" parent="GoalModel/GoalRing2" index="2" unique_id=1016145482]
 light_color = Color(0.6104771, 0.5345298, 1, 1)
+light_bake_mode = 0
 shadow_enabled = false
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=118658822]
