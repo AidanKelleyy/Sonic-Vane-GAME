@@ -524,6 +524,8 @@ func stop_all_momentum_and_special_movement() -> void:
 
 func _notify_camera_teleport() -> void:
 	var p = _owner
+	if p._automation_controller:
+		p._automation_controller.clear(&"teleport")
 	if p._is_buddy_actor() or not p._network_is_local_authority():
 		return
 	var rig = p.camera_rig

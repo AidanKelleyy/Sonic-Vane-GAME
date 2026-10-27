@@ -1,90 +1,186 @@
 [gd_scene format=3 uid="uid://dn565ekblu308"]
 
 [ext_resource type="PackedScene" uid="uid://bdltank6nne8b" path="res://LS5Framework/Objects/Rings/Ring.tscn" id="1_22v2l"]
+
 [ext_resource type="PackedScene" uid="uid://dab7ow5oahfhc" path="res://LS5Framework/Objects/Homing/HomingTarget.tscn" id="2_7graj"]
+
 [ext_resource type="PackedScene" uid="uid://b2jkv0kca2k6q" path="res://LS5Framework/Objects/Rings/RingSpline.tscn" id="3_ehlmr"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WorldEnvironmentTrigger.tscn" id="3_fgwhi"]
+
 [ext_resource type="PackedScene" uid="uid://c12m0rampjump" path="res://LS5Framework/Objects/Ramps/JumpPanelRamp.tscn" id="4_18sbj"]
+
 [ext_resource type="PackedScene" uid="uid://dyl836mb3fewl" path="res://LS5Framework/Scenes/Levels/BlitzTest/blitz_sonic_test.tscn" id="5_65k7s"]
+
 [ext_resource type="Material" uid="uid://cdrd75vn4rhn5" path="res://LS5Framework/Scenes/Levels/Materials/NikoChecker.tres" id="6_pfl74"]
+
 [ext_resource type="PackedScene" uid="uid://bdko3pequhfe2" path="res://LS5Framework/Scenes/Levels/NikoTest/TestScaled.tscn" id="7_b56cm"]
+
 [ext_resource type="PackedScene" uid="uid://dpqdt82o1f57x" path="res://LS5Framework/Objects/Spring/Spring.tscn" id="8_y46bu"]
+
 [ext_resource type="AudioStream" uid="uid://ddq565nrvg0g0" path="res://LS5Framework/Sounds/Music/Collision Chaos 'G' Mix US.ogg" id="9_ehlmr"]
+
 [ext_resource type="PackedScene" uid="uid://e1tkwisehr5p" path="res://LS5Framework/Objects/DashPanels/DashPanel.tscn" id="9_g2p7k"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="9_mu1lr"]
+
 [ext_resource type="PackedScene" uid="uid://cu32rahix62jt" path="res://LS5Framework/Scenes/Levels/NikoTest/test_circle_1.tscn" id="10_0vtvo"]
+
 [ext_resource type="PackedScene" uid="uid://dpnhnshhijr7l" path="res://LS5Framework/Objects/Actors/Chao/Chao.tscn" id="10_5mp8f"]
+
 [ext_resource type="Shader" uid="uid://p3g0j2rv6t4n" path="res://LS5Framework/Objects/Environment/DayNightCycle/day_night_sky.gdshader" id="10_e4tho"]
+
 [ext_resource type="PackedScene" uid="uid://c6xyvqm8rq2k2" path="res://LS5Framework/Objects/Enemies/GroundedBlockout/GroundedEnemyBlockout.tscn" id="11_a6a28"]
+
 [ext_resource type="PackedScene" uid="uid://d1okvbdxqc08b" path="res://LS5Framework/Objects/VaultBar/VaultBar.tscn" id="13_07blk"]
+
 [ext_resource type="PackedScene" uid="uid://vypkwgl0dpr8" path="res://LS5Framework/Objects/Bumper/Test/Bumper_Directional.tscn" id="13_ega4b"]
-[ext_resource type="PackedScene" uid="uid://bf2o7d3qsovh6" path="res://LS5Framework/Objects/Automation/AutomationSpline.tscn" id="13_ijfms"]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedGuided.tscn" id="13_ijfms"]
+
 [ext_resource type="PackedScene" uid="uid://dcow1cl6vd0n3" path="res://LS5Framework/Objects/Music/MusicTrigger.tscn" id="14_8fh1j"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Race/RaceObjectLayout.tscn" id="14_ax8r5"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Bumper/Test/Bumper_Overcharged.tscn" id="14_iwaxd"]
+
 [ext_resource type="AudioStream" uid="uid://bhr1hmgim63vb" path="res://LS5Framework/Sounds/Music/1-20 Letz Get This Party Started.mp3" id="15_01uw4"]
+
 [ext_resource type="PackedScene" uid="uid://bl1xupocp4dlw" path="res://LS5Framework/Objects/Bumper/Test/Bumper_RadialClassic.tscn" id="15_pmxsj"]
+
 [ext_resource type="PackedScene" uid="uid://dcok1e2uobeqg" path="res://LS5Framework/Objects/Bumper/Test/Bumper_SurfaceNormal.tscn" id="16_ak7f8"]
+
 [ext_resource type="PackedScene" uid="uid://yb5utiaqix3e" path="res://LS5Framework/Objects/Bumper/Test/Bumper_SurfaceNormal_SADXHeadTest.tscn" id="17_iwaxd"]
+
 [ext_resource type="PackedScene" uid="uid://ghucsw5061eo" path="res://LS5Framework/Objects/Gameplay/DeathPlane.tscn" id="18_u5mvm"]
+
 [ext_resource type="PackedScene" uid="uid://c1g10s7pyb8t3" path="res://LS5Framework/Objects/Gameplay/Checkpoint.tscn" id="19_s3xwx"]
+
 [ext_resource type="PackedScene" uid="uid://by35k35q3p0d1" path="res://LS5Framework/Objects/Rail/Rail.tscn" id="22_p0x6m"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="23_spawn"]
+
 [ext_resource type="Texture2D" uid="uid://ddvmsaux20gfe" path="res://LS5Framework/Scenes/Levels/Green Hill Ocean/GHO_23.jpg" id="23_tqx1w"]
+
 [ext_resource type="Material" uid="uid://cdkxuup2k8gy2" path="res://LS5Framework/Scenes/Levels/NikoTest/Materials/Checker.tres" id="24_5l7yj"]
+
 [ext_resource type="PackedScene" uid="uid://bswvitj3v4stb" path="res://LS5Framework/Objects/Rail/RailBooster.tscn" id="24_334di"]
+
 [ext_resource type="PackedScene" uid="uid://cyglqqs3uhsy0" path="res://LS5Framework/Objects/Camera/CameraConstraint.tscn" id="28_nydfv"]
+
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="31_x6a63"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/PhysicsShapeEmitter.tscn" id="33_58wob"]
+
 [ext_resource type="PackedScene" uid="uid://b6t3r2nak1q0p" path="res://LS5Framework/Objects/Terminal/Terminal.tscn" id="34_a5p52"]
+
 [ext_resource type="PackedScene" uid="uid://bucbdoyievjwl" path="res://LS5Framework/Objects/Race/RaceStart.tscn" id="35_ftftv"]
+
 [ext_resource type="PackedScene" uid="uid://bktxefyel8i42" path="res://LS5Framework/Objects/Race/RaceGoal.tscn" id="36_vrbq5"]
+
 [ext_resource type="Script" uid="uid://04dv4knhynpt" path="res://LS5Framework/Objects/MovingPlatform/RigidBodyPlatform.gd" id="37_2ywqk"]
+
 [ext_resource type="Shader" uid="uid://coo7mvt00c0xt" path="res://LS5Framework/Objects/Race/GoalRing/goal_ring_swap.gdshader" id="41_1i28t"]
+
 [ext_resource type="PackedScene" uid="uid://dm7cuouef12s7" path="res://LS5Framework/Scenes/Levels/NikoTest/TestRampHalf_Narrow_1.glb" id="41_i15uf"]
+
 [ext_resource type="Texture2D" uid="uid://cly188qsju2u6" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL.png" id="42_4rehq"]
+
 [ext_resource type="PackedScene" uid="uid://bc2xismjbxyaw" path="res://LS5Framework/Scenes/Levels/NikoTest/TestRamp_45Ramp.glb" id="42_u8dme"]
+
 [ext_resource type="Texture2D" uid="uid://c1m7ix7sf8vvr" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL_GLOW.png" id="43_jfrcj"]
+
 [ext_resource type="AudioStream" uid="uid://db86jppyv14ec" path="res://LS5Framework/Sounds/Music/Ska Cha Cha.ogg" id="44_07blk"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gravity/PlanetaryGravity.tscn" id="45_qirib"]
+
 [ext_resource type="PackedScene" uid="uid://bc31meew3vcbi" path="res://LS5Framework/Objects/Testing/Sphere_Inverted.glb" id="50_736jh"]
+
 [ext_resource type="Script" uid="uid://c2vkgx1ocpd33" path="res://LS5Framework/Objects/Props/PropBody3D.gd" id="51_a6a28"]
+
 [ext_resource type="PackedScene" uid="uid://ddj7d3ue1la8i" path="res://LS5Framework/Objects/Carry/CarryableCrate.tscn" id="52_ak7f8"]
+
 [ext_resource type="PackedScene" uid="uid://cwsdj34dkp0dx" path="res://LS5Framework/Objects/ItemMonitor/ItemMonitor.tscn" id="52_mu1lr"]
+
 [ext_resource type="Script" uid="uid://bgccl8q6bo21v" path="res://LS5Framework/Scripts/Camera/Constraints/CameraInfluenceTrait.gd" id="52_syfp7"]
+
 [ext_resource type="PackedScene" uid="uid://c3gu5qijp7yb3" path="res://LS5Framework/Objects/Enemies/SpikeBall/SpikeBall.tscn" id="53_mu1lr"]
+
 [ext_resource type="Script" uid="uid://bbqjenpejk0mi" path="res://LS5Framework/Objects/ItemMonitor/ItemMonitorReward.gd" id="53_tg66e"]
+
 [ext_resource type="PackedScene" uid="uid://crpqw8jeu0oih" path="res://LS5Framework/Objects/Testing/Sphere_parameters.glb" id="54_tg66e"]
+
 [ext_resource type="PackedScene" uid="uid://d0twxxsygymbf" path="res://LS5Framework/Objects/Enemies/MonoBeetle_SA2/FlyingEnemy_SA2MonoBeetle.tscn" id="57_5mp8f"]
+
 [ext_resource type="PackedScene" uid="uid://cl7c1iu4xvpq7" path="res://LS5Framework/Objects/Gameplay/GazeTarget.tscn" id="57_blvjp"]
+
 [ext_resource type="Script" uid="uid://h8r2mdi12h8a" path="res://LS5Framework/Objects/Enemies/Core/Components/EnemySelfDestructOnContactDamage.gd" id="58_5mp8f"]
-[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/AutomationSpline2_5D.tscn" id="60_sq2vv"]
-[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/AutomationSpline2_5DDepthProfile.tscn" id="61_depth_profile"]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedRibbon.tscn" id="60_sq2vv"]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedDepthProfile.tscn" id="61_depth_profile"]
+
 [ext_resource type="PackedScene" uid="uid://t1db85176ty3" path="res://LS5Framework/Objects/Reference/RULER/Ruler.tscn" id="64_1i28t"]
+
 [ext_resource type="PackedScene" uid="uid://c5gr2xrmhumi6" path="res://LS5Framework/Objects/Reference/CharacterReference.tscn" id="64_ebmlk"]
+
 [ext_resource type="PackedScene" uid="uid://mfeo556qvxlx" path="res://LS5Framework/Objects/Testing/Cube_intangible_forceroll.glb" id="70_r8jnm"]
+
 [ext_resource type="PackedScene" uid="uid://bmyw2thfo3cal" path="res://LS5Framework/Objects/Testing/Cube _forcecling.glb" id="71_ncnqb"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/MetadataExamples/MetadataTrigger.tscn" id="72_c1j06"]
+
 [ext_resource type="PackedScene" uid="uid://c15vrcyi6ollv" path="res://LS5Framework/Objects/Surface/Examples/DamageTrigger.tscn" id="73_l23he"]
+
 [ext_resource type="Script" uid="uid://b5g1878ghq72j" path="res://LS5Framework/Scripts/World/SurfaceTraits/SurfaceHazardTrait.gd" id="74_anuua"]
+
 [ext_resource type="PackedScene" uid="uid://dw238kqstk7l0" path="res://LS5Framework/Objects/Surface/Examples/DeathTrigger.tscn" id="75_2pldv"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Surface/Examples/ForceRollTrigger.tscn" id="76_muffe"]
+
 [ext_resource type="Script" uid="uid://ct0qqxifr786k" path="res://LS5Framework/Scripts/World/SurfaceTraits/SurfaceMovementTrait.gd" id="77_5l7yj"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Surface/Examples/ForceRollSurface.tscn" id="78_3yimx"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Surface/Examples/ShapeOverrides.tscn" id="79_4n6d6"]
+
 [ext_resource type="PackedScene" uid="uid://dyafo7cq17b5h" path="res://LS5Framework/Objects/Water/Examples/Adventure_Pool.tscn" id="80_luhu6"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Surface/Examples/ForceClingTrigger.tscn" id="80_tt4we"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Water_Sphere.tscn" id="81_anuua"]
+
 [ext_resource type="Script" uid="uid://e0l7hayvgaxs" path="res://LS5Framework/Scripts/World/SurfaceTraits/SurfaceAttachmentTrait.gd" id="81_jvpi5"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Tilted_Box.tscn" id="82_2pldv"]
+
 [ext_resource type="Script" uid="uid://cdupr030jgwkv" path="res://LS5Framework/Scripts/Camera/Constraints/CameraActivationTrait.gd" id="cam_trait_activation"]
+
 [ext_resource type="Script" uid="uid://dyshixousqyx8" path="res://LS5Framework/Scripts/Camera/Constraints/CameraLensTrait.gd" id="cam_trait_lens"]
+
 [ext_resource type="Script" uid="uid://c3qjp7m108bma" path="res://LS5Framework/Scripts/Camera/Constraints/CameraOrientationTrait.gd" id="cam_trait_orientation"]
+
 [ext_resource type="Script" uid="uid://ejxv0c1rj01v" path="res://LS5Framework/Scripts/Camera/Constraints/CameraPositionTrait.gd" id="cam_trait_position"]
+
 [ext_resource type="Script" uid="uid://upi4v3qbppsx" path="res://LS5Framework/Scripts/Camera/Constraints/CameraTransitionTrait.gd" id="cam_trait_transition"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Props/BadnikBounceTarget.tscn" id="prop_bounce"]
+
 [ext_resource type="PackedScene" uid="uid://3oynpvht654i" path="res://LS5Framework/Objects/Crates/Wood/CarryableWoodCrate.tscn" id="prop_carry_wood"]
+
 [ext_resource type="PackedScene" uid="uid://d1aw6tx6bcf3m" path="res://LS5Framework/Objects/Crates/Wood/WoodCrate.tscn" id="prop_wood"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="phase6_AutomationInputTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="phase6_AutomationSteeringTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="phase6_AutomationPositionTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSpeedTrait.gd" id="phase6_AutomationSpeedTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationRibbonTrait.gd" id="phase6_AutomationRibbonTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationCameraTrait.gd" id="phase6_AutomationCameraTrait"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5l7yj"]
 resource_local_to_scene = true
@@ -1008,6 +1104,197 @@ albedo_color = Color(1, 0.2842292, 0.6170419, 0.18039216)
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_y1fnd")
 size = Vector3(12, 6, 12)
+
+[sub_resource type="Resource" id="phase6_14_0"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationInputTrait")
+resource_name = "Authored action permissions"
+grounded = true
+airborne = false
+block_movement = false
+block_jump = false
+block_roll_spindash = false
+block_abilities = false
+block_drift = false
+allow_braking = false
+
+[sub_resource type="Resource" id="phase6_14_1"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationSteeringTrait")
+resource_name = "Canonical heading"
+grounded = true
+airborne = false
+mode = 0
+strength = 1.0
+canonical_direction = true
+allow_pullback = false
+
+[sub_resource type="Resource" id="phase6_14_2"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationSteeringTrait")
+resource_name = "Authored turn limit"
+grounded = true
+airborne = false
+mode = 1
+turn_rate = 240.0
+canonical_direction = true
+allow_pullback = false
+
+[sub_resource type="Resource" id="phase6_14_3"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationPositionTrait")
+resource_name = "Speed-scaled attraction"
+grounded = true
+airborne = false
+mode = 3
+attraction_acceleration = 3.0
+attraction_per_speed = 0.035
+attraction_speed_scale = 0.02
+attraction_radius = 0.0
+max_acceleration = 1000000.0
+
+[sub_resource type="Resource" id="phase6_14_4"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationSpeedTrait")
+resource_name = "Canonical propulsion"
+grounded = true
+airborne = false
+mode = 1
+canonical_direction = true
+target_speed = 35.0
+acceleration = 18.0
+affect_rolling = true
+allow_braking = false
+
+[sub_resource type="Resource" id="phase6_14_5"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationSpeedTrait")
+resource_name = "Authored player soft cap"
+grounded = true
+airborne = false
+mode = 2
+target_speed = 35.0
+player_top_speed = true
+affect_rolling = true
+
+[sub_resource type="Resource" id="phase6_15_0"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationInputTrait")
+resource_name = "Authored action permissions"
+grounded = true
+airborne = true
+block_movement = false
+block_jump = false
+block_roll_spindash = false
+block_abilities = false
+block_drift = true
+allow_braking = false
+
+[sub_resource type="Resource" id="phase6_15_1"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationRibbonTrait")
+resource_name = "Authored terrain ribbon"
+grounded = true
+airborne = true
+entry_blend_distance = 18.0
+exit_blend_distance = 18.0
+transition_ease = 2
+constrain_airborne = true
+constrain_special_moves = true
+cubic_path_sampling = true
+tangent_lookahead = 0.5
+plane_frame_mode = 0
+reverse_plane_normal = false
+preserve_frame_through_degenerate_segments = true
+surface_frame_enabled = true
+surface_traversal_mode = 1
+surface_frame_preserve_ribbon_normal = true
+surface_frame_influence = 1.0
+surface_frame_uses_velocity = false
+surface_frame_min_speed = 2.0
+terrain_tangent_alignment_strength = 6.0
+capture_entry_depth_offset = false
+captured_depth_transition_enabled = true
+follow_unanchored_surface_depth = false
+adaptive_centerline_enabled = true
+adaptive_centerline_grounded_only = true
+adaptive_centerline_strength = 6.0
+adaptive_centerline_max_speed = 16.0
+adaptive_centerline_max_offset = 30.0
+adaptive_centerline_deadzone = 0.02
+terrain_piece_anchors_enabled = false
+terrain_piece_anchor_metadata = &"automation_25d_centerline_anchor"
+terrain_piece_anchor_parent_search = 8
+depth_offset_splines_enabled = true
+strict_position_lock = true
+post_slide_constraint_pass_enabled = true
+position_lock_strength = 12.0
+max_position_correction_speed = 20.0
+position_lock_deadzone = 0.005
+strict_velocity_lock = true
+disable_turning_slowdown = true
+velocity_lock_strength = 18.0
+sideways_removal_speed_preservation = 0.0
+
+[sub_resource type="Resource" id="phase6_15_2"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationInputTrait")
+resource_name = "Signed ribbon input"
+grounded = true
+airborne = true
+mode = 1
+reverse_axis = false
+input_deadzone = 0.05
+
+[sub_resource type="Resource" id="phase6_15_3"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationCameraTrait")
+resource_name = "Authored side-view camera"
+camera_enabled = true
+constraint_priority = 10
+override_previous_camera_constraints = false
+camera_side = 0
+camera_up_mode = 0
+disable_camera_controls = true
+face_player = false
+aim_strength = 1.0
+aim_smooth = 14.0
+aim_target_offset = Vector3(0, 1.5, 0)
+aim_offset_uses_player_up = true
+aim_up_uses_player_up = false
+allow_roll = false
+roll_deg = 0.0
+override_use_player_up = true
+target_use_player_up = false
+distance_override_enabled = true
+distance_override = 18.0
+camera_vertical_offset = 2.0
+camera_path_lead_distance = 2.5
+camera_velocity_lead_time = 0.08
+camera_max_lead_distance = 8.0
+camera_lead_direction_speed = 2.0
+camera_idle_lead_mode = 0
+camera_lead_smoothing = 3.0
+camera_lead_recenter_smoothing = 2.5
+camera_lead_max_adjustment_speed = 12.0
+camera_center_on_plane = true
+fov_override_enabled = false
+fov_override = 55.0
+fov_distance_based_enabled = false
+fov_distance_near_fov = 55.0
+fov_distance_far_fov = 45.0
+fov_distance_near = 0.0
+fov_distance_far = 30.0
+entry_smoothing_enabled = true
+entry_smoothing_duration = 0.25
+exit_smoothing_enabled = true
+exit_smoothing_duration = 0.35
+position_smoothing = 14.0
+rotation_smoothing = 10.0
+fov_smoothing = 8.0
+fov_smoothing_independent = true
+override_camera_collision = false
+camera_collision_enabled_override = true
 
 [node name="NIKO_TEST" type="Node3D" unique_id=794803344]
 
@@ -3876,7 +4163,22 @@ action_lock_time = 1.0
 [node name="AutomationSpline" parent="." unique_id=858870673 instance=ExtResource("13_ijfms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 235.34773, -1.676506, 411.77374)
 enabled = false
-tangent_lookahead = 1.0
+priority = 0
+require_group = &"player"
+path_path = NodePath("Path3D")
+volume_path = NodePath("Area3D")
+capture_distance = 0.0
+release_at_path_ends = false
+tracking_window = 6.0
+activation_mode = 0
+integrate_before_speed_limits = true
+sample_lookahead = 1.0
+recovery_distance = 20.0
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("phase6_14_1"), SubResource("phase6_14_2")])
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("phase6_14_3")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("phase6_14_4"), SubResource("phase6_14_5")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_14_0")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/NikoTest/niko_test.tscn::AutomationSpline"
 
 [node name="Path3D" parent="AutomationSpline" index="0" unique_id=716481439]
 curve = SubResource("Curve3D_dpt8e")
@@ -5338,24 +5640,22 @@ metadata/surface_attach_max_angle_deg = 0.0
 
 [node name="AutomationSpline2_5D" parent="." unique_id=1270435751 instance=ExtResource("60_sq2vv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 896.4588, -1.6765022, 620.78516)
-entry_blend_distance = 18.0
-exit_blend_distance = 18.0
-capture_entry_depth_offset = false
-adaptive_centerline_strength = 6.0
-adaptive_centerline_max_speed = 16.0
-adaptive_centerline_max_offset = 30.0
-max_position_correction_speed = 20.0
-aim_offset_uses_player_up = true
-camera_path_lead_distance = 2.5
-camera_velocity_lead_time = 0.08
-camera_max_lead_distance = 8.0
-camera_lead_direction_speed = 2.0
-camera_lead_smoothing = 3.0
-camera_lead_recenter_smoothing = 2.5
-camera_lead_max_adjustment_speed = 12.0
-entry_smoothing_enabled = true
-force_surface_adhesion = false
-max_turn_deg_per_sec = 0.0
+enabled = true
+priority = 0
+require_group = &"player"
+path_path = NodePath("Path3D")
+volume_path = NodePath("Area3D")
+capture_distance = 0.0
+release_at_path_ends = false
+tracking_window = 12.0
+activation_mode = 0
+recovery_distance = 20.0
+maximum_tracking_window = 100.0
+travel_window_multiplier = 2.0
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("phase6_15_1")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_15_0"), SubResource("phase6_15_2")])
+camera_traits = Array[ExtResource("phase6_AutomationCameraTrait")]([SubResource("phase6_15_3")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/NikoTest/niko_test.tscn::AutomationSpline2_5D"
 
 [node name="Path3D" parent="AutomationSpline2_5D" index="0"]
 curve = SubResource("Curve3D_ejlbq")
@@ -5365,16 +5665,39 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48.149902, 29, 125)
 shape = SubResource("BoxShape3D_g6lj7")
 
 [node name="LoopDepthProfile" parent="AutomationSpline2_5D" unique_id=1898075613 instance=ExtResource("61_depth_profile")]
+enabled = true
+priority = 0
+require_group = &"player"
+path_path = NodePath("Path3D")
+volume_path = NodePath("Area3D")
+capture_distance = 20.0
+release_at_path_ends = false
+tracking_window = 12.0
+activation_mode = 1
+start_gate_path = NodePath("Entrance")
+end_gate_path = NodePath("Exit")
 automation_spline_path = NodePath("..")
-activation_mode = 2
-bidirectional_endpoint_areas = false
 failsafe_exit_distance = 20.0
+depth_bias = 0.0
+reverse_depth = false
 follow_while_airborne = true
+cubic_profile_sampling = true
 centerline_response_mode = 2
+centerline_strength = 40.0
+centerline_max_speed = 40.0
+override_centerline_offset_limit = false
+centerline_max_offset = 0.0
 minimum_constraint_adherence = 1.0
 override_position_constraint = true
+strict_position_lock = true
 position_lock_strength = 60.0
-tracking_recovery_distance = 14.0
+max_position_correction_speed = 0.0
+position_lock_deadzone = 0.005
+bidirectional_endpoint_areas = false
+recovery_distance = 14.0
+maximum_tracking_window = 100.0
+travel_window_multiplier = 2.0
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/NikoTest/niko_test.tscn::AutomationSpline2_5D/LoopDepthProfile"
 
 [node name="Path3D" parent="AutomationSpline2_5D/LoopDepthProfile" index="0"]
 curve = SubResource("Curve3D_loop_depth_profile")
@@ -5687,139 +6010,275 @@ surface_effect_probe_correction_min_speed = 0.5
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 1, 216)
 
 [editable path="ENVIRONMENT/EnvironmentWeatherSystem"]
+
 [editable path="ENVIRONMENT/EnvironmentWeatherSystem/DayNightCycle"]
+
 [editable path="OBJECTS/RINGS/RingSpline"]
+
 [editable path="OBJECTS/RINGS/RingSpline2"]
+
 [editable path="OBJECTS/RINGS/RingSpline4"]
+
 [editable path="OBJECTS/RINGS/RingSpline5"]
+
 [editable path="OBJECTS/RINGS/RingSpline6"]
+
 [editable path="OBJECTS/RINGS/RingSpline7"]
+
 [editable path="OBJECTS/RINGS/RingSpline8"]
+
 [editable path="OBJECTS/RINGS/RingSpline9"]
+
 [editable path="OBJECTS/RINGS/RingSpline10"]
+
 [editable path="OBJECTS/RINGS/RingSpline11"]
+
 [editable path="OBJECTS/RINGS/RingSpline12"]
+
 [editable path="OBJECTS/RINGS/RingSpline13"]
+
 [editable path="OBJECTS/RINGS/RingSpline14"]
+
 [editable path="OBJECTS/RINGS/RingSpline3"]
+
 [editable path="OBJECTS/SPRINGS/Spring18"]
+
 [editable path="OBJECTS/SPRINGS/Spring26"]
+
 [editable path="OBJECTS/GroundedEnemyBlockout"]
+
 [editable path="OBJECTS/GroundedEnemyBlockout3"]
+
 [editable path="OBJECTS/GroundedEnemyBlockout2"]
+
 [editable path="OBJECTS/RaceObjectLayout_Parkour1/DeathPlane3"]
+
 [editable path="AutomationSpline"]
+
 [editable path="DeathPlane2"]
+
 [editable path="Checkpoint"]
+
 [editable path="Checkpoint2"]
+
 [editable path="Checkpoint3"]
+
 [editable path="Checkpoint5"]
+
 [editable path="Checkpoint4"]
+
 [editable path="Rail"]
+
 [editable path="Rail8"]
+
 [editable path="Rail2"]
+
 [editable path="Rail3"]
+
 [editable path="Rail6"]
+
 [editable path="Rail7"]
+
 [editable path="Rail4"]
+
 [editable path="Rail5"]
+
 [editable path="CameraConstraint"]
+
 [editable path="RaceStart"]
+
 [editable path="RaceGoal"]
+
 [editable path="RaceGoal/GoalModel"]
+
 [editable path="RaceGoal/GoalModel/GoalRing2"]
+
 [editable path="RaceStart_Ring"]
+
 [editable path="RaceStart_PARKOUR"]
+
 [editable path="RaceGoal_PARKOUR"]
+
 [editable path="RaceGoal_PARKOUR/GoalModel"]
+
 [editable path="RaceGoal_PARKOUR/GoalModel/GoalRing2"]
+
 [editable path="RingSpline"]
+
 [editable path="CameraConstraint2"]
+
 [editable path="CameraConstraint_ParkourBox"]
+
 [editable path="CameraConstraint_ParkourBox2"]
+
 [editable path="TestRampHalf_Narrow_42_forcerolltest"]
+
 [editable path="TestRampHalf_Narrow_43_forcerolltest"]
+
 [editable path="CarryableCrate"]
+
 [editable path="CarryableCrate3"]
+
 [editable path="Sphere_Inverted"]
+
 [editable path="CarryableCrate4"]
+
 [editable path="CarryableCrate2"]
+
 [editable path="PlanetaryGravity"]
+
 [editable path="PlanetaryGravity2"]
+
 [editable path="PlanetaryGravity3"]
+
 [editable path="PlanetaryGravity4"]
+
 [editable path="PlanetaryGravity5"]
+
 [editable path="PlanetaryGravity6"]
+
 [editable path="GUNMonoBeetle"]
+
 [editable path="GUNMonoBeetle/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle2"]
+
 [editable path="GUNMonoBeetle2/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle2/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle3"]
+
 [editable path="GUNMonoBeetle3/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle3/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle4"]
+
 [editable path="GUNMonoBeetle4/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle4/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle5"]
+
 [editable path="GUNMonoBeetle5/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle5/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle6"]
+
 [editable path="GUNMonoBeetle6/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle6/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle7"]
+
 [editable path="GUNMonoBeetle7/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle7/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle8"]
+
 [editable path="GUNMonoBeetle8/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle8/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle9"]
+
 [editable path="GUNMonoBeetle9/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle9/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle10"]
+
 [editable path="GUNMonoBeetle10/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle10/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle11"]
+
 [editable path="GUNMonoBeetle11/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle11/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle12"]
+
 [editable path="GUNMonoBeetle12/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle12/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle13"]
+
 [editable path="GUNMonoBeetle13/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle13/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle17"]
+
 [editable path="GUNMonoBeetle17/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle17/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle18"]
+
 [editable path="GUNMonoBeetle18/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle18/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle19"]
+
 [editable path="GUNMonoBeetle19/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle19/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle20"]
+
 [editable path="GUNMonoBeetle20/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle20/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle21"]
+
 [editable path="GUNMonoBeetle21/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle21/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle14"]
+
 [editable path="GUNMonoBeetle14/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle14/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle15"]
+
 [editable path="GUNMonoBeetle15/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle15/MonoBeetle_Fractures"]
+
 [editable path="GUNMonoBeetle16"]
+
 [editable path="GUNMonoBeetle16/Visual/MonoBeetle"]
+
 [editable path="GUNMonoBeetle16/MonoBeetle_Fractures"]
+
 [editable path="AutomationSpline2_5D"]
+
 [editable path="AutomationSpline2_5D/LoopDepthProfile"]
+
 [editable path="MetadataTrigger"]
+
 [editable path="DamageTrigger"]
+
 [editable path="ForceRollTrigger"]
+
 [editable path="ForceClingTrigger"]
+
 [editable path="CameraConstraint3"]
+
 [editable path="CameraConstraint4"]
+
 [editable path="ForceClingTrigger2"]
+
 [editable path="DeathTrigger"]

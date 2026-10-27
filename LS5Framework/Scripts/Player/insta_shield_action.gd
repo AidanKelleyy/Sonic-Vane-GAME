@@ -137,6 +137,8 @@ func get_input_prompt_stage() -> InputPromptStage:
 
 
 func can_execute(context: Dictionary = {}) -> bool:
+	if owner_player and not bool(context.get("forced_combat_state", false)) and not owner_player.get_automation_controller().motion.allows(action_id):
+		return false
 	if owner_player == null or not insta_shield_enabled:
 		return false
 	if bool(context.get("forced_combat_state", false)):

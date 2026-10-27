@@ -1,29 +1,66 @@
 [gd_scene format=3 uid="uid://d1lkixedl3gbr"]
 
 [ext_resource type="PackedScene" uid="uid://i28w1e78xgbf" path="res://LS5Framework/Scenes/Levels/Green Hill Canyon/GreenHillCanyon.glb" id="1_odwry"]
+
 [ext_resource type="PackedScene" uid="uid://ghucsw5061eo" path="res://LS5Framework/Objects/Gameplay/DeathPlane.tscn" id="3_rjsqb"]
+
 [ext_resource type="PackedScene" uid="uid://dcow1cl6vd0n3" path="res://LS5Framework/Objects/Music/MusicTrigger.tscn" id="4_4tklw"]
+
 [ext_resource type="AudioStream" uid="uid://bavkddcnjuxm2" path="res://LS5Framework/Sounds/Music/Green Hill Zone Synthetic Emerald - SonikkuZaHedgehog127.mp3" id="5_0wusn"]
+
 [ext_resource type="PackedScene" uid="uid://dpqdt82o1f57x" path="res://LS5Framework/Objects/Spring/Spring.tscn" id="6_182lq"]
+
 [ext_resource type="PackedScene" uid="uid://e1tkwisehr5p" path="res://LS5Framework/Objects/DashPanels/DashPanel.tscn" id="7_1dlih"]
+
 [ext_resource type="PackedScene" uid="uid://c1g10s7pyb8t3" path="res://LS5Framework/Objects/Gameplay/Checkpoint.tscn" id="8_5nk7t"]
+
 [ext_resource type="PackedScene" uid="uid://bucbdoyievjwl" path="res://LS5Framework/Objects/Race/RaceStart.tscn" id="9_06o6u"]
+
 [ext_resource type="PackedScene" uid="uid://bktxefyel8i42" path="res://LS5Framework/Objects/Race/RaceGoal.tscn" id="10_3qw5k"]
+
 [ext_resource type="Shader" uid="uid://coo7mvt00c0xt" path="res://LS5Framework/Objects/Race/GoalRing/goal_ring_swap.gdshader" id="10_nfviv"]
+
 [ext_resource type="Texture2D" uid="uid://cly188qsju2u6" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL.png" id="11_mun4f"]
+
 [ext_resource type="PackedScene" uid="uid://c12m0rampjump" path="res://LS5Framework/Objects/Ramps/JumpPanelRamp.tscn" id="11_qbnya"]
+
 [ext_resource type="Texture2D" uid="uid://c1m7ix7sf8vvr" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL_GLOW.png" id="12_ai0xw"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="12_na7uc"]
+
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="12_rjsqb"]
+
 [ext_resource type="Shader" uid="uid://p3g0j2rv6t4n" path="res://LS5Framework/Objects/Environment/DayNightCycle/day_night_sky.gdshader" id="13_ci8yw"]
-[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/AutomationSpline2_5D.tscn" id="17_mun4f"]
-[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/AutomationSpline2_5DDepthProfile.tscn" id="18_ai0xw"]
-[ext_resource type="PackedScene" uid="uid://bf2o7d3qsovh6" path="res://LS5Framework/Objects/Automation/AutomationSpline.tscn" id="19_g48xd"]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedRibbon.tscn" id="17_mun4f"]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedDepthProfile.tscn" id="18_ai0xw"]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedGuided.tscn" id="19_g48xd"]
+
 [ext_resource type="PackedScene" uid="uid://cyglqqs3uhsy0" path="res://LS5Framework/Objects/Camera/CameraConstraint.tscn" id="20_26hjb"]
+
 [ext_resource type="Script" uid="uid://cdupr030jgwkv" path="res://LS5Framework/Scripts/Camera/Constraints/CameraActivationTrait.gd" id="cam_trait_activation"]
+
 [ext_resource type="Script" uid="uid://c3qjp7m108bma" path="res://LS5Framework/Scripts/Camera/Constraints/CameraOrientationTrait.gd" id="cam_trait_orientation"]
+
 [ext_resource type="Script" uid="uid://ejxv0c1rj01v" path="res://LS5Framework/Scripts/Camera/Constraints/CameraPositionTrait.gd" id="cam_trait_position"]
+
 [ext_resource type="Script" uid="uid://upi4v3qbppsx" path="res://LS5Framework/Scripts/Camera/Constraints/CameraTransitionTrait.gd" id="cam_trait_transition"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="phase6_AutomationInputTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationRibbonTrait.gd" id="phase6_AutomationRibbonTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationCameraTrait.gd" id="phase6_AutomationCameraTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSurfaceTrait.gd" id="phase6_AutomationSurfaceTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="phase6_AutomationSteeringTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSpeedTrait.gd" id="phase6_AutomationSpeedTrait"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="phase6_AutomationPositionTrait"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pav5r"]
 size = Vector3(1092.6595, 2.9222412, 887.24304)
@@ -681,6 +718,311 @@ duration = 2.0
 [sub_resource type="BoxShape3D" id="BoxShape3D_xuk1c"]
 size = Vector3(97.3692, 157.25708, 238.4136)
 
+[sub_resource type="Resource" id="phase6_7_0"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationInputTrait")
+resource_name = "Authored action permissions"
+grounded = true
+airborne = true
+block_movement = false
+block_jump = false
+block_roll_spindash = false
+block_abilities = false
+block_drift = true
+allow_braking = false
+
+[sub_resource type="Resource" id="phase6_7_1"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationRibbonTrait")
+resource_name = "Authored terrain ribbon"
+grounded = true
+airborne = true
+entry_blend_distance = 18.0
+exit_blend_distance = 18.0
+transition_ease = 2
+constrain_airborne = true
+constrain_special_moves = true
+cubic_path_sampling = true
+tangent_lookahead = 0.5
+plane_frame_mode = 0
+reverse_plane_normal = false
+preserve_frame_through_degenerate_segments = true
+surface_frame_enabled = true
+surface_traversal_mode = 1
+surface_frame_preserve_ribbon_normal = true
+surface_frame_influence = 1.0
+surface_frame_uses_velocity = false
+surface_frame_min_speed = 2.0
+terrain_tangent_alignment_strength = 6.0
+capture_entry_depth_offset = false
+captured_depth_transition_enabled = true
+follow_unanchored_surface_depth = false
+adaptive_centerline_enabled = true
+adaptive_centerline_grounded_only = true
+adaptive_centerline_strength = 6.0
+adaptive_centerline_max_speed = 16.0
+adaptive_centerline_max_offset = 30.0
+adaptive_centerline_deadzone = 0.02
+terrain_piece_anchors_enabled = false
+terrain_piece_anchor_metadata = &"automation_25d_centerline_anchor"
+terrain_piece_anchor_parent_search = 8
+depth_offset_splines_enabled = true
+strict_position_lock = true
+post_slide_constraint_pass_enabled = true
+position_lock_strength = 12.0
+max_position_correction_speed = 20.0
+position_lock_deadzone = 0.005
+strict_velocity_lock = true
+disable_turning_slowdown = true
+velocity_lock_strength = 18.0
+sideways_removal_speed_preservation = 0.0
+
+[sub_resource type="Resource" id="phase6_7_2"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationInputTrait")
+resource_name = "Signed ribbon input"
+grounded = true
+airborne = true
+mode = 1
+reverse_axis = false
+input_deadzone = 0.05
+
+[sub_resource type="Resource" id="phase6_7_3"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationCameraTrait")
+resource_name = "Authored side-view camera"
+camera_enabled = true
+constraint_priority = 10
+override_previous_camera_constraints = false
+camera_side = 0
+camera_up_mode = 0
+disable_camera_controls = true
+face_player = false
+aim_strength = 1.0
+aim_smooth = 14.0
+aim_target_offset = Vector3(0, 1.5, 0)
+aim_offset_uses_player_up = true
+aim_up_uses_player_up = false
+allow_roll = false
+roll_deg = 0.0
+override_use_player_up = true
+target_use_player_up = false
+distance_override_enabled = true
+distance_override = 80.01
+camera_vertical_offset = 2.0
+camera_path_lead_distance = 2.5
+camera_velocity_lead_time = 0.08
+camera_max_lead_distance = 8.0
+camera_lead_direction_speed = 2.0
+camera_idle_lead_mode = 0
+camera_lead_smoothing = 3.0
+camera_lead_recenter_smoothing = 2.5
+camera_lead_max_adjustment_speed = 12.0
+camera_center_on_plane = true
+fov_override_enabled = true
+fov_override = 40.0
+fov_distance_based_enabled = false
+fov_distance_near_fov = 55.0
+fov_distance_far_fov = 45.0
+fov_distance_near = 0.0
+fov_distance_far = 30.0
+entry_smoothing_enabled = true
+entry_smoothing_duration = 0.25
+exit_smoothing_enabled = true
+exit_smoothing_duration = 0.35
+position_smoothing = 14.0
+rotation_smoothing = 10.0
+fov_smoothing = 8.0
+fov_smoothing_independent = true
+override_camera_collision = true
+camera_collision_enabled_override = false
+
+[sub_resource type="Resource" id="phase6_8_0"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationInputTrait")
+resource_name = "Authored action permissions"
+grounded = true
+airborne = true
+block_movement = false
+block_jump = false
+block_roll_spindash = false
+block_abilities = false
+block_drift = true
+allow_braking = false
+
+[sub_resource type="Resource" id="phase6_8_1"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationRibbonTrait")
+resource_name = "Authored terrain ribbon"
+grounded = true
+airborne = true
+entry_blend_distance = 18.0
+exit_blend_distance = 18.0
+transition_ease = 2
+constrain_airborne = true
+constrain_special_moves = true
+cubic_path_sampling = true
+tangent_lookahead = 0.5
+plane_frame_mode = 0
+reverse_plane_normal = false
+preserve_frame_through_degenerate_segments = true
+surface_frame_enabled = true
+surface_traversal_mode = 1
+surface_frame_preserve_ribbon_normal = true
+surface_frame_influence = 1.0
+surface_frame_uses_velocity = false
+surface_frame_min_speed = 2.0
+terrain_tangent_alignment_strength = 6.0
+capture_entry_depth_offset = false
+captured_depth_transition_enabled = true
+follow_unanchored_surface_depth = false
+adaptive_centerline_enabled = true
+adaptive_centerline_grounded_only = true
+adaptive_centerline_strength = 6.0
+adaptive_centerline_max_speed = 16.0
+adaptive_centerline_max_offset = 30.0
+adaptive_centerline_deadzone = 0.02
+terrain_piece_anchors_enabled = false
+terrain_piece_anchor_metadata = &"automation_25d_centerline_anchor"
+terrain_piece_anchor_parent_search = 8
+depth_offset_splines_enabled = true
+strict_position_lock = true
+post_slide_constraint_pass_enabled = true
+position_lock_strength = 12.0
+max_position_correction_speed = 20.0
+position_lock_deadzone = 0.005
+strict_velocity_lock = true
+disable_turning_slowdown = true
+velocity_lock_strength = 18.0
+sideways_removal_speed_preservation = 0.0
+
+[sub_resource type="Resource" id="phase6_8_2"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationInputTrait")
+resource_name = "Signed ribbon input"
+grounded = true
+airborne = true
+mode = 1
+reverse_axis = false
+input_deadzone = 0.05
+
+[sub_resource type="Resource" id="phase6_8_3"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationCameraTrait")
+resource_name = "Authored side-view camera"
+camera_enabled = true
+constraint_priority = 10
+override_previous_camera_constraints = false
+camera_side = 0
+camera_up_mode = 0
+disable_camera_controls = true
+face_player = false
+aim_strength = 1.0
+aim_smooth = 14.0
+aim_target_offset = Vector3(0, 1.5, 0)
+aim_offset_uses_player_up = true
+aim_up_uses_player_up = false
+allow_roll = false
+roll_deg = 0.0
+override_use_player_up = true
+target_use_player_up = false
+distance_override_enabled = true
+distance_override = 18.0
+camera_vertical_offset = 2.0
+camera_path_lead_distance = 2.5
+camera_velocity_lead_time = 0.08
+camera_max_lead_distance = 8.0
+camera_lead_direction_speed = 2.0
+camera_idle_lead_mode = 0
+camera_lead_smoothing = 3.0
+camera_lead_recenter_smoothing = 2.5
+camera_lead_max_adjustment_speed = 12.0
+camera_center_on_plane = true
+fov_override_enabled = false
+fov_override = 55.0
+fov_distance_based_enabled = false
+fov_distance_near_fov = 55.0
+fov_distance_far_fov = 45.0
+fov_distance_near = 0.0
+fov_distance_far = 30.0
+entry_smoothing_enabled = true
+entry_smoothing_duration = 0.25
+exit_smoothing_enabled = true
+exit_smoothing_duration = 0.35
+position_smoothing = 14.0
+rotation_smoothing = 10.0
+fov_smoothing = 8.0
+fov_smoothing_independent = true
+override_camera_collision = false
+camera_collision_enabled_override = true
+
+[sub_resource type="Resource" id="phase6_8_4"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationSurfaceTrait")
+resource_name = "Contact adhesion"
+grounded = true
+airborne = true
+mode = 1
+
+[sub_resource type="Resource" id="phase6_10_0"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationInputTrait")
+resource_name = "Authored action permissions"
+grounded = true
+airborne = false
+block_movement = true
+block_jump = true
+block_roll_spindash = true
+block_abilities = true
+block_drift = true
+allow_braking = false
+
+[sub_resource type="Resource" id="phase6_10_1"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationSteeringTrait")
+resource_name = "Canonical heading"
+grounded = true
+airborne = false
+mode = 0
+strength = 1.0
+canonical_direction = true
+allow_pullback = false
+
+[sub_resource type="Resource" id="phase6_10_2"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationSteeringTrait")
+resource_name = "Authored turn limit"
+grounded = true
+airborne = false
+mode = 1
+turn_rate = 9999.0
+canonical_direction = true
+allow_pullback = false
+
+[sub_resource type="Resource" id="phase6_10_3"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationSpeedTrait")
+resource_name = "Canonical propulsion"
+grounded = true
+airborne = false
+mode = 1
+canonical_direction = true
+target_speed = 185.0
+acceleration = 75.0
+affect_rolling = true
+allow_braking = false
+
+[sub_resource type="Resource" id="phase6_10_4"]
+resource_local_to_scene = true
+script = ExtResource("phase6_AutomationSpeedTrait")
+resource_name = "Authored player soft cap"
+grounded = true
+airborne = false
+mode = 2
+target_speed = 185.0
+player_top_speed = true
+affect_rolling = true
+
 [node name="GREEN_HILL_CANYON" type="Node3D" unique_id=1152177172 groups=["world"]]
 
 [node name="GreenHillCanyon" parent="." unique_id=210831281 instance=ExtResource("1_odwry")]
@@ -1234,30 +1576,22 @@ material = SubResource("ShaderMaterial_ai0xw")
 
 [node name="AutomationSpline2_5D" parent="." unique_id=1012809964 instance=ExtResource("17_mun4f")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1625.1204, 46.17214, -2835.7297)
-entry_blend_distance = 18.0
-exit_blend_distance = 18.0
-capture_entry_depth_offset = false
-adaptive_centerline_strength = 6.0
-adaptive_centerline_max_speed = 16.0
-adaptive_centerline_max_offset = 30.0
-max_position_correction_speed = 20.0
-aim_offset_uses_player_up = true
-distance_override = 80.01
-camera_path_lead_distance = 2.5
-camera_velocity_lead_time = 0.08
-camera_max_lead_distance = 8.0
-camera_lead_direction_speed = 2.0
-camera_lead_smoothing = 3.0
-camera_lead_recenter_smoothing = 2.5
-camera_lead_max_adjustment_speed = 12.0
-fov_override_enabled = true
-fov_override = 40.0
-entry_smoothing_enabled = true
-override_camera_collision = true
-camera_collision_enabled_override = false
 enabled = false
-force_surface_adhesion = false
-max_turn_deg_per_sec = 0.0
+priority = 0
+require_group = &"player"
+path_path = NodePath("Path3D")
+volume_path = NodePath("Area3D")
+capture_distance = 0.0
+release_at_path_ends = false
+tracking_window = 12.0
+activation_mode = 0
+recovery_distance = 20.0
+maximum_tracking_window = 100.0
+travel_window_multiplier = 2.0
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("phase6_7_1")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_7_0"), SubResource("phase6_7_2")])
+camera_traits = Array[ExtResource("phase6_AutomationCameraTrait")]([SubResource("phase6_7_3")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/Green Hill Canyon/green_hill_canyon.tscn::AutomationSpline2_5D"
 
 [node name="Path3D" parent="AutomationSpline2_5D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.0645752)
@@ -1269,23 +1603,23 @@ shape = SubResource("BoxShape3D_un7nq")
 
 [node name="AutomationSpline2_5D2" parent="." unique_id=834200307 instance=ExtResource("17_mun4f")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 1137.4681, -282.59888, -2773.4456)
-entry_blend_distance = 18.0
-exit_blend_distance = 18.0
-capture_entry_depth_offset = false
-adaptive_centerline_strength = 6.0
-adaptive_centerline_max_speed = 16.0
-adaptive_centerline_max_offset = 30.0
-max_position_correction_speed = 20.0
-aim_offset_uses_player_up = true
-camera_path_lead_distance = 2.5
-camera_velocity_lead_time = 0.08
-camera_max_lead_distance = 8.0
-camera_lead_direction_speed = 2.0
-camera_lead_smoothing = 3.0
-camera_lead_recenter_smoothing = 2.5
-camera_lead_max_adjustment_speed = 12.0
-entry_smoothing_enabled = true
-max_turn_deg_per_sec = 0.0
+enabled = true
+priority = 0
+require_group = &"player"
+path_path = NodePath("Path3D")
+volume_path = NodePath("Area3D")
+capture_distance = 0.0
+release_at_path_ends = false
+tracking_window = 12.0
+activation_mode = 0
+recovery_distance = 20.0
+maximum_tracking_window = 100.0
+travel_window_multiplier = 2.0
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("phase6_8_1")])
+surface_traits = Array[ExtResource("phase6_AutomationSurfaceTrait")]([SubResource("phase6_8_4")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_8_0"), SubResource("phase6_8_2")])
+camera_traits = Array[ExtResource("phase6_AutomationCameraTrait")]([SubResource("phase6_8_3")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/Green Hill Canyon/green_hill_canyon.tscn::AutomationSpline2_5D2"
 
 [node name="Path3D" parent="AutomationSpline2_5D2" index="0"]
 curve = SubResource("Curve3D_26hjb")
@@ -1295,19 +1629,39 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41.150024, 29, -22.50293)
 shape = SubResource("BoxShape3D_u1yua")
 
 [node name="LoopDepthProfile" parent="AutomationSpline2_5D2" unique_id=320947672 instance=ExtResource("18_ai0xw")]
+enabled = true
+priority = 0
+require_group = &"player"
+path_path = NodePath("Path3D")
+volume_path = NodePath("Area3D")
+capture_distance = 45.0
+release_at_path_ends = false
+tracking_window = 18.0
+activation_mode = 1
+start_gate_path = NodePath("Entrance")
+end_gate_path = NodePath("Exit")
 automation_spline_path = NodePath("..")
-activation_mode = 2
-bidirectional_endpoint_areas = false
 failsafe_exit_distance = 45.0
+depth_bias = 0.0
+reverse_depth = false
 follow_while_airborne = true
+cubic_profile_sampling = true
 centerline_response_mode = 2
+centerline_strength = 40.0
+centerline_max_speed = 40.0
 override_centerline_offset_limit = true
+centerline_max_offset = 0.0
 minimum_constraint_adherence = 1.0
 override_position_constraint = true
+strict_position_lock = true
 position_lock_strength = 200.0
-preferred_offset_window = 18.0
-branch_switch_distance_tolerance = 4.0
-tracking_recovery_distance = 45.0
+max_position_correction_speed = 0.0
+position_lock_deadzone = 0.005
+bidirectional_endpoint_areas = false
+recovery_distance = 45.0
+maximum_tracking_window = 100.0
+travel_window_multiplier = 2.0
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/Green Hill Canyon/green_hill_canyon.tscn::AutomationSpline2_5D2/LoopDepthProfile"
 
 [node name="Path3D" parent="AutomationSpline2_5D2/LoopDepthProfile" index="0"]
 curve = SubResource("Curve3D_5vllp")
@@ -1330,16 +1684,25 @@ shape = SubResource("BoxShape3D_b1p5g")
 
 [node name="AutomationSpline1" parent="." unique_id=2094852401 instance=ExtResource("19_g48xd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1618.4066, 82.76614, -1476.229)
-use_entrance_exit_areas = true
-entrance_area_path = NodePath("../GHC_LoopCamEnter_2")
-exit_area_path = NodePath("../GHC_LoopCamExit_2")
-max_turn_deg_per_sec = 9999.0
-lock_controls = true
-continuous_force = false
-nudge_toward_strength_base = 10000.0
-nudge_toward_strength_per_speed = 15.0
-along_assist_target_speed = 185.0
-along_assist_accel = 75.0
+enabled = true
+priority = 0
+require_group = &"player"
+path_path = NodePath("Path3D")
+volume_path = NodePath("Area3D")
+capture_distance = 0.0
+release_at_path_ends = false
+tracking_window = 6.0
+activation_mode = 3
+start_gate_path = NodePath("../GHC_LoopCamEnter_2")
+end_gate_path = NodePath("../GHC_LoopCamExit_2")
+area_crossings_bidirectional = false
+integrate_before_speed_limits = true
+sample_lookahead = 0.5
+recovery_distance = 20.0
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("phase6_10_1"), SubResource("phase6_10_2")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("phase6_10_3"), SubResource("phase6_10_4")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_10_0")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/Green Hill Canyon/green_hill_canyon.tscn::AutomationSpline1"
 
 [node name="Path3D" parent="AutomationSpline1" index="0" unique_id=716481439]
 curve = SubResource("Curve3D_el3hc")
@@ -1353,6 +1716,7 @@ shape = SubResource("BoxShape3D_uchdx")
 
 [node name="GHC_LoopCamEnter_2" type="Area3D" parent="." unique_id=827142024]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1564.6261, 70.90177, -1458.9482)
+collision_mask = 4
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GHC_LoopCamEnter_2" unique_id=879420635]
 transform = Transform3D(0.98805517, 0, -0.15410058, 0, 1, 0, 0.15410058, 0, 0.98805517, 11.542969, -10.752182, 9.014526)
@@ -1360,6 +1724,7 @@ shape = SubResource("BoxShape3D_ld34s")
 
 [node name="GHC_LoopCamExit_2" type="Area3D" parent="." unique_id=2112466344]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1600.473, 82.657196, -1483.2776)
+collision_mask = 4
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GHC_LoopCamExit_2" unique_id=835225230]
 transform = Transform3D(0.97674316, 0, -0.21441275, 0, 1, 0, 0.21441275, 0, 0.97674316, 25.17871, 15.753601, -18.8479)
@@ -1395,34 +1760,65 @@ shape = SubResource("BoxShape3D_xuk1c")
 transform = Transform3D(0.9994437, -0.011221541, -0.031405304, 0.011460155, 0.9999068, 0.0074283183, 0.031319022, -0.0077840686, 0.99947906, -1.8493652, -4.1919136, 11)
 
 [editable path="DeathPlane"]
+
 [editable path="DeathPlane_LARGE"]
+
 [editable path="DeathPlane2"]
+
 [editable path="Spring27"]
+
 [editable path="Spring28"]
+
 [editable path="Spring29"]
+
 [editable path="DashPanel13"]
+
 [editable path="DashPanel13/Mesh/DashPanelMesh"]
+
 [editable path="DashPanel13/Mesh/DashPanelMesh/DashPanel"]
+
 [editable path="DashPanel14"]
+
 [editable path="DashPanel14/Mesh/DashPanelMesh"]
+
 [editable path="DashPanel14/Mesh/DashPanelMesh/DashPanel"]
+
 [editable path="Spring19"]
+
 [editable path="Checkpoint5"]
+
 [editable path="Checkpoint4"]
+
 [editable path="Checkpoint2"]
+
 [editable path="DeathPlane3"]
+
 [editable path="DeathPlane4"]
+
 [editable path="RaceStart_GHC"]
+
 [editable path="RaceGoal_GHC"]
+
 [editable path="RaceGoal_GHC/GoalModel"]
+
 [editable path="RaceGoal_GHC/GoalModel/GoalRing2"]
+
 [editable path="JumpPanelRamp"]
+
 [editable path="Checkpoint3"]
+
 [editable path="Checkpoint6"]
+
 [editable path="Lights/EnvironmentWeatherSystem"]
+
 [editable path="Lights/EnvironmentWeatherSystem/DayNightCycle"]
+
 [editable path="AutomationSpline2_5D"]
+
 [editable path="AutomationSpline2_5D2"]
+
 [editable path="AutomationSpline2_5D2/LoopDepthProfile"]
+
 [editable path="AutomationSpline1"]
+
 [editable path="CameraConstraint1"]

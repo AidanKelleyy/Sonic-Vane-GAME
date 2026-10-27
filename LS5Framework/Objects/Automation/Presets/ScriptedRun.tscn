@@ -1,0 +1,92 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/AutomationSplineCore.tscn" id="core"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInfluenceTrait.gd" id="Influence"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="Input"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="Position"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSpeedTrait.gd" id="Speed"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="Steering"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSurfaceTrait.gd" id="Surface"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationTransitionTrait.gd" id="Transition"]
+
+[sub_resource type="Resource" id="component_0"]
+resource_local_to_scene = true
+resource_name = "Scripted alignment"
+script = ExtResource("Steering")
+mode = 1
+turn_rate = 720.0
+
+[sub_resource type="Resource" id="component_1"]
+resource_local_to_scene = true
+resource_name = "Collision-tested corridor"
+script = ExtResource("Position")
+mode = 1
+free_radius = 0.4
+spring_strength = 24.0
+damping = 12.0
+max_acceleration = 80.0
+
+[sub_resource type="Resource" id="component_2"]
+resource_local_to_scene = true
+resource_name = "Automatic propulsion"
+script = ExtResource("Speed")
+mode = 1
+target_speed = 45.0
+acceleration = 40.0
+affect_rolling = true
+
+[sub_resource type="Resource" id="component_3"]
+resource_local_to_scene = true
+resource_name = "Scripted permissions"
+script = ExtResource("Input")
+block_movement = true
+block_roll_spindash = true
+block_drift = true
+block_abilities = true
+release_on_jump = true
+
+[sub_resource type="Resource" id="component_4"]
+resource_local_to_scene = true
+resource_name = "Terrain frame"
+script = ExtResource("Surface")
+mode = 0
+
+[sub_resource type="Resource" id="component_5"]
+resource_local_to_scene = true
+resource_name = "Endpoint ramps"
+script = ExtResource("Influence")
+channels = 7
+start_ramp = 2.0
+end_ramp = 2.0
+
+[sub_resource type="Resource" id="component_6"]
+resource_local_to_scene = true
+resource_name = "Entry"
+script = ExtResource("Transition")
+phase = 0
+channels = 7
+duration = 0.25
+
+[sub_resource type="Resource" id="component_7"]
+resource_local_to_scene = true
+resource_name = "Exit"
+script = ExtResource("Transition")
+phase = 1
+channels = 7
+duration = 0.25
+
+[node name="ScriptedRun" instance=ExtResource("core")]
+steering_traits = Array[ExtResource("Steering")]([SubResource("component_0")])
+position_traits = Array[ExtResource("Position")]([SubResource("component_1")])
+speed_traits = Array[ExtResource("Speed")]([SubResource("component_2")])
+input_traits = Array[ExtResource("Input")]([SubResource("component_3")])
+surface_traits = Array[ExtResource("Surface")]([SubResource("component_4")])
+influence_traits = Array[ExtResource("Influence")]([SubResource("component_5")])
+transition_traits = Array[ExtResource("Transition")]([SubResource("component_6"), SubResource("component_7")])

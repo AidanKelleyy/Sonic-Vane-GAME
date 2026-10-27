@@ -1,0 +1,82 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://LS5Framework/Objects/Automation/AutomationSplineCore.gd" id="1_eow0g"]
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="2_ijdrv"]
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationRibbonTrait.gd" id="3_jn20w"]
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="4_ma4n1"]
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationCameraTrait.gd" id="5_cwh5l"]
+
+[sub_resource type="Resource" id="Resource_arleu"]
+resource_local_to_scene = true
+resource_name = "Terrain-cooperative ribbon"
+script = ExtResource("3_jn20w")
+mode = 2
+airborne = true
+
+[sub_resource type="Resource" id="Resource_hvflk"]
+resource_local_to_scene = true
+resource_name = "Bidirectional horizontal input"
+script = ExtResource("4_ma4n1")
+mode = 1
+airborne = true
+
+[sub_resource type="Resource" id="Resource_cplja"]
+resource_local_to_scene = true
+resource_name = "Ribbon actions"
+script = ExtResource("4_ma4n1")
+block_drift = true
+airborne = true
+
+[sub_resource type="Resource" id="Resource_pjve5"]
+resource_local_to_scene = true
+resource_name = "Side-view camera"
+script = ExtResource("5_cwh5l")
+
+[sub_resource type="Curve3D" id="Curve3D_4d5wu"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -30),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cqed4"]
+resource_local_to_scene = true
+size = Vector3(8, 8, 32)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3ibas"]
+resource_local_to_scene = true
+size = Vector3(8, 8, 2)
+
+[node name="SideViewRibbon" type="Node3D" unique_id=1574936059]
+script = ExtResource("1_eow0g")
+capture_distance = 100.0
+position_traits = Array[ExtResource("2_ijdrv")]([SubResource("Resource_arleu")])
+input_traits = Array[ExtResource("4_ma4n1")]([SubResource("Resource_hvflk"), SubResource("Resource_cplja")])
+camera_traits = Array[ExtResource("5_cwh5l")]([SubResource("Resource_pjve5")])
+
+[node name="Path3D" type="Path3D" parent="." unique_id=1872524494]
+curve = SubResource("Curve3D_4d5wu")
+
+[node name="Volume" type="Area3D" parent="." unique_id=246845641]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15)
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Volume" unique_id=1419197455]
+shape = SubResource("BoxShape3D_cqed4")
+
+[node name="Start" type="Area3D" parent="." unique_id=1943183378]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Start" unique_id=729223681]
+shape = SubResource("BoxShape3D_3ibas")
+
+[node name="End" type="Area3D" parent="." unique_id=914455759]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -30)
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="End" unique_id=1315453726]
+shape = SubResource("BoxShape3D_3ibas")

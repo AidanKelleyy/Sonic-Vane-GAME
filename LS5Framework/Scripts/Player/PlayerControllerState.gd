@@ -3163,6 +3163,9 @@ var _hurt_flash_visible: bool = true
 var _hurt_flash_renderers: Array[GeometryInstance3D] = []
 
 # Automation spline influence (set by AutomationSpline objects)
+## Per-player registration and tracking for modular automation sources.
+var _automation_controller: PlayerAutomationController = null
+
 enum AutomationSplineMode {
 	GUIDED,
 	TWO_POINT_FIVE_D,
@@ -3838,7 +3841,11 @@ enum CombatOutcome {
 
 var state_flags: int = 0  # current frame tags
 var _attack_sources: int = 0
-var _is_dead: bool = false
+var _is_dead: bool = false:
+	set(value):
+		_is_dead = value
+		if value and _automation_controller:
+			_automation_controller.clear(&"death")
 var _active_death_type: StringName = &""
 
 ## Rotation speed used when aligning the visual model with its target up direction.

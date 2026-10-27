@@ -254,6 +254,8 @@ func continuous_physics_update(_delta: float) -> void:
 
 
 func _can_start_roll() -> bool:
+	if not owner_player.get_automation_controller().motion.allows(&"roll"):
+		return false
 	if owner_player._is_dead or owner_player._hurt_active or owner_player._local_pause_enabled or owner_player._ui_input_blocked or owner_player._debug_mode:
 		return false
 	if owner_player.has_method("is_surface_roll_blocked") and owner_player.is_surface_roll_blocked():

@@ -111,6 +111,8 @@ func _resolve_air_trick_landing_boost(was_attached: bool) -> void:
 		_cash_out_ground_air_trick_boost(surface_normal)
 
 func _ensure_modules() -> void:
+	if not _automation_controller:
+		_automation_controller = PlayerAutomationController.new(self)
 	# The router is initialised after all shared modules.
 	if _ability_input_router != null and _anim_module != null and _animation_director != null:
 		return
@@ -2291,6 +2293,8 @@ func _process(delta: float) -> void:
 
 
 func _exit_tree() -> void:
+	if _automation_controller:
+		_automation_controller.dispose()
 	if _character_attributes:
 		_character_attributes.dispose()
 		_character_attributes = null
@@ -2348,7 +2352,7 @@ func get_movement_time_scale() -> float:
 func is_movement_time_scale_debuff_active() -> bool:
 	if _movement_tick_active:
 		return _movement_tick_debuff_active
-	var water_slowdown: bool = water_physics_enabled and water_logic_speed_enabled and _water_logic_speed_current < 1.0 and not (_automation_active and _automation_ignore_water_physics)
+	var water_slowdown: bool = water_physics_enabled and water_logic_speed_enabled and _water_logic_speed_current < 1.0 and not (is_automation_water_ignored())
 	return (is_finite(movement_time_scale_debuff_multiplier) and movement_time_scale_debuff_multiplier < 1.0) or water_slowdown
 
 
@@ -2382,6 +2386,7 @@ func _physics_process(delta: float) -> void:
 	_end_standing_clearance_batch()
 	_movement_real_delta = delta
 	_ensure_modules()
+	_automation_controller.advance(delta)
 	if not _level_load_suspended and not _local_pause_enabled:
 		_water_module.refresh_submersion_state()
 		_water_module.update_logic_speed(delta)
@@ -3263,6 +3268,7 @@ func _movement_physics_process(delta: float) -> void:
 			return
 
 	_read_input()
+	_automation_controller.motion.capture_input(_move_input, _control_forward * _move_input.y + _control_right * _move_input.x)
 	if _ability_input_router != null:
 		_ability_input_router.update(delta)
 	var priority_input_consumed: bool = _prepare_priority_action_input(delta)
@@ -3493,6 +3499,8 @@ func _movement_physics_process(delta: float) -> void:
 
 	var _dash_was_active: bool = _lightspeed_dash_active
 	_apply_movement(motion_delta, phys_up, is_attached_for_movement)
+	if not _automation_controller.motion.uses_native_integration():
+		velocity = _automation_controller.motion.apply_velocity(velocity, phys_up, motion_delta)
 	_apply_automation_25d_world_constraint(motion_delta)
 	_apply_post_movement_max_speed_override(phys_up, is_attached_for_movement)
 	v_before = velocity
@@ -3517,6 +3525,7 @@ func _movement_physics_process(delta: float) -> void:
 		_post_move_lightspeed_dash(delta)
 	_refresh_automation_25d_constraint_after_slide()
 	_apply_automation_25d_world_constraint(0.0, true)
+	_automation_controller.motion.constrain_position(motion_delta, phys_up)
 	if _dbg_tp_trace > 0:
 		print("[TP-F%d] post_slide: vel=%v spd=%.2f" % [9 - _dbg_tp_trace, velocity, velocity.length()])
 	if _dbg_on_rigid:
@@ -3861,6 +3870,8 @@ func _read_input() -> void:
 
 
 func _update_roll_state() -> void:
+	if _automation_controller and not _automation_controller.motion.allows(&"roll"):
+		return
 	if _roll_action != null:
 		if not _can_execute_action_while_carrying(_roll_action):
 			if _roll_action.has_method("_end_roll_if_active"):
@@ -4045,7 +4056,7 @@ func _can_use_drift() -> bool:
 		return false
 	if _spindash_charging:
 		return false
-	if _automation_lock_drift and _automation_locks_active():
+	if not is_automation_action_allowed(&"drift"):
 		return false
 	return true
 
@@ -4674,7 +4685,7 @@ func _update_spindash_state(delta: float) -> void:
 		_spindash_ground_hold_timer = 0.0
 		_spindash_ground_action1_press_valid = false
 		return
-	if _automation_lock_actions and _automation_locks_active():
+	if not is_automation_action_allowed(&"spindash"):
 		_cancel_spindash_charge()
 		_spindash_pending_release = false
 		_spindash_pending_release_speed = 0.0
@@ -4762,7 +4773,7 @@ func _update_spindash_state(delta: float) -> void:
 
 
 func _update_spindash_state_on_rail(delta: float) -> void:
-	if _automation_lock_actions and _automation_locks_active():
+	if not is_automation_action_allowed(&"spindash"):
 		_cancel_spindash_charge()
 		_spindash_pending_release = false
 		_spindash_pending_release_speed = 0.0
@@ -5148,6 +5159,11 @@ func _refresh_automation_25d_constraint_after_slide() -> void:
 func _get_max_speed_override_state(automation_active: bool) -> Dictionary:
 	var override_active: bool = false
 	var override_target: float = max(max_speed, 0.0)
+	if _automation_controller:
+		var modular_limit: float = _automation_controller.motion.get_maximum_speed()
+		if modular_limit >= 0.0:
+			override_active = true
+			override_target = modular_limit
 	if automation_active and _automation_max_speed_override_enabled:
 		override_active = true
 		override_target = _automation_max_speed_override
@@ -5179,7 +5195,7 @@ func _apply_post_movement_max_speed_override(
 		and _in_water_volume
 		and not _running_on_water_surface
 	)
-	if automation_active and _automation_ignore_water_physics:
+	if is_automation_water_ignored():
 		submerged_movement = false
 	if submerged_movement:
 		water_limit_multiplier = water_top_speed_multiplier
@@ -5982,7 +5998,7 @@ func _surface_prevents_detach(
 
 
 func _surface_launch_adhesion_active() -> bool:
-	if _automation_force_surface_adhesion:
+	if _automation_force_surface_adhesion or (_automation_controller and _automation_controller.motion.adhesion_active()):
 		return true
 	if _follow_collider_last != null and is_instance_valid(_follow_collider_last):
 		return (
@@ -6307,7 +6323,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 	var water_top_speed_mult: float = 1.0
 	var in_water_movement_physics: bool = water_physics_enabled and not water_logic_speed_enabled and _in_water_volume and not _running_on_water_surface
 	var in_submerged_vertical_physics: bool = water_physics_enabled and not water_logic_speed_enabled and _fully_submerged and not _running_on_water_surface
-	if _automation_active and _automation_ignore_water_physics:
+	if is_automation_water_ignored():
 		in_water_movement_physics = false
 		in_submerged_vertical_physics = false
 	if in_water_movement_physics:
@@ -6577,6 +6593,11 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 
 	_update_control_basis(physics_up, is_attached, is_loop_surface, lateral)
 	_compute_move_direction()
+	if _automation_controller and _automation_controller.motion.has_input_effects():
+		_automation_controller.motion.capture_input(_move_input, _move_direction * _move_input.length())
+		var guided_input: Vector3 = _automation_controller.motion.adjust_input(_move_direction, physics_up)
+		_move_input = _move_input.normalized() * minf(_move_input.length(), guided_input.length())
+		_move_direction = guided_input.normalized() if guided_input else Vector3.ZERO
 	for action in _actions:
 		if action != null and is_instance_valid(action):
 			_move_direction = action.influence_movement_input(_move_direction, world_up)
@@ -6652,6 +6673,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 		_drift_action.update_straight_line_slowdown(lateral, physics_up, timer_delta)
 	
 	# Use raw input to decide if the player is *trying* to move
+	var modular_top_speed: float = _automation_controller.motion.get_player_top_speed()
 	var has_input: bool = movement_input_strength > 0.001
 	var is_rolling: bool = rolling and roll_enabled
 	var is_spindash_charging: bool = _spindash_charging and spindash_enabled
@@ -6670,6 +6692,10 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 				movement_input_strength = 0.0
 			if _automation_align_rotation and not automation_25d_active:
 				_move_direction = auto_dir
+
+	var modular_heading: Vector3 = _automation_controller.motion.canonical_heading(physics_up)
+	if modular_heading:
+		_move_direction = modular_heading
 
 	if not is_attached and not in_spring_state and not auto_active:
 		_ensure_directional_influence_lock_for_recent_detach(world_up)
@@ -7110,6 +7136,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 								_spindash_turn_free_timer > 0.0
 								or _loop_control_active
 								or (auto_active and _automation_disable_turning_slowdown)
+								or _automation_controller.motion.disables_turning_slowdown()
 							):
 								turn_loss_decel = 0.0
 							lateral = _apply_steered_locomotion_velocity(
@@ -7181,6 +7208,8 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 			var target_speed_air: float = air_top_speed_effective
 			if auto_active and _automation_along_speed_limits_player and _automation_along_target_speed > 0.0:
 				target_speed_air = _automation_along_target_speed
+			elif modular_top_speed >= 0.0:
+				target_speed_air = modular_top_speed
 
 			var wall_projection_air_velocity_override: bool = (_wall_input_projection_active or _wall_input_push_active) and _wall_input_debug_normal.length() > 0.001
 			if wall_projection_air_velocity_override:
@@ -7208,6 +7237,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 				if (
 					_spindash_turn_free_timer > 0.0
 					or (auto_active and _automation_disable_turning_slowdown)
+					or _automation_controller.motion.disables_turning_slowdown()
 				):
 					air_turn_loss_decel = 0.0
 				lateral = _apply_steered_locomotion_velocity(
@@ -7272,7 +7302,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 			else:
 				# If an automation spline has locked controls, don't apply "no-input" deceleration.
 				# Automation should be responsible for guiding speed/direction in that case.
-				if auto_active and _automation_lock_movement:
+				if (auto_active and _automation_lock_movement) or (_automation_controller and _automation_controller.motion.has_automatic_drive()):
 					pass
 				elif _slope_passive_sliding:
 					pass
@@ -7293,7 +7323,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 				if _homing_retain_timer <= 0.0:
 					lateral = lateral.move_toward(Vector3.ZERO, max(roll_air_decel, 0.0) * water_decel_mult * delta)
 			else:
-				if not (auto_active and _automation_lock_movement) and not in_spring_state and _homing_retain_timer <= 0.0:
+				if not (auto_active and _automation_lock_movement) and not (_automation_controller and _automation_controller.motion.has_automatic_drive()) and not in_spring_state and _homing_retain_timer <= 0.0:
 					var passive_air_decel: float = air_decel_effective * water_decel_mult * movement_release_decel_scale
 					lateral = lateral.move_toward(Vector3.ZERO, passive_air_decel * delta)
 
@@ -7337,7 +7367,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 			is_attached,
 			_drift_active and not _drift_exit_active,
 			is_rolling,
-			auto_active,
+			auto_active or (_automation_controller and _automation_controller.motion.is_guiding()),
 			in_spring_state,
 			delta
 		)
@@ -7404,6 +7434,11 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 				var target_lateral: Vector3 = snap_dir * along_speed
 				var snap_t: float = clamp(_automation_tangent_snap_strength * delta, 0.0, 1.0)
 				lateral = lateral.lerp(target_lateral, snap_t)
+
+	if _automation_controller.motion.uses_native_integration():
+		var influenced: Vector3 = _automation_controller.motion.apply_velocity(lateral + physics_up * vertical, physics_up, delta)
+		lateral = influenced.slide(physics_up)
+		vertical = influenced.dot(physics_up)
 
 	if _spindash_release_requested and is_attached:
 		lateral = _apply_spindash_release(physics_up, lateral)
@@ -7713,7 +7748,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 		_jump_requested = false
 		_coyote_jump_requested = false
 	if is_attached and _jump_requested:
-		if auto_active and _automation_lock_actions:
+		if (auto_active and _automation_lock_actions) or not is_automation_action_allowed(&"jump"):
 			_jump_requested = false
 			_coyote_jump_requested = false
 		else:
@@ -7847,6 +7882,9 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 			soft_top_speed = max_speed_limit_for_motion
 	if auto_active and _automation_along_speed_limits_player and _automation_along_target_speed > 0.0:
 		soft_top_speed = _automation_along_target_speed
+		downhill_soft_cap_bypass_active = false
+	elif modular_top_speed >= 0.0:
+		soft_top_speed = modular_top_speed
 		downhill_soft_cap_bypass_active = false
 	var drift_speed_target_active: bool = _drift_active and soft_cap_attached and not _running_on_water_surface
 	if drift_speed_target_active:
@@ -10266,7 +10304,7 @@ func _should_start_manual_airborne_torque() -> bool:
 		return false
 	if _automation_lock_actions and _automation_locks_active():
 		return false
-	if _automation_lock_drift and _automation_locks_active():
+	if not is_automation_action_allowed(&"drift"):
 		return false
 	return SettingsManager.is_gameplay_action_pressed("ability_slot_05")
 
@@ -10964,7 +11002,7 @@ func _process_action_inputs() -> void:
 		if not (action is CharacterActionType):
 			continue
 		var a = action
-		if not a.enabled:
+		if not a.enabled or not is_automation_action_allowed(a.action_id):
 			continue
 		if not _can_execute_action_while_carrying(a):
 			continue
@@ -10991,7 +11029,7 @@ func _process_action_inputs() -> void:
 
 func _prepare_priority_action_input(delta: float) -> bool:
 	for action in _actions:
-		if action != null and is_instance_valid(action) and action.prepare_priority_input(delta):
+		if action != null and is_instance_valid(action) and (not _automation_controller or _automation_controller.motion.allows(action.action_id)) and action.prepare_priority_input(delta):
 			return true
 	return false
 
@@ -11049,6 +11087,8 @@ func _update_action_runtime(delta: float) -> void:
 
 func activate_action(action, context: Dictionary = {}) -> bool:
 	if action == null or not is_instance_valid(action):
+		return false
+	if action.input_action and _automation_controller and not _automation_controller.motion.allows(action.action_id):
 		return false
 	if action.owner_player != self:
 		return false
@@ -11612,6 +11652,27 @@ func clear_max_speed_overrides() -> void:
 	_ensure_modules()
 	_external_motion_module.clear_max_speed_overrides()
 
+func is_automation_action_allowed(action: StringName) -> bool:
+	var legacy_blocked: bool = false
+	if _automation_locks_active():
+		if action == &"movement":
+			legacy_blocked = _automation_lock_movement
+		elif action == &"drift":
+			legacy_blocked = _automation_lock_drift
+		else:
+			legacy_blocked = _automation_lock_actions
+	return not legacy_blocked and (not _automation_controller or _automation_controller.motion.allows(action))
+
+
+func get_automation_controller() -> PlayerAutomationController:
+	_ensure_modules()
+	return _automation_controller
+
+
+func is_automation_tracking_available() -> bool:
+	return not _is_dead and not _level_load_suspended and not _debug_mode and _network_is_local_authority()
+
+
 func set_automation_spline(
 	tangent_dir: Vector3,
 	toward_dir: Vector3,
@@ -11826,7 +11887,7 @@ func can_queue_jump() -> bool:
 		return false
 	if attached and is_surface_jump_blocked():
 		return false
-	if _automation_lock_actions and _automation_locks_active():
+	if not is_automation_action_allowed(&"jump"):
 		return false
 	if race_in_countdown:
 		return false
@@ -11836,6 +11897,8 @@ func can_queue_jump() -> bool:
 func queue_jump() -> bool:
 	if not can_queue_jump():
 		return false
+	if _automation_controller:
+		_automation_controller.motion.jump_requested()
 	_jump_requested = true
 	_notify_buddy_leader_jump_pressed()
 	return true
@@ -11846,7 +11909,7 @@ func can_queue_coyote_jump() -> bool:
 		return false
 	if is_surface_coyote_jump_blocked():
 		return false
-	if _automation_lock_actions and _automation_locks_active():
+	if not is_automation_action_allowed(&"jump"):
 		return false
 	if race_in_countdown:
 		return false
@@ -11857,6 +11920,8 @@ func queue_coyote_jump() -> bool:
 	if not can_queue_coyote_jump():
 		return false
 	_coyote_jump_requested = true
+	if _automation_controller:
+		_automation_controller.motion.jump_requested()
 	_jump_requested = true
 	_notify_buddy_leader_jump_pressed()
 	return true
@@ -11868,7 +11933,7 @@ func can_queue_jump_dash() -> bool:
 		return false
 	if is_combat_homing_locked():
 		return false
-	if _automation_lock_actions and _automation_locks_active():
+	if not is_automation_action_allowed(&"jump_dash"):
 		return false
 	if race_in_countdown:
 		return false
@@ -11903,7 +11968,7 @@ func can_queue_homing_attack() -> bool:
 		return false
 	if is_combat_homing_locked():
 		return false
-	if _automation_lock_actions and _automation_locks_active():
+	if not is_automation_action_allowed(&"homing_attack"):
 		return false
 	if race_in_countdown or attached:
 		return false
@@ -11958,7 +12023,7 @@ func can_start_lightspeed_dash() -> bool:
 		return false
 	if _lightspeed_dash_active:
 		return false
-	if _automation_lock_actions and _automation_locks_active():
+	if not is_automation_action_allowed(&"lightspeed_dash"):
 		return false
 	if _local_pause_enabled or _ui_input_blocked or _debug_mode:
 		return false
@@ -12012,7 +12077,7 @@ func _can_claim_midair_spindash_from_current_input() -> bool:
 		return false
 	if _spline_active or _rail_active:
 		return false
-	if _automation_lock_actions and _automation_locks_active():
+	if not is_automation_action_allowed(&"spindash"):
 		return false
 	if _spring_action_lock_timer > 0.0 or _spring_movement_lock_timer > 0.0:
 		return false
@@ -13834,3 +13899,7 @@ func apply_prop_bounce_response(response: PropBounceResponse, source: Node3D, up
 		_homing_target_position_valid = false
 		_homing_elapsed = 0.0
 		_homing_post_attack_timer = maxf(homing_post_attack_time, 0.0)
+
+
+func is_automation_water_ignored() -> bool:
+	return (_automation_active and _automation_ignore_water_physics) or (_automation_controller and _automation_controller.motion.ignores_water_physics())

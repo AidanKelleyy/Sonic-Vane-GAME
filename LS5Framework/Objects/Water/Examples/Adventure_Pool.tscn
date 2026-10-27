@@ -6,3 +6,4 @@
 size = Vector3(600, 100, 600)
 transparency = 0.5
 caustic_depth = 160.0
+caustic_normal_fade = 1.0

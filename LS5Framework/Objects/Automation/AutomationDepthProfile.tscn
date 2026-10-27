@@ -1,0 +1,48 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://LS5Framework/Objects/Automation/AutomationDepthProfile.gd" id="1"]
+
+[sub_resource type="Curve3D" id="Curve"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -30),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="BoxShape3D" id="GateShape"]
+resource_local_to_scene = true
+size = Vector3(8, 8, 2)
+
+[sub_resource type="BoxShape3D" id="VolumeShape"]
+resource_local_to_scene = true
+size = Vector3(8, 8, 32)
+
+[node name="AutomationDepthProfile" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Path3D" type="Path3D" parent="."]
+curve = SubResource("Curve")
+
+[node name="Volume" type="Area3D" parent="."]
+position = Vector3(0, 0, -15)
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Volume"]
+shape = SubResource("VolumeShape")
+
+[node name="Start" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Start"]
+shape = SubResource("GateShape")
+
+[node name="End" type="Area3D" parent="."]
+position = Vector3(0, 0, -30)
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="End"]
+shape = SubResource("GateShape")

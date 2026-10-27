@@ -254,14 +254,14 @@ func update_logic_speed(delta: float) -> void:
 		reset_logic_speed()
 		return
 	var submerged: bool = p._fully_submerged and not p._running_on_water_surface
-	if p._automation_active and p._automation_ignore_water_physics:
+	if p.is_automation_water_ignored():
 		submerged = false
 	if not submerged:
 		var preserve_exit_speed: bool = (
 			(p.water_logic_speed_preserve_grounded_exit_speed if p.attached else p.water_logic_speed_preserve_airborne_exit_speed)
 			and not p._fully_submerged
 			and not p._running_on_water_surface
-			and not (p._automation_active and p._automation_ignore_water_physics)
+			and not (p.is_automation_water_ignored())
 			and p._water_logic_speed_current < 1.0
 		)
 		var submerged_clock: float = p.effective_movement_time_scale

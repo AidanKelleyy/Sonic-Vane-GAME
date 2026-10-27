@@ -26,7 +26,7 @@
 [ext_resource type="PackedScene" uid="uid://dpqdt82o1f57x" path="res://LS5Framework/Objects/Spring/Spring.tscn" id="14_olunl"]
 [ext_resource type="PackedScene" uid="uid://e1tkwisehr5p" path="res://LS5Framework/Objects/DashPanels/DashPanel.tscn" id="15_o6lti"]
 [ext_resource type="PackedScene" uid="uid://yt1f44l0qcs0" path="res://LS5Framework/Objects/Camera/CameraOverrideVolume.tscn" id="16_iydqp"]
-[ext_resource type="PackedScene" uid="uid://bf2o7d3qsovh6" path="res://LS5Framework/Objects/Automation/AutomationSpline.tscn" id="17_lpi2t"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedGuided.tscn" id="17_lpi2t"]
 [ext_resource type="PackedScene" uid="uid://cyglqqs3uhsy0" path="res://LS5Framework/Objects/Camera/CameraConstraint.tscn" id="18_ps2wp"]
 [ext_resource type="PackedScene" uid="uid://dab7ow5oahfhc" path="res://LS5Framework/Objects/Homing/HomingTarget.tscn" id="19_27jgf"]
 [ext_resource type="PackedScene" uid="uid://ghucsw5061eo" path="res://LS5Framework/Objects/Gameplay/DeathPlane.tscn" id="20_c1asd"]
@@ -42,6 +42,11 @@
 [ext_resource type="Script" uid="uid://c3qjp7m108bma" path="res://LS5Framework/Scripts/Camera/Constraints/CameraOrientationTrait.gd" id="cam_trait_orientation"]
 [ext_resource type="Script" uid="uid://ejxv0c1rj01v" path="res://LS5Framework/Scripts/Camera/Constraints/CameraPositionTrait.gd" id="cam_trait_position"]
 [ext_resource type="Script" uid="uid://upi4v3qbppsx" path="res://LS5Framework/Scripts/Camera/Constraints/CameraTransitionTrait.gd" id="cam_trait_transition"]
+[ext_resource type="Script" uid="uid://bs4ckgoufdhv8" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="phase6_AutomationInputTrait"]
+[ext_resource type="Script" uid="uid://bnlde333urbaw" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="phase6_AutomationPositionTrait"]
+[ext_resource type="Script" uid="uid://6kwtvu2yoo6c" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSpeedTrait.gd" id="phase6_AutomationSpeedTrait"]
+[ext_resource type="Script" uid="uid://dckb0huih8mcp" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="phase6_AutomationSteeringTrait"]
+[ext_resource type="Script" uid="uid://fgg8dytkclkp" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSurfaceTrait.gd" id="phase6_AutomationSurfaceTrait"]
 
 [sub_resource type="Gradient" id="Gradient_eq5tt"]
 offsets = PackedFloat32Array(0.35029355)
@@ -157,7 +162,7 @@ overcast_light_multiplier = 0.91
 overcast_ambient_multiplier = 1.65
 fog_density_multiplier = 7.13
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_iaxxs"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ino7o"]
 resource_local_to_scene = true
 shader = ExtResource("4_t48is")
 shader_parameter/sun_direction = Vector3(0.07745165, 0.9948454, 0.06545171)
@@ -215,16 +220,16 @@ shader_parameter/below_horizon_detail = 1.0
 shader_parameter/below_horizon_curvature = 1.0
 shader_parameter/below_horizon_haze_strength = 0.72
 
-[sub_resource type="Sky" id="Sky_arbqb"]
+[sub_resource type="Sky" id="Sky_h40xe"]
 resource_local_to_scene = true
-sky_material = SubResource("ShaderMaterial_iaxxs")
+sky_material = SubResource("ShaderMaterial_ino7o")
 process_mode = 3
 
-[sub_resource type="Environment" id="Environment_4sk8b"]
+[sub_resource type="Environment" id="Environment_iaxxs"]
 resource_local_to_scene = true
 background_mode = 2
 background_energy_multiplier = 1.14
-sky = SubResource("Sky_arbqb")
+sky = SubResource("Sky_h40xe")
 ambient_light_source = 3
 ambient_light_color = Color(0.09328576, 0.21435475, 0.49166715, 1)
 ambient_light_sky_contribution = 0.82
@@ -261,7 +266,7 @@ volumetric_fog_ambient_inject = 1.55
 adjustment_enabled = true
 adjustment_saturation = 1.7426972
 
-[sub_resource type="Resource" id="Resource_dcpjh"]
+[sub_resource type="Resource" id="Resource_arbqb"]
 resource_local_to_scene = true
 script = ExtResource("5_hga6m")
 texture = ExtResource("6_a3gdf")
@@ -269,7 +274,7 @@ axis_position = 0.55
 diameter = 0.44
 tint = Color(0.75, 0.88, 1, 0.38)
 
-[sub_resource type="Resource" id="Resource_vql11"]
+[sub_resource type="Resource" id="Resource_4sk8b"]
 resource_local_to_scene = true
 script = ExtResource("5_hga6m")
 texture = ExtResource("7_m2ekc")
@@ -277,7 +282,7 @@ axis_position = 0.2
 diameter = 0.16
 tint = Color(0.8, 1, 0.9, 0.28)
 
-[sub_resource type="Resource" id="Resource_yu0yw"]
+[sub_resource type="Resource" id="Resource_dcpjh"]
 resource_local_to_scene = true
 script = ExtResource("5_hga6m")
 texture = ExtResource("6_a3gdf")
@@ -285,7 +290,7 @@ axis_position = 1.05
 diameter = 0.075
 tint = Color(0.65, 0.85, 1, 0.3)
 
-[sub_resource type="Resource" id="Resource_3i3uu"]
+[sub_resource type="Resource" id="Resource_vql11"]
 resource_local_to_scene = true
 script = ExtResource("5_hga6m")
 texture = ExtResource("7_m2ekc")
@@ -303,7 +308,7 @@ size = Vector3(41.040085, 6, 23.870415)
 left_to_right = 0.0
 size = Vector3(3, 3, 3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tbau5"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yu0yw"]
 resource_local_to_scene = true
 resource_name = "Material_1"
 cull_mode = 2
@@ -315,14 +320,14 @@ metadata/_gltf_primary_texture_coord = 0
 [sub_resource type="BoxShape3D" id="BoxShape3D_2idqw"]
 size = Vector3(26.118591, 33.963867, 206.10492)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_qcm2q"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3i3uu"]
 render_priority = 0
 shader = ExtResource("11_t48is")
 shader_parameter/tex_flat = ExtResource("12_dftnh")
 shader_parameter/tex_glow = ExtResource("13_eq5tt")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 13393.848
+shader_parameter/swap_time = 633.86
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_h0nvc"]
 size = Vector3(52.86328, 23.474121, 20.675903)
@@ -354,7 +359,7 @@ point_count = 3
 [sub_resource type="BoxShape3D" id="BoxShape3D_o6lti"]
 size = Vector3(12, 3.98938, 5.0271606)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t2660"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tbau5"]
 resource_local_to_scene = true
 resource_name = "Material_1"
 cull_mode = 2
@@ -363,7 +368,7 @@ roughness = 0.92928934
 uv1_offset = Vector3(0, 0.59801507, 0)
 metadata/_gltf_primary_texture_coord = 0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s6og2"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qcm2q"]
 resource_local_to_scene = true
 resource_name = "Material2"
 cull_mode = 2
@@ -372,11 +377,11 @@ roughness = 0.76363635
 uv1_offset = Vector3(0, 0.44334173, 0)
 metadata/_gltf_primary_texture_coord = 0
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_gnydb"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_t2660"]
 resource_local_to_scene = true
 radius = 6.0
 
-[sub_resource type="Curve3D" id="Curve3D_j5rc2"]
+[sub_resource type="Curve3D" id="Curve3D_s6og2"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -384,7 +389,7 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_puwn3"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gnydb"]
 resource_local_to_scene = true
 resource_name = "Material2"
 cull_mode = 2
@@ -393,9 +398,20 @@ roughness = 0.76363635
 uv1_offset = Vector3(0, 0.44334173, 0)
 metadata/_gltf_primary_texture_coord = 0
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_2v8yk"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_j5rc2"]
 resource_local_to_scene = true
 radius = 6.0
+
+[sub_resource type="Curve3D" id="Curve3D_puwn3"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_2v8yk"]
+resource_local_to_scene = true
 
 [sub_resource type="Curve3D" id="Curve3D_dg2h0"]
 resource_local_to_scene = true
@@ -440,21 +456,10 @@ point_count = 2
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_u7dxa"]
 resource_local_to_scene = true
-
-[sub_resource type="Curve3D" id="Curve3D_cfpth"]
-resource_local_to_scene = true
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
-"tilts": PackedFloat32Array(0, 0)
-}
-point_count = 2
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_w2paq"]
-resource_local_to_scene = true
 height = 5.0718994
 radius = 1.4550781
 
-[sub_resource type="Curve3D" id="Curve3D_pmqht"]
+[sub_resource type="Curve3D" id="Curve3D_cfpth"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -465,7 +470,7 @@ point_count = 2
 [sub_resource type="BoxShape3D" id="BoxShape3D_dftnh"]
 size = Vector3(18.068039, 6.2976074, 4.926178)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_neb3b"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w2paq"]
 resource_local_to_scene = true
 resource_name = "Material_1"
 cull_mode = 2
@@ -534,32 +539,101 @@ size = Vector3(49.176514, 55.982178, 37.589844)
 [sub_resource type="BoxShape3D" id="BoxShape3D_jmllb"]
 size = Vector3(140, 132.6416, 140)
 
+[sub_resource type="Resource" id="Resource_pmqht"]
+resource_local_to_scene = true
+resource_name = "Canonical heading"
+script = ExtResource("phase6_AutomationSteeringTrait")
+canonical_direction = true
+strength = 1.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_neb3b"]
+resource_local_to_scene = true
+resource_name = "Authored turn limit"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 1
+canonical_direction = true
+turn_rate = 12000.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_84m0y"]
+resource_local_to_scene = true
+resource_name = "Tangent damping"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 2
+damping_strength = 200.0
+
+[sub_resource type="Resource" id="Resource_uxkhx"]
+resource_local_to_scene = true
+resource_name = "Speed-scaled attraction"
+script = ExtResource("phase6_AutomationPositionTrait")
+mode = 3
+attraction_acceleration = 1500.0
+attraction_per_speed = 5.0
+attraction_speed_scale = 0.02
+max_acceleration = 1000000.0
+
+[sub_resource type="Curve" id="phase6_skyway_speed"]
+_limits = [0.0, 1000.0, 0.0, 1.0]
+_data = [Vector2(0, 540), 0.0, 0.0, 1, 1, Vector2(0.38748866, 540), 0.0, 0.0, 1, 1, Vector2(0.39981055, 600), 0.0, 0.0, 1, 1, Vector2(1, 600), 0.0, 0.0, 1, 1]
+point_count = 4
+
+[sub_resource type="Resource" id="Resource_481y3"]
+resource_local_to_scene = true
+resource_name = "Canonical propulsion"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 1
+canonical_direction = true
+target_speed_curve = SubResource("phase6_skyway_speed")
+target_speed = 540.0
+acceleration = 250.0
+allow_braking = false
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_svgwv"]
+resource_local_to_scene = true
+resource_name = "Authored player soft cap"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 2
+player_top_speed = true
+target_speed_curve = SubResource("phase6_skyway_speed")
+target_speed = 540.0
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_ino7o"]
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 3
+target_speed = 300.0
+metadata/_custom_type_script = "uid://6kwtvu2yoo6c"
+
+[sub_resource type="Resource" id="Resource_i0ahf"]
+resource_local_to_scene = true
+resource_name = "Contact adhesion"
+script = ExtResource("phase6_AutomationSurfaceTrait")
+mode = 1
+
+[sub_resource type="Resource" id="Resource_wqqtp"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+block_movement = true
+allow_braking = false
+block_jump = true
+block_roll_spindash = true
+block_abilities = true
+
 [sub_resource type="Curve3D" id="Curve3D_ps2wp"]
 _data = {
-"points": PackedVector3Array(0, 0, 0, 204.915, 39.025, 17.465, 0, 2.1526794, 0, -90.825, -24.89, 22.21, 83.615, 36.15, -11.77, 262.53223, 106.21161, -160.11478, 25.17, -7.94, -18.015, -34.935, 14.36, 18.34, 313.13074, 154.14857, -85.46619, 0, -10.345, 38.92, 0, 0.395, 0, 247.57837, 183.46269, -136.17989, -198.495, 24.79, 37.05, 0, 0, 0, 439.7224, 199.44437, -300.05234, -52.165, 0, -15.085, 0, 0, 0, 550.66003, 190.13873, -296.43826),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 204.915, 39.025, 17.465, 0, 2.1526794, 0, -90.825, -24.89, 22.21, 83.615, 36.15, -11.77, 262.53223, 106.21161, -160.11478, 25.17, -7.94, -18.015, -34.935, 14.36, 18.34, 313.13074, 154.14857, -85.46619, 0, -10.345, 38.92, 0, 0.31227458, 0, 247.57837, 183.46269, -136.17989, -96.41462, 1.6649901, 51.50725, 7.098731, -0.122588426, -3.7923307, 340.02365, 207.41075, -266.951, -7.7235785, 0.4815075, 2.2143316, 183.81349, -11.4594, -52.698895, 361.9015, 202.88321, -276.114, -131.4997, 17.448465, -67.220375, 7.2453294, -0.9613701, 3.7036877, 778.5178, 154.55615, -212.49231, -7.216031, 1.0133433, -3.7467809, 31.985573, -4.491717, 16.607874, 798.63257, 146.96992, -200.5728, -32.631973, 30.467073, -83.76609, 26.72, -30.42, 152.365, 899.8878, 102.36823, -78.54204, -44.42, 23.1, 151.545, 15.52, -16.725, -79.425, 757.24756, 22.922768, -96.42877, -8.996911, 0.91274744, 9.766196, 0, 0, 0, 905.16547, 7.916321, -256.99445),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 }
-point_count = 6
+point_count = 11
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hhdxj"]
 size = Vector3(408.1463, 159.58075, 223.96294)
 
-[sub_resource type="Curve3D" id="Curve3D_lpi2t"]
-_data = {
-"points": PackedVector3Array(0, 0, 0, 220.665, -11.16, -78.355, -36.090744, 112.95197, -50.513794, -148.015, 19.265, -75.71, 0, 0, 0, 439.5937, 60.500496, 2.9363124),
-"tilts": PackedFloat32Array(0, 0)
-}
-point_count = 2
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_8k4c3"]
 size = Vector3(501.00018, 119.58969, 134.6305)
-
-[sub_resource type="Curve3D" id="Curve3D_27jgf"]
-_data = {
-"points": PackedVector3Array(0, 0, 0, 36.875, -3.645, 24, 97.04166, 53.143257, -78.4196, -42.205, 39.405, -108.34, 26.72, -30.42, 152.365, 225.02739, 5.5227146, 58.36466, -44.42, 23.1, 151.545, 15.52, -16.725, -79.425, 82.38716, -73.92275, 40.47792, 13.31, 0, 0, 0, 0, 0, 230.30505, -88.9292, -120.08775),
-"tilts": PackedFloat32Array(0, 0, 0, 0)
-}
-point_count = 4
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_i62wg"]
 size = Vector3(333.80893, 224.72522, 274.42288)
@@ -799,7 +873,7 @@ size = Vector3(52.639526, 51.869263, 50.07373)
 [sub_resource type="BoxShape3D" id="BoxShape3D_ifxxm"]
 size = Vector3(11.516037, 2.3579102, 5.0271606)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_84m0y"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2v8ud"]
 resource_local_to_scene = true
 resource_name = "Material_1"
 cull_mode = 2
@@ -808,7 +882,7 @@ roughness = 0.92928934
 uv1_offset = Vector3(0, 0.59801507, 0)
 metadata/_gltf_primary_texture_coord = 0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uxkhx"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dyooe"]
 resource_local_to_scene = true
 resource_name = "Material_1"
 cull_mode = 2
@@ -819,90 +893,6 @@ metadata/_gltf_primary_texture_coord = 0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wihol"]
 size = Vector3(7, 1, 7)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_481y3"]
-resource_local_to_scene = true
-resource_name = "Panel"
-cull_mode = 2
-albedo_texture = ExtResource("38_ino7o")
-roughness = 0.25
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 2.0
-emission_operator = 1
-emission_texture = ExtResource("39_h40xe")
-uv1_offset = Vector3(0, 0.59801507, 0)
-metadata/_gltf_primary_texture_coord = 0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_svgwv"]
-resource_local_to_scene = true
-resource_name = "Panel"
-cull_mode = 2
-albedo_texture = ExtResource("38_ino7o")
-roughness = 0.25
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 2.0
-emission_operator = 1
-emission_texture = ExtResource("39_h40xe")
-uv1_offset = Vector3(0, 0.59801507, 0)
-metadata/_gltf_primary_texture_coord = 0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i0ahf"]
-resource_local_to_scene = true
-resource_name = "Panel"
-cull_mode = 2
-albedo_texture = ExtResource("38_ino7o")
-roughness = 0.25
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 2.0
-emission_operator = 1
-emission_texture = ExtResource("39_h40xe")
-uv1_offset = Vector3(0, 0.59801507, 0)
-metadata/_gltf_primary_texture_coord = 0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wqqtp"]
-resource_local_to_scene = true
-resource_name = "Panel"
-cull_mode = 2
-albedo_texture = ExtResource("38_ino7o")
-roughness = 0.25
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 2.0
-emission_operator = 1
-emission_texture = ExtResource("39_h40xe")
-uv1_offset = Vector3(0, 0.59801507, 0)
-metadata/_gltf_primary_texture_coord = 0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2v8ud"]
-resource_local_to_scene = true
-resource_name = "Panel"
-cull_mode = 2
-albedo_texture = ExtResource("38_ino7o")
-roughness = 0.25
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 2.0
-emission_operator = 1
-emission_texture = ExtResource("39_h40xe")
-uv1_offset = Vector3(0, 0.59801507, 0)
-metadata/_gltf_primary_texture_coord = 0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dyooe"]
-resource_local_to_scene = true
-resource_name = "Panel"
-cull_mode = 2
-albedo_texture = ExtResource("38_ino7o")
-roughness = 0.25
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 2.0
-emission_operator = 1
-emission_texture = ExtResource("39_h40xe")
-uv1_offset = Vector3(0, 0.59801507, 0)
-metadata/_gltf_primary_texture_coord = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oldap"]
 resource_local_to_scene = true
@@ -988,37 +978,94 @@ emission_texture = ExtResource("39_h40xe")
 uv1_offset = Vector3(0, 0.59801507, 0)
 metadata/_gltf_primary_texture_coord = 0
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_hga6m"]
-size = Vector3(12, 4, 5.0271606)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vid6e"]
 resource_local_to_scene = true
-resource_name = "Material_1"
+resource_name = "Panel"
 cull_mode = 2
-albedo_texture = ExtResource("12_tojsi")
-roughness = 0.92928934
+albedo_texture = ExtResource("38_ino7o")
+roughness = 0.25
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 2.0
+emission_operator = 1
+emission_texture = ExtResource("39_h40xe")
 uv1_offset = Vector3(0, 0.59801507, 0)
 metadata/_gltf_primary_texture_coord = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_n07v8"]
 resource_local_to_scene = true
-resource_name = "Material_1"
+resource_name = "Panel"
 cull_mode = 2
-albedo_texture = ExtResource("12_tojsi")
-roughness = 0.92928934
+albedo_texture = ExtResource("38_ino7o")
+roughness = 0.25
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 2.0
+emission_operator = 1
+emission_texture = ExtResource("39_h40xe")
 uv1_offset = Vector3(0, 0.59801507, 0)
 metadata/_gltf_primary_texture_coord = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_85tx5"]
 resource_local_to_scene = true
-resource_name = "Material_1"
+resource_name = "Panel"
 cull_mode = 2
-albedo_texture = ExtResource("12_tojsi")
-roughness = 0.92928934
+albedo_texture = ExtResource("38_ino7o")
+roughness = 0.25
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 2.0
+emission_operator = 1
+emission_texture = ExtResource("39_h40xe")
 uv1_offset = Vector3(0, 0.59801507, 0)
 metadata/_gltf_primary_texture_coord = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6euge"]
+resource_local_to_scene = true
+resource_name = "Panel"
+cull_mode = 2
+albedo_texture = ExtResource("38_ino7o")
+roughness = 0.25
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 2.0
+emission_operator = 1
+emission_texture = ExtResource("39_h40xe")
+uv1_offset = Vector3(0, 0.59801507, 0)
+metadata/_gltf_primary_texture_coord = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nerlo"]
+resource_local_to_scene = true
+resource_name = "Panel"
+cull_mode = 2
+albedo_texture = ExtResource("38_ino7o")
+roughness = 0.25
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 2.0
+emission_operator = 1
+emission_texture = ExtResource("39_h40xe")
+uv1_offset = Vector3(0, 0.59801507, 0)
+metadata/_gltf_primary_texture_coord = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rjb0a"]
+resource_local_to_scene = true
+resource_name = "Panel"
+cull_mode = 2
+albedo_texture = ExtResource("38_ino7o")
+roughness = 0.25
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 2.0
+emission_operator = 1
+emission_texture = ExtResource("39_h40xe")
+uv1_offset = Vector3(0, 0.59801507, 0)
+metadata/_gltf_primary_texture_coord = 0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hga6m"]
+size = Vector3(12, 4, 5.0271606)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e80xi"]
 resource_local_to_scene = true
 resource_name = "Material_1"
 cull_mode = 2
@@ -1027,7 +1074,34 @@ roughness = 0.92928934
 uv1_offset = Vector3(0, 0.59801507, 0)
 metadata/_gltf_primary_texture_coord = 0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nerlo"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3m3ym"]
+resource_local_to_scene = true
+resource_name = "Material_1"
+cull_mode = 2
+albedo_texture = ExtResource("12_tojsi")
+roughness = 0.92928934
+uv1_offset = Vector3(0, 0.59801507, 0)
+metadata/_gltf_primary_texture_coord = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7n10m"]
+resource_local_to_scene = true
+resource_name = "Material_1"
+cull_mode = 2
+albedo_texture = ExtResource("12_tojsi")
+roughness = 0.92928934
+uv1_offset = Vector3(0, 0.59801507, 0)
+metadata/_gltf_primary_texture_coord = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ir56j"]
+resource_local_to_scene = true
+resource_name = "Material_1"
+cull_mode = 2
+albedo_texture = ExtResource("12_tojsi")
+roughness = 0.92928934
+uv1_offset = Vector3(0, 0.59801507, 0)
+metadata/_gltf_primary_texture_coord = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0n1tp"]
 resource_local_to_scene = true
 resource_name = "Material_1"
 cull_mode = 2
@@ -1146,7 +1220,7 @@ time_controls_fog = false
 sun_path_azimuth_degrees = -40.19999999999999
 
 [node name="WorldEnvironment" parent="Lights/EnvironmentWeatherSystem/DayNightCycle" index="0" unique_id=1480341513]
-environment = SubResource("Environment_4sk8b")
+environment = SubResource("Environment_iaxxs")
 
 [node name="Sun" parent="Lights/EnvironmentWeatherSystem/DayNightCycle" index="1" unique_id=370270526]
 transform = Transform3D(0.9969832, 0.005080236, 0.07745165, -0.07761808, 0.065254256, 0.9948454, 0, -0.9978558, 0.06545171, 0, 0, 0)
@@ -1165,7 +1239,7 @@ directional_shadow_pancake_size = 0.0
 transform = Transform3D(-0.9895125, 0.01750239, -0.143383, 0.14444727, 0.11989727, -0.98222184, 0, -0.9926321, -0.12116802, 0, 0, 0)
 
 [node name="SunFlare" parent="Lights/EnvironmentWeatherSystem" index="2"]
-lens_elements = Array[ExtResource("5_hga6m")]([SubResource("Resource_dcpjh"), SubResource("Resource_vql11"), SubResource("Resource_yu0yw"), SubResource("Resource_3i3uu")])
+lens_elements = Array[ExtResource("5_hga6m")]([SubResource("Resource_arbqb"), SubResource("Resource_4sk8b"), SubResource("Resource_dcpjh"), SubResource("Resource_vql11")])
 
 [node name="PlayerSpawn" parent="." unique_id=1081310151 instance=ExtResource("1_rc8ud")]
 
@@ -1202,7 +1276,7 @@ mesh = SubResource("PrismMesh_0c5dn")
 metadata/_uniform_size_base_position = Vector3(0, 3.1922607, 0)
 
 [node name="dash_panel_triple_001" parent="Objects/JumpPanelRamp/Ramp" parent_id_path=PackedInt32Array(1925311467, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_tbau5")
+surface_material_override/0 = SubResource("StandardMaterial3D_yu0yw")
 
 [node name="RaceGoal" parent="Objects" unique_id=1214655687 instance=ExtResource("4_ihbxp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5923.9155, -1944.4847, 0.08951187)
@@ -1223,7 +1297,7 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0
 transform = Transform3D(-0.46977797, -0.019219073, 0.8825755, -0.013801098, 0.99980074, 0.014425739, -0.8826769, -0.005403636, -0.4699496, -4.080078, 1.765625, 1.9685009)
 
 [node name="Circle" parent="Objects/RaceGoal/GoalModel/GoalRing2/Armature/Skeleton3D" index="0" unique_id=1294627438]
-material_override = SubResource("ShaderMaterial_qcm2q")
+material_override = SubResource("ShaderMaterial_3i3uu")
 
 [node name="SwapLight" parent="Objects/RaceGoal/GoalModel/GoalRing2" index="2" unique_id=1016145482]
 light_energy = 40.0
@@ -1260,7 +1334,7 @@ rehit_cooldown = 1.0
 curve = SubResource("Curve3D_olunl")
 
 [node name="RailBooster" parent="Objects/Rail/Path3D" index="0" unique_id=167397505 instance=ExtResource("11_olunl")]
-transform = Transform3D(-0.9999851, -0.0007124575, -0.002794545, -4.7062164e-05, 0.97290415, -0.23119685, 0.0028835286, -0.23119588, -0.9728996, 3.8109841, 19.092154, 38.475178)
+transform = Transform3D(-0.99998504, -0.0007124575, -0.002794545, -4.706216e-05, 0.97290415, -0.23119685, 0.0028835284, -0.23119588, -0.9728996, 3.8109841, 19.092154, 38.475178)
 visible = false
 progress = 69.312935
 active = false
@@ -1278,7 +1352,7 @@ surface_handoff_search_length = 4.0
 curve = SubResource("Curve3D_dftnh")
 
 [node name="RailBooster" parent="Objects/Rail3/Path3D" index="0" unique_id=2079203673 instance=ExtResource("11_olunl")]
-transform = Transform3D(-0.94476503, -0.3238308, 0.049478427, -0.32454765, 0.94581324, -0.007225017, -0.044457715, -0.022885539, -0.99871594, 3.150883, 27.888378, -4.6003)
+transform = Transform3D(-0.94476503, -0.3238308, 0.04947843, -0.32454765, 0.94581324, -0.0072250175, -0.044457715, -0.022885539, -0.998716, 3.150883, 27.888378, -4.6003)
 progress = 25.701004
 boost_mode = 1
 boost_speed = 70.0
@@ -1304,7 +1378,7 @@ metadata/_uniform_size_base_position = Vector3(0.036315918, 1.6947327, -0.008361
 skeleton = NodePath("../../JumpPanelRamp2")
 
 [node name="dash_panel_triple_001" parent="Objects/JumpPanelRamp2/Ramp" parent_id_path=PackedInt32Array(943377839, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_t2660")
+surface_material_override/0 = SubResource("StandardMaterial3D_tbau5")
 
 [node name="DashRing" parent="Objects" unique_id=1363137776 instance=ExtResource("10_s3bf4")]
 transform = Transform3D(2.591566e-07, 1.9367142, 0.49913752, 2.7875622e-08, 0.49913752, -1.9367142, -2, 2.5791303e-07, 3.7683836e-08, 754.8912, -262.7603, 11.276533)
@@ -1317,17 +1391,17 @@ trajectory_arc_height = 15.0
 transform = Transform3D(1, 8.880699e-08, 1.9535541e-08, -8.880699e-08, 0.9076868, 0.41964817, 1.9535541e-08, -0.41964817, 0.9076868, 0, 0, 0)
 
 [node name="Object03" parent="Objects/DashRing/Mesh/DashRing" parent_id_path=PackedInt32Array(1363137776, 684156305) index="2" unique_id=146234382]
-surface_material_override/0 = SubResource("StandardMaterial3D_s6og2")
+surface_material_override/0 = SubResource("StandardMaterial3D_qcm2q")
 
 [node name="CollisionShape3D" parent="Objects/DashRing" index="1" unique_id=1628548631]
-shape = SubResource("CylinderShape3D_gnydb")
+shape = SubResource("CylinderShape3D_t2660")
 
 [node name="TrajectorySolver" parent="Objects/DashRing" index="2" unique_id=588358444]
 transform = Transform3D(1, 1.4210855e-14, -1.7763568e-15, 0, 1, 2.4297881e-15, 0, 2.429788e-15, 1, 5.722046e-06, 56.356293, -0.4657898)
 visible = true
 
 [node name="SplinePath" parent="Objects/DashRing" index="5" unique_id=1615889928]
-curve = SubResource("Curve3D_j5rc2")
+curve = SubResource("Curve3D_s6og2")
 
 [node name="DashRing2" parent="Objects" unique_id=7118127 instance=ExtResource("10_s3bf4")]
 transform = Transform3D(3.5943066e-07, 1.8014269, -0.86882746, -1.311893e-07, -0.86882746, -1.8014269, -2, 3.807345e-07, -3.7977653e-08, 864.8912, -234.72269, 11.276533)
@@ -1342,17 +1416,17 @@ action_lock_time = 0.3
 transform = Transform3D(1, 1.383184e-07, 4.3671284e-09, -1.383184e-07, 0.99800825, 0.06308314, 4.3671284e-09, -0.06308314, 0.99800825, 0, 0, 0)
 
 [node name="Object03" parent="Objects/DashRing2/Mesh/DashRing" parent_id_path=PackedInt32Array(7118127, 684156305) index="2" unique_id=146234382]
-surface_material_override/0 = SubResource("StandardMaterial3D_puwn3")
+surface_material_override/0 = SubResource("StandardMaterial3D_gnydb")
 
 [node name="CollisionShape3D" parent="Objects/DashRing2" index="1" unique_id=1628548631]
-shape = SubResource("CylinderShape3D_2v8yk")
+shape = SubResource("CylinderShape3D_j5rc2")
 
 [node name="TrajectorySolver" parent="Objects/DashRing2" index="2" unique_id=588358444]
 transform = Transform3D(1, 0, -5.3290705e-15, 0, 1, -3.61485e-15, 0, -3.6148503e-15, 1, 3.8146973e-06, 28.742188, 1.8959198)
 visible = true
 
 [node name="SplinePath" parent="Objects/DashRing2" index="5" unique_id=1615889928]
-curve = SubResource("Curve3D_dg2h0")
+curve = SubResource("Curve3D_puwn3")
 
 [node name="DashRing3" parent="Objects" unique_id=1628762636 instance=ExtResource("10_s3bf4")]
 transform = Transform3D(4.6925314e-07, 2.9058275, 0.7457655, -1.9678387e-07, 0.7457655, -2.9058275, -3, 4.056047e-07, 3.0725764e-07, 927.0987, -359.93015, 13.661617)
@@ -1367,12 +1441,12 @@ stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring4" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, -0.9384354, 0)
-shape = SubResource("CylinderShape3D_5ri2h")
+shape = SubResource("CylinderShape3D_2v8yk")
 metadata/_uniform_size_base_position = Vector3(0, -0.9384354, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring4" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_mdb5v")
+curve = SubResource("Curve3D_dg2h0")
 
 [node name="Mesh" parent="Objects/Spring4" index="5" unique_id=1922896033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.71029663, 0)
@@ -1385,12 +1459,12 @@ stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring5" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, -0.9384354, 0)
-shape = SubResource("CylinderShape3D_wvcpn")
+shape = SubResource("CylinderShape3D_5ri2h")
 metadata/_uniform_size_base_position = Vector3(0, -0.9384354, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring5" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_7uq6e")
+curve = SubResource("Curve3D_mdb5v")
 
 [node name="Mesh" parent="Objects/Spring5" index="5" unique_id=1922896033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.71029663, 0)
@@ -1403,12 +1477,12 @@ stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring6" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, -0.9384354, 0)
-shape = SubResource("CylinderShape3D_pksvq")
+shape = SubResource("CylinderShape3D_wvcpn")
 metadata/_uniform_size_base_position = Vector3(0, -0.9384354, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring6" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_3wt4u")
+curve = SubResource("Curve3D_7uq6e")
 
 [node name="Mesh" parent="Objects/Spring6" index="5" unique_id=1922896033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.71029663, 0)
@@ -1421,12 +1495,12 @@ stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring7" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, -0.9384354, 0)
-shape = SubResource("CylinderShape3D_u7dxa")
+shape = SubResource("CylinderShape3D_pksvq")
 metadata/_uniform_size_base_position = Vector3(0, -0.9384354, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring7" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_cfpth")
+curve = SubResource("Curve3D_3wt4u")
 
 [node name="Mesh" parent="Objects/Spring7" index="5" unique_id=1922896033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.71029663, 0)
@@ -1440,12 +1514,12 @@ stop_momentum = false
 
 [node name="CollisionShape3D" parent="Objects/Spring3" index="0" unique_id=594366491]
 transform = Transform3D(3.5, 0, 0, 0, 1, 0, 0, 0, 3.5, 0, 1.6291504, 0)
-shape = SubResource("CylinderShape3D_w2paq")
+shape = SubResource("CylinderShape3D_u7dxa")
 metadata/_uniform_size_base_position = Vector3(0, 1.6291504, 0)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 3.5)
 
 [node name="SplinePath" parent="Objects/Spring3" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_pmqht")
+curve = SubResource("Curve3D_cfpth")
 
 [node name="Mesh" parent="Objects/Spring3" index="5" unique_id=1922896033]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 2.2774658, 0)
@@ -1484,7 +1558,7 @@ shape = SubResource("BoxShape3D_dftnh")
 metadata/_uniform_size_base_position = Vector3(0.91693115, 1.9184265, 0.042175293)
 
 [node name="dash_panel_triple_001" parent="Objects/JumpPanelRamp8/Ramp" parent_id_path=PackedInt32Array(1731646741, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_neb3b")
+surface_material_override/0 = SubResource("StandardMaterial3D_w2paq")
 
 [node name="JumpPanelRamp4" parent="Objects" unique_id=166160515 instance=ExtResource("6_2idqw")]
 transform = Transform3D(-2, 0, -1.7484555e-07, 0, 2, 0, 1.7484555e-07, 0, -2, 2268.2087, -251.07391, -732.483)
@@ -1571,17 +1645,17 @@ shape = SubResource("BoxShape3D_jmllb")
 
 [node name="AutomationSpline - Skyway" parent="Objects" unique_id=2019352226 instance=ExtResource("17_lpi2t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1250.3052, -366.41284, 15.53487)
-tangent_lookahead = 2.6599999999999997
-preferred_offset_window = 117.91
-force_surface_adhesion = true
-max_turn_deg_per_sec = 9000.0
-lock_movement = true
-lock_actions = true
-nudge_toward_strength_base = 1500.0
-nudge_toward_strength_per_speed = 5.0
-tangent_snap_strength = 200.0
-along_assist_target_speed = 540.0
-along_assist_accel = 250.0
+priority = 2
+integrate_before_speed_limits = true
+sample_lookahead = 2.6599999999999997
+tracking_window = 117.91
+recovery_distance = 20.0
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_pmqht"), SubResource("Resource_neb3b"), SubResource("Resource_84m0y")])
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("Resource_uxkhx")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_481y3"), SubResource("Resource_svgwv"), SubResource("Resource_ino7o")])
+surface_traits = Array[ExtResource("phase6_AutomationSurfaceTrait")]([SubResource("Resource_i0ahf")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_wqqtp")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/AeroGarden/AeroGarden.tscn::Objects/AutomationSpline - Skyway"
 
 [node name="Path3D" parent="Objects/AutomationSpline - Skyway" index="0" unique_id=716481439]
 curve = SubResource("Curve3D_ps2wp")
@@ -1592,55 +1666,15 @@ transform = Transform3D(0.91266817, -0.17901804, 0.3674088, 0.19203518, 0.981387
 shape = SubResource("BoxShape3D_hhdxj")
 debug_color = Color(0, 0.84150016, 0.99, 1)
 
-[node name="AutomationSpline2 - Skyway 2" parent="Objects" unique_id=35031083 instance=ExtResource("17_lpi2t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1599.8407, -279.5887, -197.25746)
-priority = 1
-tangent_lookahead = 2.6599999999999997
-preferred_offset_window = 117.91
-force_surface_adhesion = true
-max_turn_deg_per_sec = 9000.0
-lock_movement = true
-lock_actions = true
-nudge_toward_strength_base = 1500.0
-nudge_toward_strength_per_speed = 5.0
-tangent_snap_strength = 200.0
-along_assist_target_speed = 600.0
-along_assist_accel = 250.0
-
-[node name="Path3D" parent="Objects/AutomationSpline2 - Skyway 2" index="0" unique_id=716481439]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.8368225, 2.7911072)
-curve = SubResource("Curve3D_lpi2t")
-debug_custom_color = Color(0.084304, 0.16613585, 0.42565364, 1)
-
-[node name="CollisionShape3D" parent="Objects/AutomationSpline2 - Skyway 2/Area3D" parent_id_path=PackedInt32Array(35031083, 1793801836) index="0" unique_id=775713540]
-transform = Transform3D(0.9941113, -0.10424993, -0.029574454, 0.085198134, 0.9205701, -0.38117188, 0.066962495, 0.37640762, 0.924031, 187.30566, 93.70613, -17.380234)
+[node name="Skyway2Volume" type="CollisionShape3D" parent="Objects/AutomationSpline - Skyway/Area3D" parent_id_path=PackedInt32Array(2019352226, 1793801836) index="1" unique_id=2006441744]
+transform = Transform3D(0.9941113, -0.10424993, -0.029574454, 0.085198134, 0.9205701, -0.38117188, 0.066962495, 0.37640762, 0.924031, 536.8412, 180.53026, -230.17258)
 shape = SubResource("BoxShape3D_8k4c3")
-debug_color = Color(0, 0.6630001, 0.78, 1)
+metadata/merged_source = "LS5Framework/Scenes/Levels/AeroGarden/AeroGarden.tscn::Objects/AutomationSpline2 - Skyway 2"
 
-[node name="AutomationSpline3 - Skyway 3" parent="Objects" unique_id=1045766918 instance=ExtResource("17_lpi2t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1909.0364, -273.72675, -136.97101)
-priority = 2
-tangent_lookahead = 2.6599999999999997
-preferred_offset_window = 117.91
-force_surface_adhesion = true
-max_turn_deg_per_sec = 9000.0
-lock_movement = true
-lock_actions = true
-nudge_toward_strength_base = 1500.0
-nudge_toward_strength_per_speed = 5.0
-tangent_snap_strength = 200.0
-along_assist_target_speed = 600.0
-along_assist_accel = 250.0
-
-[node name="Path3D" parent="Objects/AutomationSpline3 - Skyway 3" index="0" unique_id=716481439]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.129272, 4.159424, 15.599182)
-curve = SubResource("Curve3D_27jgf")
-debug_custom_color = Color(0.084304, 0.16613585, 0.42565364, 1)
-
-[node name="CollisionShape3D" parent="Objects/AutomationSpline3 - Skyway 3/Area3D" parent_id_path=PackedInt32Array(1045766918, 1793801836) index="0" unique_id=775713540]
-transform = Transform3D(0.8985108, 0, 0.4389515, 0, 1, 0, -0.4389515, 0, 0.8985108, 101.051025, -1.8003845, 92.87169)
+[node name="Skyway3Volume" type="CollisionShape3D" parent="Objects/AutomationSpline - Skyway/Area3D" parent_id_path=PackedInt32Array(2019352226, 1793801836) index="2" unique_id=2072662838]
+transform = Transform3D(0.8985108, 0, 0.4389515, 0, 1, 0, -0.4389515, 0, 0.8985108, 759.7822, 90.88571, -59.63419)
 shape = SubResource("BoxShape3D_i62wg")
-debug_color = Color(0, 0.6630001, 0.78, 1)
+metadata/merged_source = "LS5Framework/Scenes/Levels/AeroGarden/AeroGarden.tscn::Objects/AutomationSpline3 - Skyway 3"
 
 [node name="FloatingSpiral_CameraConstraint" parent="Objects" unique_id=586022376 instance=ExtResource("18_ps2wp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1333.1251, -350.87292, 11.177789)
@@ -1898,7 +1932,7 @@ shape = SubResource("BoxShape3D_ifxxm")
 metadata/_uniform_size_base_position = Vector3(0.28765106, 0.8789978, -0.008300781)
 
 [node name="dash_panel_triple_001" parent="JumpPanelRamp/Ramp" parent_id_path=PackedInt32Array(1560925870, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_84m0y")
+surface_material_override/0 = SubResource("StandardMaterial3D_2v8ud")
 
 [node name="JumpPanelRamp2" parent="." unique_id=2055631829 instance=ExtResource("6_2idqw")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1188.9337, -367.31805, 19.333218)
@@ -1914,7 +1948,7 @@ shape = SubResource("BoxShape3D_ifxxm")
 metadata/_uniform_size_base_position = Vector3(0.28765106, 0.8789978, -0.008300781)
 
 [node name="dash_panel_triple_001" parent="JumpPanelRamp2/Ramp" parent_id_path=PackedInt32Array(2055631829, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_uxkhx")
+surface_material_override/0 = SubResource("StandardMaterial3D_dyooe")
 
 [node name="DashPanel" parent="." unique_id=1418350663 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2479.5444, -358.47757, -330.98166)
@@ -1927,7 +1961,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(1418350663, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_481y3")
+surface_material_override/0 = SubResource("StandardMaterial3D_oldap")
 
 [node name="DashPanel2" parent="." unique_id=478922940 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2475.7476, -358.47757, -324.1564)
@@ -1940,7 +1974,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel2/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(478922940, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_svgwv")
+surface_material_override/0 = SubResource("StandardMaterial3D_mwvql")
 
 [node name="DashPanel3" parent="." unique_id=1017579737 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2488.1206, -358.47757, -344.81818)
@@ -1953,7 +1987,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel3/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(1017579737, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_i0ahf")
+surface_material_override/0 = SubResource("StandardMaterial3D_4idi8")
 
 [node name="DashPanel4" parent="." unique_id=1632582618 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2484.3237, -358.47757, -337.99292)
@@ -1966,7 +2000,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel4/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(1632582618, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_wqqtp")
+surface_material_override/0 = SubResource("StandardMaterial3D_vlojc")
 
 [node name="DashPanel5" parent="." unique_id=556234333 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2496.6968, -358.47757, -358.65472)
@@ -1979,7 +2013,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel5/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(556234333, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_2v8ud")
+surface_material_override/0 = SubResource("StandardMaterial3D_416cb")
 
 [node name="DashPanel6" parent="." unique_id=381271495 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2492.9, -358.47757, -351.82947)
@@ -1992,7 +2026,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel6/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(381271495, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_dyooe")
+surface_material_override/0 = SubResource("StandardMaterial3D_3st2j")
 
 [node name="DashPanel7" parent="." unique_id=1184048673 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2505.273, -358.21304, -372.49124)
@@ -2005,7 +2039,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel7/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(1184048673, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_oldap")
+surface_material_override/0 = SubResource("StandardMaterial3D_vid6e")
 
 [node name="DashPanel8" parent="." unique_id=924353739 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2501.476, -358.21207, -365.666)
@@ -2018,7 +2052,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel8/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(924353739, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_mwvql")
+surface_material_override/0 = SubResource("StandardMaterial3D_n07v8")
 
 [node name="DashPanel9" parent="." unique_id=1088392948 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2513.0525, -357.85562, -385.15924)
@@ -2031,7 +2065,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel9/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(1088392948, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_4idi8")
+surface_material_override/0 = SubResource("StandardMaterial3D_85tx5")
 
 [node name="DashPanel10" parent="." unique_id=1869576916 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2509.2556, -357.85562, -378.33398)
@@ -2044,7 +2078,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel10/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(1869576916, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_vlojc")
+surface_material_override/0 = SubResource("StandardMaterial3D_6euge")
 
 [node name="DashPanel11" parent="." unique_id=631369385 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2521.6287, -357.85562, -398.99576)
@@ -2057,7 +2091,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel11/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(631369385, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_416cb")
+surface_material_override/0 = SubResource("StandardMaterial3D_nerlo")
 
 [node name="DashPanel12" parent="." unique_id=1392226437 instance=ExtResource("15_o6lti")]
 transform = Transform3D(0.98255116, 0, 0.18599245, 0, 1, 0, -0.18599245, 0, 0.98255116, 2517.8318, -357.85562, -392.1705)
@@ -2070,7 +2104,7 @@ transform = Transform3D(1, 0, 1.49011345e-08, 0, 1, 0, -1.49011345e-08, 0, 1, 0,
 shape = SubResource("BoxShape3D_wihol")
 
 [node name="Object02" parent="DashPanel12/Mesh/DashPanelMesh/DashPanel" parent_id_path=PackedInt32Array(1392226437, 1210066314, 692713596) index="1" unique_id=1524868596]
-surface_material_override/0 = SubResource("StandardMaterial3D_3st2j")
+surface_material_override/0 = SubResource("StandardMaterial3D_rjb0a")
 
 [node name="JumpPanelRamp3" parent="." unique_id=292377555 instance=ExtResource("6_2idqw")]
 transform = Transform3D(0.96347415, -0.030717622, 0.26603416, -0.004396452, 0.9914517, 0.13040018, -0.2677656, -0.12680681, 0.9551029, 2589.6143, -304.22632, 114.61741)
@@ -2087,7 +2121,7 @@ metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.0083007
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
 
 [node name="dash_panel_triple_001" parent="JumpPanelRamp3/Ramp" parent_id_path=PackedInt32Array(292377555, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_vid6e")
+surface_material_override/0 = SubResource("StandardMaterial3D_e80xi")
 
 [node name="JumpPanelRamp4" parent="." unique_id=2009432610 instance=ExtResource("6_2idqw")]
 transform = Transform3D(0.96347415, -0.030717622, 0.26603416, -0.004396452, 0.9914517, 0.13040018, -0.2677656, -0.12680681, 0.9551029, 2578.0525, -304.17355, 117.8306)
@@ -2104,7 +2138,7 @@ metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.0083007
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
 
 [node name="dash_panel_triple_001" parent="JumpPanelRamp4/Ramp" parent_id_path=PackedInt32Array(2009432610, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_n07v8")
+surface_material_override/0 = SubResource("StandardMaterial3D_3m3ym")
 
 [node name="JumpPanelRamp5" parent="." unique_id=629027011 instance=ExtResource("6_2idqw")]
 transform = Transform3D(0.96347415, -0.030717622, 0.26603416, -0.004396452, 0.9914517, 0.13040018, -0.2677656, -0.12680681, 0.9551029, 2566.491, -304.1208, 121.043785)
@@ -2121,7 +2155,7 @@ metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.0083007
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
 
 [node name="dash_panel_triple_001" parent="JumpPanelRamp5/Ramp" parent_id_path=PackedInt32Array(629027011, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_85tx5")
+surface_material_override/0 = SubResource("StandardMaterial3D_7n10m")
 
 [node name="JumpPanelRamp6" parent="." unique_id=1200160047 instance=ExtResource("6_2idqw")]
 transform = Transform3D(0.96347415, -0.030717622, 0.26603416, -0.004396452, 0.9914517, 0.13040018, -0.2677656, -0.12680681, 0.9551029, 2554.9292, -304.06802, 124.25697)
@@ -2138,7 +2172,7 @@ metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.0083007
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
 
 [node name="dash_panel_triple_001" parent="JumpPanelRamp6/Ramp" parent_id_path=PackedInt32Array(1200160047, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_6euge")
+surface_material_override/0 = SubResource("StandardMaterial3D_ir56j")
 
 [node name="JumpPanelRamp7" parent="." unique_id=886635872 instance=ExtResource("6_2idqw")]
 transform = Transform3D(0.96347415, -0.030717622, 0.26603416, -0.004396452, 0.9914517, 0.13040018, -0.2677656, -0.12680681, 0.9551029, 2544.331, -304.01965, 127.2024)
@@ -2155,7 +2189,7 @@ metadata/_uniform_size_base_position = Vector3(0.03515625, 1.7000427, -0.0083007
 metadata/_uniform_size_base_scale = Vector3(1.0000012, 1, 1.0000012)
 
 [node name="dash_panel_triple_001" parent="JumpPanelRamp7/Ramp" parent_id_path=PackedInt32Array(886635872, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_nerlo")
+surface_material_override/0 = SubResource("StandardMaterial3D_0n1tp")
 
 [node name="RingSpline" parent="." unique_id=2125630419 instance=ExtResource("21_jmllb")]
 transform = Transform3D(0.9816139, 0, 0.19087753, 0, 1, 0, -0.19087753, 0, 0.9816139, 2609.3877, -288.65277, 94.803314)
@@ -2325,8 +2359,6 @@ skeleton = NodePath("../../Checkpoint5")
 [editable path="Objects/CameraOverrideVolume"]
 [editable path="Objects/CameraOverrideVolume3"]
 [editable path="Objects/AutomationSpline - Skyway"]
-[editable path="Objects/AutomationSpline2 - Skyway 2"]
-[editable path="Objects/AutomationSpline3 - Skyway 3"]
 [editable path="Objects/FloatingSpiral_CameraConstraint"]
 [editable path="Objects/Rail1_CameraConstraint"]
 [editable path="Objects/CameraOverrideVolume4"]

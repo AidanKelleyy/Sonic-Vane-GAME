@@ -461,7 +461,7 @@ func _can_apply_attack_magnetism() -> bool:
 		return false
 	if p._ramp_hold_forward_timer > 0.0 or p._ramp_hold_up_timer > 0.0:
 		return false
-	if p._automation_lock_movement and p._automation_locks_active():
+	if not p.is_automation_action_allowed(&"movement"):
 		return false
 	if not _current_action_permits_attack_magnetism():
 		return false

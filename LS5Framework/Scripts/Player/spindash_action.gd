@@ -101,7 +101,7 @@ func continuous_physics_update(delta: float) -> void:
 		ground_hold_timer = 0.0
 		ground_action1_press_valid = false
 		return
-	if owner_player._automation_lock_actions and owner_player._automation_locks_active():
+	if not owner_player.is_automation_action_allowed(&"spindash"):
 		_cancel_charge()
 		pending_release = false
 		pending_release_speed = 0.0
@@ -195,7 +195,7 @@ func _update_on_rail(delta: float) -> void:
 	if input_action == &"":
 		_cancel_charge()
 		return
-	if owner_player._automation_lock_actions and owner_player._automation_locks_active():
+	if not owner_player.is_automation_action_allowed(&"spindash"):
 		_cancel_charge()
 		pending_release = false
 		pending_release_speed = 0.0

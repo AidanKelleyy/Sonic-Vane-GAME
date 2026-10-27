@@ -811,6 +811,8 @@ func _enter_wall_cling(up: Vector3) -> void:
 
 
 func _can_catch(allow_attached_wall: bool = false, force_cling: bool = false) -> bool:
+	if owner_player and not owner_player.get_automation_controller().motion.allows(action_id):
+		return false
 	if not owner_player or not enabled or not owner_player._network_is_local_authority():
 		return false
 	if owner_player.has_method("is_insta_shield_input_consumed") and owner_player.is_insta_shield_input_consumed():

@@ -252,6 +252,8 @@ func physics_update_action(delta: float) -> void:
 
 
 func _can_attempt_catch() -> bool:
+	if owner_player and not owner_player.get_automation_controller().motion.allows(action_id):
+		return _reject_attempt(&"automation_policy")
 	if owner_player == null:
 		return false
 	if not ledge_mantle_enabled or not enabled:

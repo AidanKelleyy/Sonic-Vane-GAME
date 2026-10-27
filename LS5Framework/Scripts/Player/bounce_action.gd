@@ -100,7 +100,7 @@ func can_execute(_context: Dictionary = {}) -> bool:
 		return false
 	if owner_player._spring_align_timer > 0.0:
 		return false
-	if owner_player._automation_lock_actions and owner_player._automation_locks_active():
+	if not owner_player.is_automation_action_allowed(&"bounce"):
 		return false
 	if not bounce_enabled:
 		return false

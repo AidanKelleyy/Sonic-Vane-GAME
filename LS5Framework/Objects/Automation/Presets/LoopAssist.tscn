@@ -1,0 +1,80 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/AutomationSplineCore.tscn" id="core"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInfluenceTrait.gd" id="Influence"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="Input"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="Position"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="Steering"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSurfaceTrait.gd" id="Surface"]
+
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationTransitionTrait.gd" id="Transition"]
+
+[sub_resource type="Resource" id="component_0"]
+resource_local_to_scene = true
+resource_name = "Momentum alignment"
+script = ExtResource("Steering")
+mode = 1
+turn_rate = 240.0
+
+[sub_resource type="Resource" id="component_1"]
+resource_local_to_scene = true
+resource_name = "Loop corridor"
+script = ExtResource("Position")
+free_radius = 1.5
+spring_strength = 16.0
+max_acceleration = 40.0
+
+[sub_resource type="Resource" id="component_2"]
+resource_local_to_scene = true
+resource_name = "Contact adhesion"
+script = ExtResource("Surface")
+mode = 1
+
+[sub_resource type="Resource" id="component_3"]
+resource_local_to_scene = true
+resource_name = "Terrain frame"
+script = ExtResource("Surface")
+mode = 0
+
+[sub_resource type="Resource" id="component_4"]
+resource_local_to_scene = true
+resource_name = "Jump breakaway"
+script = ExtResource("Input")
+release_on_jump = true
+
+[sub_resource type="Resource" id="component_5"]
+resource_local_to_scene = true
+resource_name = "Endpoint ramps"
+script = ExtResource("Influence")
+channels = 7
+start_ramp = 2.0
+end_ramp = 2.0
+
+[sub_resource type="Resource" id="component_6"]
+resource_local_to_scene = true
+resource_name = "Entry"
+script = ExtResource("Transition")
+phase = 0
+channels = 7
+duration = 0.25
+
+[sub_resource type="Resource" id="component_7"]
+resource_local_to_scene = true
+resource_name = "Exit"
+script = ExtResource("Transition")
+phase = 1
+channels = 7
+duration = 0.25
+
+[node name="LoopAssist" instance=ExtResource("core")]
+steering_traits = Array[ExtResource("Steering")]([SubResource("component_0")])
+position_traits = Array[ExtResource("Position")]([SubResource("component_1")])
+surface_traits = Array[ExtResource("Surface")]([SubResource("component_2"), SubResource("component_3")])
+input_traits = Array[ExtResource("Input")]([SubResource("component_4")])
+influence_traits = Array[ExtResource("Influence")]([SubResource("component_5")])
+transition_traits = Array[ExtResource("Transition")]([SubResource("component_6"), SubResource("component_7")])

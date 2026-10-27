@@ -135,7 +135,7 @@ func can_use() -> bool:
 	var spindash_action = _get_spindash_action()
 	if spindash_action != null and spindash_action.is_charging:
 		return false
-	if owner_player._automation_lock_drift and owner_player._automation_locks_active():
+	if not owner_player.is_automation_action_allowed(&"drift"):
 		return false
 	return true
 

@@ -1995,7 +1995,7 @@ func _can_stay_attached(
 		return false
 	if p._surface_prevents_detach(collider, collider_shape_index):
 		return true
-	if p._automation_force_surface_adhesion:
+	if p._automation_force_surface_adhesion or (p._automation_controller and p._automation_controller.motion.adhesion_active()):
 		# Automation spline override: keep adhesion even on steep/ceiling and outward-loop geometry.
 		return true
 

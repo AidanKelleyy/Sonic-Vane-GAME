@@ -74,7 +74,7 @@ func can_execute(context: Dictionary = {}) -> bool:
 		return false
 	if owner_player._spring_action_lock_timer > 0.0 or owner_player._spring_align_timer > 0.0:
 		return false
-	if owner_player._automation_lock_actions and owner_player._automation_locks_active():
+	if not owner_player.is_automation_action_allowed(&"uppercut_kick"):
 		return false
 	var source: StringName = StringName(context.get("source_action", &"rail_grind" if owner_player._rail_active else owner_player.get_current_action_id()))
 	if not allowed_source_actions.is_empty() and not allowed_source_actions.has(source):

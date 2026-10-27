@@ -11,10 +11,13 @@
 [ext_resource type="PackedScene" uid="uid://c12m0rampjump" path="res://LS5Framework/Objects/Ramps/JumpPanelRamp.tscn" id="5_ehpxi"]
 [ext_resource type="PackedScene" uid="uid://dab7ow5oahfhc" path="res://LS5Framework/Objects/Homing/HomingTarget.tscn" id="6_l23e3"]
 [ext_resource type="PackedScene" uid="uid://dpqdt82o1f57x" path="res://LS5Framework/Objects/Spring/Spring.tscn" id="7_8blru"]
+[ext_resource type="Script" uid="uid://skuwrr20hryx" path="res://LS5Framework/Scenes/Effects/CameraFlare/CameraFlareElement.gd" id="8_gwwuk"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/MovingPlatform/MovingPlatform.tscn" id="8_t760y"]
 [ext_resource type="Texture2D" uid="uid://c52lky08eiqvv" path="res://LS5Framework/Scenes/Levels/EmeraldCoast/EmeraldCoast_1/m128_cos026.png" id="9_ag4b8"]
+[ext_resource type="Texture2D" uid="uid://2psk5tt3epwh" path="res://LS5Framework/Images/Effects/Sun_Flare.png" id="9_make8"]
 [ext_resource type="PackedScene" uid="uid://du0visohrxf4k" path="res://LS5Framework/Objects/Teleporter/Teleporter.tscn" id="10_di0o8"]
-[ext_resource type="PackedScene" uid="uid://bf2o7d3qsovh6" path="res://LS5Framework/Objects/Automation/AutomationSpline.tscn" id="11_sphnv"]
+[ext_resource type="Texture2D" uid="uid://b8g6kgbrudl3v" path="res://LS5Framework/Images/Effects/Sun_Flare_Thin.png" id="10_s88xw"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedGuided.tscn" id="11_sphnv"]
 [ext_resource type="PackedScene" uid="uid://cyglqqs3uhsy0" path="res://LS5Framework/Objects/Camera/CameraConstraint.tscn" id="12_8bj1e"]
 [ext_resource type="PackedScene" uid="uid://e1tkwisehr5p" path="res://LS5Framework/Objects/DashPanels/DashPanel.tscn" id="13_etxq2"]
 [ext_resource type="Texture2D" uid="uid://wuo28h8tik5y" path="res://LS5Framework/Objects/Ramps/Mesh-Heroes/Ramp_obj_dsh3.png" id="14_e3gqs"]
@@ -52,6 +55,10 @@
 [ext_resource type="Script" uid="uid://c3qjp7m108bma" path="res://LS5Framework/Scripts/Camera/Constraints/CameraOrientationTrait.gd" id="cam_trait_orientation"]
 [ext_resource type="Script" uid="uid://ejxv0c1rj01v" path="res://LS5Framework/Scripts/Camera/Constraints/CameraPositionTrait.gd" id="cam_trait_position"]
 [ext_resource type="Script" uid="uid://upi4v3qbppsx" path="res://LS5Framework/Scripts/Camera/Constraints/CameraTransitionTrait.gd" id="cam_trait_transition"]
+[ext_resource type="Script" uid="uid://bs4ckgoufdhv8" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="phase6_AutomationInputTrait"]
+[ext_resource type="Script" uid="uid://bnlde333urbaw" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="phase6_AutomationPositionTrait"]
+[ext_resource type="Script" uid="uid://6kwtvu2yoo6c" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSpeedTrait.gd" id="phase6_AutomationSpeedTrait"]
+[ext_resource type="Script" uid="uid://dckb0huih8mcp" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="phase6_AutomationSteeringTrait"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_s4xou"]
 size = Vector2(24000, 24000)
@@ -61,7 +68,7 @@ albedo_color = Color(0.060371235, 0.14116654, 0.14825544, 1)
 albedo_texture = ExtResource("1_4osux")
 uv1_scale = Vector3(74.915, 34.823, 50.925)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_qsh8t"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_blxl6"]
 resource_local_to_scene = true
 shader = ExtResource("2_radro")
 shader_parameter/sun_direction = Vector3(0.7071068, 0.7071068, 0)
@@ -119,16 +126,16 @@ shader_parameter/below_horizon_detail = 1.0
 shader_parameter/below_horizon_curvature = 1.0
 shader_parameter/below_horizon_haze_strength = 0.72
 
-[sub_resource type="Sky" id="Sky_e3gqs"]
+[sub_resource type="Sky" id="Sky_b60og"]
 resource_local_to_scene = true
-sky_material = SubResource("ShaderMaterial_qsh8t")
+sky_material = SubResource("ShaderMaterial_blxl6")
 process_mode = 3
 
-[sub_resource type="Environment" id="Environment_iwrtv"]
+[sub_resource type="Environment" id="Environment_y3id6"]
 resource_local_to_scene = true
 background_mode = 2
 background_energy_multiplier = 1.0000001
-sky = SubResource("Sky_e3gqs")
+sky = SubResource("Sky_b60og")
 ambient_light_source = 3
 ambient_light_color = Color(0.14947294, 0.39137825, 0.8443084, 1)
 ambient_light_sky_contribution = 0.82
@@ -155,11 +162,43 @@ fog_depth_begin = 0.0
 fog_depth_end = 4000.0
 adjustment_enabled = true
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_s4xou"]
+[sub_resource type="Resource" id="Resource_c4nmr"]
+resource_local_to_scene = true
+script = ExtResource("8_gwwuk")
+texture = ExtResource("9_make8")
+axis_position = 0.55
+diameter = 0.44
+tint = Color(0.75, 0.88, 1, 0.38)
+
+[sub_resource type="Resource" id="Resource_7scfl"]
+resource_local_to_scene = true
+script = ExtResource("8_gwwuk")
+texture = ExtResource("10_s88xw")
+axis_position = 0.2
+diameter = 0.16
+tint = Color(0.8, 1, 0.9, 0.28)
+
+[sub_resource type="Resource" id="Resource_8ov1f"]
+resource_local_to_scene = true
+script = ExtResource("8_gwwuk")
+texture = ExtResource("9_make8")
+axis_position = 1.05
+diameter = 0.075
+tint = Color(0.65, 0.85, 1, 0.3)
+
+[sub_resource type="Resource" id="Resource_ejwow"]
+resource_local_to_scene = true
+script = ExtResource("8_gwwuk")
+texture = ExtResource("10_s88xw")
+axis_position = 1.65
+diameter = 0.22
+tint = Color(0.85, 0.75, 1, 0.2)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ahtbt"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_j1w8o"]
+[sub_resource type="Curve3D" id="Curve3D_rnh56"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -184,11 +223,11 @@ size = Vector3(3, 0.5, 3)
 albedo_texture = ExtResource("9_ag4b8")
 uv1_scale = Vector3(20.215, 6.955, 1)
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_yuwwo"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_5p8ul"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_easqi"]
+[sub_resource type="Curve3D" id="Curve3D_3u76p"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -203,11 +242,11 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_gwwuk"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_hdcyx"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_make8"]
+[sub_resource type="Curve3D" id="Curve3D_t2xni"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -222,11 +261,11 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_s88xw"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_inw4d"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_blxl6"]
+[sub_resource type="Curve3D" id="Curve3D_g22vk"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -240,7 +279,7 @@ size = Vector3(1.4271698, 1.0362244, 1.9685059)
 [sub_resource type="BoxShape3D" id="BoxShape3D_radro"]
 size = Vector3(7.8210907, 3.6663818, 5.0271606)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b60og"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1i10k"]
 resource_local_to_scene = true
 resource_name = "Material_1"
 cull_mode = 2
@@ -248,6 +287,65 @@ albedo_texture = ExtResource("14_e3gqs")
 roughness = 0.92928934
 uv1_offset = Vector3(0, 0.19663787, 0)
 metadata/_gltf_primary_texture_coord = 0
+
+[sub_resource type="Resource" id="Resource_6nyx4"]
+resource_local_to_scene = true
+resource_name = "Canonical heading"
+script = ExtResource("phase6_AutomationSteeringTrait")
+canonical_direction = true
+strength = 1.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_jnnpt"]
+resource_local_to_scene = true
+resource_name = "Authored turn limit"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 1
+canonical_direction = true
+turn_rate = 900.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_gbnyh"]
+resource_local_to_scene = true
+resource_name = "Speed-scaled attraction"
+script = ExtResource("phase6_AutomationPositionTrait")
+mode = 3
+attraction_acceleration = 5000.0
+attraction_per_speed = 5.0
+attraction_speed_scale = 0.02
+attraction_radius = 1.0
+max_acceleration = 1000000.0
+
+[sub_resource type="Resource" id="Resource_6p5ea"]
+resource_local_to_scene = true
+resource_name = "Canonical propulsion"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 1
+canonical_direction = true
+target_speed = 175.0
+acceleration = 35.0
+allow_braking = false
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_yfvn5"]
+resource_local_to_scene = true
+resource_name = "Authored player soft cap"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 2
+player_top_speed = true
+target_speed = 175.0
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_88hvn"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+block_movement = true
+allow_braking = false
+block_jump = true
+block_roll_spindash = true
+block_drift = true
+block_abilities = true
 
 [sub_resource type="Curve3D" id="Curve3D_jodkd"]
 _data = {
@@ -265,11 +363,11 @@ alpha_hash_scale = 1.0
 alpha_antialiasing_mode = 0
 albedo_color = Color(1, 1, 1, 0)
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_y3id6"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_b0dwv"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_c4nmr"]
+[sub_resource type="Curve3D" id="Curve3D_nytw6"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 20.01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2.6190186, 26.13379, 5.6203613),
@@ -277,11 +375,11 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_7scfl"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_h5rvp"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_8ov1f"]
+[sub_resource type="Curve3D" id="Curve3D_wt6vm"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 17.435, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4.3981934, 25.09491, 5.375534),
@@ -289,17 +387,75 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_ejwow"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_f1psp"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_ahtbt"]
+[sub_resource type="Curve3D" id="Curve3D_cepio"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0.81, 12.045, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1.3145164, 22.410555, 11.569281),
 "tilts": PackedFloat32Array(0, 0)
 }
 point_count = 2
+
+[sub_resource type="Resource" id="Resource_61i64"]
+resource_local_to_scene = true
+resource_name = "Canonical heading"
+script = ExtResource("phase6_AutomationSteeringTrait")
+canonical_direction = true
+strength = 1.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_6qn2a"]
+resource_local_to_scene = true
+resource_name = "Authored turn limit"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 1
+canonical_direction = true
+turn_rate = 480.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_lwt6l"]
+resource_local_to_scene = true
+resource_name = "Speed-scaled attraction"
+script = ExtResource("phase6_AutomationPositionTrait")
+mode = 3
+attraction_acceleration = 8.0
+attraction_per_speed = 0.035
+attraction_speed_scale = 0.02
+max_acceleration = 1000000.0
+
+[sub_resource type="Resource" id="Resource_licc2"]
+resource_local_to_scene = true
+resource_name = "Canonical propulsion"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 1
+canonical_direction = true
+target_speed = 135.0
+acceleration = 25.0
+allow_braking = false
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_dqltw"]
+resource_local_to_scene = true
+resource_name = "Authored player soft cap"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 2
+player_top_speed = true
+target_speed = 135.0
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_1vrco"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+block_movement = true
+allow_braking = false
+block_jump = true
+block_roll_spindash = true
+block_drift = true
+block_abilities = true
 
 [sub_resource type="Curve3D" id="Curve3D_3dw50"]
 _data = {
@@ -328,11 +484,11 @@ size = Vector3(3, 0.5, 3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_784d8"]
 size = Vector3(50000, 2.922, 50000)
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_rnh56"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_4suoj"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_5p8ul"]
+[sub_resource type="Curve3D" id="Curve3D_ia2wk"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -343,6 +499,54 @@ point_count = 2
 [sub_resource type="BoxShape3D" id="BoxShape3D_2t8qx"]
 size = Vector3(51.623928, 61.625034, 61.843796)
 
+[sub_resource type="Resource" id="Resource_7q5sm"]
+resource_local_to_scene = true
+resource_name = "Canonical heading"
+script = ExtResource("phase6_AutomationSteeringTrait")
+canonical_direction = true
+strength = 1.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_uglly"]
+resource_local_to_scene = true
+resource_name = "Authored turn limit"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 1
+canonical_direction = true
+turn_rate = 5000.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_n3jog"]
+resource_local_to_scene = true
+resource_name = "Canonical propulsion"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 1
+canonical_direction = true
+target_speed = 180.0
+acceleration = 35.0
+allow_braking = false
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_a8l0p"]
+resource_local_to_scene = true
+resource_name = "Authored player soft cap"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 2
+player_top_speed = true
+target_speed = 180.0
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_renxt"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+block_movement = true
+allow_braking = false
+block_jump = true
+block_roll_spindash = true
+block_drift = true
+block_abilities = true
+
 [sub_resource type="Curve3D" id="Curve3D_atfh5"]
 _data = {
 "points": PackedVector3Array(0, 0, 0, 7.65, -37.46, -31.77, -9.673492, 16.192736, 11.262307, 0, 0, -25.24, 0, 0, 20.415, 11.264944, 30.189516, 1.47, -2.595, 0, 18.72, 0, 0, -17.72, 23.13, 0, 2.265, 0, -0.88, -20.46, 0, -4.135, 27.005, 39, 30.695, 5.145, -7.085, 4.305, 15.445, 0, 0, 0, 52.195, 0, 3.115),
@@ -352,6 +556,54 @@ point_count = 5
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_7s8a3"]
 size = Vector3(73.95175, 55.28047, 42.744217)
+
+[sub_resource type="Resource" id="Resource_cqkh0"]
+resource_local_to_scene = true
+resource_name = "Canonical heading"
+script = ExtResource("phase6_AutomationSteeringTrait")
+canonical_direction = true
+strength = 1.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_fmth1"]
+resource_local_to_scene = true
+resource_name = "Authored turn limit"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 1
+canonical_direction = true
+turn_rate = 5000.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_ea4m8"]
+resource_local_to_scene = true
+resource_name = "Canonical propulsion"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 1
+canonical_direction = true
+target_speed = 140.0
+acceleration = 45.0
+allow_braking = false
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_8wqdv"]
+resource_local_to_scene = true
+resource_name = "Authored player soft cap"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 2
+player_top_speed = true
+target_speed = 140.0
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_umww0"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+block_movement = true
+allow_braking = false
+block_jump = true
+block_roll_spindash = true
+block_drift = true
+block_abilities = true
 
 [sub_resource type="Curve3D" id="Curve3D_2820r"]
 bake_interval = 0.05
@@ -388,14 +640,14 @@ size = Vector3(20.392578, 13.610901, 25.359283)
 [sub_resource type="BoxShape3D" id="BoxShape3D_j0k8r"]
 size = Vector3(125.62793, 30.601563, 130.34668)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_3u76p"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eksxb"]
 render_priority = 0
 shader = ExtResource("22_7fxeh")
 shader_parameter/tex_flat = ExtResource("23_i5omx")
 shader_parameter/tex_glow = ExtResource("24_isflb")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = false
-shader_parameter/swap_time = 1011.865
+shader_parameter/swap_time = 1375.833
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_l51wo"]
 size = Vector3(36.186234, 40.35939, 58.338074)
@@ -1171,7 +1423,7 @@ phase = 1
 [sub_resource type="BoxShape3D" id="BoxShape3D_i5omx"]
 size = Vector3(39.59485, 30.602295, 16.181152)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_hdcyx"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_udwb1"]
 resource_local_to_scene = true
 size = Vector3(19.3, 6, 6)
 
@@ -1180,7 +1432,7 @@ albedo_color = Color(0.95923537, 0.39163202, 1.92523e-07, 1)
 metallic = 0.6
 roughness = 0.45
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_t2xni"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_6k7os"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_bar")
 top_radius = 0.15
@@ -1189,7 +1441,7 @@ height = 19.3
 radial_segments = 24
 rings = 1
 
-[sub_resource type="Curve3D" id="Curve3D_inw4d"]
+[sub_resource type="Curve3D" id="Curve3D_kyd4x"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, -12),
@@ -1197,11 +1449,11 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_g22vk"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_qnyxe"]
 resource_local_to_scene = true
 size = Vector3(21.3, 6, 6)
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_1i10k"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_ko376"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_bar")
 top_radius = 0.15
@@ -1210,7 +1462,7 @@ height = 21.3
 radial_segments = 24
 rings = 1
 
-[sub_resource type="Curve3D" id="Curve3D_6nyx4"]
+[sub_resource type="Curve3D" id="Curve3D_1inie"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, -12),
@@ -1218,11 +1470,11 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_jnnpt"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_gn6ag"]
 resource_local_to_scene = true
 size = Vector3(21.3, 6, 6)
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_gbnyh"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_hca73"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_bar")
 top_radius = 0.15
@@ -1231,7 +1483,7 @@ height = 21.3
 radial_segments = 24
 rings = 1
 
-[sub_resource type="Curve3D" id="Curve3D_6p5ea"]
+[sub_resource type="Curve3D" id="Curve3D_kemi7"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, -12),
@@ -1239,119 +1491,119 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="Resource" id="Resource_yfvn5"]
+[sub_resource type="Resource" id="Resource_k8ahi"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 6
 amount = 1.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_88hvn"]
+[sub_resource type="Resource" id="Resource_o7aso"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 10.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_b0dwv"]
+[sub_resource type="Resource" id="Resource_j7elb"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 5.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_nytw6"]
+[sub_resource type="Resource" id="Resource_7m2yl"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 5.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_h5rvp"]
+[sub_resource type="Resource" id="Resource_p2arl"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 5.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_wt6vm"]
+[sub_resource type="Resource" id="Resource_j7rnv"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 5.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_f1psp"]
+[sub_resource type="Resource" id="Resource_rlg1d"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 5.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_cepio"]
+[sub_resource type="Resource" id="Resource_htm6i"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 5.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_61i64"]
+[sub_resource type="Resource" id="Resource_ysc75"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 5.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_6qn2a"]
+[sub_resource type="Resource" id="Resource_8vgty"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 10.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_lwt6l"]
+[sub_resource type="Resource" id="Resource_gphp0"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 10.0
 random_ring_pool = null
 
-[sub_resource type="Resource" id="Resource_licc2"]
+[sub_resource type="Resource" id="Resource_dtcvr"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 7
 amount = 5.0
 random_ring_pool = PackedInt32Array(5, 10, 20, 40)
 
-[sub_resource type="Resource" id="Resource_dqltw"]
+[sub_resource type="Resource" id="Resource_wo0cy"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 7
 amount = 5.0
 random_ring_pool = PackedInt32Array(5, 10, 20, 40)
 
-[sub_resource type="Resource" id="Resource_1vrco"]
+[sub_resource type="Resource" id="Resource_ias4f"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 10.0
 random_ring_pool = PackedInt32Array(5, 10, 20, 40)
 
-[sub_resource type="Resource" id="Resource_4suoj"]
+[sub_resource type="Resource" id="Resource_3hfrs"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 10.0
 random_ring_pool = PackedInt32Array(5, 10, 20, 40)
 
-[sub_resource type="Resource" id="Resource_ia2wk"]
+[sub_resource type="Resource" id="Resource_gg0ql"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 1
 amount = 10.0
 random_ring_pool = PackedInt32Array(5, 10, 20, 40)
 
-[sub_resource type="Resource" id="Resource_7q5sm"]
+[sub_resource type="Resource" id="Resource_021gh"]
 resource_local_to_scene = true
 script = ExtResource("40_tep1r")
 reward_type = 7
@@ -1845,6 +2097,7 @@ depth_effect_enabled = true
 depth_color = Color(0.33374074, 0.6823042, 0.51628596, 1)
 depth_visibility_distance = 150.1
 caustic_scroll = Vector2(0.1, 0.1)
+caustic_normal_fade = 1.0
 weather_influence_strength = 0.5
 weather_depth_influence = 1.0
 weather_affects_roughness = true
@@ -1886,7 +2139,10 @@ directional_shadow_max_distance = 300.0
 day_length_minutes = 8.0
 
 [node name="WorldEnvironment" parent="Lights/EnvironmentWeatherSystem/DayNightCycle" index="0" unique_id=1480341513]
-environment = SubResource("Environment_iwrtv")
+environment = SubResource("Environment_y3id6")
+
+[node name="SunFlare" parent="Lights/EnvironmentWeatherSystem" index="2"]
+lens_elements = Array[ExtResource("8_gwwuk")]([SubResource("Resource_c4nmr"), SubResource("Resource_7scfl"), SubResource("Resource_8ov1f"), SubResource("Resource_ejwow")])
 
 [node name="TeleportExit_EmeraldCoast" type="Node3D" parent="." unique_id=1423693014]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -65.25867, 25.923428, -57.035645)
@@ -1950,10 +2206,10 @@ active = false
 strength = 115.0
 
 [node name="CollisionShape3D" parent="Spring2" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_s4xou")
+shape = SubResource("CylinderShape3D_ahtbt")
 
 [node name="SplinePath" parent="Spring2" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_j1w8o")
+curve = SubResource("Curve3D_rnh56")
 
 [node name="MovingPlatform2" parent="." unique_id=1264310379 instance=ExtResource("8_t760y")]
 transform = Transform3D(8.742277e-08, 0, 1.9999999, 0, 2, 0, -1.9999999, 0, 8.742277e-08, 1502.8313, 46.373047, -0.0032176971)
@@ -1987,10 +2243,10 @@ active = false
 strength = 132.0
 
 [node name="CollisionShape3D" parent="MovingPlatform2/Path3D/PathFollow3D/PlatformBody/Spring" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_yuwwo")
+shape = SubResource("CylinderShape3D_5p8ul")
 
 [node name="SplinePath" parent="MovingPlatform2/Path3D/PathFollow3D/PlatformBody/Spring" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_easqi")
+curve = SubResource("Curve3D_3u76p")
 
 [node name="MovingPlatform3" parent="." unique_id=1523290837 instance=ExtResource("8_t760y")]
 transform = Transform3D(8.742277e-08, 0, 1.9999999, 0, 2, 0, -1.9999999, 0, 8.742277e-08, 1431.7565, 447.9652, 102.19482)
@@ -2024,10 +2280,10 @@ transform = Transform3D(-0.28605384, -1.3261226, -1.4695538, -9.685755e-08, 1.48
 strength = 155.0
 
 [node name="CollisionShape3D" parent="MovingPlatform3/Path3D/PathFollow3D/PlatformBody/Spring" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_gwwuk")
+shape = SubResource("CylinderShape3D_hdcyx")
 
 [node name="SplinePath" parent="MovingPlatform3/Path3D/PathFollow3D/PlatformBody/Spring" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_make8")
+curve = SubResource("Curve3D_t2xni")
 
 [node name="MovingPlatform5" parent="." unique_id=1671668170 instance=ExtResource("8_t760y")]
 transform = Transform3D(8.742277e-08, 0, 1.9999999, 0, 2, 0, -1.9999999, 0, 8.742277e-08, 1375.2562, 511.3128, -47.535423)
@@ -2062,10 +2318,10 @@ transform = Transform3D(-0.28605384, -1.3261226, -1.4695538, -9.685755e-08, 1.48
 strength = 140.0
 
 [node name="CollisionShape3D" parent="MovingPlatform5/Path3D/PathFollow3D/PlatformBody/Spring" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_s88xw")
+shape = SubResource("CylinderShape3D_inw4d")
 
 [node name="SplinePath" parent="MovingPlatform5/Path3D/PathFollow3D/PlatformBody/Spring" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_blxl6")
+curve = SubResource("Curve3D_g22vk")
 
 [node name="MovingPlatform" parent="." unique_id=610878461 instance=ExtResource("8_t760y")]
 transform = Transform3D(-8.742277e-08, 0, -1.9999999, 0, 2, 0, 1.9999999, 0, -8.742277e-08, 1141.8735, 30.46965, 35.18457)
@@ -2128,20 +2384,18 @@ shape = SubResource("BoxShape3D_radro")
 metadata/_uniform_size_base_position = Vector3(0.13890839, 1.5332355, -0.008300781)
 
 [node name="dash_panel_triple_001" parent="JumpPanelRamp5/Ramp" parent_id_path=PackedInt32Array(1383818476, 1843192953) index="1" unique_id=71418405]
-surface_material_override/0 = SubResource("StandardMaterial3D_b60og")
+surface_material_override/0 = SubResource("StandardMaterial3D_1i10k")
 
 [node name="AutomationSpline" parent="." unique_id=297344810 instance=ExtResource("11_sphnv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4082.567, 89.32365, -49.382813)
-max_turn_deg_per_sec = 900.0
-lock_controls = true
-lock_movement = true
-lock_actions = true
-lock_drift = true
-nudge_toward_strength_base = 5000.0
-nudge_toward_strength_per_speed = 5.0
-nudge_radius = 1.0
-along_assist_target_speed = 175.0
-along_assist_accel = 35.0
+integrate_before_speed_limits = true
+sample_lookahead = 0.5
+recovery_distance = 20.0
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_6nyx4"), SubResource("Resource_jnnpt")])
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("Resource_gbnyh")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_6p5ea"), SubResource("Resource_yfvn5")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_88hvn")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/EmeraldCoast/emerald_coast.tscn::AutomationSpline"
 
 [node name="Path3D" parent="AutomationSpline" index="0" unique_id=716481439]
 curve = SubResource("Curve3D_jodkd")
@@ -2186,13 +2440,13 @@ strength = 100.0
 spline_enabled = true
 
 [node name="CollisionShape3D" parent="Spring16" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_y3id6")
+shape = SubResource("CylinderShape3D_b0dwv")
 
 [node name="AnimationPlayer" parent="Spring16" index="2" unique_id=636684357]
 root_node = NodePath("../../Spring16")
 
 [node name="SplinePath" parent="Spring16" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_c4nmr")
+curve = SubResource("Curve3D_nytw6")
 
 [node name="Spring17" parent="." unique_id=1513577316 instance=ExtResource("7_8blru")]
 transform = Transform3D(0.50075287, -1.8854182, -0.44095796, -0.0024475695, 0.45484853, -1.9475898, 1.9362955, 0.48817024, 0.11157601, -236.77966, 36.63189, 292.52002)
@@ -2200,13 +2454,13 @@ strength = 100.0
 spline_enabled = true
 
 [node name="CollisionShape3D" parent="Spring17" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_7scfl")
+shape = SubResource("CylinderShape3D_h5rvp")
 
 [node name="AnimationPlayer" parent="Spring17" index="2" unique_id=636684357]
 root_node = NodePath("../../Spring16")
 
 [node name="SplinePath" parent="Spring17" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_8ov1f")
+curve = SubResource("Curve3D_wt6vm")
 
 [node name="Spring18" parent="." unique_id=2053999340 instance=ExtResource("7_8blru")]
 transform = Transform3D(1.7407136, 0.8526279, 0.49289125, -0.00244762, 1.0046959, -1.7293291, -0.98484015, 1.50453, 0.8754872, -283.88965, 38.603657, 312.73535)
@@ -2215,13 +2469,13 @@ spline_enabled = true
 spline_speed = 55.0
 
 [node name="CollisionShape3D" parent="Spring18" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_ejwow")
+shape = SubResource("CylinderShape3D_f1psp")
 
 [node name="AnimationPlayer" parent="Spring18" index="2" unique_id=636684357]
 root_node = NodePath("../../Spring16")
 
 [node name="SplinePath" parent="Spring18" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_ahtbt")
+curve = SubResource("Curve3D_cepio")
 
 [node name="DashPanel2" parent="." unique_id=1547577923 instance=ExtResource("13_etxq2")]
 transform = Transform3D(-1.7982609, 0, -0.8753615, 0, 2, 0, 0.8753615, 0, -1.7982609, 3696.0645, 21.59033, 359.1582)
@@ -2261,11 +2515,14 @@ action_lock_time = 1.0
 
 [node name="AutomationSpline2" parent="." unique_id=238836115 instance=ExtResource("11_sphnv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -125.52759, 38.049866, 301.33252)
-max_turn_deg_per_sec = 480.0
-lock_controls = true
-nudge_toward_strength_base = 8.0
-along_assist_target_speed = 135.0
-along_assist_accel = 25.0
+integrate_before_speed_limits = true
+sample_lookahead = 0.5
+recovery_distance = 20.0
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_61i64"), SubResource("Resource_6qn2a")])
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("Resource_lwt6l")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_licc2"), SubResource("Resource_dqltw")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_1vrco")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/EmeraldCoast/emerald_coast.tscn::AutomationSpline2"
 
 [node name="Path3D" parent="AutomationSpline2" index="0" unique_id=716481439]
 curve = SubResource("Curve3D_3dw50")
@@ -2637,14 +2894,14 @@ action_lock_time = 1.0
 align_time = 1.2
 
 [node name="CollisionShape3D" parent="Spring11" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_rnh56")
+shape = SubResource("CylinderShape3D_4suoj")
 
 [node name="TrajectorySolver" parent="Spring11" index="1" unique_id=1153799601]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.72837543, 64.65771, -10.992573)
 visible = true
 
 [node name="SplinePath" parent="Spring11" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_5p8ul")
+curve = SubResource("Curve3D_ia2wk")
 
 [node name="Mesh" parent="Spring11" index="5" unique_id=1922896033]
 transform = Transform3D(0.9998273, -0.0030719815, 0.0004319319, 0.0030724972, 0.961223, -0.27575517, 0.0004320044, 0.27575517, 0.96122783, 0, 0, 0)
@@ -2661,14 +2918,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.4941345, -2.6254883)
 
 [node name="AutomationSpline3" parent="." unique_id=136213700 instance=ExtResource("11_sphnv")]
 transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 3666.2075, 27.025967, 410.4292)
-max_turn_deg_per_sec = 5000.0
-lock_controls = true
-continuous_force = false
-nudge_toward_strength_base = 5000.0
-nudge_toward_strength_per_speed = 10.0
-nudge_radius = 3.0
-along_assist_target_speed = 180.0
-along_assist_accel = 35.0
+integrate_before_speed_limits = true
+sample_lookahead = 0.5
+recovery_distance = 20.0
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_7q5sm"), SubResource("Resource_uglly")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_n3jog"), SubResource("Resource_a8l0p")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_renxt")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/EmeraldCoast/emerald_coast.tscn::AutomationSpline3"
 
 [node name="Path3D" parent="AutomationSpline3" index="0" unique_id=716481439]
 curve = SubResource("Curve3D_atfh5")
@@ -2679,13 +2935,13 @@ shape = SubResource("BoxShape3D_7s8a3")
 
 [node name="AutomationSpline4" parent="." unique_id=234586468 instance=ExtResource("11_sphnv")]
 transform = Transform3D(0.25881892, 0, -0.9659258, 0, 1, 0, 0.9659258, 0, 0.25881892, 650.2943, 27.025967, -1.6928711)
-max_turn_deg_per_sec = 5000.0
-lock_controls = true
-continuous_force = false
-nudge_toward_strength_base = 5000.0
-nudge_toward_strength_per_speed = 5.0
-along_assist_target_speed = 140.0
-along_assist_accel = 45.0
+integrate_before_speed_limits = true
+sample_lookahead = 0.5
+recovery_distance = 20.0
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_cqkh0"), SubResource("Resource_fmth1")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_ea4m8"), SubResource("Resource_8wqdv")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_umww0")])
+metadata/automation_migration_id = "LS5Framework/Scenes/Levels/EmeraldCoast/emerald_coast.tscn::AutomationSpline4"
 
 [node name="Path3D" parent="AutomationSpline4" index="0" unique_id=716481439]
 curve = SubResource("Curve3D_2820r")
@@ -2823,7 +3079,7 @@ shape = SubResource("BoxShape3D_j0k8r")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.022949, 0, 0)
 
 [node name="Circle" parent="RaceGoal/GoalModel/GoalRing2/Armature/Skeleton3D" index="0" unique_id=1294627438]
-material_override = SubResource("ShaderMaterial_3u76p")
+material_override = SubResource("ShaderMaterial_eksxb")
 
 [node name="SwapLight" parent="RaceGoal/GoalModel/GoalRing2" index="2" unique_id=1016145482]
 light_energy = 40.0
@@ -2888,7 +3144,6 @@ shape = SubResource("BoxShape3D_3jq7h")
 
 [node name="PlayerSpawn" parent="." unique_id=1436241298 instance=ExtResource("24_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.319984, 28.038424, -63.92106)
-downwarp_enabled = true
 
 [node name="Loop guardrails" type="Node3D" parent="." unique_id=721318508]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4094.8306, 81.01007, -63.59247)
@@ -3513,10 +3768,10 @@ movement_lock_time = 0.5
 action_lock_time = 0.5
 
 [node name="CollisionShape3D" parent="VaultBar" index="0" unique_id=789556539]
-shape = SubResource("BoxShape3D_hdcyx")
+shape = SubResource("BoxShape3D_udwb1")
 
 [node name="Bar" parent="VaultBar/Model" parent_id_path=PackedInt32Array(1652006837, 1361387532) index="0" unique_id=511214259]
-mesh = SubResource("CylinderMesh_t2xni")
+mesh = SubResource("CylinderMesh_6k7os")
 
 [node name="LeftCap" parent="VaultBar/Model" parent_id_path=PackedInt32Array(1652006837, 1361387532) index="1" unique_id=568321050]
 transform = Transform3D(0.20250002, 0, 0, 0, 0.20250002, 0, 0, 0, 0.20250002, -9.65, 0, 0)
@@ -3528,7 +3783,7 @@ transform = Transform3D(0.20250002, 0, 0, 0, 0.20250002, 0, 0, 0, 0.20250002, 9.
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.477967, 61.952606, -44.529686)
 
 [node name="SplinePath" parent="VaultBar" index="4" unique_id=51402399]
-curve = SubResource("Curve3D_inw4d")
+curve = SubResource("Curve3D_kyd4x")
 
 [node name="VaultBar2" parent="." unique_id=1685228124 instance=ExtResource("37_2i707")]
 transform = Transform3D(-0.081846006, 0, -0.99664503, 0, 1, 0, 0.99664503, 0, -0.081846006, 4339.579, 57.805584, -9.772564)
@@ -3543,10 +3798,10 @@ movement_lock_time = 0.5
 action_lock_time = 0.5
 
 [node name="CollisionShape3D" parent="VaultBar2" index="0" unique_id=789556539]
-shape = SubResource("BoxShape3D_g22vk")
+shape = SubResource("BoxShape3D_qnyxe")
 
 [node name="Bar" parent="VaultBar2/Model" parent_id_path=PackedInt32Array(1685228124, 1361387532) index="0" unique_id=511214259]
-mesh = SubResource("CylinderMesh_1i10k")
+mesh = SubResource("CylinderMesh_ko376")
 
 [node name="LeftCap" parent="VaultBar2/Model" parent_id_path=PackedInt32Array(1685228124, 1361387532) index="1" unique_id=568321050]
 transform = Transform3D(0.20250002, 0, 0, 0, 0.20250002, 0, 0, 0, 0.20250002, -10.65, 0, 0)
@@ -3558,7 +3813,7 @@ transform = Transform3D(0.20250002, 0, 0, 0, 0.20250002, 0, 0, 0, 0.20250002, 10
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.505979e-05, -10.280819, -32.24597)
 
 [node name="SplinePath" parent="VaultBar2" index="4" unique_id=51402399]
-curve = SubResource("Curve3D_6nyx4")
+curve = SubResource("Curve3D_1inie")
 
 [node name="VaultBar3" parent="." unique_id=1697585541 instance=ExtResource("37_2i707")]
 transform = Transform3D(0.7402426, 0, -0.67233986, 0, 1, 0, 0.67233986, 0, 0.7402426, -55.03243, 81.73574, 264.25333)
@@ -3573,10 +3828,10 @@ movement_lock_time = 0.5
 action_lock_time = 0.5
 
 [node name="CollisionShape3D" parent="VaultBar3" index="0" unique_id=789556539]
-shape = SubResource("BoxShape3D_jnnpt")
+shape = SubResource("BoxShape3D_gn6ag")
 
 [node name="Bar" parent="VaultBar3/Model" parent_id_path=PackedInt32Array(1697585541, 1361387532) index="0" unique_id=511214259]
-mesh = SubResource("CylinderMesh_gbnyh")
+mesh = SubResource("CylinderMesh_hca73")
 
 [node name="LeftCap" parent="VaultBar3/Model" parent_id_path=PackedInt32Array(1697585541, 1361387532) index="1" unique_id=568321050]
 transform = Transform3D(0.20250002, 0, 0, 0, 0.20250002, 0, 0, 0, 0.20250002, -10.65, 0, 0)
@@ -3588,7 +3843,7 @@ transform = Transform3D(0.20250002, 0, 0, 0, 0.20250002, 0, 0, 0, 0.20250002, 10
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.505979e-05, -14.815731, -32.24597)
 
 [node name="SplinePath" parent="VaultBar3" index="4" unique_id=51402399]
-curve = SubResource("Curve3D_6p5ea")
+curve = SubResource("Curve3D_kemi7")
 
 [node name="SpikeBall" parent="." unique_id=2132038934 instance=ExtResource("38_radro")]
 transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 3609.9785, 49.692875, 326.69785)
@@ -3753,88 +4008,88 @@ enabled = false
 [node name="ItemMonitor7" parent="." unique_id=1395552001 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.8871464, 0, 0.46148807, 0, 1, 0, -0.46148807, 0, 0.8871464, 2812.1448, 246.24037, 284.8715)
 size = 1.5
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_yfvn5")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_k8ahi")])
 allow_player_pass_through = true
 bounce_airborne_player = false
 
 [node name="ItemMonitor8" parent="." unique_id=987593294 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.8871464, 0, 0.46148807, 0, 1, 0, -0.46148807, 0, 0.8871464, 3638.739, 17.855997, 407.07922)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_88hvn")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_o7aso")])
 leave_base_after_break = true
 
 [node name="ItemMonitor11" parent="." unique_id=1638506690 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.99903536, 0, -0.043912828, 0, 1, 0, 0.043912828, 0, 0.99903536, 3733.4285, 41.856007, -41.792397)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_b0dwv")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_j7elb")])
 leave_base_after_break = true
 
 [node name="ItemMonitor12" parent="." unique_id=1323793337 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.99903536, 0, -0.043912828, 0, 1, 0, 0.043912828, 0, 0.99903536, 3726.4353, 41.856007, -42.099785)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_nytw6")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_7m2yl")])
 leave_base_after_break = true
 
 [node name="ItemMonitor13" parent="." unique_id=1397384240 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.99903536, 0, -0.043912828, 0, 1, 0, 0.043912828, 0, 0.99903536, 3825.1724, 56.25601, 33.02092)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_h5rvp")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_p2arl")])
 leave_base_after_break = true
 
 [node name="ItemMonitor9" parent="." unique_id=137389425 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.8871464, 0, 0.46148807, 0, 1, 0, -0.46148807, 0, 0.8871464, 3636.1492, 17.856, 412.93524)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_wt6vm")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_j7rnv")])
 leave_base_after_break = true
 
 [node name="ItemMonitor10" parent="." unique_id=1602665447 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.8871464, 0, 0.46148807, 0, 1, 0, -0.46148807, 0, 0.8871464, 3632.4573, 17.855999, 405.83807)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_f1psp")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_rlg1d")])
 leave_base_after_break = true
 
 [node name="ItemMonitor14" parent="." unique_id=1932894129 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.8871464, 0, 0.46148807, 0, 1, 0, -0.46148807, 0, 0.8871464, 3615.714, 20.546947, 142.93188)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_cepio")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_htm6i")])
 leave_base_after_break = true
 
 [node name="ItemMonitor15" parent="." unique_id=538650804 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.8871464, 0, 0.46148807, 0, 1, 0, -0.46148807, 0, 0.8871464, 3679.1814, 20.734821, -7.323118)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_61i64")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_ysc75")])
 leave_base_after_break = true
 
 [node name="ItemMonitor22" parent="." unique_id=983777345 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.53754723, 0, 0.8432336, 0, 1, 0, -0.8432336, 0, 0.53754723, 1888.6191, 20.31747, 195.90604)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_6qn2a")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_8vgty")])
 leave_base_after_break = true
 
 [node name="ItemMonitor23" parent="." unique_id=1530063612 instance=ExtResource("39_oj55v")]
 transform = Transform3D(-0.14592826, 0, 0.9892951, 0, 1, 0, -0.9892951, 0, -0.14592826, 1999.3044, 20.31747, 271.20966)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_lwt6l")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_gphp0")])
 leave_base_after_break = true
 
 [node name="ItemMonitor16" parent="." unique_id=29766874 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.8871464, 0, 0.46148807, 0, 1, 0, -0.46148807, 0, 0.8871464, 3750.1592, 20.801382, -49.297478)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_licc2")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_dtcvr")])
 leave_base_after_break = true
 
 [node name="ItemMonitor17" parent="." unique_id=481249374 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.90600866, 0, 0.42325908, 0, 1, 0, -0.42325908, 0, 0.90600866, -16.299166, 23.072538, -126.12517)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_dqltw")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_wo0cy")])
 leave_base_after_break = true
 
 [node name="ItemMonitor18" parent="." unique_id=1995297735 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.90600866, 0, 0.42325908, 0, 1, 0, -0.42325908, 0, 0.90600866, -20.829208, 23.072538, -124.00887)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_1vrco")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_ias4f")])
 leave_base_after_break = true
 
 [node name="ItemMonitor19" parent="." unique_id=2107388201 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.90600866, 0, 0.42325908, 0, 1, 0, -0.42325908, 0, 0.90600866, -133.2241, 20.828087, 28.84539)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_4suoj")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_3hfrs")])
 leave_base_after_break = true
 
 [node name="ItemMonitor20" parent="." unique_id=1742821668 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.9995763, 0, -0.029107004, 0, 1, 0, 0.029107004, 0, 0.9995763, -352.56525, 21.189934, 302.455)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_ia2wk")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_gg0ql")])
 leave_base_after_break = true
 
 [node name="ItemMonitor21" parent="." unique_id=628545020 instance=ExtResource("39_oj55v")]
 transform = Transform3D(0.9328634, 0.35550758, 0.05814344, -0.24456531, 0.7435356, -0.6223688, -0.26448852, 0.5663651, 0.78056157, -368.01614, 19.018955, 402.0093)
-rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_7q5sm")])
+rewards = Array[ExtResource("40_tep1r")]([SubResource("Resource_021gh")])
 leave_base_after_break = true
 
 [editable path="Lights/EnvironmentWeatherSystem"]
