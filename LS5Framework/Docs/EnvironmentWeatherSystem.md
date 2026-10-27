@@ -22,6 +22,8 @@ The default cycle uses a `06:00`–`18:00` daylight range and a ratio of `0.70`.
 
 Graphics options remain independent from weather. SSR, SSAO, SSIL, SDFGI, glow, and sun or moon shadows are reapplied through `SettingsManager`; weather transitions only control atmospheric properties such as fog, lighting color, and cloud state.
 
+The `SunFlare` child adds a fading sun image, lens rings, and a broad bleach wash near direct sun alignment. Its visibility follows the sun, weather attenuation, camera view, and physics surface obstructions. All visual and obstruction settings can be adjusted on the child. See [CameraFlare3D](CameraFlare3D.md) for reuse on other nodes.
+
 ## Fixed scene attributes
 
 The contained `DayNightCycle` exposes independent fixed, time-driven, and weather-driven attribute check boxes. Disabled controls restore or preserve values authored on the scene's `Environment`, sun, moon, or sky material.

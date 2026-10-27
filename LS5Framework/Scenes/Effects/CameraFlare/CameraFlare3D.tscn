@@ -1,0 +1,87 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://LS5Framework/Scenes/Effects/CameraFlare/CameraFlare3D.gd" id="1_effect"]
+[ext_resource type="Script" path="res://LS5Framework/Scenes/Effects/CameraFlare/CameraFlareElement.gd" id="2_element"]
+[ext_resource type="Texture2D" path="res://LS5Framework/Images/Effects/Sun_Shine.png" id="3_sun"]
+[ext_resource type="Texture2D" path="res://LS5Framework/Images/Effects/Sun_Flare.png" id="4_ring"]
+[ext_resource type="Texture2D" path="res://LS5Framework/Images/Effects/Sun_Flare_Thin.png" id="5_thin"]
+[ext_resource type="Texture2D" path="res://LS5Framework/Images/Effects/Sun_ScreenBleach.png" id="6_bleach"]
+[ext_resource type="Shader" path="res://LS5Framework/Shaders/CameraFlareGlow.gdshader" id="7_glow"]
+[ext_resource type="Shader" path="res://LS5Framework/Shaders/CameraFlareBleach.gdshader" id="8_bleach"]
+
+[sub_resource type="Resource" id="Flare_large"]
+resource_local_to_scene = true
+script = ExtResource("2_element")
+texture = ExtResource("4_ring")
+axis_position = 0.55
+diameter = 0.44
+tint = Color(0.75, 0.88, 1, 0.38)
+
+[sub_resource type="Resource" id="Flare_near"]
+resource_local_to_scene = true
+script = ExtResource("2_element")
+texture = ExtResource("5_thin")
+axis_position = 0.2
+diameter = 0.16
+tint = Color(0.8, 1, 0.9, 0.28)
+
+[sub_resource type="Resource" id="Flare_center"]
+resource_local_to_scene = true
+script = ExtResource("2_element")
+texture = ExtResource("4_ring")
+axis_position = 1.05
+diameter = 0.075
+tint = Color(0.65, 0.85, 1, 0.3)
+
+[sub_resource type="Resource" id="Flare_far"]
+resource_local_to_scene = true
+script = ExtResource("2_element")
+texture = ExtResource("5_thin")
+axis_position = 1.65
+diameter = 0.22
+tint = Color(0.85, 0.75, 1, 0.2)
+
+[sub_resource type="ShaderMaterial" id="Material_sun"]
+resource_local_to_scene = true
+shader = ExtResource("7_glow")
+
+[sub_resource type="ShaderMaterial" id="Material_lens"]
+resource_local_to_scene = true
+shader = ExtResource("7_glow")
+shader_parameter/edge_start = 0.49
+shader_parameter/edge_end = 0.51
+
+[sub_resource type="ShaderMaterial" id="Material_bleach"]
+resource_local_to_scene = true
+shader = ExtResource("8_bleach")
+
+[sub_resource type="ShaderMaterial" id="Material_bleach_disc"]
+resource_local_to_scene = true
+shader = ExtResource("8_bleach")
+shader_parameter/edge_start = 0.4
+shader_parameter/edge_end = 0.5
+
+[node name="CameraFlare3D" type="Node3D"]
+script = ExtResource("1_effect")
+sun_texture = ExtResource("3_sun")
+lens_elements = Array[ExtResource("2_element")]([SubResource("Flare_large"), SubResource("Flare_near"), SubResource("Flare_center"), SubResource("Flare_far")])
+bleach_texture = ExtResource("6_bleach")
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="Bleach" type="Control" parent="Overlay"]
+mouse_filter = 2
+material = SubResource("Material_bleach")
+
+[node name="BleachDisc" type="Control" parent="Overlay"]
+mouse_filter = 2
+material = SubResource("Material_bleach_disc")
+
+[node name="Glow" type="Control" parent="Overlay"]
+mouse_filter = 2
+material = SubResource("Material_sun")
+
+[node name="Lens" type="Control" parent="Overlay/Glow"]
+mouse_filter = 2
+material = SubResource("Material_lens")

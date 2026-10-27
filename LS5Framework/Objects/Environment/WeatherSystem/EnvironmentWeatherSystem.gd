@@ -365,6 +365,59 @@ func get_current_weather_id() -> StringName:
 	return _current_preset.preset_id if _current_preset else &""
 
 
+func get_terminal_weather_state() -> Dictionary:
+	var presets: Array[Dictionary] = []
+	if use_weather_presets:
+		for preset: DynamicWeatherPreset in weather_presets:
+			if preset:
+				presets.append({"id": String(preset.preset_id), "name": preset.display_name})
+	return {
+		"editable": not _is_network_client() and _level_preparation_ready,
+		"presets": presets, "weather_id": String(get_current_weather_id()),
+		"dynamic": dynamic_weather_enabled, "has_time": is_instance_valid(_day_night_cycle),
+		"hour": _day_night_cycle.time_of_day_hours if _day_night_cycle else 0.0,
+		"progression": time_progression_enabled,
+	}
+
+
+func apply_terminal_weather_changes(changes: Dictionary) -> bool:
+	if _is_network_client() or not _level_preparation_ready:
+		return false
+	if changes.has("weather_id") and (not use_weather_presets or not _find_preset(StringName(changes["weather_id"]))):
+		return false
+	if changes.has("hour") and (not _day_night_cycle or not is_finite(float(changes["hour"]))):
+		return false
+	var reference: Dictionary = _parse_time_persistence_reference()
+	var canonical_hour: float = wrapf(float(changes.get("hour", 0.0)) - float(reference.get("offset_hours", 0.0)), 0.0, 24.0)
+	for node: Node in get_tree().get_nodes_in_group(&"environment_weather_system"):
+		var target: EnvironmentWeatherSystem = node as EnvironmentWeatherSystem
+		if not target or target._is_network_client() or not target._level_preparation_ready:
+			continue
+		var same_weather: bool = target == self or (persistent_weather_enabled and target.persistent_weather_enabled and weather_persistence_namespace == target.weather_persistence_namespace)
+		var target_reference: Dictionary = target._parse_time_persistence_reference()
+		var same_time: bool = target == self or (persistent_time_enabled and target.persistent_time_enabled and reference.get("valid") and target_reference.get("valid") and reference.get("channel") == target_reference.get("channel"))
+		if same_weather:
+			if changes.has("weather_id"):
+				target.transition_to_weather_id(StringName(changes["weather_id"]), 1.0)
+			if changes.has("dynamic"):
+				target.set_dynamic_weather_active(bool(changes["dynamic"]))
+			target._store_persistent_weather_state()
+		if same_time:
+			if changes.has("hour") and target._day_night_cycle:
+				var local_hour: float = wrapf(canonical_hour + float(target_reference.get("offset_hours", 0.0)), 0.0, 24.0)
+				target._day_night_cycle.set_time(local_hour)
+				if target._uses_session_clock():
+					target._clock_hour = local_hour - target._clock_offset
+					target._clock_settings.erase("transition")
+					target._day_night_cycle.apply_synchronized_time(local_hour)
+			if changes.has("progression"):
+				target.set_time_progression_active(bool(changes["progression"]))
+			target._store_persistent_time_state()
+		if same_weather or same_time:
+			target._broadcast_full_state()
+	return true
+
+
 func get_environment_influence_state() -> Dictionary:
 	var cycle: DayNightCycle = get_node_or_null(day_night_cycle_path) as DayNightCycle
 	var rain: RainSystem = get_node_or_null(rain_system_path) as RainSystem

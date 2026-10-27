@@ -2997,6 +2997,7 @@ var _player_state_locked: bool = false
 
 # Gameplay state
 var _is_skidding: bool = false
+var _skid_strength: float = 0.0
 var _prev_skidding: bool = false
 var _skid_dust_timer: float = 0.0
 var _skid_dust_emit_left: bool = true

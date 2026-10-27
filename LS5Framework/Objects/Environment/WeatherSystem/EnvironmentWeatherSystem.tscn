@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.gd" id="1_system"]
 [ext_resource type="Resource" uid="uid://bjgmf0l1srdc7" path="res://LS5Framework/Objects/Environment/DayNightCycle/Profiles/EarthLikeDayNight.tres" id="2_environment"]
 [ext_resource type="PackedScene" uid="uid://b87lau3hld2f3" path="res://LS5Framework/Objects/Environment/DayNightCycle/DayNightCycle.tscn" id="3_day_night"]
 [ext_resource type="PackedScene" uid="uid://c3582u6762t7h" path="res://LS5Framework/Objects/Environment/Rain/RainSystem.tscn" id="4_rain"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Scenes/Effects/CameraFlare/CameraFlare3D.tscn" id="5_flare"]
 
 [node name="EnvironmentWeatherSystem" type="Node3D"]
 script = ExtResource("1_system")
@@ -28,3 +29,8 @@ persistence_update_interval_seconds = 0.5
 [node name="DayNightCycle" parent="." instance=ExtResource("3_day_night")]
 
 [node name="RainSystem" parent="." instance=ExtResource("4_rain")]
+
+[node name="SunFlare" parent="." instance=ExtResource("5_flare")]
+source_path = NodePath("../DayNightCycle/Sun")
+directional = true
+weather_cycle_path = NodePath("../DayNightCycle")

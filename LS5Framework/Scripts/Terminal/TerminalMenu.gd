@@ -19,6 +19,13 @@ var _character_entries: Array = []
 var _pack_wait_attempts: int = 0
 var _level_list_waiting_for_packs: bool = false
 var _current_screen: StringName = &"parent"
+## Terminal whose world and scene branch determine the active environment.
+var _environment_context: Node3D
+## Environment receiving the staged weather and time changes.
+var _weather_target: Node
+## Reports availability and the result of applying staged changes.
+var _weather_status: Label
+var _weather_changes: Dictionary = {}
 
 
 func _ready() -> void:
@@ -86,6 +93,7 @@ func _show_parent_menu() -> void:
 	_add_button("Character Select", Callable(self, "_show_character_select"))
 	_add_button("Buddies", Callable(self, "_show_buddy_select"))
 	_add_button("Level Select", Callable(self, "_show_level_select"))
+	_add_button("Weather", _show_weather_menu)
 	_add_spacer()
 	_add_button("Cancel", Callable(self, "_on_cancel_pressed"))
 	_add_hint("Esc to cancel")
@@ -412,9 +420,9 @@ func _get_level_manager() -> Node:
 func _menu_navigation_scope() -> Dictionary:
 	if not visible:
 		return {}
-	if _current_screen != &"parent" and is_instance_valid(_browser):
+	if _current_screen in [&"character", &"buddy", &"level"] and is_instance_valid(_browser):
 		return {"root": _browser, "page": String(_current_screen), "default": _browser}
-	return {"root": panel, "page": "parent"}
+	return {"root": panel, "page": String(_current_screen), "cancel": _show_parent_menu if _current_screen != &"parent" else _cancel}
 
 
 
@@ -426,3 +434,117 @@ func _prepare_browser() -> void:
 		get_node("Root").add_child(_browser)
 		_browser.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_browser.show()
+
+
+func set_environment_context(context: Node3D) -> void:
+	_environment_context = context
+
+
+func _resolve_weather_target() -> Node:
+	if not is_instance_valid(_environment_context):
+		return null
+	var candidates: Array[Node] = []
+	for candidate: Node in get_tree().get_nodes_in_group(&"environment_weather_system"):
+		if candidate is Node3D and candidate.get_world_3d() == _environment_context.get_world_3d():
+			candidates.append(candidate)
+	var branch: Node = _environment_context
+	while branch:
+		var local: Array[Node] = []
+		for candidate: Node in candidates:
+			if branch == candidate or branch.is_ancestor_of(candidate):
+				local.append(candidate)
+		if local.size() == 1:
+			return local[0]
+		if local.size() > 1:
+			var environment: Environment = _environment_context.get_world_3d().environment
+			for candidate: Node in local:
+				for world_environment: Node in candidate.find_children("*", "WorldEnvironment", true, false):
+					if environment and world_environment.environment == environment:
+						return candidate
+			return null
+		branch = branch.get_parent()
+	return null
+
+
+func _show_weather_menu() -> void:
+	_current_screen = &"weather"
+	panel.show()
+	if is_instance_valid(_browser):
+		_browser.hide()
+	_clear_vbox()
+	_weather_changes.clear()
+	_weather_target = _resolve_weather_target()
+	_add_title("Weather")
+	_weather_status = Label.new()
+	_weather_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(_weather_status)
+	if not is_instance_valid(_weather_target):
+		_weather_status.text = "No weather system is available in this space."
+	else:
+		var state: Dictionary = _weather_target.call("get_terminal_weather_state")
+		_weather_status.text = "Changes apply to the current weather and time space." if state["editable"] else "Only the host can change weather and time online."
+		var list: VBoxContainer = _add_scroll_list()
+		var presets: Array = state["presets"]
+		var weather_label: Label = Label.new()
+		weather_label.text = "Weather"
+		list.add_child(weather_label)
+		var weather: OptionButton = OptionButton.new()
+		weather.name = "WeatherPreset"
+		weather.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		weather.fit_to_longest_item = false
+		weather.custom_minimum_size.y = 48.0
+		for preset: Dictionary in presets:
+			weather.add_item(preset["name"])
+			if preset["id"] == state["weather_id"]:
+				weather.select(weather.item_count - 1)
+		weather.disabled = not state["editable"] or presets.is_empty()
+		list.add_child(weather)
+		weather.item_selected.connect(func(index: int) -> void: _weather_changes["weather_id"] = presets[index]["id"])
+		var dynamic: CheckButton = CheckButton.new()
+		dynamic.text = "Automatic weather"
+		dynamic.button_pressed = state["dynamic"]
+		dynamic.disabled = weather.disabled
+		list.add_child(dynamic)
+		dynamic.toggled.connect(func(active: bool) -> void: _weather_changes["dynamic"] = active)
+		var time_label: Label = Label.new()
+		time_label.text = "Time of day — " + _format_weather_time(state["hour"])
+		list.add_child(time_label)
+		var time: HSlider = HSlider.new()
+		time.name = "TimeOfDay"
+		time.min_value = 0.0
+		time.max_value = 23.75
+		time.step = 0.25
+		time.value = state["hour"]
+		time.editable = state["editable"] and state["has_time"]
+		time.custom_minimum_size = Vector2(0.0, 48.0)
+		list.add_child(time)
+		time.value_changed.connect(func(hour: float) -> void:
+			_weather_changes["hour"] = hour
+			time_label.text = "Time of day — " + _format_weather_time(hour)
+		)
+		var progression: CheckButton = CheckButton.new()
+		progression.text = "Time progression"
+		progression.button_pressed = state["progression"]
+		progression.disabled = not time.editable
+		list.add_child(progression)
+		progression.toggled.connect(func(active: bool) -> void: _weather_changes["progression"] = active)
+		var apply: Button = _add_button("Apply", _apply_weather_changes)
+		apply.disabled = not state["editable"]
+	_add_button("Back", _show_parent_menu)
+	MenuNavigation.restore_focus()
+
+
+func _format_weather_time(hour: float) -> String:
+	var minutes: int = roundi(wrapf(hour, 0.0, 24.0) * 60.0) % 1440
+	return "%02d:%02d" % [minutes / 60, minutes % 60]
+
+
+func _apply_weather_changes() -> void:
+	if not is_instance_valid(_weather_target) or _resolve_weather_target() != _weather_target:
+		_show_weather_menu()
+		return
+	if _weather_target.call("apply_terminal_weather_changes", _weather_changes):
+		_weather_changes.clear()
+		_weather_status.text = "Weather and time updated."
+	else:
+		_weather_status.text = "Weather and time could not be changed."

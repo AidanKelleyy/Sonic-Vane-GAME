@@ -20,6 +20,9 @@
 extends "res://LS5Framework/Scripts/Player/PlayerControllerState.gd"
 class_name PlayerController
 
+const SKID_FULL_INPUT_STRENGTH: float = 0.95
+const SKID_ANIMATION_MIN_STRENGTH: float = 0.5
+
 const INVINCIBILITY_VISUAL_SCENE: PackedScene = preload(
 	"res://LS5Framework/Scenes/Effects/InvincibilityVisual.tscn"
 )
@@ -6730,6 +6733,8 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 			else:
 				_is_skidding = false
 	
+	_skid_strength = clampf(movement_input_strength / SKID_FULL_INPUT_STRENGTH, 0.0, 1.0) if _is_skidding else 0.0
+
 	# --------------------------------------------------
 	# Input-based lateral movement
 	# --------------------------------------------------
@@ -6929,7 +6934,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 						final_dir = vel_dir_skid.slerp(steer_dir, t_turn).normalized()
 
 					# Strong speed loss while skidding
-					var drop: float = skid_decel * delta
+					var drop: float = skid_decel * _skid_strength * delta
 					var new_speed_skid: float = max(lateral_speed - drop, 0.0)
 					lateral = final_dir * new_speed_skid
 			else:
@@ -9109,7 +9114,7 @@ func _update_main_state_and_flags(delta: float) -> void:
 		flags |= STATE_MOVING
 
 	# Skidding
-	if _is_skidding:
+	if _is_skidding and _skid_strength >= SKID_ANIMATION_MIN_STRENGTH:
 		flags |= STATE_SKIDDING
 
 	# Jumping & falling

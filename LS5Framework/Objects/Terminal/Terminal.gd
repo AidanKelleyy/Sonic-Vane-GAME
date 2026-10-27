@@ -255,6 +255,8 @@ func _open_terminal_menu(player: Node) -> void:
 	if _is_player_ui_blocked(player):
 		return
 	_menu_instance = terminal_menu_scene.instantiate()
+	if _menu_instance.has_method("set_environment_context"):
+		_menu_instance.call("set_environment_context", self)
 	_menu_instance.add_to_group(&"LevelTransient")
 	_menu_player = player
 	_play_interact_sound()

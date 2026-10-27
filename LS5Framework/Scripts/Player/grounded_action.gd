@@ -118,6 +118,7 @@ extends CharacterAction
 @export var skid_enter_angle_deg: float = 160.0
 @export var skid_exit_angle_deg: float = 150.0
 @export var skid_exit_min_speed: float = 0.0
+## Full-strength skid deceleration, scaled by input from the stick deadzone to near-full tilt.
 @export var skid_decel: float = 130.0
 @export var skid_turn_deg_per_sec: float = 5.0
 @export var skid_max_ground_angle_deg: float = 80.0
