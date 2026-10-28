@@ -18,6 +18,8 @@ var _buddy: Callable
 var _settings: Callable
 var _back: Callable
 var clear_buddy: Callable
+var favourite: Callable
+var favourite_key: String = ""
 var _title: String = ""
 var _scroll_transition: Tween
 var _transition_targets: Dictionary = {}
@@ -152,6 +154,12 @@ func menu_confirm() -> void:
 func menu_event(event: InputEvent) -> bool:
 	if not event.is_pressed() or event.is_echo():
 		return false
+	var favourite_pressed: bool = event is InputEventJoypadButton and event.button_index == JOY_BUTTON_X
+	if event is InputEventKey:
+		favourite_pressed = event.keycode == KEY_G or event.physical_keycode == KEY_G
+	if favourite_pressed and favourite.is_valid() and not current_entry().is_empty():
+		favourite.call(current_entry())
+		return true
 	var settings_pressed: bool = event is InputEventJoypadButton and event.button_index == JOY_BUTTON_Y
 	var buddy_pressed: bool = event is InputEventJoypadButton and event.button_index == JOY_BUTTON_X
 	if event is InputEventKey:
@@ -307,6 +315,8 @@ func _refresh_actions() -> void:
 	_add_action("Select" if _buddy.is_valid() or _settings.is_valid() else "Play", menu_confirm, not _groups.is_empty(), JOY_BUTTON_A, "Enter")
 	if _buddy.is_valid():
 		_add_action("Set as Buddy", func() -> void: _buddy.call(current_entry()), not _groups.is_empty(), JOY_BUTTON_X, "R")
+	if favourite.is_valid():
+		_add_action("Remove Favourite" if _entry_key(current_entry()) == favourite_key else "Set Favourite", func() -> void: favourite.call(current_entry()), not _groups.is_empty(), JOY_BUTTON_X, "G")
 	if _settings.is_valid():
 		_add_action("Character Settings", func() -> void: _settings.call(current_entry()), not _groups.is_empty(), JOY_BUTTON_Y, "F")
 	if clear_buddy.is_valid():
@@ -354,6 +364,8 @@ func _status_text() -> String:
 	var status: String = String(entry.get("name", ""))
 	if _entry_key(entry) == _selected_id:
 		status += "  •  Selected"
+	if favourite.is_valid() and not favourite_key.is_empty() and _entry_key(entry) == favourite_key:
+		status += "  •  Favourite (F1)"
 	if not _buddy_id.is_empty() and _entry_key(entry) == _buddy_id:
 		status += "  •  Buddy"
 	var group: Dictionary = _groups[_category]
@@ -372,7 +384,7 @@ func _thumbnail(entry: Dictionary) -> Texture2D:
 	return PLACEHOLDER
 
 
-func _entry_key(entry: Dictionary) -> String:
+static func _entry_key(entry: Dictionary) -> String:
 	return String(entry.get("id", entry.get("source", entry.get("name", ""))))
 
 

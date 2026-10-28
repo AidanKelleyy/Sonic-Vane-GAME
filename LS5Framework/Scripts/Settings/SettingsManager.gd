@@ -205,6 +205,7 @@ const DEFAULT_CHARACTER_PRIMARY_COLOR: Color = Color(0, 0.5390625, 0.20255688, 1
 const DEFAULT_CHARACTER_SECONDARY_COLOR: Color = Color(1, 0, 0.44067812, 1)
 const DEFAULT_CHARACTER_TRAIL_COLOR: Color = Color(0, 0.65625, 0.1640625, 1)
 var chosen_character_id: String = DEFAULT_CHOSEN_CHARACTER_ID
+var favourite_level_key: String = ""
 var chosen_buddy_character_id: String = DEFAULT_CHOSEN_BUDDY_CHARACTER_ID
 var buddy_active: bool = true
 var use_character_colors: bool = false
@@ -2321,6 +2322,7 @@ func _write_settings_config(cfg: ConfigFile) -> void:
 	cfg.set_value("gameplay", "emote_last_page", emote_last_page)
 	cfg.set_value("gameplay", "lightspeed_dash_targeting_mode", lightspeed_dash_targeting_mode)
 	cfg.set_value("gameplay", "chosen_character_id", chosen_character_id)
+	cfg.set_value("gameplay", "favourite_level_key", favourite_level_key)
 	cfg.set_value("gameplay", "chosen_buddy_character_id", chosen_buddy_character_id)
 	cfg.set_value("gameplay", "buddy_active", buddy_active)
 	cfg.set_value("gameplay", "use_character_colors", use_character_colors)
@@ -2591,6 +2593,7 @@ func _load() -> void:
 	emote_last_page = maxi(int(cfg.get_value("gameplay", "emote_last_page", emote_last_page)), 0)
 	lightspeed_dash_targeting_mode = int(cfg.get_value("gameplay", "lightspeed_dash_targeting_mode", lightspeed_dash_targeting_mode))
 	set_chosen_character_id(String(cfg.get_value("gameplay", "chosen_character_id", chosen_character_id)))
+	favourite_level_key = String(cfg.get_value("gameplay", "favourite_level_key", "")).strip_edges()
 	set_chosen_buddy_character_id(String(cfg.get_value("gameplay", "chosen_buddy_character_id", chosen_buddy_character_id)))
 	set_buddy_active(bool(cfg.get_value("gameplay", "buddy_active", buddy_active)))
 	level_load_logging_enabled = bool(cfg.get_value("diagnostics", "level_load_logging_enabled", level_load_logging_enabled))

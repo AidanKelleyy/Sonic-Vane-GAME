@@ -1354,7 +1354,49 @@ func _build_level_list() -> void:
 	_level_entries = LevelCatalog.load_level_entries(level_data_dir)
 	if not is_instance_valid(_level_browser):
 		_level_browser = _create_centered_browser(panel_level)
+	_level_browser.favourite = _on_level_favourite_pressed
+	_level_browser.favourite_key = SettingsManager.favourite_level_key
 	_level_browser.configure(_level_entries, "LEVEL SELECT", "", _on_level_entry_pressed, _on_ButtonLevelBack_pressed)
+	_update_quick_level_button()
+
+
+func _on_level_favourite_pressed(entry: Dictionary) -> void:
+	if _loading_started or entry.is_empty():
+		return
+	var key: String = CenteredMenuBrowser._entry_key(entry)
+	if key.is_empty():
+		return
+	var removed: bool = SettingsManager.favourite_level_key == key
+	SettingsManager.favourite_level_key = "" if removed else key
+	SettingsManager.save_now()
+	_level_browser.favourite_key = SettingsManager.favourite_level_key
+	_level_browser._rebuild()
+	_update_quick_level_button()
+	_play_click()
+	HUDMusicTrackDisplay.post_notification(
+		get_tree(),
+		"Favourite removed" if removed else "%s favourited" % String(entry.get("name", "Level")),
+		"F1 now loads the test level." if removed else "Press F1 anywhere in the main menu to load this level."
+	)
+
+
+func _update_quick_level_button() -> void:
+	if not is_instance_valid(button_start_test_level):
+		return
+	var entry: Dictionary = _get_quick_level_entry()
+	var is_favourite: bool = not SettingsManager.favourite_level_key.is_empty() and CenteredMenuBrowser._entry_key(entry) == SettingsManager.favourite_level_key
+	button_start_test_level.text = "Play Favourite" if is_favourite else "Start Test Level"
+	button_start_test_level.tooltip_text = "F1: %s" % String(entry.get("name", "Test Level"))
+
+
+func _get_quick_level_entry() -> Dictionary:
+	if _level_entries.is_empty():
+		_level_entries = LevelCatalog.load_level_entries(level_data_dir)
+	if not SettingsManager.favourite_level_key.is_empty():
+		for entry: Dictionary in _level_entries:
+			if CenteredMenuBrowser._entry_key(entry) == SettingsManager.favourite_level_key and not String(entry.get("scene", "")).strip_edges().is_empty():
+				return entry
+	return _get_test_level_entry()
 
 
 func _on_level_entry_pressed(entry: Dictionary) -> void:
@@ -1385,7 +1427,7 @@ func _get_test_level_entry() -> Dictionary:
 func _start_test_level_from_menu() -> void:
 	if _loading_started or _data_folder_missing:
 		return
-	var test_entry: Dictionary = _get_test_level_entry()
+	var test_entry: Dictionary = _get_quick_level_entry()
 	var scene_path: String = test_level_scene
 	var level_scene_path: String = ""
 	var level_name: String = "Test Level"
