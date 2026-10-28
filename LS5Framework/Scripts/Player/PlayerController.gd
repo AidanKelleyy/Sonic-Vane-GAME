@@ -2405,6 +2405,8 @@ func _physics_process(delta: float) -> void:
 
 # Collision movement uses world velocity; gameplay retains movement-clock units.
 func _move_with_movement_time_scale() -> void:
+	if not attached and is_instance_valid(_active_action) and not _active_action.allows_intent_landing_recovery:
+		_intent_landing_recovery_blocked = true
 	_end_standing_clearance_batch()
 	_movement_slide_cache_valid = false
 	_update_standing_collision()
@@ -3152,6 +3154,8 @@ func _movement_physics_process(delta: float) -> void:
 
 	_refresh_surface_behavior_areas(global_position)
 	var was_attached: bool = attached
+	if was_attached:
+		_intent_landing_recovery_blocked = false
 	_refresh_moving_collision_support()
 	if not attached:
 		_reset_standing_clearance_state()
@@ -3601,6 +3605,7 @@ func _movement_physics_process(delta: float) -> void:
 					break
 		if not landing_momentum_resolved:
 			_apply_intent_radial_landing_boost(surface_normal, landing_vel)
+		_intent_landing_recovery_blocked = false
 
 		_is_jumping = false
 		_jump_variable = false
@@ -8353,7 +8358,9 @@ func _apply_landing_momentum(landing_normal: Vector3, incoming_velocity: Vector3
 
 
 func _apply_intent_radial_landing_boost(landing_normal: Vector3, incoming_velocity: Vector3) -> bool:
-	if not radial_landing_boost_enabled or _is_dead or _hurt_active or _ui_input_blocked or _local_pause_enabled or race_in_countdown:
+	if not radial_landing_boost_enabled or _intent_landing_recovery_blocked or _is_dead or _hurt_active or _ui_input_blocked or _local_pause_enabled or race_in_countdown:
+		return false
+	if is_instance_valid(_active_action) and not _active_action.allows_intent_landing_recovery:
 		return false
 	var input_strength: float = clampf(_move_input.length(), 0.0, 1.0)
 	if input_strength <= 0.001 or input_strength < radial_landing_boost_min_input_strength:
@@ -8372,45 +8379,42 @@ func _apply_intent_radial_landing_boost(landing_normal: Vector3, incoming_veloci
 	var alignment: float = input_direction.normalized().dot(tangent_direction)
 	if alignment <= 0.0 or alignment < radial_landing_boost_min_alignment:
 		return false
-	var impact_speed: float = maxf(-incoming_velocity.dot(normal), 0.0)
-	var boost: float = minf(
-		impact_speed * clampf(radial_landing_boost_impact_ratio, 0.0, 1.0) * input_strength * alignment,
-		maxf(radial_landing_boost_limit, 0.0)
-	)
 	var current_tangent: Vector3 = velocity.slide(normal)
 	if current_tangent.dot(tangent_direction) < 0.0:
 		return false
 	var current_speed: float = current_tangent.length()
-	var soft_cap: float = _get_radial_landing_boost_soft_cap()
-	var retention_weight: float = 0.0
-	if soft_cap > 0.001:
-		var taper_start: float = soft_cap * clampf(radial_landing_boost_taper_start_ratio, 0.0, 1.0)
-		var reference_speed: float = maxf(tangent_speed, current_speed)
-		retention_weight = 1.0 if reference_speed >= soft_cap else _smoothstep_unit(
-			(reference_speed - taper_start) / maxf(soft_cap - taper_start, 0.001)
-		)
-	var retained_speed: float = lerpf(current_speed, maxf(current_speed, tangent_speed), retention_weight)
-	boost *= 1.0 - retention_weight
-	if soft_cap > 0.001:
-		boost = minf(boost, maxf(soft_cap - retained_speed, 0.0))
-	var available_speed: float = maxf(incoming_velocity.length() - current_speed, 0.0)
-	var recovery: float = minf(retained_speed - current_speed + boost, available_speed)
-	if recovery <= 0.001:
+	if radial_landing_recovery_strength <= 0.0:
 		return false
-	velocity += tangent_direction * recovery
+	var available_speed: float = maxf(tangent_speed - current_speed, 0.0)
+	var recovery: float = available_speed * clampf(radial_landing_recovery_strength, 0.0, 1.0) * input_strength * alignment
+	if recovery <= 0.001:
+		if current_speed <= tangent_speed + 0.001:
+			_try_intent_landing_roll_animation(normal, incoming_velocity)
+		return false
+	var retained_direction: Vector3 = current_tangent / current_speed if current_speed > 0.001 else tangent_direction
+	var retained_speed: float = minf(current_speed + recovery, tangent_speed)
+	velocity = retained_direction * retained_speed + normal * velocity.dot(normal)
+	_try_intent_landing_roll_animation(normal, incoming_velocity)
 	return true
 
 
-func _get_radial_landing_boost_soft_cap() -> float:
-	var top_speed: float = maxf(run_top_speed, 0.0)
-	if (_barrier_blast_active or (rolling and _barrier_blast_gauge >= 1.0)) and barrier_blast_run_top_speed > 0.0:
-		top_speed = barrier_blast_run_top_speed
-	if _walk_input_held:
-		top_speed = maxf(walk_top_speed, 0.0)
-	top_speed *= maxf(get_active_top_speed_multiplier(), 0.0)
-	if water_physics_enabled and not water_logic_speed_enabled and _in_water_volume and not _running_on_water_surface:
-		top_speed *= maxf(water_top_speed_multiplier, 0.0)
-	return top_speed
+func _try_intent_landing_roll_animation(normal: Vector3, incoming_velocity: Vector3) -> void:
+	if not radial_landing_recovery_roll_animation_enabled or radial_landing_recovery_roll_command == &"":
+		return
+	var impact_speed: float = maxf(-incoming_velocity.dot(normal), 0.0)
+	if impact_speed < radial_landing_recovery_roll_min_impact_speed:
+		return
+	if impact_speed / maxf(incoming_velocity.length(), 0.001) < radial_landing_recovery_roll_min_directness:
+		return
+	if normal.dot(_get_gravity_up()) < cos(deg_to_rad(radial_landing_recovery_roll_max_floor_angle)):
+		return
+	_landing_animation_pending = false
+	_trigger_anim_command_immediate(radial_landing_recovery_roll_command)
+	if has_action_landing_animation_override():
+		for action in _actions:
+			if is_instance_valid(action) and action.has_method("play_landing_roll_feedback_sound"):
+				action.call("play_landing_roll_feedback_sound")
+				break
 
 
 func _should_land_stationary(landing_normal: Vector3, incoming_velocity: Vector3) -> bool:
@@ -11100,6 +11104,8 @@ func activate_action(action, context: Dictionary = {}) -> bool:
 		_active_action.on_action_exit(action)
 	_active_action = action
 	_current_action_id = action.action_id
+	if not attached and not action.allows_intent_landing_recovery:
+		_intent_landing_recovery_blocked = true
 	action.on_action_enter(context)
 	if action.has_method("play_activation_voice"):
 		action.call("play_activation_voice")

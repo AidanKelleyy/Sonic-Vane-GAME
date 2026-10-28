@@ -24,6 +24,7 @@ extends CharacterAbility
 @export var stomp_audio_node: NodePath
 
 func _on_action_initialized() -> void:
+	allows_intent_landing_recovery = false
 	action_id = &"stomp"
 	allow_when_inactive = true
 	permits_attack_magnetism = true

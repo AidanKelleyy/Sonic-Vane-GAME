@@ -1,0 +1,11 @@
+# Intent landing recovery
+
+`Radial Landing / Intent Recovery` restores tangential speed lost during landing when held movement input follows incoming travel. It never converts into-surface impact speed into running speed. Recovery is limited to the missing portion of the incoming surface-tangent speed, multiplied by recovery strength, input strength, and alignment. It preserves the current retained travel direction and adds no normal impulse. Existing speed above that budget is left to normal movement physics.
+
+For example, arriving on a flat floor with 60 forward speed and 200 downward speed permits recovery up to 60 forward speed. Increasing downward speed does not increase this budget. A vertical-only fall cannot create forward motion. The same rule applies above the running soft cap, preserving existing overspeed without granting a landing bonus.
+
+`CharacterAction.Allows Intent Landing Recovery` controls ability eligibility. Stomp and bounce opt out. Ineligible airborne action activation latches the opt-out before contact can clear the action; pre-movement sampling also captures an active opt-out. The latch persists through the landing and clears on grounded movement. An action that resolves landing momentum itself continues to bypass shared recovery, preserving manual Parkour landing-roll behavior.
+
+Enable `Radial Landing Recovery Roll Animation Enabled` to request a visual landing roll on an eligible intentional landing, including when normal landing physics already retains all tangential momentum. Zero recovery strength disables this animation route. Defaults require at least 30 units per second into the surface, at least 65% of incoming speed directed into it, and a floor angle no greater than 45 degrees relative to gravity up. The command defaults to `CMD_LANDING_ROLL` and can be changed per character. This requests animation only, including when Parkour's manual landing roll is disabled; it does not activate rolling physics, Parkour speed benefits, or landing-roll combo rewards. The option defaults off.
+
+The existing enable, minimum input, and minimum alignment properties remain in use. Impact conversion ratio, additive bonus limit, and soft-cap taper parameters have been removed; recovery strength replaces them. No additional runtime resources are required by the overhaul.

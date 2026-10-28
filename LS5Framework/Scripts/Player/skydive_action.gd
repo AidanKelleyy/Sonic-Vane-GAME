@@ -14,42 +14,46 @@ enum SkydiveState {
 @export var skydive_enabled: bool = true
 
 @export_subgroup("Movement/Dive")
-## Gravity multiplier applied while holding the assigned input slot in the air.
+## Gravity multiplier while holding dive, including during ascent.
 @export var dive_gravity_multiplier: float = 2.6
-## Maximum downward speed while diving.
+## Downward terminal speed approached through aerodynamic drag.
 @export var dive_max_down_speed: float = 220.0
-## Dive time needed for full glide effect.
-@export var dive_max_effect_time: float = 1.0
-## Dive hold time required before release transitions into glide.
-@export var dive_cancel_time: float = 0.4
+## Maximum dive steering rate in degrees per second.
+@export var dive_turn_rate: float = 75.0
 
 @export_subgroup("Movement/Glide")
-## Downward angle from forward used to score dive speed for glide.
-@export var glide_down_forward_angle_deg: float = 62.0
-## Multiplier applied to scored dive speed before lift is calculated.
-@export var glide_effect_speed_multiplier: float = 1.0
-## Maximum scored speed available to the glide.
-@export var glide_max_effect_speed: float = 160.0
-## Power applied to angle alignment when scoring the dive.
-@export var glide_angle_alignment_power: float = 1.25
-## Duration of the glide velocity blend.
-@export var glide_duration: float = 1.2
-## Air turn rate used during full lift effect.
-@export var glide_lift_turn_angle_deg: float = 50.0
-## Portion of scored speed converted into upward lift.
-@export var glide_vertical_lift_multiplier: float = 0.3
-## Portion of scored speed converted into forward speed.
-@export var glide_horizontal_speed_multiplier: float = 0.58
-## Maximum upward speed the glide can produce.
-@export var glide_max_up_speed: float = 4.2
-## Maximum falling speed after full lift is applied.
-@export var glide_max_fall_speed_after_lift: float = 54.0
-## Maximum horizontal speed the glide can target.
-@export var glide_max_horizontal_speed: float = 168.0
-## Sideways speed retained when leveling into the glide.
-@export_range(0.0, 1.0, 0.01) var glide_side_speed_retention: float = 0.35
+## Speed producing full pullout and float strength.
+@export var glide_full_effect_speed: float = 140.0
+## Horizontal contribution to pullout strength relative to downward speed.
+@export_range(0.0, 1.0) var glide_horizontal_support: float = 0.7
+## Pullout acceleration at full strength, in multiples of gravity.
+@export var glide_pullout_acceleration: float = 6.0
+## Minimum downward gravity fraction at full glide strength.
+@export_range(0.05, 1.0) var glide_gravity_scale: float = 0.25
+## Minimum downward speed targeted by the initial pullout.
+@export var glide_min_sink_speed: float = 8.0
+## Duration of the initial momentum conversion after release.
+@export var glide_pullout_duration: float = 0.9
+## Duration over which glide influence smoothly fades into ordinary falling.
+@export var glide_effect_duration: float = 2.8
+## Fraction of removed vertical kinetic energy retained as forward travel.
+@export_range(0.0, 1.0) var glide_conversion_efficiency: float = 0.82
+## Rate at which directional input trades remaining ascent for travel.
+@export var glide_ascent_conversion_rate: float = 2.0
+## Maximum glide steering rate in degrees per second.
+@export var glide_turn_rate: float = 55.0
+## Speed lost per radian of steering, as an exponential drag coefficient.
+@export var glide_turn_drag: float = 0.22
+## Continuous glide drag coefficient per second.
+@export var glide_drag: float = 0.12
+## Support strength below which a descending glide returns to ordinary falling.
+@export_range(0.0, 0.1) var glide_exit_strength: float = 0.025
 ## Roll-spindash lockout applied when rolling out of skydive.
 @export var roll_spindash_lockout: float = 0.6
+
+@export_subgroup("Glide Recovery")
+## Uninterrupted downward dive distance required to restore the glide allowance. Release discards recovery progress.
+@export_range(1.0, 200.0, 0.5, "or_greater", "suffix:m") var glide_recovery_distance: float = 24.0
 
 @export_subgroup("Combo")
 ## Distance traveled while skydiving before another combo entry is registered.
@@ -61,16 +65,24 @@ enum SkydiveState {
 
 @export_subgroup("Action Chain Routes")
 @export_multiline var on_roll_action_tooltip: String = "Route used when roll is held during skydive."
+## Roll action used when leaving skydive with the roll binding.
 @export var on_roll_action: NodePath
 
 var state: int = SkydiveState.NONE
-var dive_elapsed: float = 0.0
-var glide_elapsed: float = 0.0
-var glide_start_velocity: Vector3 = Vector3.ZERO
-var glide_target_velocity: Vector3 = Vector3.ZERO
 var glide_lift_effect_strength: float = 0.0
-var glide_frame_up: Vector3 = Vector3.ZERO
 var skydive_combo_distance_accum: float = 0.0
+var glide_entered_ascending: bool = false
+var glide_elapsed: float = 0.0
+var glide_entry_strength: float = 0.0
+var glide_allowance: float = 1.0
+var recovery_previous_position: Vector3 = Vector3.ZERO
+var recovery_position_valid: bool = false
+var recovery_was_diving: bool = false
+var recovery_dive_distance: float = 0.0
+
+
+func blocks_shared_movement_integration() -> bool:
+	return true
 
 
 func _on_action_initialized() -> void:
@@ -78,6 +90,27 @@ func _on_action_initialized() -> void:
 	input_action = &"ability_slot_02"
 	trigger_mode = ActionTrigger.HOLD
 	allow_when_inactive = true
+	continuous_update = true
+
+
+func continuous_physics_update(_delta: float) -> void:
+	if not owner_player:
+		return
+	var position: Vector3 = owner_player.global_position
+	var diving: bool = state == SkydiveState.DIVE and owner_player.get_current_action_id() == action_id
+	if owner_player.attached:
+		glide_allowance = 1.0
+		recovery_dive_distance = 0.0
+	elif recovery_position_valid and recovery_was_diving and diving:
+		var descended: float = maxf(-(position - recovery_previous_position).dot(_get_gravity_up()), 0.0)
+		recovery_dive_distance += descended
+		if recovery_dive_distance >= maxf(glide_recovery_distance, 1.0):
+			glide_allowance = 1.0
+	else:
+		recovery_dive_distance = 0.0
+	recovery_previous_position = position
+	recovery_position_valid = true
+	recovery_was_diving = diving
 
 
 func receives_fast_fall_horizontal_drag_by_default() -> bool:
@@ -145,13 +178,13 @@ func on_action_enter(_context: Dictionary = {}) -> void:
 
 
 func on_action_exit(_next_action: CharacterAction) -> void:
+	recovery_was_diving = false
+	recovery_dive_distance = 0.0
 	state = SkydiveState.NONE
-	dive_elapsed = 0.0
 	glide_elapsed = 0.0
-	glide_start_velocity = Vector3.ZERO
-	glide_target_velocity = Vector3.ZERO
+	glide_entry_strength = 0.0
 	glide_lift_effect_strength = 0.0
-	glide_frame_up = Vector3.ZERO
+	glide_entered_ascending = false
 	skydive_combo_distance_accum = 0.0
 
 
@@ -192,17 +225,17 @@ func _update_skydive_combo(delta: float) -> void:
 
 
 func _start_dive() -> void:
+	recovery_dive_distance = 0.0
+	recovery_was_diving = false
 	var anim_state_name: StringName = &"Skydive_Enter"
 	var entering_from_glide: bool = state == SkydiveState.GLIDE
 	if entering_from_glide:
 		anim_state_name = &"Skydive_Glide_To_Dive"
 	state = SkydiveState.DIVE
-	dive_elapsed = 0.0
 	glide_elapsed = 0.0
-	glide_start_velocity = Vector3.ZERO
-	glide_target_velocity = Vector3.ZERO
+	glide_entry_strength = 0.0
 	glide_lift_effect_strength = 0.0
-	glide_frame_up = _get_gravity_up()
+	glide_entered_ascending = false
 	if not entering_from_glide:
 		_request_skydive_command()
 	_request_skydive_anim(anim_state_name)
@@ -215,133 +248,129 @@ func _update_dive(delta: float) -> void:
 	if owner_player != null and owner_player.has_method("is_ability_binding_pressed"):
 		dive_input_held = bool(owner_player.call("is_ability_binding_pressed", action_id, input_action))
 	if not dive_input_held:
-		if dive_elapsed < max(dive_cancel_time, 0.0):
-			_cancel_to_neutral_air()
-			return
 		_start_glide()
+		_update_glide(delta)
 		return
-
-	dive_elapsed += max(delta, 0.0)
-	var up: Vector3 = _get_gravity_up()
+	_request_skydive_anim(&"Skydive_Dive")
+	var step: float = maxf(owner_player.get_movement_delta(delta), 0.0)
 	var velocity: Vector3 = owner_player.velocity
-	var extra_gravity_multiplier: float = max(dive_gravity_multiplier - 1.0, 0.0)
-	velocity += get_owner_gravity_acceleration_vector() * extra_gravity_multiplier * owner_player.get_movement_delta(delta)
-	velocity = _limit_down_speed(velocity, up, dive_max_down_speed)
-	owner_player.velocity = velocity
+	var vertical: float = get_gravity_vertical_component(velocity)
+	var gravity: float = get_owner_gravity_acceleration_vector().length() * maxf(dive_gravity_multiplier, 0.0)
+	var terminal: float = maxf(dive_max_down_speed, 0.001)
+	var downward: float = maxf(-vertical, 0.0)
+	var acceleration: float = gravity * (1.0 - pow(downward / terminal, 2.0))
+	vertical -= acceleration * step
+	# Terminal drag approaches the limit without truncating entry momentum.
+	if downward > terminal:
+		vertical = minf(vertical, -terminal)
+	else:
+		vertical = maxf(vertical, -terminal)
+	velocity = compose_gravity_vector(get_gravity_planar_component(velocity), vertical)
+	owner_player.velocity = _steer_toward(velocity, _get_owner_move_direction(), _get_input_strength(), step, dive_turn_rate, glide_turn_drag * 0.25)
 
 
 func _start_glide() -> void:
+	recovery_dive_distance = 0.0
+	recovery_was_diving = false
 	state = SkydiveState.GLIDE
-	glide_elapsed = 0.0
-	glide_start_velocity = owner_player.velocity
-	glide_frame_up = _get_gravity_up()
-	glide_target_velocity = _calculate_glide_target(glide_start_velocity)
+	glide_elapsed = (1.0 - glide_allowance) * maxf(glide_effect_duration, 0.001)
+	glide_entry_strength = _get_glide_support(owner_player.velocity)
+	glide_entered_ascending = get_gravity_vertical_component(owner_player.velocity) > 0.0
 	_request_skydive_anim(&"Skydive_Dive_To_Glide")
 
 
 func _update_glide(delta: float) -> void:
-	var dive_input_just_pressed: bool = input_action != &"" and SettingsManager.is_gameplay_action_just_pressed(String(input_action))
-	if owner_player != null and owner_player.has_method("is_ability_binding_just_pressed"):
-		dive_input_just_pressed = bool(owner_player.call("is_ability_binding_just_pressed", action_id, input_action))
-	if dive_input_just_pressed:
+	var dive_input_held: bool = SettingsManager.is_gameplay_action_pressed(String(input_action))
+	if owner_player.has_method("is_ability_binding_pressed"):
+		dive_input_held = bool(owner_player.call("is_ability_binding_pressed", action_id, input_action))
+	if dive_input_held:
 		_start_dive()
+		_update_dive(delta)
 		return
-	_update_glide_gravity_frame()
-	var duration: float = max(glide_duration, 0.001)
-	glide_elapsed = min(glide_elapsed + max(delta, 0.0), duration)
-	var progress: float = clamp(glide_elapsed / duration, 0.0, 1.0)
-	var blend: float = _ease_in_out_sine(progress)
-	_apply_glide_turn(owner_player.get_movement_delta(delta), blend)
-	owner_player.velocity = glide_start_velocity.lerp(glide_target_velocity, blend)
-	if glide_elapsed >= duration:
+	_request_skydive_anim(&"Skydive_Glide")
+	var step: float = maxf(owner_player.get_movement_delta(delta), 0.0)
+	owner_player.velocity = _integrate_glide(owner_player.velocity, _get_owner_move_direction(), _get_input_strength(), step)
+	if glide_elapsed >= maxf(glide_effect_duration, 0.001) or (glide_lift_effect_strength < maxf(glide_exit_strength, 0.0) and get_gravity_vertical_component(owner_player.velocity) <= 0.0):
 		_clear_to_neutral_air()
 
 
-func _calculate_glide_target(start_velocity: Vector3) -> Vector3:
+func _get_glide_support(velocity: Vector3) -> float:
+	var support_speed: float = absf(get_gravity_vertical_component(velocity)) + get_gravity_planar_component(velocity).length() * maxf(glide_horizontal_support, 0.0)
+	return clampf(support_speed / maxf(glide_full_effect_speed, 0.001), 0.0, 1.0)
+
+
+func _integrate_glide(velocity: Vector3, input_direction: Vector3, input_strength: float, step: float) -> Vector3:
+	var duration: float = maxf(glide_effect_duration, 0.001)
+	var progress: float = clampf(glide_elapsed / duration, 0.0, 1.0)
+	var influence: float = 1.0 - smoothstep(0.0, 1.0, progress)
+	var strength: float = minf(_get_glide_support(velocity), glide_entry_strength) * influence
+	glide_lift_effect_strength = strength
+	var vertical: float = get_gravity_vertical_component(velocity)
+	var gravity: float = get_owner_gravity_acceleration_vector().length()
+	var direction: Vector3 = get_gravity_planar_component(input_direction).normalized()
+	var control: float = clampf(input_strength, 0.0, 1.0) if direction else 0.0
+	var pullout_progress: float = clampf(glide_elapsed / maxf(glide_pullout_duration, 0.001), 0.0, 1.0)
+	var pullout: float = 1.0 - smoothstep(0.0, 1.0, pullout_progress)
+	if glide_entered_ascending and vertical <= 0.0:
+		glide_entered_ascending = false
+	var next_vertical: float = vertical
+	if glide_entered_ascending:
+		next_vertical *= exp(-maxf(glide_ascent_conversion_rate, 0.0) * control * influence * step)
+	elif vertical < -maxf(glide_min_sink_speed, 0.0):
+		next_vertical = move_toward(vertical, -maxf(glide_min_sink_speed, 0.0), gravity * maxf(glide_pullout_acceleration, 0.0) * strength * pullout * step)
+	velocity = _convert_vertical_momentum(velocity, next_vertical, direction, control)
+	velocity = _steer_toward(velocity, direction, control * influence, step, glide_turn_rate, glide_turn_drag)
+	# Gravity follows pullout so lift cannot continuously cancel descent.
+	var gravity_scale: float = lerpf(1.0, clampf(glide_gravity_scale, 0.05, 1.0), strength) if next_vertical <= 0.0 else 1.0
+	var planar: Vector3 = get_gravity_planar_component(velocity) * exp(-maxf(glide_drag, 0.0) * influence * step)
+	vertical = get_gravity_vertical_component(velocity) - gravity * gravity_scale * step
+	glide_elapsed = minf(glide_elapsed + maxf(step, 0.0), duration)
+	glide_allowance = clampf(1.0 - glide_elapsed / duration, 0.0, 1.0)
+	return compose_gravity_vector(planar, vertical)
+
+
+func _convert_vertical_momentum(velocity: Vector3, next_vertical: float, direction: Vector3, control: float) -> Vector3:
+	var vertical: float = get_gravity_vertical_component(velocity)
+	var planar: Vector3 = get_gravity_planar_component(velocity)
+	var energy_change: float = vertical * vertical - next_vertical * next_vertical
+	if energy_change >= 0.0:
+		if control > 0.0:
+			var retained_energy: float = energy_change * clampf(glide_conversion_efficiency, 0.0, 1.0) * control
+			# Solve the forward addition against existing drift to preserve the energy bound.
+			var along: float = planar.dot(direction)
+			if along >= 0.0:
+				var addition: float = -along + sqrt(along * along + retained_energy)
+				planar += direction * addition
+	else:
+		var available: float = planar.length_squared()
+		var spent: float = minf(-energy_change, available)
+		next_vertical = signf(next_vertical) * sqrt(vertical * vertical + spent)
+		if available > 0.000001:
+			planar *= sqrt(maxf(available - spent, 0.0) / available)
+	return compose_gravity_vector(planar, next_vertical)
+
+
+func _steer_toward(velocity: Vector3, direction: Vector3, strength: float, step: float, turn_rate: float, turn_drag: float) -> Vector3:
 	var up: Vector3 = _get_gravity_up()
-	var forward: Vector3 = _get_forward_for_glide(start_velocity, up)
-	var angle_rad: float = deg_to_rad(clamp(glide_down_forward_angle_deg, 0.0, 89.0))
-	var scored_direction: Vector3 = (forward * cos(angle_rad) - up * sin(angle_rad)).normalized()
-	var speed: float = start_velocity.length()
-	var alignment: float = 0.0
-	if speed > 0.001:
-		alignment = clamp(start_velocity.normalized().dot(scored_direction), 0.0, 1.0)
-	alignment = pow(alignment, max(glide_angle_alignment_power, 0.001))
-	var speed_toward_angle: float = max(start_velocity.dot(scored_direction), 0.0)
-	var time_effect: float = clamp(dive_elapsed / max(dive_max_effect_time, 0.001), 0.0, 1.0)
-	time_effect = _ease_out_quad(time_effect)
-	var effect_speed: float = speed_toward_angle * alignment * time_effect * max(glide_effect_speed_multiplier, 0.0)
-	effect_speed = min(effect_speed, max(glide_max_effect_speed, 0.0))
-	var effect_denom: float = max(glide_max_effect_speed, 0.001)
-	glide_lift_effect_strength = clamp(effect_speed / effect_denom, 0.0, 1.0)
-
-	var vertical: float = get_gravity_vertical_component(start_velocity)
-	var horizontal: Vector3 = get_gravity_planar_component(start_velocity)
-	var side_velocity: Vector3 = horizontal - forward * horizontal.dot(forward)
-	side_velocity *= clamp(glide_side_speed_retention, 0.0, 1.0)
-
-	var target_vertical: float = vertical + effect_speed * max(glide_vertical_lift_multiplier, 0.0)
-	target_vertical = clamp(
-		target_vertical,
-		-max(glide_max_fall_speed_after_lift, 0.0),
-		max(glide_max_up_speed, 0.0)
-	)
-
-	var current_forward_speed: float = max(horizontal.dot(forward), 0.0)
-	var target_forward_speed: float = current_forward_speed + effect_speed * max(glide_horizontal_speed_multiplier, 0.0)
-	target_forward_speed = min(target_forward_speed, max(glide_max_horizontal_speed, 0.0))
-	return compose_gravity_vector(forward * target_forward_speed + side_velocity, target_vertical)
-
-
-func _apply_glide_turn(delta: float, lift_blend: float) -> void:
-	if owner_player == null:
-		return
-	if delta <= 0.0:
-		return
-	var input_dir: Vector3 = _get_owner_move_direction()
-	if input_dir.length() < 0.001:
-		return
-	input_dir = get_gravity_planar_component(input_dir)
-	if input_dir.length() < 0.001:
-		return
-	input_dir = input_dir.normalized()
-
-	var vertical: float = get_gravity_vertical_component(glide_target_velocity)
-	var lateral: Vector3 = get_gravity_planar_component(glide_target_velocity)
-	var lateral_speed: float = lateral.length()
-	if lateral_speed < 0.001:
-		return
-
-	var base_turn_deg: float = _get_owner_air_turn_angle(lateral_speed)
-	var lift_t: float = clamp(glide_lift_effect_strength * clamp(lift_blend, 0.0, 1.0), 0.0, 1.0)
-	var turn_deg: float = lerp(base_turn_deg, max(glide_lift_turn_angle_deg, 0.0), lift_t)
-	var max_step_rad: float = deg_to_rad(max(turn_deg, 0.0)) * delta
-	if max_step_rad <= 0.0:
-		return
-
-	var lateral_dir: Vector3 = lateral / lateral_speed
-	var angle_rad: float = acos(clamp(lateral_dir.dot(input_dir), -1.0, 1.0))
-	if angle_rad <= 0.001:
-		return
-	var turn_t: float = min(1.0, max_step_rad / angle_rad)
-	var turned_dir: Vector3 = lateral_dir.slerp(input_dir, turn_t).normalized()
-	glide_target_velocity = compose_gravity_vector(turned_dir * lateral_speed, vertical)
+	var planar: Vector3 = get_gravity_planar_component(velocity)
+	direction = get_gravity_planar_component(direction).normalized()
+	if not direction or planar.length_squared() < 0.000001:
+		return velocity
+	var angle: float = planar.normalized().signed_angle_to(direction, up)
+	var limit: float = deg_to_rad(maxf(turn_rate, 0.0)) * clampf(strength, 0.0, 1.0) * step
+	var turn: float = clampf(angle, -limit, limit)
+	planar = planar.rotated(up, turn) * exp(-absf(turn) * maxf(turn_drag, 0.0))
+	return compose_gravity_vector(planar, get_gravity_vertical_component(velocity))
 
 
 func _get_owner_move_direction() -> Vector3:
-	if owner_player == null:
-		return Vector3.ZERO
-	if owner_player.has_method("get_move_direction"):
-		return owner_player.get_move_direction()
-	return owner_player._move_direction
+	owner_player._update_control_basis(_get_gravity_up(), false, false, get_gravity_planar_component(owner_player.velocity))
+	owner_player._compute_move_direction()
+	return owner_player.get_move_direction()
 
 
-func _get_owner_air_turn_angle(lateral_speed: float) -> float:
-	if owner_player == null:
-		return 0.0
-	if owner_player.has_method("_sample_curve_by_speed"):
-		return max(float(owner_player.call("_sample_curve_by_speed", owner_player.air_turn_angle_curve, lateral_speed, 720.0)), 0.0)
-	return 720.0
+func _get_input_strength() -> float:
+	return clampf(owner_player._move_input.length(), 0.0, 1.0)
 
 
 func _try_route_roll() -> bool:
@@ -379,39 +408,10 @@ func _get_gravity_up() -> Vector3:
 	return get_owner_gravity_up()
 
 
-func _update_glide_gravity_frame() -> void:
-	var current_up: Vector3 = _get_gravity_up()
-	if glide_frame_up.length() < 0.001:
-		glide_frame_up = current_up
-		return
-	glide_start_velocity = rotate_gravity_frame_vector(glide_start_velocity, glide_frame_up, current_up)
-	glide_target_velocity = rotate_gravity_frame_vector(glide_target_velocity, glide_frame_up, current_up)
-	glide_frame_up = current_up
-
-
-func _get_forward_for_glide(velocity: Vector3, up: Vector3) -> Vector3:
-	var horizontal: Vector3 = get_gravity_planar_component(velocity)
-	if horizontal.length() > 0.001:
-		return horizontal.normalized()
-	var model_forward: Vector3 = owner_player._model_forward
-	model_forward -= up * model_forward.dot(up)
-	if model_forward.length() > 0.001:
-		return model_forward.normalized()
-	return -owner_player.global_transform.basis.z.slide(up).normalized()
-
-
-func _limit_down_speed(velocity: Vector3, up: Vector3, max_down_speed: float) -> Vector3:
-	var down_limit: float = max(max_down_speed, 0.0)
-	if down_limit <= 0.0:
-		return velocity
-	var vertical: float = get_gravity_vertical_component(velocity)
-	if vertical >= -down_limit:
-		return velocity
-	return velocity + up * (-down_limit - vertical)
-
-
 func _clear_to_neutral_air() -> void:
 	state = SkydiveState.NONE
+	glide_elapsed = 0.0
+	glide_entry_strength = 0.0
 	glide_lift_effect_strength = 0.0
 	if owner_player == null:
 		return
@@ -423,26 +423,6 @@ func _clear_to_neutral_air() -> void:
 	_request_skydive_anim(&"Skydive_Exit")
 	if owner_player.has_method("activate_neutral_air_action"):
 		owner_player.activate_neutral_air_action({"reason": &"skydive_finished", "source_action": action_id})
-
-
-func _cancel_to_neutral_air() -> void:
-	state = SkydiveState.NONE
-	glide_lift_effect_strength = 0.0
-	if owner_player == null:
-		return
-	_request_skydive_anim(&"Skydive_Cancel")
-	if owner_player.has_method("activate_neutral_air_action"):
-		owner_player.activate_neutral_air_action({"reason": &"skydive_canceled", "source_action": action_id})
-
-
-func _ease_in_out_sine(t: float) -> float:
-	var clamped_t: float = clamp(t, 0.0, 1.0)
-	return 0.5 - 0.5 * cos(PI * clamped_t)
-
-
-func _ease_out_quad(t: float) -> float:
-	var clamped_t: float = clamp(t, 0.0, 1.0)
-	return 1.0 - (1.0 - clamped_t) * (1.0 - clamped_t)
 
 
 func _request_skydive_anim(state_name: StringName) -> void:

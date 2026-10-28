@@ -1225,7 +1225,7 @@ func _apply_landing_roll(
 		owner_player._trigger_anim_command_immediate(landing_roll_animation_command)
 	if owner_player.has_method("request_compact_collision"):
 		owner_player.request_compact_collision(landing_roll_compact_collision_duration)
-	_play_parkour_sound(landing_roll_sound)
+	play_landing_roll_feedback_sound()
 	if _debug_landing_roll_speed_benefit and owner_player.has_method("register_combo_feat"):
 		owner_player.register_combo_feat(&"landing_roll", "Landing Roll", 250.0, 1.0)
 	return true
@@ -2669,6 +2669,10 @@ func _play_parkour_sound(sound: AudioStream) -> void:
 	player.add_to_group(&"LevelTransient")
 	owner_player.add_child(player)
 	player.finished.connect(player.queue_free)
+
+
+func play_landing_roll_feedback_sound() -> void:
+	_play_parkour_sound(landing_roll_sound)
 
 
 func _set_wall_cling_slide_sound_active(active: bool, downward_speed: float) -> void:

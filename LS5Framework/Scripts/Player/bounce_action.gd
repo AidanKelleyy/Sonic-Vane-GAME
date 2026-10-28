@@ -54,6 +54,7 @@ var quick_release_elapsed: float = -1.0
 
 
 func _on_action_initialized() -> void:
+	allows_intent_landing_recovery = false
 	action_id = &"bounce"
 	input_action = quick_release_input_action
 	trigger_mode = ActionTrigger.TAP

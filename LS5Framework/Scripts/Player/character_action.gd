@@ -37,6 +37,8 @@ enum FastFallHorizontalDragMode {
 @export var enabled: bool = true
 @export var allow_when_inactive: bool = true
 @export var continuous_update: bool = false
+## Allows held-input recovery of tangential momentum on the next landing. Disable for forced-impact actions.
+@export var allows_intent_landing_recovery: bool = true
 
 ## Uses only the main collision sphere while this action is active.
 @export var compact_collision: bool = false

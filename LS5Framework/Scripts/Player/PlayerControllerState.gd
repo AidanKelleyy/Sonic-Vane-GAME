@@ -1910,15 +1910,21 @@ var _smoothed_surface_normal: Vector3 = Vector3.UP
 ## Minimum tangential speed required to attach via radial landing on walls/ceilings.
 @export var radial_landing_min_speed: float = 7.0
 
-@export_subgroup("Radial Landing/Intent Boost")
-## Converts impact momentum into surface speed when held movement input follows the landing trajectory.
+@export_subgroup("Radial Landing/Intent Recovery")
+## Recovers landing losses from existing tangential momentum when held input follows the landing trajectory.
 @export var radial_landing_boost_enabled: bool = false
-## Fraction of into-surface impact speed converted into tangential speed.
-@export_range(0.0, 1.0, 0.01) var radial_landing_boost_impact_ratio: float = 0.2
-## Maximum impact-conversion bonus per intentional landing. Tangential-speed retention is separate.
-@export var radial_landing_boost_limit: float = 14.0
-## Fraction of the effective run soft cap where impact recovery begins fading into tangential-speed retention.
-@export_range(0.0, 1.0, 0.01) var radial_landing_boost_taper_start_ratio: float = 0.8
+## Fraction of lost tangential speed eligible for recovery, weighted by input strength and alignment.
+@export_range(0.0, 1.0, 0.01) var radial_landing_recovery_strength: float = 1.0
+## Plays the configured landing-roll animation on an eligible direct, hard floor impact, including full momentum retention.
+@export var radial_landing_recovery_roll_animation_enabled: bool = false
+## Animation command for the optional visual landing roll. No landing-roll speed benefit is applied.
+@export var radial_landing_recovery_roll_command: StringName = &"CMD_LANDING_ROLL"
+## Minimum into-surface impact speed required for the optional landing-roll animation.
+@export_range(0.0, 200.0, 0.1) var radial_landing_recovery_roll_min_impact_speed: float = 30.0
+## Minimum fraction of incoming speed directed into the surface for the optional landing-roll animation.
+@export_range(0.0, 1.0, 0.01) var radial_landing_recovery_roll_min_directness: float = 0.65
+## Maximum floor angle relative to gravity up for the optional landing-roll animation.
+@export_range(0.0, 89.0, 0.1) var radial_landing_recovery_roll_max_floor_angle: float = 45.0
 ## Minimum held movement-input strength required for an intentional landing boost.
 @export_range(0.0, 1.0, 0.01) var radial_landing_boost_min_input_strength: float = 0.5
 ## Minimum alignment between held movement input and incoming tangential travel.
@@ -3554,6 +3560,7 @@ var _pending_landing_has_velocity: bool = false
 var _pending_landing_airborne_time: float = 0.0
 var _landing_animation_moving: bool = false
 var _landing_animation_pending: bool = false
+var _intent_landing_recovery_blocked: bool = false
 
 # timers so the HUD text doesn't flash
 var _dbg_radial_hit_timer: float = 0.0

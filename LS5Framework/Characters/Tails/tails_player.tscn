@@ -558,11 +558,9 @@ combat_class = 1
 
 [node name="Skydive" type="Node" parent="Abilities" unique_id=99974359]
 script = ExtResource("94_skydive")
-glide_vertical_lift_multiplier = 0.33
-glide_horizontal_speed_multiplier = 0.53
-glide_max_up_speed = 4.6
-glide_max_fall_speed_after_lift = 49.0
-glide_max_horizontal_speed = 156.0
+glide_min_sink_speed = 7.0
+glide_conversion_efficiency = 0.78
+glide_gravity_scale = 0.23
 on_roll_action = NodePath("../Roll")
 
 [node name="PropellerFlight" type="Node" parent="Abilities" unique_id=2039184711]

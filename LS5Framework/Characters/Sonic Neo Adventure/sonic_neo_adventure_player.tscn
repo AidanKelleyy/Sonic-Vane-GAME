@@ -3043,8 +3043,9 @@ air_pullback_brake_multiplier = 1.8
 adhesion_max_upward_speed_world = 20.0
 adhesion_max_outward_speed = 35.0
 radial_landing_boost_enabled = true
-radial_landing_boost_impact_ratio = 0.35
-radial_landing_boost_limit = 18.0
+radial_landing_recovery_roll_animation_enabled = true
+radial_landing_recovery_roll_min_impact_speed = 35.0
+radial_landing_recovery_roll_min_directness = 0.5
 radial_landing_boost_min_alignment = 0.3
 surface_preview_max_lookahead_radii = 90.0
 surface_preview_max_samples = 20
@@ -3393,7 +3394,17 @@ combat_class = 1
 
 [node name="Skydive" type="Node" parent="Abilities" unique_id=1632605993]
 script = ExtResource("120_lmd4n")
-skydive_enabled = false
+glide_full_effect_speed = 135.0
+glide_horizontal_support = 0.858
+glide_pullout_acceleration = 2.0
+glide_gravity_scale = 0.15000000000000002
+glide_pullout_duration = 1.5
+glide_effect_duration = 1.2
+glide_conversion_efficiency = 0.959
+glide_ascent_conversion_rate = 1.25
+glide_turn_rate = 120.0
+glide_turn_drag = 0.0
+glide_drag = 0.0
 on_roll_action = NodePath("../Roll")
 
 [node name="Bounce" type="Node" parent="Abilities" unique_id=2105886231]
