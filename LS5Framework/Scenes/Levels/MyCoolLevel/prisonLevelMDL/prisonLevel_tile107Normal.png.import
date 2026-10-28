@@ -2,21 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cruhq61g72bfe"
-path.s3tc="res://.godot/imported/prisonLevel_texture_08.png.png-1513001d090f2b2215647b322dac3f15.s3tc.ctex"
-path.etc2="res://.godot/imported/prisonLevel_texture_08.png.png-1513001d090f2b2215647b322dac3f15.etc2.ctex"
+uid="uid://do1ifxqb08wq1"
+path.s3tc="res://.godot/imported/prisonLevel_tile107Normal.png-46c7d1b2a3a7b086900134258d7c093e.s3tc.ctex"
+path.etc2="res://.godot/imported/prisonLevel_tile107Normal.png-46c7d1b2a3a7b086900134258d7c093e.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
-generator_parameters={
-"md5": "4c7dcd87a5d569806f41207c26e48f50"
-}
 
 [deps]
 
-source_file="res://LS5Framework/Scenes/Levels/MyCoolLevel/textures/prisonLevel_texture_08.png.png"
-dest_files=["res://.godot/imported/prisonLevel_texture_08.png.png-1513001d090f2b2215647b322dac3f15.s3tc.ctex", "res://.godot/imported/prisonLevel_texture_08.png.png-1513001d090f2b2215647b322dac3f15.etc2.ctex"]
+source_file="res://LS5Framework/Scenes/Levels/MyCoolLevel/prisonLevelMDL/prisonLevel_tile107Normal.png"
+dest_files=["res://.godot/imported/prisonLevel_tile107Normal.png-46c7d1b2a3a7b086900134258d7c093e.s3tc.ctex", "res://.godot/imported/prisonLevel_tile107Normal.png-46c7d1b2a3a7b086900134258d7c093e.etc2.ctex"]
 
 [params]
 
@@ -26,7 +23,7 @@ compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
