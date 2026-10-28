@@ -88,4 +88,4 @@ static func format_diagnostics(data: Dictionary) -> String:
 	return "AUTOMATION · %s\n%s\nProgress %.1f m · branch %d · direction %d\nSpeed %.1f m/s · error %.2f m\nSteering %.2f · Position %.2f · Speed %.2f\nSurface %.2f · Input %.2f\nBlocked: %s\nCorrection %.3f m · obstruction %s\nSuspended: %s · last release: %s" % [data.player, data.source,
 		data.progress, data.branch, data.direction, data.speed, data.tracking_error,
 		weights.get(1, 0.0), weights.get(2, 0.0), weights.get(4, 0.0), weights.get(8, 0.0), weights.get(16, 0.0),
-		", ".join(data.blocked_actions) if not data.blocked_actions.is_empty() else "none", data.correction, data.obstruction, data.suspended, data.last_release]
+		", ".join(data.blocked_actions) if not data.blocked_actions.is_empty() else "none", data.correction, data.obstruction, data.suspended, data.last_release] + "\nLane %d · buffered choice %d" % [data.get("lane", -1), data.get("buffered_choice", 0)]

@@ -8,6 +8,7 @@ signal session_released(source_id: int, reason: StringName)
 
 var selected: AutomationSession
 var motion: PlayerAutomationInfluences
+var routes: AutomationRouteRuntime
 var last_release_reason: StringName = &""
 ## Player owning the registration, direction, and tracking state.
 var _body_ref: WeakRef
@@ -28,6 +29,7 @@ func _init(body: Node3D) -> void:
 	_body_ref = weakref(body)
 	body.add_to_group(&"AutomationDebugPlayers")
 	motion = PlayerAutomationInfluences.new(self)
+	routes = AutomationRouteRuntime.new(self)
 	body.tree_exiting.connect(dispose, CONNECT_ONE_SHOT)
 
 
@@ -136,6 +138,10 @@ func advance(delta: float, input_intent: Vector3 = Vector3.ZERO) -> void:
 		return
 	var body: Node3D = get_body()
 	var position: Vector3 = body.global_position
+	var previous_selected: AutomationSession = selected
+	var previous_progress: float = selected.unwrapped_progress if selected else 0.0
+	var previous_revision: int = selected.sample.revision if selected and selected.sample else -1
+	var displacement: float = position.distance_to(selected.previous_position) if selected else 0.0
 	_intent = input_intent if input_intent.is_finite() else Vector3.ZERO
 	if not position.is_finite():
 		clear(&"invalid_position")
@@ -143,6 +149,7 @@ func advance(delta: float, input_intent: Vector3 = Vector3.ZERO) -> void:
 	var sources: Array[Node] = body.get_tree().get_nodes_in_group(&"AutomationSplineSources")
 	sources.sort_custom(func(first: Node, second: Node) -> bool: return String(first.get_path()) < String(second.get_path()))
 	var live_ids: Dictionary = {}
+	var pending_boundaries: Array[Dictionary] = []
 	for candidate: Node in sources:
 		var source: AutomationSplineCore = candidate as AutomationSplineCore
 		if not source:
@@ -167,11 +174,7 @@ func advance(delta: float, input_intent: Vector3 = Vector3.ZERO) -> void:
 				state["revision"] = source.activation_revision
 			var events: Array[Dictionary] = source.boundary_events(body, _previous_position, position, state, _has_previous)
 			for event: Dictionary in events:
-				if event.inward:
-					register_source(source, int(event.direction), event.position)
-				else:
-					unregister_source(id, &"endpoint_exit")
-					_blocked_sources.erase(id)
+				pending_boundaries.append({"source": source, "event": event})
 	for id: int in _boundary_states.keys():
 		if not live_ids.has(id):
 			_boundary_states.erase(id)
@@ -189,15 +192,32 @@ func advance(delta: float, input_intent: Vector3 = Vector3.ZERO) -> void:
 		if not value.valid or (source.capture_distance > 0.0 and value.spatial_error > source.capture_distance):
 			unregister_source(id, &"capture_distance")
 			continue
-		if source.beyond_open_end(position, value):
-			unregister_source(id, &"path_end")
-			continue
 		session.update_tracking(value, source.sampler, velocity, _intent, delta,
 			source.direction_speed_deadband, source.direction_input_deadband)
 		session.previous_position = position
 	_previous_position = position
 	_has_previous = true
 	_select()
+	if selected and selected == previous_selected and selected.sample.revision == previous_revision:
+		routes.advance(selected, previous_progress, delta, displacement)
+	var transferred: bool = previous_selected and previous_selected.release_reason == &"route_transfer"
+	for boundary: Dictionary in pending_boundaries:
+		var source: AutomationSplineCore = boundary.source
+		if not is_instance_valid(source):
+			continue
+		var event: Dictionary = boundary.event
+		if event.inward:
+			var owner: AutomationSplineCore = selected.get_source() as AutomationSplineCore if selected else null
+			if not transferred or not owner or source == owner or source.priority > owner.priority:
+				register_source(source, int(event.direction), event.position)
+		else:
+			unregister_source(source.get_instance_id(), &"endpoint_exit")
+			_blocked_sources.erase(source.get_instance_id())
+	for id: int in _sessions.keys():
+		var session: AutomationSession = _sessions[id] as AutomationSession
+		var source: AutomationSplineCore = session.get_source() as AutomationSplineCore
+		if source and source.beyond_open_end(position, session.sample):
+			unregister_source(id, &"path_end")
 	if motion:
 		motion.prepare(delta)
 	_update_debug_overlay()
@@ -206,6 +226,51 @@ func advance(delta: float, input_intent: Vector3 = Vector3.ZERO) -> void:
 func _velocity(body: Node3D) -> Vector3:
 	var value: Variant = body.get("velocity")
 	return value as Vector3 if value is Vector3 and (value as Vector3).is_finite() else Vector3.ZERO
+
+
+func get_body_velocity() -> Vector3:
+	return _velocity(get_body())
+
+
+func is_source_blocked(source: AutomationSplineCore) -> bool:
+	return _blocked_sources.has(source.get_instance_id())
+
+
+func can_select_transfer(previous: AutomationSession, destination: AutomationSplineCore) -> bool:
+	if not _available() or selected != previous:
+		return false
+	for session: AutomationSession in _sessions.values():
+		var source: AutomationSplineCore = session.get_source() as AutomationSplineCore
+		if session != previous and source and source != destination and source.priority > destination.priority:
+			return false
+	return true
+
+
+func commit_transfer(previous: AutomationSession, destination: AutomationSplineCore,
+		value: AutomationSample, direction: int, velocity: Vector3) -> AutomationSession:
+	if not can_select_transfer(previous, destination):
+		return null
+	var body: Node3D = get_body()
+	var current: AutomationSession = AutomationSession.new()
+	_sequence += 1
+	current.source_ref = weakref(destination)
+	current.source_id = destination.get_instance_id()
+	current.activation_frame = Engine.get_physics_frames()
+	current.activation_sequence = _sequence
+	current.direction = direction
+	current.update_tracking(value, destination.sampler, velocity, Vector3.ZERO, 0.0,
+		destination.direction_speed_deadband, destination.direction_input_deadband)
+	current.previous_position = body.global_position
+	_sessions.erase(previous.source_id)
+	_blocked_sources[previous.source_id] = true
+	previous.release_reason = &"route_transfer"
+	last_release_reason = &"route_transfer"
+	_sessions[current.source_id] = current
+	destination.attach_controller(self)
+	body.set("velocity", velocity)
+	_select()
+	session_released.emit(previous.source_id, &"route_transfer")
+	return current if selected == current else null
 
 
 func _select(revalidate: bool = false) -> void:
@@ -265,4 +330,6 @@ func get_diagnostics() -> Dictionary:
 		"tracking_error": value.spatial_error if value else 0.0, "weights": details.get("weights", {}),
 		"blocked_actions": details.get("blocked_actions", PackedStringArray()), "correction": details.get("correction", 0.0),
 		"obstruction": details.get("obstruction", false), "suspended": details.get("suspended", false),
-		"last_release": String(last_release_reason) if last_release_reason else "none"}
+		"last_release": String(last_release_reason) if last_release_reason else "none",
+		"lane": int(selected.route_state.get("lane", -1)) if selected else -1,
+		"buffered_choice": int(selected.route_state.get("choice", 0)) if selected else 0}

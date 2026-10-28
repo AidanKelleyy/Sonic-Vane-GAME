@@ -1,7 +1,8 @@
 extends RefCounted
 
 const PREFIX: StringName = &"ls5_automation_edit"
-const TRAITS: Array[String] = ["AutomationTrait", "AutomationSteeringTrait", "AutomationPositionTrait", "AutomationRibbonTrait", "AutomationSpeedTrait", "AutomationSurfaceTrait", "AutomationInputTrait", "AutomationTransitionTrait", "AutomationInfluenceTrait", "AutomationCameraTrait"]
+const TRAITS: Array[String] = ["AutomationTrait", "AutomationSteeringTrait", "AutomationPositionTrait", "AutomationRibbonTrait", "AutomationLaneTrait", "AutomationSpeedTrait", "AutomationSurfaceTrait", "AutomationInputTrait", "AutomationTransitionTrait", "AutomationInfluenceTrait", "AutomationCameraTrait"]
+const EXTENSIONS: Dictionary = {"connection": preload("res://LS5Framework/Objects/Automation/AutomationRouteConnection.gd"), "marker": preload("res://LS5Framework/Objects/Automation/AutomationProgressMarker.gd")}
 const SHAPES: Array[String] = ["BoxShape3D", "SphereShape3D", "CapsuleShape3D", "CylinderShape3D"]
 static var monitoring: bool = false
 static var _next_report: int = 0
@@ -132,6 +133,13 @@ static func _collect(root: Node3D, node: Node, children: Dictionary) -> void:
 	for child: Node in node.get_children():
 		if child.has_method("refresh_live_configuration"):
 			continue
+		if child is AutomationRouteConnection or child is AutomationProgressMarker:
+			var properties: Dictionary = {}
+			for property: Dictionary in _properties(child):
+				if int(property.usage) & PROPERTY_USAGE_STORAGE:
+					properties[property.name] = encode(child.get(property.name))
+			children[String(root.get_path_to(child))] = {"class": "Node3D", "transform": child.transform, "extension": "connection" if child is AutomationRouteConnection else "marker", "properties": properties}
+			continue
 		if child is Node3D and (child is Path3D or child is Area3D or child is CollisionShape3D or child.get_meta(&"automation_generated", false)):
 			var state: Dictionary = {"class": child.get_class(), "transform": child.transform, "generated": child.get_meta(&"automation_generated", false)}
 			if child.has_meta(&"automation_basis"):
@@ -169,7 +177,7 @@ static func _activation(state: Dictionary) -> Dictionary:
 	var gates: Dictionary = {}
 	for path: String in state.children:
 		var child: Dictionary = state.children[path]
-		if child["class"] in ["Area3D", "CollisionShape3D"] or child.get("generated", false):
+		if child["class"] in ["Area3D", "CollisionShape3D"] or child.get("generated", false) or child.has("extension"):
 			gates[path] = child
 	values["gates"] = gates
 	return values
@@ -181,6 +189,10 @@ static func apply_snapshot(source: Node3D, state: Dictionary) -> void:
 	var changed: bool = _activation(snapshot(source)) != _activation(state)
 	apply_properties(source, state.properties)
 	source.transform = state.transform
+	for child: Node in source.get_children():
+		if (child is AutomationRouteConnection or child is AutomationProgressMarker) and not state.children.has(String(source.get_path_to(child))):
+			source.remove_child(child)
+			child.queue_free()
 	var generated: Node = source.get_node_or_null("_AutomationVolumes")
 	if generated and generated.get_meta(&"automation_generated", false):
 		# Generated children are replaced as one authoring unit.
@@ -189,6 +201,16 @@ static func apply_snapshot(source: Node3D, state: Dictionary) -> void:
 	for path: String in state.children:
 		var data: Dictionary = state.children[path]
 		var child: Node3D = source.get_node_or_null(NodePath(path)) as Node3D
+		if data.has("extension"):
+			if not EXTENSIONS.has(data.extension) or "/" in path or ".." in path:
+				continue
+			if not child:
+				child = EXTENSIONS[data.extension].new()
+				child.name = path
+				source.add_child(child)
+			if child.get_script() == EXTENSIONS[data.extension]:
+				apply_properties(child, data.properties)
+			continue
 		if not child:
 			if not path.begins_with("_AutomationVolumes") or ".." in path or not String(data["class"]) in ["Node3D", "Area3D", "CollisionShape3D"]:
 				continue

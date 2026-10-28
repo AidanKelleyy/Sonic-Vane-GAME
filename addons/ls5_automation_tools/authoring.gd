@@ -2,7 +2,7 @@
 extends RefCounted
 
 const ARRAYS: Array[String] = ["steering_traits", "position_traits", "speed_traits", "surface_traits", "input_traits", "transition_traits", "influence_traits", "camera_traits"]
-const PRESETS: Array[String] = ["SoftRouteGuide", "LoopAssist", "GuidedRun", "ScriptedRun", "SideViewRibbon"]
+const PRESETS: Array[String] = ["SoftRouteGuide", "LoopAssist", "GuidedRun", "ScriptedRun", "SideViewRibbon", "LaneSection"]
 const GENERATED: StringName = &"_AutomationVolumes"
 const MARKER: StringName = &"automation_generated"
 const CATALOG: Array[Dictionary] = [
@@ -27,6 +27,7 @@ const CATALOG: Array[Dictionary] = [
 	{"label": "Steering / Tangent damping", "script": "AutomationSteeringTrait", "array": "steering_traits", "mode": 2},
 	{"label": "Position / Speed-scaled attraction", "script": "AutomationPositionTrait", "array": "position_traits", "mode": 3},
 	{"label": "Surface / Water bypass", "script": "AutomationSurfaceTrait", "array": "surface_traits", "mode": 2},
+	{"label": "Position / Discrete lanes", "script": "AutomationLaneTrait", "array": "position_traits", "mode": 0},
 ]
 
 
@@ -206,6 +207,12 @@ static func guide_lines(source: AutomationSplineCore) -> Dictionary:
 	for index: int in count:
 		var a: AutomationSample = _preview_sample(source, source.sampler.sample(source.sampler.length * float(index) / float(count)))
 		var b: AutomationSample = _preview_sample(source, source.sampler.sample(source.sampler.length * float(index + 1) / float(count)))
+		for component: AutomationPositionTrait in source.position_traits:
+			if component and component.applies(true):
+				if component is AutomationLaneTrait:
+					for lane: int in component.lane_count:
+						_line(lines.corridor, inverse, a.position + a.normal * component.offset(lane), b.position + b.normal * component.offset(lane))
+				break
 		_line(lines.route, inverse, a.position, b.position)
 		if ribbon:
 			for side: float in [-1.0, 1.0]:
@@ -218,6 +225,17 @@ static func guide_lines(source: AutomationSplineCore) -> Dictionary:
 				if source.permits_direction(direction):
 					_arrow(lines.route, inverse, a.position, a.tangent * float(direction), a.normal, minf(2.0, source.sampler.length / 30.0))
 	var sample: AutomationSample = state.sample
+	for child: Node in source.get_children():
+		if child is AutomationRouteConnection and child.enabled and child.show_preview:
+			var transfer: Dictionary = child.preview()
+			if transfer.has_all(["start", "finish"]):
+				var key: String = "cursor" if transfer.valid else "frame"
+				_line(lines[key], inverse, transfer.start.position, transfer.finish.position)
+				_arrow(lines[key], inverse, transfer.finish.position, transfer.finish.tangent * float(child.destination_direction), transfer.finish.normal, 3.0)
+		elif child is AutomationProgressMarker and child.enabled:
+			var marker: AutomationSample = source.sampler.sample(child.progress * source.sampler.length)
+			_line(lines.ramp, inverse, marker.position - marker.normal * 2.0, marker.position + marker.normal * 2.0)
+			_line(lines.ramp, inverse, marker.position, marker.position + marker.up * 2.0)
 	_arrow(lines.cursor, inverse, sample.position, sample.tangent * float(source.preview_direction), sample.normal, 3.0)
 	_line(lines.frame, inverse, sample.position, sample.position + sample.normal * 4.0)
 	_line(lines.cursor, inverse, sample.position, sample.position + sample.up * 3.0)

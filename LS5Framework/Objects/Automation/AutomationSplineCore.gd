@@ -364,6 +364,14 @@ func _get_configuration_warnings() -> PackedStringArray:
 			warnings.append("Activation areas require an enabled collision shape.")
 		if not area.collision_mask:
 			warnings.append("Activation area collision mask accepts no bodies.")
+	var junctions: Dictionary = {}
+	for child: Node in get_children():
+		if child is AutomationRouteConnection and child.enabled:
+			warnings.append_array(child._get_configuration_warnings())
+			var key: String = "%f:%d:%d" % [child.source_progress, child.source_direction, child.choice]
+			if junctions.has(key):
+				warnings.append("Duplicate junction choices use child order as precedence.")
+			junctions[key] = true
 	return warnings
 
 

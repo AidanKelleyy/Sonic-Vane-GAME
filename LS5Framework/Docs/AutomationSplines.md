@@ -103,7 +103,7 @@ The `LS5 Automation Tools` editor plugin is enabled in project settings. Select 
 
 A basic route workflow is:
 
-1. Instance one of the five preset scenes.
+1. Instance one of the six preset scenes.
 2. Shape Path3D with Godot's curve editor.
 3. Set trigger width, height, gate depth, and spacing under **Authoring**.
 4. Press **Generate / regenerate triggers**.
@@ -115,7 +115,27 @@ Generated shapes live under the marked `_AutomationVolumes` subtree. The generat
 
 Viewport guides show canonical travel arrows (cyan), corridor/ribbon bounds (purple), forbidden depth axis and preview capture limit (red), physical endpoint ramps (yellow), and the preview cursor/frame (green). Depth profiles show depth links to their target route in orange. Detailed guides appear for the selected route or its descendants; unselected routes retain their centerline. The dock displays canonical distance, signed travel direction/speed, and resolved channel weights. This is a static, grounded, entry-complete preview. It does not simulate terrain contact, captured adaptive offsets, profile activation, or airborne motion; player-up previews use world up. Use the runtime monitor for those states.
 
-Configuration warnings cover invalid curves/transforms, missing activation shapes, empty masks, overlapping influence modes/channels, invalid falloff ranges, and stale generated geometry. Manual volumes remain available through the normal node-reference fields.
+Configuration warnings cover invalid curves/transforms, missing activation shapes, empty masks, overlapping influence modes/channels, invalid falloff ranges, stale generated geometry, and incompatible route connections. Manual volumes remain available through the normal node-reference fields.
+
+## Connections, branches, lanes, and events
+
+These extensions are optional. Existing routes retain their behavior until a component is added. Select a route and use **Add route connection** or **Add progress event** in the Automation dock. Both actions create owned child nodes at the preview cursor and support undo/redo. Child transforms do not determine their route position; normalized progress does.
+
+An `AutomationRouteConnection` defines source progress/direction, destination reference/progress/direction, and an optional Default, Left, or Right choice. Destination references resolve relative to the connection child. Author a second directed connection for reverse traversal, using reverse source/destination directions and the corresponding progress points. Reciprocal links can have different choices or limits.
+
+Connections validate route policies, endpoint separation, heading angle, and up-vector compatibility. Runtime transfer also requires an available destination, valid body filter, capture distance, and sufficient priority. Occupancy destinations require the player to be inside their volume. Script Only and Endpoints destinations can be entered directly through a connection. Place occupancy junctions inside their source volume; leaving that volume releases its source normally. Configuration warnings report invalid links and duplicate choices.
+
+Lateral stick/keyboard input above the configured threshold buffers a canonical Left or Right choice per player. Returning to neutral rearms another choice; holding a direction does not refresh its age. The stored choice survives camera changes and travel reversal. A fresh matching branch wins over Default at the same junction. An expired or incompatible branch falls back to a valid Default; otherwise normal release or continued source travel applies. Earlier junctions win, and child order resolves duplicate choices.
+
+Transfers occur before endpoint release. They preserve total velocity magnitude through an orthonormal route-frame rotation, including vertical/cross-route momentum. They never reposition the body or bypass collision. A high-speed step can match arrival progress within a connected destination search window bounded by that step's displacement. Maximum Gap also bounds arrival deviation; an incompatible or missed arrival leaves ownership unchanged. Only one connection is taken per physics update. The departed source is blocked until its normal boundary rearm or explicit `rearm_source()` call. Entry blending and camera ownership use the destination's existing policies. Destination markers before the actual arrival point are not replayed.
+
+Use **Lane Section** for a three-lane starting preset, or **Add Influence → Position / Discrete lanes** on an existing source. `AutomationLaneTrait` uses the position channel and its usual first-applicable precedence. Configure lane count, spacing, initial lane, spring/damping, free radius, and acceleration bound. A deliberate lateral press steps one lane; neutral rearms the next step. Lane order follows the canonical route normal and stays stable when reversing. Lane selection is per activation and per player. Centering uses the normal collision-based movement pipeline, preserves tangent speed and jumps, and respects ground/air eligibility, position weights, input locks, and exclusive motion owners. Lanes provide soft guidance; they do not teleport or enforce an exact lane position against terrain. Use a normal corridor position influence for continuous lateral freedom.
+
+`AutomationProgressMarker` emits `crossed(body, direction)` when selected-session progress crosses its normalized position. Configure Forward, Reverse, or Both, and Once Per Activation or Rearm Distance. Zero/one markers on closed paths refer to the seam. Events use unwrapped progress, traversal order, and half-open crossing intervals. Reversal alone, activation directly on a marker, post-slide correction, curve-cache rebuilds, superseded sessions, suspended motion owners, and displacement discontinuities do not synthesize crossings. Distance rearming prevents repeated events while oscillating near a marker; a sampled departure beyond the rearm distance is required before another crossing. Very large discontinuities spanning more than 64 laps are suppressed. Signal handlers may release ownership safely; later events from that abandoned traversal are skipped.
+
+The per-player controller's `routes` evaluator also exposes `transferred(connection, previous, current)` and `progress_event(marker, body, direction)` signals. Set-piece behavior belongs in those listeners rather than the shared player script. Runtime dictionaries stay on the session; resources and placed marker nodes never hold a player's lane, branch buffer, or event history.
+
+Selected-route gizmos show lane centers, yellow progress ticks, and destination travel arrows. Valid connections use green previews; invalid connections use red. The runtime overlay and debugger include lane and buffered-choice values. Live editing supports lane resources and connection/marker properties, additions, and removals. Extension edits release/rearm sessions to avoid stale event state. Newly created marker signal wiring requires restarting play; the bridge mirrors configuration, not arbitrary signal connections.
 
 ## Live editing and runtime diagnostics
 
@@ -137,9 +157,9 @@ Aero Garden's `Objects/AutomationSpline - Skyway` is now one approximately 1967.
 
 ## Validation
 
-Run `LS5Engine3_CodexFiles/AutomationSplines/run_phase6.ps1` from PowerShell. The runner first verifies the actual editor plugin, undo/redo, and debugger bridge in an isolated probe, then executes authoring, movement, and foundation regressions, reruns legacy characterization, verifies the frozen phase 1 capture, compares legacy behavior/metrics, and audits export membership. Development fixtures and results remain under `LS5Engine3_CodexFiles/AutomationSplines`.
+Run `LS5Engine3_CodexFiles/AutomationSplines/run_phase7.ps1` from PowerShell. The runner first verifies the actual editor plugin, undo/redo, and debugger bridge in an isolated probe, then executes route-extension, authoring, movement, and foundation regressions, reruns legacy characterization, verifies the frozen phase 1 capture, compares legacy behavior/metrics, and audits export membership. It instantiates all seven current levels and compares their scene files against current committed content. The historical phase 6 scene audit remains available for its original migration snapshot. Development fixtures and results remain under `LS5Engine3_CodexFiles/AutomationSplines`.
 
-The editor-only addon is excluded from explicit game-pack lists. The runtime live-edit bridge and optional overlay are included with the other runtime scripts. The runtime scripts are explicitly included in Windows, Linux, macOS, and Objects export lists. The source/depth-profile scenes and five presets belong to the Objects pack. No binary or PCK rebuild is required for editor testing.
+The editor-only addon is excluded from explicit game-pack lists. The runtime live-edit bridge and optional overlay are included with the other runtime scripts. All 26 automation runtime scripts are explicitly included in Windows, Linux, macOS, and Objects export lists. The source/depth-profile scenes and six presets belong to the Objects pack. No binary or PCK rebuild is required for editor testing.
 
 Phase 4 verifies Niko Test and Green Hill Canyon fixture geometry, both depth profiles, native terrain anchors/jumps, collision confinement, per-player cameras, camera precedence, and exit blending. The separate broad legacy camera suite previously reported a controller-only mouse-input assertion and stale scene-array diagnostics; those are recorded in the phase report and are outside the targeted phase 4 passing gates.
 

@@ -13,6 +13,8 @@ var direction: int = 1
 var elapsed: float = 0.0
 var previous_position: Vector3 = Vector3.ZERO
 var release_reason: StringName = &""
+var route_state: Dictionary = {}
+var marker_states: Dictionary = {}
 
 
 func get_source() -> Node3D:

@@ -253,6 +253,8 @@ func _up(fallback: Vector3) -> Vector3:
 func capture_input(input: Vector2, intent: Vector3) -> void:
 	raw_input = input
 	raw_intent = intent
+	if not _exclusive() and _controller() and allows(&"movement"):
+		_controller().routes.capture_input(input.x)
 	intent = _mapped_intent()
 	var controller: PlayerAutomationController = _controller()
 	var sample: AutomationSample = _sample()
@@ -344,7 +346,10 @@ func apply_velocity(velocity: Vector3, up: Vector3, delta: float) -> Vector3:
 		lateral = direction.rotated(axis, minf(angle, deg_to_rad(steering.turn_rate) * delta * _weight(1))) * lateral.length()
 	var position: AutomationPositionTrait = _position_trait()
 	if position and not position is AutomationRibbonTrait and _weight(2) > 0.0:
-		var error: Vector3 = (sample.position - body.global_position).slide(tangent).slide(up)
+		var target_position: Vector3 = sample.position
+		if position is AutomationLaneTrait:
+			target_position += sample.normal * AutomationRouteRuntime.lane_offset(context.session, position as AutomationLaneTrait)
+		var error: Vector3 = (target_position - body.global_position).slide(tangent).slide(up)
 		if position.mode == AutomationPositionTrait.Mode.ATTRACTION:
 			error = (sample.position - body.global_position).slide(up)
 			var distance: float = error.length()
@@ -396,6 +401,14 @@ func _position_trait() -> AutomationPositionTrait:
 		if component and component.applies(_attached()):
 			return component
 	return null
+
+
+func is_grounded() -> bool:
+	return _attached()
+
+
+func is_suspended() -> bool:
+	return _exclusive()
 
 
 func get_maximum_speed() -> float:

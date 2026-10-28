@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/AutomationSplineCore.tscn" id="core"]
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationLaneTrait.gd" id="lane"]
+[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="position"]
+
+[sub_resource type="Resource" id="lanes"]
+resource_local_to_scene = true
+resource_name = "Three lanes"
+script = ExtResource("lane")
+airborne = true
+
+[node name="LaneSection" instance=ExtResource("core")]
+position_traits = Array[ExtResource("position")]([SubResource("lanes")])

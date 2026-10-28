@@ -136,6 +136,8 @@ func _build_dock() -> void:
 		_route_buttons.append(button)
 	_button("Make selected influence local", _modify_component.bind("Local"), "Duplicates the selected resource and its nested resources for this route.")
 	_button("Make all influences local", _local_all)
+	_button("Add route connection", _add_route_child.bind(true), "Adds an explicit destination and buffered branch configuration at the preview cursor.")
+	_button("Add progress event", _add_route_child.bind(false), "Adds a directional progress marker at the preview cursor.")
 	_button("Generate / regenerate triggers", _generate, "Replaces only the marked _AutomationVolumes subtree. Custom areas remain intact. Undo restores the previous geometry and references.", false)
 	var generation: Label = Label.new()
 	generation.text = "Trigger size and spacing: Inspector → Authoring"
@@ -254,6 +256,29 @@ func _changed(source: AutomationSplineCore) -> void:
 func _apply_preset() -> void:
 	if _source() and not _source() is AutomationDepthProfile:
 		_commit("Apply automation preset", Authoring.preset_properties(_presets.selected))
+
+
+func _add_route_child(connection: bool) -> void:
+	var source: AutomationSplineCore = _source()
+	if not source:
+		return
+	var child: Node3D = AutomationRouteConnection.new() if connection else AutomationProgressMarker.new()
+	child.name = "Connection" if connection else "ProgressEvent"
+	child.set("source_progress" if connection else "progress", source.preview_progress)
+	var undo: EditorUndoRedoManager = get_undo_redo()
+	undo.create_action("Add automation route component", UndoRedo.MERGE_DISABLE, source)
+	undo.add_do_method(self, "_attach_route_child", source, child, EditorInterface.get_edited_scene_root())
+	undo.add_undo_method(source, "remove_child", child)
+	undo.add_do_reference(child)
+	undo.add_do_method(self, "_changed", source)
+	undo.add_undo_method(self, "_changed", source)
+	undo.commit_action()
+	EditorInterface.edit_node(child)
+
+
+func _attach_route_child(source: AutomationSplineCore, child: Node3D, owner: Node) -> void:
+	source.add_child(child, true)
+	child.owner = owner
 
 
 func _add_component(index: int) -> void:
