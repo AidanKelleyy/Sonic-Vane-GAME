@@ -6313,7 +6313,8 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 	var ground_accel_curve_used: Curve = ground_accel_curve
 	var ground_turn_angle_curve_used: Curve = ground_turn_angle_curve
 
-	var barrier_speed_boost: bool = _barrier_blast_active or (rolling and _barrier_blast_gauge >= 1.0)
+	var drop_dash_air_control: bool = not is_attached and is_drop_dash_charging()
+	var barrier_speed_boost: bool = _barrier_blast_active or (rolling and not drop_dash_air_control and _barrier_blast_gauge >= 1.0)
 	if barrier_speed_boost:
 		if barrier_blast_run_top_speed > 0.0:
 			run_top_speed_used = barrier_blast_run_top_speed
@@ -6683,8 +6684,8 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 	# Use raw input to decide if the player is *trying* to move
 	var modular_top_speed: float = _automation_controller.motion.get_player_top_speed()
 	var has_input: bool = movement_input_strength > 0.001
-	var is_rolling: bool = rolling and roll_enabled
-	var is_spindash_charging: bool = _spindash_charging and spindash_enabled
+	var is_rolling: bool = rolling and roll_enabled and not drop_dash_air_control
+	var is_spindash_charging: bool = _spindash_charging and spindash_enabled and not drop_dash_air_control
 	var spindash_release_now: bool = _spindash_release_requested and is_attached
 
 	# --------------------------------------------------

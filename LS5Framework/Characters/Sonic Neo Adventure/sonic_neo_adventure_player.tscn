@@ -3298,10 +3298,9 @@ combat_class = 1
 
 [node name="Spindash" type="Node" parent="Abilities" unique_id=2051000003]
 script = ExtResource("108_ve7ne")
-spindash_charge_time_max = 0.7
-spindash_rail_charge_time_max = 0.7
-spindash_min_launch_speed = 70.0
-spindash_max_launch_speed = 110.0
+spindash_rail_charge_time_max = 0.8
+spindash_min_launch_speed = 80.0
+spindash_max_launch_speed = 120.0
 spindash_barrier_blast_overcharge_cap = 0.5
 spindash_barrier_blast_overcharge_duration = 2.5
 on_spindash_jump_action = NodePath("../Jump")
