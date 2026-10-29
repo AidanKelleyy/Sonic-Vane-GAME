@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ysdp8w626ts4"]
 
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="1_dagco"]
-[ext_resource type="PackedScene" uid="uid://bwy4wqw33nk5x" path="res://LS5Framework/Scenes/Levels/MyCoolLevel/myAwesomeLevel.fbx" id="1_vitqo"]
+[ext_resource type="PackedScene" uid="uid://g4s2ptdjbioi" path="res://LS5Framework/Scenes/Levels/MyCoolLevel/prisonLevelMDL/prisonLevel.glb" id="1_t1bg2"]
 [ext_resource type="PackedScene" uid="uid://dpqdt82o1f57x" path="res://LS5Framework/Objects/Spring/Spring.tscn" id="3_bnxrr"]
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="4_0glse"]
 [ext_resource type="AudioStream" uid="uid://dxavnsgfcvjbx" path="res://LS5Framework/Sounds/Music/ChrisSenn-EmeraldClouds.ogg" id="5_jn1ry"]
@@ -21,8 +21,8 @@
 [ext_resource type="PackedScene" uid="uid://cwsdj34dkp0dx" path="res://LS5Framework/Objects/ItemMonitor/ItemMonitor.tscn" id="20_ee4q3"]
 [ext_resource type="Script" uid="uid://bbqjenpejk0mi" path="res://LS5Framework/Objects/ItemMonitor/ItemMonitorReward.gd" id="21_3qeqd"]
 [ext_resource type="PackedScene" uid="uid://bktxefyel8i42" path="res://LS5Framework/Objects/Race/RaceGoal.tscn" id="22_3qeqd"]
-[ext_resource type="PackedScene" uid="uid://ie7142myiknm" path="res://LS5Framework/Objects/Water/Water_Volume.tscn" id="23_t1bg2"]
-[ext_resource type="Shader" uid="uid://chmgmj434uopx" path="res://LS5Framework/Shaders/WaterShader_StayAtHomeDev/Shader/Water.gdshader" id="24_qqmqe"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Deep_Pool.tscn" id="24_t1bg2"]
+[ext_resource type="LightmapGIData" uid="uid://csk6n5lwhjsmk" path="res://LS5Framework/Scenes/Levels/MyCoolLevel/sample_level.lmbake" id="25_otf76"]
 [ext_resource type="PackedScene" uid="uid://d1okvbdxqc08b" path="res://LS5Framework/Objects/VaultBar/VaultBar.tscn" id="25_qqmqe"]
 
 [sub_resource type="Resource" id="Resource_q03af"]
@@ -203,116 +203,28 @@ metadata/_custom_type_script = "uid://bgccl8q6bo21v"
 [sub_resource type="BoxShape3D" id="BoxShape3D_uff3j"]
 size = Vector3(155.47632, 510.0293, 156.792)
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_6nyqt"]
-size = Vector2(5000, 20000)
-subdivide_width = 32
-subdivide_depth = 32
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_4ur6j"]
-noise_type = 3
-fractal_type = 2
-domain_warp_enabled = true
-domain_warp_fractal_type = 0
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_r1l3q"]
-width = 1024
-height = 1024
-noise = SubResource("FastNoiseLite_4ur6j")
-seamless = true
-as_normal_map = true
-bump_strength = 9.3
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_pailx"]
-noise_type = 3
-offset = Vector3(12, 0, 0)
-fractal_type = 2
-fractal_octaves = 6
-fractal_lacunarity = 1.855
-domain_warp_enabled = true
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_rdfrl"]
-width = 1024
-height = 1024
-noise = SubResource("FastNoiseLite_pailx")
-seamless = true
-as_normal_map = true
-bump_strength = 8.2
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ehepn"]
-load_path = "res://.godot/imported/wave14.png-60e239494a57a9f7ded3f1b05003f5a3.s3tc.ctex"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_1l1dj"]
-render_priority = 0
-shader = ExtResource("24_qqmqe")
-shader_parameter/albedo = Color(0, 0.7316994, 0.88269347, 1)
-shader_parameter/albedo2 = Color(0.8127987, 0.86050355, 0.97439605, 1)
-shader_parameter/metallic = 0.0
-shader_parameter/roughness = 0.02
-shader_parameter/alpha = 0.85
-shader_parameter/wave = SubResource("CompressedTexture2D_ehepn")
-shader_parameter/texture_normal = SubResource("NoiseTexture2D_r1l3q")
-shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_rdfrl")
-shader_parameter/wave_uv_scale = 0.455
-shader_parameter/normal_uv_scale = 0.01
-shader_parameter/normal2_uv_scale = 0.01
-shader_parameter/wave_direction = Vector2(2, 0)
-shader_parameter/wave_direction2 = Vector2(0, 1)
-shader_parameter/time_scale = 0.025
-shader_parameter/noise_scale = 10.0
-shader_parameter/height_offset = 0.0
-shader_parameter/normal_detail_fade_start = 500.0
-shader_parameter/normal_detail_fade_end = 4000.0
-shader_parameter/distant_normal_strength = 0.2
-shader_parameter/specular_aa_strength = 0.35
-shader_parameter/distant_roughness = 0.3
-shader_parameter/ssr_camera_fade_start = 750.0
-shader_parameter/ssr_camera_fade_end = 3000.0
-shader_parameter/water_scatter_strength = 0.06
-shader_parameter/gi_fallback_fade_start = 650.0
-shader_parameter/gi_fallback_fade_end = 1300.0
-shader_parameter/gi_fallback_irradiance = 0.45
-shader_parameter/gi_fallback_near_blend = 0.35
-shader_parameter/color_deep = Color(0.16016582, 0.2380532, 0.36666462, 1)
-shader_parameter/color_shallow = Color(0.41579995, 0.6932566, 0.77, 1)
-shader_parameter/shallow_depth = 0.5
-shader_parameter/deep_depth = 50.0
-shader_parameter/depth_offset = 0.0
-shader_parameter/beers_law = 2.0
-shader_parameter/edge_color = Color(0.91, 1, 0.9925, 1)
-shader_parameter/edge_start = 0.34
-shader_parameter/edge_width = 3.65
-shader_parameter/edge_strength = 1.0
-shader_parameter/refraction_strength = 0.058
-shader_parameter/refraction_mip_scale = 2.5
-shader_parameter/ssr_strength = 0.35
-shader_parameter/ssr_max_distance = 80.0
-shader_parameter/ssr_max_steps = 48
-shader_parameter/ssr_stride = 1.0
-shader_parameter/ssr_thickness = 0.35
-shader_parameter/ssr_start_offset = 0.1
-shader_parameter/ssr_fade_start = 0.6
-shader_parameter/ssr_fade_end = 0.95
-shader_parameter/ssr_edge_fade = 0.05
-shader_parameter/ssr_roughness_mip = 4.0
+[sub_resource type="Environment" id="Environment_20ag2"]
+tonemap_mode = 3
+tonemap_white = 16.0
+fog_light_color = Color(0.16695908, 0.1851261, 0.21339452, 1)
+volumetric_fog_density = 0.005
+adjustment_enabled = true
+adjustment_contrast = 1.14
+adjustment_saturation = 0.71
 
 [node name="Node3D" type="Node3D" unique_id=374029068]
 
-[node name="myAwesomeLevel" parent="." unique_id=1453220111 instance=ExtResource("1_vitqo")]
+[node name="PrisonLevel" parent="." unique_id=1930840756 instance=ExtResource("1_t1bg2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.244, 0)
 
 [node name="PlayerSpawn" parent="." unique_id=2087931526 instance=ExtResource("1_dagco")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1537638, 0)
-downwarp_enabled = true
 
 [node name="LevelMusic" type="Node3D" parent="." unique_id=467135388]
 script = ExtResource("4_0glse")
 autoplay = false
 autoplay_stream = ExtResource("5_jn1ry")
 autoplay_fade_in = 0.1
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=111273474]
-transform = Transform3D(1, 0, 0, 0, 0.41831845, 0.9083004, 0, -0.9083004, 0.41831845, -16.347055, 16.454197, 0)
-shadow_enabled = true
 
 [node name="RaceStart" parent="." unique_id=1344341188 instance=ExtResource("7_7bd6w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5341644, -21.864407, 153.3855)
@@ -525,68 +437,55 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 191.25085, -390.08035, 874.58
 [node name="Springs" type="Node3D" parent="SetDressing" unique_id=814509569]
 
 [node name="Spring" parent="SetDressing/Springs" unique_id=1400232972 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(-0.8334628, 0.5162934, 0.19693029, -0.09848315, -0.48947093, 0.86644024, 0.54372936, 0.70275134, 0.45880178, -11.213728, 13.358558, 265.3656)
 strength = 250.0
 
 [node name="Spring13" parent="SetDressing/Springs" unique_id=1538883451 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(-0.999687, 0.024132824, 0.0066264784, 0.0031656246, 0.38460115, -0.9230774, -0.024825014, -0.9227675, -0.38455683, 418.75058, -398.33548, 1099.4998)
 strength = 160.0
 
 [node name="Spring11" parent="SetDressing/Springs" unique_id=588016221 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(0.016692132, 0.86973804, 0.4932309, -0.09848318, -0.48947096, 0.86644024, 0.99499905, -0.06303787, 0.07748437, -730.00806, -50.547905, 1217.3993)
 strength = 250.0
 
 [node name="Spring3" parent="SetDressing/Springs" unique_id=832322294 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(0.007929019, -0.9870388, 0.16028553, 0.009783424, 0.16035967, 0.9870097, -0.99992096, -0.0062578465, 0.010928011, -1160.9059, -249.83766, 858.8721)
 strength = 250.0
 
 [node name="Spring6" parent="SetDressing/Springs" unique_id=1232866363 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(0.0363028, 0.8049684, 0.59220606, -0.009603758, 0.59285027, -0.8052549, -0.999295, 0.023545643, 0.029252741, -1504.346, -228.23766, 898.1687)
 strength = 250.0
 
 [node name="Spring5" parent="SetDressing/Springs" unique_id=1533779598 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(-0.0060981014, 0.9998749, 0.014593564, -0.011018071, 0.01452563, -0.9998334, -0.9999211, -0.0062578474, 0.0109280115, -1158.1156, -118.61973, 858.8721)
 strength = 250.0
 
 [node name="Spring8" parent="SetDressing/Springs" unique_id=1376853397 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(0.005171877, -0.995298, -0.09672208, 0.011482004, -0.0966578, 0.99525094, -0.999921, -0.006257846, 0.0109280115, -1201.8954, -11.108442, 857.1693)
 strength = 250.0
 
 [node name="Spring4" parent="SetDressing/Springs" unique_id=2000694678 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(-0.035781536, -0.59549963, 0.8025579, 0.01617674, 0.80262196, 0.59626824, -0.99922884, 0.034318242, -0.01908585, -1119.2355, -417.2917, 858.8721)
 strength = 100.0
 
 [node name="Spring2" parent="SetDressing/Springs" unique_id=2082760959 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(-0.5339439, -0.81169426, 0.23676267, 0.7176676, -0.5831303, -0.3806742, 0.447055, -0.033341743, 0.8938848, 473.1637, -168.73189, 864.57666)
 strength = 125.0
 
 [node name="Spring7" parent="SetDressing/Springs" unique_id=1135328888 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(0.7229173, -0.6482948, 0.23896484, 0.66763747, 0.74448645, 0, -0.17790608, 0.15954188, 0.9710282, -477.97787, -440.81992, 871.6728)
 strength = 100.0
 
 [node name="Spring9" parent="SetDressing/Springs" unique_id=1286590328 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(0.80561167, -0.5901398, -0.052204825, 0.5913318, 0.80636847, 0.009832209, 0.036293983, -0.03879129, 0.99858814, -809.5119, -332.28568, 875.3369)
 strength = 180.0
 
 [node name="Spring10" parent="SetDressing/Springs" unique_id=1494332605 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(1.0000001, 0, 0, 0, 0.99999994, 0, 0, 0, 1, -1113.6207, -187.35329, 860.7565)
 strength = 100.0
 homing_target_max_distance = 30.4
 
 [node name="Spring12" parent="SetDressing/Springs" unique_id=673496103 instance=ExtResource("3_bnxrr")]
-process_mode = 3
 transform = Transform3D(0.98514366, -0.1700798, 0.023775198, 0.0038430977, -0.11657414, -0.9931744, 0.17169055, 0.9785107, -0.11418865, -282.55936, -110.786385, 1508.3922)
 strength = 190.0
 
@@ -649,18 +548,9 @@ action_lock_time = 1.5
 [node name="CollisionShape3D" parent="SetDressing/JumpPanelRamp" index="0" unique_id=641640871]
 transform = Transform3D(2.05, 0, 0, 0, 2.05, 0, 0, 0, 2.05, 0.12180633, 1.80195, -0.017079161)
 shape = SubResource("BoxShape3D_v2l83")
-metadata/_uniform_size_base_position = Vector3(0.059417725, 0.879, -0.008331299)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="TempMesh" parent="SetDressing/JumpPanelRamp" index="1" unique_id=1872819520]
 transform = Transform3D(-4.4804173e-07, 0, 8.2, 0, 4.1, 0, -10.25, 0, -3.5843337e-07, 0, 2.05, 0)
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="SetDressing/JumpPanelRamp" index="3" unique_id=1615587704]
-transform = Transform3D(-8.960834e-08, 0, -2.05, 0, 2.05, 0, 2.05, 0, -8.960834e-08, 3.3866232e-08, -0.66943884, -0.774769)
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="cameraStuff" type="Node3D" parent="SetDressing" unique_id=277703180]
 
@@ -740,35 +630,50 @@ transform = Transform3D(-4.371139e-08, -1, -5.9604645e-08, 2.3643439e-07, 5.9604
 [node name="RaceGoal" parent="SetDressing" unique_id=767008932 instance=ExtResource("22_3qeqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 379.2853, -243.17789, 2507.8096)
 
-[node name="WATERNODE" parent="." unique_id=896649702 instance=ExtResource("23_t1bg2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2568.2566, -590.1953, 673.83466)
-size = Vector3(5000, 800, 20000)
-inner_subdivisions = 1
-
-[node name="Water_EditorPreview" type="MeshInstance3D" parent="WATERNODE" unique_id=2007587390]
-process_mode = 4
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 80, 0)
-cast_shadow = 0
-instance_shader_parameters/clipmap_displacement_fade_start = 0.0
-instance_shader_parameters/clipmap_inner_radius = 0.0
-instance_shader_parameters/clipmap_lod_scale = 0.0
-instance_shader_parameters/clipmap_outer_radius = 0.0
-instance_shader_parameters/height_scale = 5.0
-mesh = SubResource("PlaneMesh_6nyqt")
-surface_material_override/0 = SubResource("ShaderMaterial_1l1dj")
-
 [node name="VaultBar" parent="." unique_id=1685228124 instance=ExtResource("25_qqmqe")]
 transform = Transform3D(1.0129586e-07, 0.6350637, 0.77245975, -8.327854e-08, 0.77245975, -0.6350637, -1, 0, 1.3113416e-07, 220.97983, -287.87018, 2232.9556)
 bar_length = 100.0
-bar_radius = 0.5
+launch_speed_mode = 1
+fixed_launch_speed = 125.5
+launch_aim_origin = 1
+
+[node name="VaultBar2" parent="." unique_id=224244286 instance=ExtResource("25_qqmqe")]
+transform = Transform3D(-1.3873077e-08, -0.6350637, -0.77245975, -8.327855e-08, 0.77245975, -0.6350637, 1, 5.5519042e-08, -6.3603586e-08, 244.00227, -350.71613, 2049.2705)
+bar_length = 100.0
 launch_speed_mode = 1
 fixed_launch_speed = 125.5
 launch_aim_origin = 1
 
 [node name="LightmapGI" type="LightmapGI" parent="." unique_id=1672230381]
 quality = 0
-shadowmask_mode = 2
+directional = true
+shadowmask_mode = 1
 texel_scale = 0.24
+generate_probes_subdiv = 4
+light_data = ExtResource("25_otf76")
+
+[node name="AdventureDeepPool" parent="." unique_id=621082375 instance=ExtResource("24_t1bg2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -417.3854, -503.22955, 1040.4001)
+size = Vector3(5000, 100, 5000)
+
+[node name="AdventureDeepPool2" parent="." unique_id=1298432026 instance=ExtResource("24_t1bg2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 119.296265, -319.8203, 2047.4036)
+size = Vector3(300, 100, 100)
+water_color = Color(0.03630499, 0.24457452, 0.0050926907, 1)
+wave_color = Color(3.4413488e-06, 0.37219122, 0.07211732, 1)
+view_angle_color = Color(0.23962498, 0.45, 0.22049999, 1)
+depth_color = Color(0.02394, 0.28, 0.019599998, 1)
+caustic_color = Color(0.36083335, 1, 0.35000002, 1)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2003235915]
+environment = SubResource("Environment_20ag2")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1888015012]
+transform = Transform3D(0.94880164, -0.010567191, 0.3156961, -0.311956, 0.1255572, 0.9417638, -0.0495897, -0.9920301, 0.11583234, 0, 28.36568, 152.58038)
+light_energy = 2.0
+light_indirect_energy = 2.0
+light_bake_mode = 1
+shadow_enabled = true
 
 [editable path="RaceStart"]
 [editable path="SetDressing/RingSplines/RingSpline1"]
@@ -799,6 +704,7 @@ texel_scale = 0.24
 [editable path="SetDressing/DashPanel5/Mesh/DashPanelMesh"]
 [editable path="SetDressing/DashPanel5/Mesh/DashPanelMesh/DashPanel"]
 [editable path="SetDressing/JumpPanelRamp"]
+[editable path="SetDressing/JumpPanelRamp/Ramp"]
 [editable path="SetDressing/cameraStuff/CameraConstraint2"]
 [editable path="SetDressing/cameraStuff/CameraConstraint5"]
 [editable path="SetDressing/cameraStuff/CameraConstraint6"]
