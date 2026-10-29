@@ -3,8 +3,14 @@
 [ext_resource type="Script" uid="uid://cg665frckn63u" path="res://LS5Framework/Scripts/Settings/CharacterSettingsProfile.gd" id="1_profile"]
 
 [resource]
-attribute_ids = Array[StringName]([&"visual.outline.enabled", &"visual.uekawa.enabled", &"pawn.movement_time_scale"])
+script = ExtResource("1_profile")
+attribute_ids = Array[StringName]([&"ability.spindash.spindash_air_mode", &"visual.outline.enabled", &"visual.uekawa.enabled", &"pawn.movement_time_scale"])
 attribute_definitions = {
+&"ability.spindash.spindash_air_mode": {
+"label": "Mid-Air Spindash",
+"description": "Drop-Dash keeps charging until landing and releases along the ground. Legacy releases diagonally in midair when the button is released.",
+"category": "Spindash"
+},
 &"pawn.movement_time_scale": {
 "label": "Movement Time Scale",
 "description": "Base movement clock rate. Gameplay, debuff, and underwater multipliers remain separate.",
@@ -15,9 +21,8 @@ attribute_definitions = {
 "suffix": "x"
 }
 }
-script = ExtResource("1_profile")
 character_id = &"tails"
-profile_version = 8
+profile_version = 9
 selection_category = "Work In Progress"
 ability_catalog = Array[Dictionary]([{
 "ability_id": &"uppercut_kick",

@@ -3404,7 +3404,6 @@ glide_conversion_efficiency = 0.959
 glide_ascent_conversion_rate = 1.25
 glide_turn_rate = 120.0
 glide_turn_drag = 0.0
-glide_drag = 0.0
 on_roll_action = NodePath("../Roll")
 
 [node name="Bounce" type="Node" parent="Abilities" unique_id=2105886231]

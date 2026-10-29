@@ -100,6 +100,8 @@ User loadout changes are stored as per-ability overrides. New abilities and upda
 
 Character-specific settings can use `default_settings`, `CharacterProfileManager.get_effective_settings()`, and `CharacterProfileManager.set_character_setting()`. These values share the same per-character persistence namespace as the loadout.
 
+The Attributes tab exposes **Mid-Air Spindash** through `ability.spindash.spindash_air_mode`. **Drop-Dash** is the default: airborne activation keeps charging after button release and launches along the contacted ground at the reached strength. Available abilities can cancel the charge; neutral falling preserves it. **Legacy** retains the diagonal airborne launch on button release. Grounded spindash uses its existing hold/release behavior in either mode. A completed or cancelled Drop-Dash requires button release before another charge can start.
+
 ## Action routing
 
 `default_routes` defines packaged transitions with stable action identifiers instead of scene paths. User changes and user-created routes are stored with the character profile, so editing a route never modifies or repackages the character.

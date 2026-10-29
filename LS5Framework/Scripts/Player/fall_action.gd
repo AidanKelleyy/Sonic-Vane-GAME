@@ -20,6 +20,21 @@ extends CharacterAction
 @export var on_air_action_pressed_action: NodePath
 
 
+var preserve_air_momentum: bool = false
+
+
+func on_action_enter(context: Dictionary = {}) -> void:
+	preserve_air_momentum = bool(context.get("preserve_air_momentum", false))
+
+
+func on_action_exit(_next_action: CharacterAction) -> void:
+	preserve_air_momentum = false
+
+
+func preserves_air_momentum() -> bool:
+	return preserve_air_momentum
+
+
 func _on_action_initialized() -> void:
 	action_id = &"fall"
 	allow_when_inactive = false

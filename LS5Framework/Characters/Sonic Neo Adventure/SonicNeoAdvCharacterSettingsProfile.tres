@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_c1gcp")
 character_id = &"sonic_neo_adventure"
-profile_version = 10
+profile_version = 11
 emote_voice_profile = ExtResource("emote_voice")
 ability_catalog = Array[Dictionary]([{
 "ability_id": &"uppercut_kick",
@@ -380,8 +380,13 @@ default_routes = Array[Dictionary]([{
 "target_action": &"roll"
 }])
 routes_authoritative = true
-attribute_ids = Array[StringName]([&"visual.outline.enabled", &"visual.uekawa.enabled", &"pawn.movement_time_scale"])
+attribute_ids = Array[StringName]([&"ability.spindash.spindash_air_mode", &"visual.outline.enabled", &"visual.uekawa.enabled", &"pawn.movement_time_scale"])
 attribute_definitions = {
+&"ability.spindash.spindash_air_mode": {
+"label": "Mid-Air Spindash",
+"description": "Drop-Dash keeps charging until landing and releases along the ground. Legacy releases diagonally in midair when the button is released.",
+"category": "Spindash"
+},
 &"pawn.movement_time_scale": {
 "label": "Movement Time Scale",
 "description": "Base movement clock rate. Gameplay, debuff, and underwater multipliers remain separate.",

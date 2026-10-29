@@ -6382,9 +6382,12 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 		air_decel_effective *= clamp(hurt_air_decel_multiplier, 0.0, 1.0)
 	# Effective air top speed (delay + slerp after detaching).
 	var air_top_speed_effective: float = _get_effective_air_top_speed(delta, is_attached)
+	var preserve_air_momentum: bool = not is_attached and _active_action != null and _active_action.preserves_air_momentum()
 	var item_top_speed_multiplier: float = get_active_top_speed_multiplier()
 	run_top_speed_used *= item_top_speed_multiplier
 	air_top_speed_effective *= item_top_speed_multiplier
+	if preserve_air_momentum:
+		air_top_speed_effective = maxf(air_top_speed_effective, lateral.length())
 
 	# --------------------------------------------------
 	# LIGHTSPEED DASH OVERRIDE
@@ -7328,7 +7331,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 				if _homing_retain_timer <= 0.0:
 					lateral = lateral.move_toward(Vector3.ZERO, max(roll_air_decel, 0.0) * water_decel_mult * delta)
 			else:
-				if not (auto_active and _automation_lock_movement) and not (_automation_controller and _automation_controller.motion.has_automatic_drive()) and not in_spring_state and _homing_retain_timer <= 0.0:
+				if not preserve_air_momentum and not (auto_active and _automation_lock_movement) and not (_automation_controller and _automation_controller.motion.has_automatic_drive()) and not in_spring_state and _homing_retain_timer <= 0.0:
 					var passive_air_decel: float = air_decel_effective * water_decel_mult * movement_release_decel_scale
 					lateral = lateral.move_toward(Vector3.ZERO, passive_air_decel * delta)
 
@@ -7967,6 +7970,8 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 		var recovery_weight: float = 1.0 - exp(-max(max_speed_override_recovery_lerp_speed, 0.0) * delta)
 		_functional_max_speed = lerp(_functional_max_speed, max(max_speed, 0.0), recovery_weight) if recovery_weight > 0.0 else max(max_speed, 0.0)
 	var max_speed_effective: float = _functional_max_speed * water_top_speed_mult
+	if preserve_air_momentum and not max_speed_override_active and not in_water_movement_physics:
+		max_speed_effective = maxf(max_speed_effective, lateral_speed_before_motor)
 	if not is_attached:
 		lateral = _apply_left_stick_trick_momentum(lateral, max_speed_effective, water_accel_mult, delta)
 	var lateral_speed_final: float = lateral.length()
@@ -11100,6 +11105,11 @@ func activate_action(action, context: Dictionary = {}) -> bool:
 		return false
 	if not action.can_execute(context):
 		return false
+	if action != _fall_action and action != _spindash_action and is_drop_dash_charging():
+		_cancel_spindash_charge()
+		if _roll_action:
+			_roll_action._set_rolling(false, true)
+			_sync_roll_state_from_action()
 	if _active_action != null and is_instance_valid(_active_action) and _active_action != action:
 		_active_action.on_action_exit(action)
 	_active_action = action
@@ -11239,7 +11249,7 @@ func _current_action_receives_fast_fall_horizontal_drag() -> bool:
 	if not (_active_action is CharacterActionType):
 		return true
 	var action: CharacterActionType = _active_action
-	return action.receives_fast_fall_horizontal_drag()
+	return not action.preserves_air_momentum() and action.receives_fast_fall_horizontal_drag()
 
 
 func _current_action_blocks_shared_movement_integration() -> bool:
@@ -12056,7 +12066,13 @@ func is_lightspeed_dash_active() -> bool:
 	return _lightspeed_dash_active
 
 
+func is_drop_dash_charging() -> bool:
+	return not attached and _spindash_action != null and _spindash_action.is_charging and _spindash_action.drop_dash_charging
+
+
 func should_prioritize_spindash_over_bounce_stomp() -> bool:
+	if is_drop_dash_charging():
+		return false
 	if _spindash_action != null and _spindash_action.is_charging:
 		return true
 	if _spindash_charging:

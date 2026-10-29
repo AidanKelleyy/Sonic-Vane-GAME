@@ -1,10 +1,14 @@
 class_name SpindashAction
 extends CharacterAction
 
+enum AirSpindashMode { LEGACY, DROP_DASH }
+
 @export_group("Spindash")
 
 @export_subgroup("Activation")
 @export var spindash_enabled: bool = true
+## Legacy releases diagonally in midair. Drop-Dash keeps charging until landing or another action cancels it.
+@export_enum("Legacy", "Drop-Dash") var spindash_air_mode: int = AirSpindashMode.DROP_DASH
 @export var spindash_charge_time_max: float = 0.9
 @export var spindash_rail_charge_time_max: float = 0.9
 ## Delay before the Spindash activates when its modifier slot is not held.
@@ -60,6 +64,8 @@ var roll_held: bool = false
 var ground_action1_press_valid: bool = false
 var countdown_release_buffer_open: bool = false
 var countdown_release_queued: bool = false
+var drop_dash_charging: bool = false
+var air_charge_cancelled: bool = false
 
 
 func _on_action_initialized() -> void:
@@ -141,6 +147,8 @@ func _update_standard(delta: float) -> void:
 	var on_ground: bool = owner_player.attached
 	var hold_time: float = max(spindash_ground_hold_time, 0.0)
 	roll_held = roll_btn
+	if not action1_held:
+		air_charge_cancelled = false
 
 	if pending_release and owner_player.attached:
 		release_requested = true
@@ -151,6 +159,9 @@ func _update_standard(delta: float) -> void:
 		owner_player._play_spindash_release_sfx()
 
 	if is_charging:
+		if drop_dash_charging and on_ground:
+			_trigger_release(false)
+			return
 		var roll_action = _get_roll_action()
 		if roll_action != null and not roll_action.is_rolling:
 			roll_action.is_rolling = true
@@ -168,11 +179,11 @@ func _update_standard(delta: float) -> void:
 		if on_ground and (action1_released or not action1_held):
 			_trigger_release(false)
 			return
-		if not on_ground and action1_released:
+		if not on_ground and action1_released and not drop_dash_charging:
 			_apply_air_release(world_up)
 			return
 
-		if action1_held:
+		if action1_held or drop_dash_charging:
 			_advance_charge(delta, spindash_charge_time_max)
 
 		if not charge_full_played and get_charge_ratio() >= 1.0:
@@ -221,6 +232,9 @@ func _update_on_rail(delta: float) -> void:
 		owner_player._play_spindash_release_sfx()
 
 	if is_charging:
+		if drop_dash_charging:
+			_trigger_release(false)
+			return
 		var roll_action = _get_roll_action()
 		if roll_action != null and not roll_action.is_rolling:
 			roll_action.is_rolling = true
@@ -314,6 +328,7 @@ func _start_charge() -> void:
 	if owner_player.has_method("cancel_bounce_stomp_for_action"):
 		owner_player.cancel_bounce_stomp_for_action()
 	is_charging = true
+	drop_dash_charging = spindash_air_mode == AirSpindashMode.DROP_DASH and not owner_player.attached and not owner_player._rail_active
 	charge_time = 0.0
 	charge_full_played = false
 	release_requested = false
@@ -344,6 +359,8 @@ func _start_charge() -> void:
 
 
 func _cancel_charge() -> void:
+	air_charge_cancelled = air_charge_cancelled or drop_dash_charging
+	drop_dash_charging = false
 	countdown_release_buffer_open = false
 	countdown_release_queued = false
 	if not is_charging:
@@ -360,6 +377,8 @@ func _cancel_charge() -> void:
 
 
 func reset_state() -> void:
+	drop_dash_charging = false
+	air_charge_cancelled = false
 	is_charging = false
 	charge_time = 0.0
 	charge_full_played = false
@@ -407,6 +426,8 @@ func _process_countdown_release_buffer(release_pressed: bool) -> bool:
 
 func _trigger_release(with_jump: bool) -> void:
 	var speed: float = get_release_speed()
+	air_charge_cancelled = air_charge_cancelled or drop_dash_charging
+	drop_dash_charging = false
 	is_charging = false
 	charge_time = 0.0
 	charge_full_played = false
@@ -499,6 +520,8 @@ func get_input_prompt(_context: Dictionary = {}) -> Dictionary:
 	if not owner_player or not enabled or not input_prompt_enabled or not spindash_enabled:
 		return {}
 	if is_charging:
+		if drop_dash_charging:
+			return {}
 		return {"label": input_prompt_name if input_prompt_name else "Launch Spindash", "gesture": &"release"}
 	if not _can_start() or _roll_route_locked():
 		return {}
@@ -508,6 +531,8 @@ func get_input_prompt(_context: Dictionary = {}) -> Dictionary:
 
 
 func _can_start() -> bool:
+	if air_charge_cancelled:
+		return false
 	if owner_player._spring_action_lock_timer > 0.0 or owner_player._spring_movement_lock_timer > 0.0:
 		return false
 	if owner_player._spring_align_timer > 0.0:

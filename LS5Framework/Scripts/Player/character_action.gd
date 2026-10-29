@@ -153,6 +153,10 @@ func receives_fast_fall_horizontal_drag_by_default() -> bool:
 	return true
 
 
+func preserves_air_momentum() -> bool:
+	return false
+
+
 func blocks_shared_movement_integration() -> bool:
 	return false
 

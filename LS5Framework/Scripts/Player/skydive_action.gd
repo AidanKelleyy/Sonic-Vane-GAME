@@ -22,6 +22,8 @@ enum SkydiveState {
 @export var dive_turn_rate: float = 75.0
 
 @export_subgroup("Movement/Glide")
+## Minimum drop from the airborne apex before downward glide deployment.
+@export_range(0.0, 100.0, 0.5, "or_greater", "suffix:m") var glide_min_drop_distance: float = 8.0
 ## Speed producing full pullout and float strength.
 @export var glide_full_effect_speed: float = 140.0
 ## Horizontal contribution to pullout strength relative to downward speed.
@@ -44,8 +46,6 @@ enum SkydiveState {
 @export var glide_turn_rate: float = 55.0
 ## Speed lost per radian of steering, as an exponential drag coefficient.
 @export var glide_turn_drag: float = 0.22
-## Continuous glide drag coefficient per second.
-@export var glide_drag: float = 0.12
 ## Support strength below which a descending glide returns to ordinary falling.
 @export_range(0.0, 0.1) var glide_exit_strength: float = 0.025
 ## Roll-spindash lockout applied when rolling out of skydive.
@@ -79,6 +79,8 @@ var recovery_previous_position: Vector3 = Vector3.ZERO
 var recovery_position_valid: bool = false
 var recovery_was_diving: bool = false
 var recovery_dive_distance: float = 0.0
+var airborne_drop_distance: float = 0.0
+var drop_frame_up: Vector3 = Vector3.ZERO
 
 
 func blocks_shared_movement_integration() -> bool:
@@ -97,6 +99,12 @@ func continuous_physics_update(_delta: float) -> void:
 	if not owner_player:
 		return
 	var position: Vector3 = owner_player.global_position
+	var up: Vector3 = _get_gravity_up()
+	if owner_player.attached or not recovery_position_valid or not drop_frame_up.is_equal_approx(up):
+		airborne_drop_distance = 0.0
+	else:
+		airborne_drop_distance = maxf(airborne_drop_distance - (position - recovery_previous_position).dot(up), 0.0)
+	drop_frame_up = up
 	var diving: bool = state == SkydiveState.DIVE and owner_player.get_current_action_id() == action_id
 	if owner_player.attached:
 		glide_allowance = 1.0
@@ -126,7 +134,7 @@ func can_execute(_context: Dictionary = {}) -> bool:
 		return false
 	if owner_player.attached:
 		return false
-	if owner_player.rolling and not (bool(_context.get("input_prompt", false)) and bool(_context.get("input_prompt_clear_active", false))):
+	if owner_player.rolling and not owner_player.is_drop_dash_charging() and not (bool(_context.get("input_prompt", false)) and bool(_context.get("input_prompt_clear_active", false))):
 		return false
 	if owner_player.has_method("get_current_action_id") and owner_player.get_current_action_id() == &"propeller_flight":
 		return false
@@ -140,7 +148,7 @@ func can_execute(_context: Dictionary = {}) -> bool:
 		return false
 	if owner_player._spring_movement_lock_timer > 0.0:
 		return false
-	if owner_player._spindash_charging:
+	if owner_player._spindash_charging and not owner_player.is_drop_dash_charging():
 		return false
 	if owner_player._homing_active:
 		return false
@@ -249,7 +257,8 @@ func _update_dive(delta: float) -> void:
 		dive_input_held = bool(owner_player.call("is_ability_binding_pressed", action_id, input_action))
 	if not dive_input_held:
 		_start_glide()
-		_update_glide(delta)
+		if state == SkydiveState.GLIDE:
+			_update_glide(delta)
 		return
 	_request_skydive_anim(&"Skydive_Dive")
 	var step: float = maxf(owner_player.get_movement_delta(delta), 0.0)
@@ -270,6 +279,9 @@ func _update_dive(delta: float) -> void:
 
 
 func _start_glide() -> void:
+	if get_gravity_vertical_component(owner_player.velocity) <= 0.0 and airborne_drop_distance < maxf(glide_min_drop_distance, 0.0):
+		_clear_to_neutral_air()
+		return
 	recovery_dive_distance = 0.0
 	recovery_was_diving = false
 	state = SkydiveState.GLIDE
@@ -287,11 +299,14 @@ func _update_glide(delta: float) -> void:
 		_start_dive()
 		_update_dive(delta)
 		return
+	if get_gravity_vertical_component(owner_player.velocity) <= 0.0 and airborne_drop_distance < maxf(glide_min_drop_distance, 0.0):
+		_clear_to_neutral_air()
+		return
 	_request_skydive_anim(&"Skydive_Glide")
 	var step: float = maxf(owner_player.get_movement_delta(delta), 0.0)
 	owner_player.velocity = _integrate_glide(owner_player.velocity, _get_owner_move_direction(), _get_input_strength(), step)
 	if glide_elapsed >= maxf(glide_effect_duration, 0.001) or (glide_lift_effect_strength < maxf(glide_exit_strength, 0.0) and get_gravity_vertical_component(owner_player.velocity) <= 0.0):
-		_clear_to_neutral_air()
+		_clear_to_neutral_air(true)
 
 
 func _get_glide_support(velocity: Vector3) -> float:
@@ -322,7 +337,7 @@ func _integrate_glide(velocity: Vector3, input_direction: Vector3, input_strengt
 	velocity = _steer_toward(velocity, direction, control * influence, step, glide_turn_rate, glide_turn_drag)
 	# Gravity follows pullout so lift cannot continuously cancel descent.
 	var gravity_scale: float = lerpf(1.0, clampf(glide_gravity_scale, 0.05, 1.0), strength) if next_vertical <= 0.0 else 1.0
-	var planar: Vector3 = get_gravity_planar_component(velocity) * exp(-maxf(glide_drag, 0.0) * influence * step)
+	var planar: Vector3 = get_gravity_planar_component(velocity)
 	vertical = get_gravity_vertical_component(velocity) - gravity * gravity_scale * step
 	glide_elapsed = minf(glide_elapsed + maxf(step, 0.0), duration)
 	glide_allowance = clampf(1.0 - glide_elapsed / duration, 0.0, 1.0)
@@ -408,7 +423,7 @@ func _get_gravity_up() -> Vector3:
 	return get_owner_gravity_up()
 
 
-func _clear_to_neutral_air() -> void:
+func _clear_to_neutral_air(preserve_momentum: bool = false) -> void:
 	state = SkydiveState.NONE
 	glide_elapsed = 0.0
 	glide_entry_strength = 0.0
@@ -422,7 +437,7 @@ func _clear_to_neutral_air() -> void:
 		return
 	_request_skydive_anim(&"Skydive_Exit")
 	if owner_player.has_method("activate_neutral_air_action"):
-		owner_player.activate_neutral_air_action({"reason": &"skydive_finished", "source_action": action_id})
+		owner_player.activate_neutral_air_action({"reason": &"skydive_finished", "source_action": action_id, "preserve_air_momentum": preserve_momentum})
 
 
 func _request_skydive_anim(state_name: StringName) -> void:
