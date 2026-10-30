@@ -11833,6 +11833,7 @@ func _do_bounce_landing(v_before: Vector3, landing_normal: Vector3, surface_velo
 
 	_bounce_rebound_attack_active = true
 	_bounce_state = BounceState.REBOUND
+	visual_bounce_rebounded.emit()
 	var rebound_action: CharacterAction = _get_action_by_id(&"bounce_rebound")
 	if rebound_action != null:
 		rebound_action.execute({"reason": &"bounce_landing", "source_action": &"bounce"})

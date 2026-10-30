@@ -225,6 +225,7 @@ func apply_enemy_bounce(origin: Vector3, speed: float, source: Node = null) -> v
 	p._jumped_from_ground = false
 	p._falling_without_jump = true
 	p._enemy_bounce_cooldown_timer = p.ENEMY_BOUNCE_COOLDOWN_SEC
+	p.visual_bounce_rebounded.emit()
 	p.refresh_airborne_abilities()
 	if was_homing_contact:
 		_complete_homing_from_enemy_contact(source, homing_contact_velocity, homing_contact_lateral, up, origin)
@@ -269,6 +270,7 @@ func apply_enemy_attack_bounce(end_bounce_stomp: bool = false, source: Node = nu
 	p._jump_time = 0.0
 	p._is_jumping = false
 	p._enemy_attack_chain_active = true
+	p.visual_bounce_rebounded.emit()
 	p.refresh_airborne_abilities()
 	if end_bounce_stomp and p._bounce_state != p.BounceState.NONE:
 		p._bounce_state = p.BounceState.NONE

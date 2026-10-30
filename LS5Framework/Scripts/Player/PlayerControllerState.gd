@@ -1,6 +1,8 @@
 extends CharacterBody3D
 class_name PlayerControllerState
 
+signal visual_bounce_rebounded
+
 @export_group("Movement Time")
 ## Default movement clock rate. Preserves movement tuning and scales traversal time.
 ## AnimationTree resources named with `_movement-time-scale=false` exclude animation playback unless a slowdown debuff is active.

@@ -126,11 +126,12 @@ resource_local_to_scene = true
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hlfvd"]
 resource_local_to_scene = true
+resource_name = "_spinball-enabled=true"
 animation = &"Jump"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_drop_dash"]
 resource_local_to_scene = true
-resource_name = "_afterimage-speed=true;min_speed=0;max_speed=1;min_alpha=0.765;max_alpha=0.765;"
+resource_name = "_afterimage-speed=true;min_speed=0;max_speed=1;min_alpha=0.765;max_alpha=0.765;_spinball-enabled=true"
 animation = &"DropDash"
 use_custom_timeline = true
 timeline_length = 0.00999999999999999
@@ -516,6 +517,7 @@ loop_mode = 0
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_bicyk"]
 resource_local_to_scene = true
+resource_name = "_spinball-enabled=true"
 animation = &"RollFloor"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_fpuok"]
@@ -958,6 +960,7 @@ resource_local_to_scene = true
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_i182q"]
 resource_local_to_scene = true
+resource_name = "_spinball-enabled=true"
 animation = &"RollFloor"
 use_custom_timeline = true
 timeline_length = 0.3
@@ -1766,6 +1769,7 @@ resource_local_to_scene = true
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ilk7f"]
 resource_local_to_scene = true
+resource_name = "_spinball-enabled=true"
 animation = &"RollFloor"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ivygt"]
@@ -2478,7 +2482,6 @@ graph_offset = Vector2(-320, -146)
 
 [resource]
 resource_local_to_scene = true
-graph_offset = Vector2(-720, -296)
 nodes/output/position = Vector2(1860, 60)
 nodes/AdditivePhysicsEars/node = SubResource("AnimationNodeAdd2_60fi3")
 nodes/AdditivePhysicsEars/position = Vector2(580, -80)

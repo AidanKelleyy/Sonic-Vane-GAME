@@ -11,6 +11,10 @@
 [ext_resource type="Texture2D" uid="uid://utth2bo1ym42" path="res://LS5Framework/Characters/Sonic Neo Adventure/Sonic_NeoAdventure_Foot_AfterImage_Red.png" id="9_wheel_tex"]
 [ext_resource type="Texture2D" uid="uid://dhh0qohlugdg1" path="res://LS5Framework/Characters/Sonic Neo Adventure/Foot_AfterImage_Mask.png" id="10_wheel_mask"]
 
+[ext_resource type="Material" path="res://LS5Framework/Characters/Sonic Neo Adventure/Materials/ANVIL_EXPORT_Material_11.tres" id="11_spin_mat"]
+[ext_resource type="Texture2D" path="res://LS5Framework/Characters/Sonic Neo Adventure/Sonic_NeoAdventure_Sonic_Spin.png" id="12_spin_tex"]
+[ext_resource type="Texture2D" path="res://LS5Framework/Characters/Sonic Neo Adventure/Sonic_Spin_Mask.png" id="13_spin_mask"]
+
 [sub_resource type="Resource" id="CharacterColorMaterialEntry_fur"]
 script = ExtResource("7_entry")
 material = ExtResource("1_j0nwf")
@@ -29,6 +33,12 @@ material = ExtResource("8_wheel_mat")
 texture = ExtResource("9_wheel_tex")
 color_slot = 1
 mask = ExtResource("10_wheel_mask")
+
+[sub_resource type="Resource" id="CharacterColorMaterialEntry_spin_ball"]
+script = ExtResource("7_entry")
+material = ExtResource("11_spin_mat")
+texture = ExtResource("12_spin_tex")
+mask = ExtResource("13_spin_mask")
 
 [resource]
 script = ExtResource("5_i74mw")
@@ -71,4 +81,4 @@ feat_name_skydive = "Comin' In Hot!"
 combo_rating_score_thresholds = null
 combo_rating_flavour_texts = PackedStringArray("SO-SO!", "ALRIGHT!", "SWEET!", "SICK!", "KILLER!", "EPIC!", "TRUE BLUE!", "JUICIN\'!", "STEADFAST!", "UP, OVER, AND GONE!")
 combo_rating_colors = null
-color_materials = Array[ExtResource("7_entry")]([SubResource("CharacterColorMaterialEntry_fur"), SubResource("CharacterColorMaterialEntry_shoes"), SubResource("CharacterColorMaterialEntry_wheel_run")])
+color_materials = Array[ExtResource("7_entry")]([SubResource("CharacterColorMaterialEntry_fur"), SubResource("CharacterColorMaterialEntry_shoes"), SubResource("CharacterColorMaterialEntry_wheel_run"), SubResource("CharacterColorMaterialEntry_spin_ball")])

@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://nfq7tvumkc7h"]
+
+[ext_resource type="PackedScene" uid="uid://bb0gofqq83aas" path="res://LS5Framework/Characters/Sonic Neo Adventure/SpinBall.glb" id="1_pny06"]
+
+[node name="SpinBall" unique_id=1101441491 instance=ExtResource("1_pny06")]
