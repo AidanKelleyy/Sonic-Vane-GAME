@@ -831,7 +831,10 @@ func _can_catch(allow_attached_wall: bool = false, force_cling: bool = false) ->
 		return false
 	if owner_player._spring_align_timer > 0.0 or owner_player._spring_action_lock_timer > 0.0 or owner_player._spring_movement_lock_timer > 0.0:
 		return false
-	if (owner_player.rolling and not force_cling) or owner_player._spindash_charging or owner_player.is_carrying_object():
+	var drop_dash: bool = owner_player.is_drop_dash_charging()
+	if ((owner_player.rolling and not force_cling) or owner_player._spindash_charging) and not drop_dash:
+		return false
+	if owner_player.is_carrying_object():
 		return false
 	if allow_attached_wall or force_cling:
 		return true
@@ -856,7 +859,7 @@ func _can_catch(allow_attached_wall: bool = false, force_cling: bool = false) ->
 		and not valid_bounce_source
 	):
 		return false
-	return _in_contact or allowed_source_actions.has(source_action) or valid_cling_only_source
+	return _in_contact or drop_dash or allowed_source_actions.has(source_action) or valid_cling_only_source
 
 
 func prepare_priority_input(delta: float) -> bool:

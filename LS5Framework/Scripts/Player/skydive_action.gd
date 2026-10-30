@@ -197,7 +197,7 @@ func on_action_exit(_next_action: CharacterAction) -> void:
 
 
 func physics_update_action(delta: float) -> void:
-	if owner_player == null:
+	if owner_player == null or owner_player._active_action != self:
 		return
 	if owner_player.attached:
 		_clear_to_neutral_air()

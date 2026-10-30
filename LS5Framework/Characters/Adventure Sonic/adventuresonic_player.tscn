@@ -648,6 +648,7 @@ combat_class = 1
 [node name="Spindash" type="Node" parent="Abilities" unique_id=2051000003]
 script = ExtResource("107_0g45c")
 spindash_max_launch_speed = 145.0
+drop_dash_max_launch_speed = 145.0
 spindash_rail_max_launch_speed = 145.0
 on_spindash_jump_action = NodePath("../Jump")
 can_pick_up_carryables_while_active = false
@@ -774,7 +775,7 @@ script = ExtResource("126_cpucr")
 
 [node name="LedgeMantleAbility" type="Node" parent="Abilities" unique_id=844092240]
 script = ExtResource("117_2xxo6")
-allowed_source_actions = Array[StringName]([&"fall", &"jump", &"jumpdash", &"parkour"])
+allowed_source_actions = Array[StringName]([&"fall", &"jump", &"jumpdash", &"parkour", &"uppercut_kick"])
 maximum_upward_catch_speed = 50.0
 maximum_fall_speed = 100.0
 slot_id = &""

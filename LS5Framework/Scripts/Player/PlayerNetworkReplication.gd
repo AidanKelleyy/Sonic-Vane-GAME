@@ -501,6 +501,8 @@ func receive_action_sfx(tag: String, index: int) -> void:
 		player._play_sfx(player.sfx_stomp_land)
 	elif tag == "spindash_loop":
 		player._start_spindash_loop_sfx(false)
+	elif tag == "drop_dash_air_release":
+		player._play_drop_dash_air_release_sfx(false)
 	elif tag == "spindash_loop_stop":
 		player._stop_spindash_loop_sfx(false)
 	elif tag == "spindash_full":

@@ -63,10 +63,11 @@ var _drag_blend_start: float = 0.0
 var _drag_strength_start: float = 0.0
 var _drag_button: int = 0
 var _word_index: int = -1
+var _workspace_active: bool = true
 
 
 func _ready() -> void:
-	set_process(true)
+	set_process(_workspace_active)
 	custom_minimum_size = Vector2(360.0, EXPRESSION_BOTTOM + 8.0)
 	focus_mode = Control.FOCUS_ALL
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -75,18 +76,27 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	if not _workspace_active or not is_visible_in_tree():
+		return
 	if clip and clip.audio and (_waveform_reload_pending or clip.audio != _waveform_stream):
 		refresh_waveform()
 	if not _drag_mode.is_empty() and _drag_button > 0 and not Input.is_mouse_button_pressed(_drag_button):
 		_finish_drag()
 
 
-func set_clip(next_clip: LipSyncClip, peaks: PackedFloat32Array = PackedFloat32Array()) -> void:
+func set_workspace_active(enabled: bool) -> void:
+	_workspace_active = enabled
+	set_process(enabled)
+	set_process_input(enabled)
+
+
+## Assigns guidance while optionally deferring waveform decoding until workspace activation.
+func set_clip(next_clip: LipSyncClip, peaks: PackedFloat32Array = PackedFloat32Array(), defer_waveform: bool = false) -> void:
 	clip = next_clip
 	_waveform_message = ""
 	_waveform_stream = clip.audio if clip else null
 	waveform = peaks
-	if clip and clip.audio and waveform.is_empty():
+	if not defer_waveform and clip and clip.audio and waveform.is_empty():
 		refresh_waveform()
 	clear_selection()
 	_drag_mode = ""
@@ -101,14 +111,19 @@ func set_clip(next_clip: LipSyncClip, peaks: PackedFloat32Array = PackedFloat32A
 	scroll_seconds = 0.0
 	if clip:
 		pixels_per_second = clampf((size.x - 24.0) / maxf(clip.get_timeline_length(), 0.5), 75.0, 360.0)
-		normalize_audible_range()
+		if not defer_waveform:
+			normalize_audible_range()
 	queue_redraw()
 
 
 func refresh_waveform() -> void:
 	var analysis: Dictionary = WAVEFORM_SCRIPT.analyze(clip.audio if clip else null)
-	waveform = analysis["peaks"]
-	_waveform_message = String(analysis.get("reason", "Waveform unavailable."))
+	set_waveform_data(analysis["peaks"], String(analysis.get("reason", "Waveform unavailable.")))
+
+
+func set_waveform_data(peaks: PackedFloat32Array, message: String = "") -> void:
+	waveform = peaks
+	_waveform_message = message
 	_waveform_stream = clip.audio if clip else null
 	_waveform_reload_pending = false
 	queue_redraw()

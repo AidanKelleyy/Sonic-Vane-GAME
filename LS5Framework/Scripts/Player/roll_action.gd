@@ -168,6 +168,8 @@ func set_routed_toggle_active(toggle_active: bool, context: Dictionary = {}) -> 
 		_set_rolling(true)
 		_apply_skydive_roll_lockout(context)
 		return true
+	if owner_player.is_drop_dash_charging():
+		return false
 	if not routed_toggle_active:
 		return false
 	routed_toggle_active = false

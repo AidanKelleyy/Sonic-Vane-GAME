@@ -20,9 +20,13 @@ var _smoothing_frame: int = -1
 var _smoothing_response: float = 0.0
 var _protect_speech_timing: bool = true
 var _preview_evaluating: bool = false
+var _editor_preview_enabled: bool = false
 
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		set_process(false)
+		return
 	if not voice_player_path.is_empty():
 		_voice_player = get_node_or_null(voice_player_path) as AudioStreamPlayer3D
 	set_process(not Engine.is_editor_hint())
@@ -55,7 +59,15 @@ func _process(delta: float) -> void:
 		_process_modification_with_delta(delta)
 
 
+func set_editor_preview_enabled(enabled: bool) -> void:
+	if not enabled and _preview_active:
+		clear_preview()
+	_editor_preview_enabled = enabled
+
+
 func set_preview(clip: LipSyncClip, time_sec: float, continuous: bool = false) -> void:
+	if Engine.is_editor_hint() and not _editor_preview_enabled:
+		return
 	var next_time: float = _scale_playback_time(clip, maxf(0.0, time_sec)) if clip else 0.0
 	var delta: float = next_time - _playback_time
 	if clip:
@@ -91,7 +103,7 @@ func _scale_playback_time(clip: LipSyncClip, elapsed_time: float) -> float:
 
 
 func _process_modification_with_delta(delta: float) -> void:
-	if Engine.is_editor_hint() and not _preview_evaluating:
+	if Engine.is_editor_hint() and (not _editor_preview_enabled or not _preview_evaluating):
 		return
 	if _preview_active and not _preview_evaluating:
 		return

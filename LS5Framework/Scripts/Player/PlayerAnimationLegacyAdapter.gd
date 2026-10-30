@@ -90,6 +90,7 @@ func resolve_target(cmd: StringName, sm: AnimationNodeStateMachine) -> Dictionar
 		&"CMD_RAIL": &"RAIL",
 		&"CMD_SKYDIVE": &"SKYDIVE_MACHINE",
 		&"CMD_SPINDASH": &"SPINDASH",
+		&"CMD_DROP_DASH": &"DROPDASH",
 		&"CMD_SPINDASHRAIL": &"SPINDASHRAIL",
 		&"CMD_SPIN_KICK": &"SPINKICK",
 		&"CMD_TORNADO_KICK": &"TORNADOKICK",

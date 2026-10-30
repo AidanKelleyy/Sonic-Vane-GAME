@@ -82,17 +82,27 @@ var _draft_dialog: ConfirmationDialog
 var _new_clip_dialog: ConfirmationDialog
 var _open_clip_dialog: ConfirmationDialog
 var _pending_open_clip: LipSyncClip
+var _workspace_active: bool = true
+var _profile_initialized: bool = false
+var _clip_audio_pending: bool = false
+var _context_refresh_pending: bool = false
+var _timeline_fit_pending: bool = false
 
 
 func _ready() -> void:
-	set_process(true)
 	_build_ui()
-	visibility_changed.connect(_update_preview_rendering)
-	_update_preview_rendering()
 	_player = AudioStreamPlayer.new()
 	add_child(_player)
 	_player.finished.connect(_on_audio_finished)
 	_on_preview_volume_changed(_preview_volume_slider.value)
+	visibility_changed.connect(_update_preview_rendering)
+	_update_preview_rendering()
+
+
+func _initialize_profile() -> void:
+	if _profile_initialized:
+		return
+	_profile_initialized = true
 	var default_profile: LipSyncProfile = load("res://LS5Framework/Characters/Sonic Neo Adventure/SonicNeoLipSyncProfile.tres") as LipSyncProfile
 	if default_profile:
 		_profile_picker.edited_resource = default_profile
@@ -100,7 +110,7 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not is_visible_in_tree() or not _clip or not event is InputEventKey:
+	if not is_workspace_active() or not _clip or not event is InputEventKey:
 		return
 	var key: InputEventKey = event as InputEventKey
 	if key.keycode not in [KEY_SPACE, KEY_B] or key.ctrl_pressed or key.alt_pressed or key.meta_pressed or key.shift_pressed:
@@ -125,11 +135,21 @@ func _input(event: InputEvent) -> void:
 			_play_timeline()
 
 
+func is_workspace_active() -> bool:
+	return _workspace_active and is_visible_in_tree()
+
+
+func set_workspace_active(enabled: bool) -> void:
+	_workspace_active = enabled
+	_update_preview_rendering()
+
+
 func _update_preview_rendering() -> void:
-	var showing: bool = is_visible_in_tree()
+	var showing: bool = is_workspace_active()
 	set_process(showing)
+	set_process_input(showing)
 	if _timeline:
-		_timeline.set_process(showing)
+		_timeline.set_workspace_active(showing)
 		if not showing:
 			_timeline._cancel_drag()
 	if _viewport:
@@ -138,11 +158,34 @@ func _update_preview_rendering() -> void:
 	if not showing:
 		_stop_audio()
 		_preview_dragging = false
-	elif _preview_needs_rebuild:
-		_build_preview()
+		_release_preview()
+	elif _player:
+		_initialize_profile()
+		if _clip_audio_pending:
+			_refresh_deferred_clip_audio()
+		if _timeline_fit_pending:
+			_fit_timeline()
+		if _context_refresh_pending:
+			_context_refresh_pending = false
+			_update_clip_context()
+		if _preview_needs_rebuild:
+			_build_preview()
+
+
+func _release_preview() -> void:
+	_preview_driver = null
+	if _preview_root:
+		var preview: Node3D = _preview_root
+		_preview_root = null
+		if preview.get_parent():
+			preview.get_parent().remove_child(preview)
+		preview.free()
+	_preview_needs_rebuild = true
 
 
 func _process(delta: float) -> void:
+	if not is_workspace_active():
+		return
 	if _scrub_end_tick >= 0 and Time.get_ticks_msec() >= _scrub_end_tick:
 		_player.stop()
 		_scrub_end_tick = -1
@@ -820,18 +863,20 @@ func _on_audio_resource_changed(resource: Resource) -> void:
 	if _clip:
 		_push_undo()
 		_clip.audio = resource as AudioStream
-		var analysis: Dictionary = WAVEFORM_SCRIPT.analyze(_clip.audio) if _clip.audio else {"peaks": PackedFloat32Array(), "start": 0.0, "end": 0.0}
-		_clip.audible_start = analysis["start"]
-		_clip.audible_end = analysis["end"]
-		_timeline.normalize_audible_range()
-		_timeline.waveform = analysis["peaks"]
-		_timeline.queue_redraw()
+		_clip.audible_start = 0.0
+		_clip.audible_end = 0.0
+		_clip_audio_pending = _clip.audio != null
+		_timeline.set_waveform_data(PackedFloat32Array())
+		_refresh_deferred_clip_audio()
 		_clip.emit_changed()
 		_status.text = "Assigned voice audio to %s." % (_clip.resource_path.get_file() if not _clip.resource_path.is_empty() else "unsaved clip")
 		call_deferred("_fit_timeline")
 
 
 func _set_profile(profile: LipSyncProfile) -> void:
+	_profile_initialized = true
+	if profile and profile != _profile:
+		_camera_distance = maxf(0.5, profile.preview_distance)
 	_profile = profile
 	_refresh_profile_lists()
 	_build_preview()
@@ -899,22 +944,16 @@ func _set_clip(clip: LipSyncClip) -> void:
 	_pre_draft_state.clear()
 	_transcript.text = clip.transcript if clip else ""
 	_audio_picker.edited_resource = clip.audio if clip else null
-	var peaks: PackedFloat32Array = PackedFloat32Array()
-	if clip and clip.audio:
-		var analysis: Dictionary = WAVEFORM_SCRIPT.analyze(clip.audio)
-		peaks = analysis["peaks"]
-		if clip.audible_end <= clip.audible_start:
-			clip.audible_start = analysis["start"]
-			clip.audible_end = analysis["end"]
-		_status.text = "Audio %.2f s · audible %.2f–%.2f s" % [clip.audio.get_length(), clip.audible_start, clip.audible_end]
-		if peaks.is_empty():
-			_status.text += " · waveform unavailable for this format"
-	elif clip:
+	_clip_audio_pending = clip != null and clip.audio != null
+	_timeline.set_clip(clip, PackedFloat32Array(), true)
+	if _clip_audio_pending and is_workspace_active():
+		_refresh_deferred_clip_audio()
+	elif clip and not clip.audio:
 		_status.text = "Estimated speech length %.2f s at 165 words/minute. Assign audio for timing." % DRAFT_SCRIPT.estimate_duration(clip.transcript)
-	_timeline.set_clip(clip, peaks)
 	if clip:
+		_timeline_fit_pending = true
 		call_deferred("_fit_timeline")
-	if _preview_driver:
+	if is_workspace_active() and _preview_driver:
 		_preview_driver.set_preview(clip, 0.0) if clip else _preview_driver.clear_preview()
 	_refresh_fields()
 	_refresh_creation_fields()
@@ -927,7 +966,29 @@ func _set_clip(clip: LipSyncClip) -> void:
 
 
 func _on_clip_changed() -> void:
+	if not is_workspace_active():
+		_context_refresh_pending = true
+		return
 	_update_clip_context()
+
+
+func _refresh_deferred_clip_audio() -> void:
+	if not is_workspace_active() or not _clip_audio_pending or not _clip or not _clip.audio:
+		return
+	_clip_audio_pending = false
+	var was_saved: bool = not _saved_state.is_empty() and not _clip_is_dirty()
+	var analysis: Dictionary = WAVEFORM_SCRIPT.analyze(_clip.audio)
+	if _clip.audible_end <= _clip.audible_start:
+		_clip.audible_start = analysis["start"]
+		_clip.audible_end = analysis["end"]
+	_timeline.set_waveform_data(analysis["peaks"], String(analysis.get("reason", "")))
+	_timeline.normalize_audible_range()
+	_status.text = "Audio %.2f s · audible %.2f–%.2f s" % [_clip.audio.get_length(), _clip.audible_start, _clip.audible_end]
+	if _timeline.waveform.is_empty():
+		_status.text += " · waveform unavailable for this format"
+	if was_saved:
+		_saved_state = _capture_state()
+	_refresh_fields()
 
 
 func _clip_is_dirty() -> bool:
@@ -1014,13 +1075,10 @@ func _sync_clip_menu_selection() -> void:
 
 func _build_preview() -> void:
 	_preview_needs_rebuild = true
-	if not is_visible_in_tree():
+	if not is_workspace_active():
 		return
+	_release_preview()
 	_preview_needs_rebuild = false
-	if _preview_root:
-		_preview_root.queue_free()
-		_preview_root = null
-		_preview_driver = null
 	if not _profile or not _profile.preview_scene:
 		return
 	_preview_root = _profile.preview_scene.instantiate() as Node3D
@@ -1035,13 +1093,13 @@ func _build_preview() -> void:
 	_preview_driver = DRIVER_SCRIPT.new() as LipSyncDriver
 	_preview_driver.name = "LipSyncPreview"
 	_preview_driver.profile = _profile
+	_preview_driver.set_editor_preview_enabled(true)
 	skeleton.add_child(_preview_driver)
 	var head_index: int = skeleton.find_bone(_profile.preview_focus_bone)
 	if head_index >= 0:
 		_camera_target = skeleton.to_global(skeleton.get_bone_global_pose(head_index).origin + _profile.preview_focus_offset)
 	else:
 		_camera_target = skeleton.global_position + Vector3(0.0, 1.4, 0.0)
-	_camera_distance = maxf(0.5, _profile.preview_distance)
 	_update_camera()
 	if _clip:
 		_preview_driver.set_preview(_clip, _timeline.playhead)
@@ -1056,6 +1114,8 @@ func _update_camera() -> void:
 
 
 func _on_preview_input(event: InputEvent) -> void:
+	if not is_workspace_active():
+		return
 	if event is InputEventMouseButton:
 		var button: InputEventMouseButton = event
 		if button.button_index == MOUSE_BUTTON_LEFT:
@@ -1075,6 +1135,8 @@ func _on_preview_input(event: InputEvent) -> void:
 
 
 func _on_playhead_changed(time_sec: float) -> void:
+	if not is_workspace_active():
+		return
 	_update_preview(time_sec)
 	if _timeline.is_scrubbing() and _transport_playing:
 		_stop_audio()
@@ -1090,7 +1152,7 @@ func _on_playhead_changed(time_sec: float) -> void:
 
 
 func _update_preview(time_sec: float, continuous: bool = false) -> void:
-	if _preview_driver and _clip:
+	if is_workspace_active() and _preview_driver and _clip:
 		_preview_driver.set_preview(_clip, time_sec, continuous and _transport_playing and not _timeline.is_scrubbing())
 
 
@@ -1532,8 +1594,12 @@ func _on_preview_volume_changed(value: float) -> void:
 
 
 func _fit_timeline() -> void:
+	if not is_workspace_active():
+		_timeline_fit_pending = true
+		return
+	_timeline_fit_pending = false
 	if _clip:
-		if _timeline.waveform.is_empty() and _clip.audio:
+		if _timeline.waveform.is_empty() and _clip.audio and (_timeline._waveform_reload_pending or _clip.audio != _timeline._waveform_stream):
 			_timeline.refresh_waveform()
 		_timeline.pixels_per_second = clampf((_timeline.size.x - 24.0) / maxf(_clip.get_timeline_length(), 0.5), 45.0, 1000.0)
 		_timeline.scroll_seconds = 0.0
@@ -1541,6 +1607,9 @@ func _fit_timeline() -> void:
 
 
 func _refresh_waveform() -> void:
+	if not is_workspace_active():
+		_clip_audio_pending = _clip != null and _clip.audio != null
+		return
 	if not _clip or not _clip.audio:
 		_status.text = "Assign voice audio to refresh its waveform."
 		return
@@ -1636,8 +1705,9 @@ func _restore_state(state: Dictionary) -> void:
 	_transcript.text = _clip.transcript
 	_audio_picker.edited_resource = _clip.audio
 	_timeline.clear_selection()
-	var analysis: Dictionary = WAVEFORM_SCRIPT.analyze(_clip.audio) if _clip.audio else {"peaks": PackedFloat32Array()}
-	_timeline.waveform = analysis["peaks"]
+	_clip_audio_pending = _clip.audio != null
+	_timeline.set_waveform_data(PackedFloat32Array())
+	_refresh_deferred_clip_audio()
 	_timeline.queue_redraw()
 	_clip.emit_changed()
 	_refresh_fields()

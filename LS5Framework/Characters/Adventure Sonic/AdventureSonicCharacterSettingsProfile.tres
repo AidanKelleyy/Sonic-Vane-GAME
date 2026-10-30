@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_v4i0d")
 character_id = &"adventuresonic"
-profile_version = 11
+profile_version = 12
 selection_category = "Misc"
 ability_catalog = Array[Dictionary]([{
 "ability_id": &"uppercut_kick",
@@ -352,8 +352,18 @@ default_routes = Array[Dictionary]([{
 }])
 routes_authoritative = true
 
-attribute_ids = Array[StringName]([&"ability.spindash.spindash_air_mode", &"ability.spindash.drop_dash_charge_time_max", &"ability.spindash.drop_dash_gravity_scale"])
+attribute_ids = Array[StringName]([&"ability.spindash.spindash_air_mode", &"ability.spindash.drop_dash_charge_time_max", &"ability.spindash.drop_dash_max_launch_speed", &"ability.spindash.drop_dash_gravity_scale", &"ability.spindash.drop_dash_release_pop_speed"])
 attribute_definitions = {
+&"ability.spindash.drop_dash_max_launch_speed": {
+"label": "Drop-Dash Max Release Strength",
+"description": "Maximum charged launch speed on Drop-Dash landing. Higher incoming speed can be retained by entry-speed preservation.",
+"category": "Spindash"
+},
+&"ability.spindash.drop_dash_release_pop_speed": {
+"label": "Drop-Dash Release Pop Speed",
+"description": "Minimum upward speed when releasing airborne Drop-Dash. Applied once along player gravity-up.",
+"category": "Spindash"
+},
 &"ability.spindash.drop_dash_charge_time_max": {
 "label": "Drop-Dash Charge Time",
 "description": "Time to reach full charge during airborne Drop-Dash.",
@@ -362,7 +372,7 @@ attribute_definitions = {
 },
 &"ability.spindash.drop_dash_gravity_scale": {
 "label": "Drop-Dash Gravity Scale",
-"description": "Gravity multiplier during airborne Drop-Dash charge.",
+"description": "Gravity multiplier after releasing airborne Drop-Dash.",
 "category": "Spindash"
 },
 &"ability.spindash.spindash_air_mode": {

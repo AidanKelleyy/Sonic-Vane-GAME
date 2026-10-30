@@ -33,6 +33,7 @@ presentation_commands = Dictionary[StringName, StringName]({
 &"CMD_RAIL": &"Rail/LAND",
 &"CMD_SKYDIVE": &"Skydive/Skydive_Enter",
 &"CMD_SPINDASH": &"Ground/Spindash",
+&"CMD_DROP_DASH": &"Air/DropDash",
 &"CMD_SPINDASHRAIL": &"Rail/Charge",
 &"CMD_SPIN_KICK": &"Ground/SpinKick",
 &"CMD_SPRING": &"Air/Spring",
@@ -70,6 +71,7 @@ presentation_commands = Dictionary[StringName, StringName]({
 })
 presentation_state_names = Dictionary[StringName, StringName]({
 &"Air/Bounce": &"BOUNCE",
+&"Air/DropDash": &"DROPDASH",
 &"Air/Dash": &"JUMPDASH",
 &"Air/LightSpeed": &"CMD_LIGHTSPEEDDASH",
 &"Air/Shield": &"insta_shield_thrown",

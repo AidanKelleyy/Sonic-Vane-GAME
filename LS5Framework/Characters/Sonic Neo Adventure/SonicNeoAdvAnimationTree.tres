@@ -128,6 +128,16 @@ resource_local_to_scene = true
 resource_local_to_scene = true
 animation = &"Jump"
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_drop_dash"]
+resource_local_to_scene = true
+resource_name = "_afterimage-speed=true;min_speed=0;max_speed=1;min_alpha=0.765;max_alpha=0.765;"
+animation = &"DropDash"
+use_custom_timeline = true
+timeline_length = 0.009999999999999998
+stretch_time_scale = true
+start_offset = 0.0
+loop_mode = 1
+
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_21vdq"]
 resource_local_to_scene = true
 animation = &"Spring_Forward"
@@ -379,6 +389,10 @@ xfade_time = 0.08
 resource_local_to_scene = true
 xfade_time = 0.08
 
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_drop_dash"]
+resource_local_to_scene = true
+xfade_time = 0.08
+
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_dmn1f"]
 resource_local_to_scene = true
 resource_name = "Air"
@@ -386,6 +400,9 @@ states/Bounce/node = SubResource("AnimationNodeAnimation_hlfvd")
 states/Bounce/position = Vector2(500, 0)
 states/Dash/node = SubResource("AnimationNodeAnimation_hlfvd")
 states/Dash/position = Vector2(250, 0)
+states/DropDash/node = SubResource("AnimationNodeAnimation_drop_dash")
+states/DropDash/position = Vector2(1000, 0)
+states/End/position = Vector2(1287, 152)
 states/LightSpeed/node = SubResource("AnimationNodeAnimation_21vdq")
 states/LightSpeed/position = Vector2(250, 500)
 states/Shield/node = SubResource("AnimationNodeAnimation_yhji4")
@@ -398,7 +415,7 @@ states/Tornado/node = SubResource("AnimationNodeAnimation_kv7n0")
 states/Tornado/position = Vector2(500, 250)
 states/Uppercut/node = SubResource("AnimationNodeAnimation_uo3w4")
 states/Uppercut/position = Vector2(750, 250)
-transitions = ["Bounce", "Dash", SubResource("AnimationNodeStateMachineTransition_dpr6a"), "Bounce", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_06tbc"), "Bounce", "Shield", SubResource("AnimationNodeStateMachineTransition_yluh8"), "Bounce", "Spring", SubResource("AnimationNodeStateMachineTransition_k6pk4"), "Bounce", "Stomp", SubResource("AnimationNodeStateMachineTransition_onrcv"), "Bounce", "Tornado", SubResource("AnimationNodeStateMachineTransition_ilpfb"), "Bounce", "Uppercut", SubResource("AnimationNodeStateMachineTransition_6qfes"), "Dash", "Bounce", SubResource("AnimationNodeStateMachineTransition_bvj4s"), "Dash", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_vbsnu"), "Dash", "Shield", SubResource("AnimationNodeStateMachineTransition_5rcwn"), "Dash", "Spring", SubResource("AnimationNodeStateMachineTransition_7qvxr"), "Dash", "Stomp", SubResource("AnimationNodeStateMachineTransition_4b5b4"), "Dash", "Tornado", SubResource("AnimationNodeStateMachineTransition_7hg11"), "Dash", "Uppercut", SubResource("AnimationNodeStateMachineTransition_gfex1"), "LightSpeed", "Bounce", SubResource("AnimationNodeStateMachineTransition_dv5sk"), "LightSpeed", "Dash", SubResource("AnimationNodeStateMachineTransition_0wvy2"), "LightSpeed", "Shield", SubResource("AnimationNodeStateMachineTransition_ie3t8"), "LightSpeed", "Spring", SubResource("AnimationNodeStateMachineTransition_h1p5y"), "LightSpeed", "Stomp", SubResource("AnimationNodeStateMachineTransition_ovqn7"), "LightSpeed", "Tornado", SubResource("AnimationNodeStateMachineTransition_3oq5c"), "LightSpeed", "Uppercut", SubResource("AnimationNodeStateMachineTransition_grl1o"), "Shield", "Bounce", SubResource("AnimationNodeStateMachineTransition_y1x78"), "Shield", "Dash", SubResource("AnimationNodeStateMachineTransition_sdgr2"), "Shield", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_31nwv"), "Shield", "Spring", SubResource("AnimationNodeStateMachineTransition_s24dh"), "Shield", "Stomp", SubResource("AnimationNodeStateMachineTransition_ekwhs"), "Shield", "Tornado", SubResource("AnimationNodeStateMachineTransition_btx1x"), "Shield", "Uppercut", SubResource("AnimationNodeStateMachineTransition_aw78t"), "Spring", "Bounce", SubResource("AnimationNodeStateMachineTransition_50krl"), "Spring", "Dash", SubResource("AnimationNodeStateMachineTransition_bpxof"), "Spring", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_3iint"), "Spring", "Shield", SubResource("AnimationNodeStateMachineTransition_38n43"), "Spring", "Stomp", SubResource("AnimationNodeStateMachineTransition_jrus2"), "Spring", "Tornado", SubResource("AnimationNodeStateMachineTransition_a2dwi"), "Spring", "Uppercut", SubResource("AnimationNodeStateMachineTransition_nxnev"), "Stomp", "Bounce", SubResource("AnimationNodeStateMachineTransition_yqly0"), "Stomp", "Dash", SubResource("AnimationNodeStateMachineTransition_j2xhh"), "Stomp", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_ubt28"), "Stomp", "Shield", SubResource("AnimationNodeStateMachineTransition_umjgg"), "Stomp", "Spring", SubResource("AnimationNodeStateMachineTransition_730xo"), "Stomp", "Tornado", SubResource("AnimationNodeStateMachineTransition_8vsvg"), "Stomp", "Uppercut", SubResource("AnimationNodeStateMachineTransition_l3vro"), "Tornado", "Bounce", SubResource("AnimationNodeStateMachineTransition_uaf28"), "Tornado", "Dash", SubResource("AnimationNodeStateMachineTransition_netai"), "Tornado", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_10p6h"), "Tornado", "Shield", SubResource("AnimationNodeStateMachineTransition_et8t6"), "Tornado", "Spring", SubResource("AnimationNodeStateMachineTransition_7melk"), "Tornado", "Stomp", SubResource("AnimationNodeStateMachineTransition_enkia"), "Tornado", "Uppercut", SubResource("AnimationNodeStateMachineTransition_qedn5"), "Uppercut", "Bounce", SubResource("AnimationNodeStateMachineTransition_yqb1u"), "Uppercut", "Dash", SubResource("AnimationNodeStateMachineTransition_xifc0"), "Uppercut", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_7vvu1"), "Uppercut", "Shield", SubResource("AnimationNodeStateMachineTransition_wat6w"), "Uppercut", "Spring", SubResource("AnimationNodeStateMachineTransition_s1ljs"), "Uppercut", "Stomp", SubResource("AnimationNodeStateMachineTransition_svkum"), "Uppercut", "Tornado", SubResource("AnimationNodeStateMachineTransition_roy2x")]
+transitions = ["Bounce", "Dash", SubResource("AnimationNodeStateMachineTransition_dpr6a"), "Bounce", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_06tbc"), "Bounce", "Shield", SubResource("AnimationNodeStateMachineTransition_yluh8"), "Bounce", "Spring", SubResource("AnimationNodeStateMachineTransition_k6pk4"), "Bounce", "Stomp", SubResource("AnimationNodeStateMachineTransition_onrcv"), "Bounce", "Tornado", SubResource("AnimationNodeStateMachineTransition_ilpfb"), "Bounce", "Uppercut", SubResource("AnimationNodeStateMachineTransition_6qfes"), "Dash", "Bounce", SubResource("AnimationNodeStateMachineTransition_bvj4s"), "Dash", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_vbsnu"), "Dash", "Shield", SubResource("AnimationNodeStateMachineTransition_5rcwn"), "Dash", "Spring", SubResource("AnimationNodeStateMachineTransition_7qvxr"), "Dash", "Stomp", SubResource("AnimationNodeStateMachineTransition_4b5b4"), "Dash", "Tornado", SubResource("AnimationNodeStateMachineTransition_7hg11"), "Dash", "Uppercut", SubResource("AnimationNodeStateMachineTransition_gfex1"), "LightSpeed", "Bounce", SubResource("AnimationNodeStateMachineTransition_dv5sk"), "LightSpeed", "Dash", SubResource("AnimationNodeStateMachineTransition_0wvy2"), "LightSpeed", "Shield", SubResource("AnimationNodeStateMachineTransition_ie3t8"), "LightSpeed", "Spring", SubResource("AnimationNodeStateMachineTransition_h1p5y"), "LightSpeed", "Stomp", SubResource("AnimationNodeStateMachineTransition_ovqn7"), "LightSpeed", "Tornado", SubResource("AnimationNodeStateMachineTransition_3oq5c"), "LightSpeed", "Uppercut", SubResource("AnimationNodeStateMachineTransition_grl1o"), "Shield", "Bounce", SubResource("AnimationNodeStateMachineTransition_y1x78"), "Shield", "Dash", SubResource("AnimationNodeStateMachineTransition_sdgr2"), "Shield", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_31nwv"), "Shield", "Spring", SubResource("AnimationNodeStateMachineTransition_s24dh"), "Shield", "Stomp", SubResource("AnimationNodeStateMachineTransition_ekwhs"), "Shield", "Tornado", SubResource("AnimationNodeStateMachineTransition_btx1x"), "Shield", "Uppercut", SubResource("AnimationNodeStateMachineTransition_aw78t"), "Spring", "Bounce", SubResource("AnimationNodeStateMachineTransition_50krl"), "Spring", "Dash", SubResource("AnimationNodeStateMachineTransition_bpxof"), "Spring", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_3iint"), "Spring", "Shield", SubResource("AnimationNodeStateMachineTransition_38n43"), "Spring", "Stomp", SubResource("AnimationNodeStateMachineTransition_jrus2"), "Spring", "Tornado", SubResource("AnimationNodeStateMachineTransition_a2dwi"), "Spring", "Uppercut", SubResource("AnimationNodeStateMachineTransition_nxnev"), "Stomp", "Bounce", SubResource("AnimationNodeStateMachineTransition_yqly0"), "Stomp", "Dash", SubResource("AnimationNodeStateMachineTransition_j2xhh"), "Stomp", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_ubt28"), "Stomp", "Shield", SubResource("AnimationNodeStateMachineTransition_umjgg"), "Stomp", "Spring", SubResource("AnimationNodeStateMachineTransition_730xo"), "Stomp", "Tornado", SubResource("AnimationNodeStateMachineTransition_8vsvg"), "Stomp", "Uppercut", SubResource("AnimationNodeStateMachineTransition_l3vro"), "Tornado", "Bounce", SubResource("AnimationNodeStateMachineTransition_uaf28"), "Tornado", "Dash", SubResource("AnimationNodeStateMachineTransition_netai"), "Tornado", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_10p6h"), "Tornado", "Shield", SubResource("AnimationNodeStateMachineTransition_et8t6"), "Tornado", "Spring", SubResource("AnimationNodeStateMachineTransition_7melk"), "Tornado", "Stomp", SubResource("AnimationNodeStateMachineTransition_enkia"), "Tornado", "Uppercut", SubResource("AnimationNodeStateMachineTransition_qedn5"), "Uppercut", "Bounce", SubResource("AnimationNodeStateMachineTransition_yqb1u"), "Uppercut", "Dash", SubResource("AnimationNodeStateMachineTransition_xifc0"), "Uppercut", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_7vvu1"), "Uppercut", "Shield", SubResource("AnimationNodeStateMachineTransition_wat6w"), "Uppercut", "Spring", SubResource("AnimationNodeStateMachineTransition_s1ljs"), "Uppercut", "Stomp", SubResource("AnimationNodeStateMachineTransition_svkum"), "Uppercut", "Tornado", SubResource("AnimationNodeStateMachineTransition_roy2x"), "Bounce", "DropDash", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "DropDash", "Bounce", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "Dash", "DropDash", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "DropDash", "Dash", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "LightSpeed", "DropDash", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "DropDash", "LightSpeed", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "Shield", "DropDash", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "DropDash", "Shield", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "Spring", "DropDash", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "DropDash", "Spring", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "Stomp", "DropDash", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "DropDash", "Stomp", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "Tornado", "DropDash", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "DropDash", "Tornado", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "Uppercut", "DropDash", SubResource("AnimationNodeStateMachineTransition_drop_dash"), "DropDash", "Uppercut", SubResource("AnimationNodeStateMachineTransition_drop_dash")]
 graph_offset = Vector2(67, -107)
 
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_8qsww"]
@@ -1615,7 +1632,7 @@ resource_local_to_scene = true
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_x8dvm"]
 resource_local_to_scene = true
-graph_offset = Vector2(-1247.1223, -7.4367676)
+graph_offset = Vector2(-1112.4897, -337.62396)
 nodes/output/position = Vector2(350, 300)
 nodes/Ground/node = SubResource("AnimationNodeStateMachine_n6wxo")
 nodes/Ground/position = Vector2(-820, -260)
@@ -1761,6 +1778,7 @@ resource_name = "Ball"
 states/Roll/node = SubResource("AnimationNodeAnimation_ilk7f")
 states/Roll/position = Vector2(200, 0)
 transitions = ["Start", "Roll", SubResource("AnimationNodeStateMachineTransition_ivygt")]
+graph_offset = Vector2(-371, -239)
 
 [sub_resource type="AnimationNodeTimeSeek" id="AnimationNodeTimeSeek_wcby6"]
 resource_local_to_scene = true
@@ -1919,22 +1937,22 @@ blend_point_14/node = SubResource("AnimationNodeAnimation_op05h")
 blend_point_14/pos = Vector2(81.09, -1)
 blend_point_14/name = &"14"
 blend_point_15/node = SubResource("AnimationNodeAnimation_x0wvq")
-blend_point_15/pos = Vector2(162, 1)
+blend_point_15/pos = Vector2(140.01, 1)
 blend_point_15/name = &"15"
 blend_point_16/node = SubResource("AnimationNodeAnimation_uggpx")
-blend_point_16/pos = Vector2(162, 0)
+blend_point_16/pos = Vector2(140.01, 0)
 blend_point_16/name = &"16"
 blend_point_17/node = SubResource("AnimationNodeAnimation_c8n4f")
-blend_point_17/pos = Vector2(162, -1)
+blend_point_17/pos = Vector2(140.01, -1)
 blend_point_17/name = &"17"
 blend_point_18/node = SubResource("AnimationNodeAnimation_rrpiy")
-blend_point_18/pos = Vector2(115, 1)
+blend_point_18/pos = Vector2(140, 1)
 blend_point_18/name = &"18"
 blend_point_19/node = SubResource("AnimationNodeAnimation_o6coe")
-blend_point_19/pos = Vector2(115, 0)
+blend_point_19/pos = Vector2(140, 0)
 blend_point_19/name = &"19"
 blend_point_20/node = SubResource("AnimationNodeAnimation_l6vxe")
-blend_point_20/pos = Vector2(115, -1)
+blend_point_20/pos = Vector2(140, -1)
 blend_point_20/name = &"20"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wb5s7"]
@@ -2227,7 +2245,7 @@ input_2/reset = false
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_k18am"]
 resource_local_to_scene = true
 resource_name = "Movement families"
-graph_offset = Vector2(-1058.3333, -429.63245)
+graph_offset = Vector2(-1289.3333, -584.63245)
 nodes/output/position = Vector2(300, 0)
 nodes/Ground/node = SubResource("AnimationNodeStateMachine_weaeo")
 nodes/Ground/position = Vector2(-840, -500)
@@ -2460,7 +2478,7 @@ graph_offset = Vector2(-320, -146)
 
 [resource]
 resource_local_to_scene = true
-graph_offset = Vector2(-718, -253)
+graph_offset = Vector2(-720, -296)
 nodes/output/position = Vector2(1860, 60)
 nodes/AdditivePhysicsEars/node = SubResource("AnimationNodeAdd2_60fi3")
 nodes/AdditivePhysicsEars/position = Vector2(580, -80)

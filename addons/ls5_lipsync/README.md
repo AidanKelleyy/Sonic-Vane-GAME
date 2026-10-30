@@ -2,7 +2,7 @@
 
 The **Lip Sync** editor tab edits character voice timing. Runtime scripts live in `runtime`; the editor tab and waveform tools live in `editor`.
 
-The editor screen is created on first opening the Lip Sync tab. Hiding the tab stops playback, pauses the preview subtree, and suspends timeline processing. Character drivers do not poll dialogue or evaluate skeleton poses in ordinary editor scenes; editor pose evaluation is restricted to explicit lip sync preview calls.
+The editor screen is created on first opening the Lip Sync workspace. Main-screen activation gates character loading, preview evaluation, audio audition, frame callbacks, and input. Leaving the workspace stops playback, releases the preview character, disables preview rendering, and suspends timeline processing. Hidden clip changes, waveform decoding, and deferred timeline fitting wait until the workspace is active again. Reopening rebuilds the preview while retaining the draft, undo history, selection, cursor, and camera zoom. Saved clips remain clean when deferred audible-trim normalization completes. Character drivers do not poll dialogue, resolve voice nodes, or evaluate skeleton poses in ordinary editor scenes. Editor pose evaluation requires a driver explicitly enabled by the Lip Sync preview.
 
 ## Character setup
 

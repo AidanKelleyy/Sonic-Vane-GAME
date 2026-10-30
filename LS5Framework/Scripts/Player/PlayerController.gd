@@ -4943,6 +4943,7 @@ func _apply_spindash_air_release(world_up: Vector3) -> void:
 	if target_speed > 0.001 and target_speed < current_speed:
 		target_velocity = target_velocity.normalized() * current_speed
 	velocity = target_velocity
+	_water_reattach_cooldown_timer = maxf(_water_reattach_cooldown_timer, 0.4)
 	_spindash_charging = false
 	_spindash_charge_time = 0.0
 	_spindash_charge_full_played = false
@@ -7721,7 +7722,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 					_jump_hang_allowed = false
 
 		if drop_dash_air_control:
-			gravity_scale *= maxf(_spindash_action.drop_dash_gravity_scale, 0.0)
+			gravity_scale *= _spindash_action.get_drop_dash_gravity_scale()
 		if in_spring_state:
 			gravity_scale *= spring_gravity_scale
 
@@ -9731,7 +9732,7 @@ func get_landing_prompt_prediction(duration: float) -> Dictionary:
 	elif _bounce_state == BounceState.STOMP:
 		gravity_scale = stomp_gravity_scale
 	if is_drop_dash_charging():
-		gravity_scale *= maxf(_spindash_action.drop_dash_gravity_scale, 0.0)
+		gravity_scale *= _spindash_action.get_drop_dash_gravity_scale()
 	if _spring_align_timer > 0.0:
 		gravity_scale *= spring_gravity_scale
 	var acceleration: Vector3 = -up * get_effective_gravity_strength() * gravity_scale
@@ -13407,6 +13408,12 @@ func _start_spindash_loop_sfx(send_net: bool = true) -> void:
 	_ensure_modules()
 	if _audio_module != null:
 		_audio_module._start_spindash_loop_sfx(send_net)
+
+
+func _play_drop_dash_air_release_sfx(send_net: bool = true) -> void:
+	_ensure_modules()
+	if _audio_module:
+		_audio_module.play_drop_dash_air_release(send_net)
 
 func _stop_spindash_loop_sfx(send_net: bool = true) -> void:
 	_ensure_modules()

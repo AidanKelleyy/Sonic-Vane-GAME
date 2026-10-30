@@ -13,8 +13,26 @@ enum AirSpindashMode { LEGACY, DROP_DASH }
 @export var spindash_rail_charge_time_max: float = 0.9
 ## Time required to reach full charge after airborne Drop-Dash activation.
 @export_range(0.01, 5.0, 0.01, "suffix:s") var drop_dash_charge_time_max: float = 0.45
-## Gravity multiplier while charging an airborne Drop-Dash. Grounded and Legacy spindash are unaffected.
+## Gravity multiplier after releasing the airborne Drop-Dash button. Grounded and Legacy spindash are unaffected.
 @export_range(0.0, 5.0, 0.05) var drop_dash_gravity_scale: float = 1.5
+## Minimum upward speed applied once when releasing an airborne Drop-Dash, along player gravity-up.
+@export_range(0.0, 60.0, 0.5) var drop_dash_release_pop_speed: float = 12.0
+## Animation command played after releasing the airborne Drop-Dash button.
+@export var drop_dash_animation_command: StringName = &"CMD_DROP_DASH"
+## One-shot sound played when the airborne Drop-Dash button is released.
+@export var drop_dash_air_release_sound: AudioStream = preload("res://LS5Framework/Sounds/Abilities/DropDash_Airborne_Release.ogg")
+## Airborne loop played alongside the release sound, until landing or cancellation.
+@export var drop_dash_air_released_loop_sound: AudioStream = preload("res://LS5Framework/Sounds/Abilities/DropDash_Airborne_Released_Loop.ogg")
+## Total movement speed at which the airborne loop reaches maximum intensity.
+@export_range(1.0, 300.0, 1.0, "or_greater") var drop_dash_loop_full_speed: float = 150.0
+## Airborne loop playback speed at rest and at full movement intensity.
+@export var drop_dash_loop_pitch_range: Vector2 = Vector2(0.85, 1.7)
+## Airborne loop volume offsets in decibels at rest and at full movement intensity.
+@export var drop_dash_loop_volume_range_db: Vector2 = Vector2(-6.0, 5.0)
+## Airborne loop high-pass cutoff frequencies at rest and at full movement intensity.
+@export var drop_dash_loop_high_pass_range_hz: Vector2 = Vector2(40.0, 1800.0)
+## Response rate for speed-driven loop changes. Zero applies changes immediately.
+@export_range(0.0, 30.0, 0.5) var drop_dash_loop_response: float = 10.0
 ## Delay before the Spindash activates when its modifier slot is not held.
 @export var spindash_ground_hold_time: float = 0.19
 ## Time before GO during which a fully charged release is buffered until the race starts.
@@ -23,6 +41,8 @@ enum AirSpindashMode { LEGACY, DROP_DASH }
 @export_subgroup("Movement/Launch")
 @export var spindash_min_launch_speed: float = 15.0
 @export var spindash_max_launch_speed: float = 115.0
+## Maximum charged launch speed when Drop-Dash releases on landing. Entry-speed preservation can retain higher incoming speed.
+@export_range(0.0, 300.0, 0.5, "or_greater") var drop_dash_max_launch_speed: float = 115.0
 @export var spindash_rail_max_launch_speed: float = 95.0
 ## Restores entry speed on release when it exceeds the applicable maximum launch speed.
 @export var spindash_preserve_entry_speed_above_max: bool = true
@@ -69,6 +89,7 @@ var ground_action1_press_valid: bool = false
 var countdown_release_buffer_open: bool = false
 var countdown_release_queued: bool = false
 var drop_dash_charging: bool = false
+var drop_dash_released: bool = false
 var air_charge_cancelled: bool = false
 
 
@@ -166,6 +187,8 @@ func _update_standard(delta: float) -> void:
 		if drop_dash_charging and on_ground:
 			_trigger_release(false)
 			return
+		if drop_dash_charging and not action1_held:
+			_release_drop_dash()
 		var roll_action = _get_roll_action()
 		if roll_action != null and not roll_action.is_rolling:
 			roll_action.is_rolling = true
@@ -264,6 +287,25 @@ func _update_on_rail(delta: float) -> void:
 		_start_charge()
 
 
+func _release_drop_dash() -> void:
+	if not is_charging or not drop_dash_charging or drop_dash_released or owner_player.attached:
+		return
+	drop_dash_released = true
+	owner_player._play_drop_dash_air_release_sfx()
+	var up: Vector3 = get_owner_gravity_up()
+	var upward_speed: float = owner_player.velocity.dot(up)
+	owner_player.velocity += up * maxf(drop_dash_release_pop_speed - upward_speed, 0.0)
+	owner_player._trigger_anim_command_immediate(drop_dash_animation_command)
+
+
+func get_drop_dash_gravity_scale() -> float:
+	return maxf(drop_dash_gravity_scale, 0.0) if is_charging and drop_dash_charging and drop_dash_released else 1.0
+
+
+func get_charge_animation_command() -> StringName:
+	return drop_dash_animation_command if drop_dash_charging and drop_dash_released else &"CMD_SPINDASH"
+
+
 func get_max_charge_time() -> float:
 	if drop_dash_charging:
 		return drop_dash_charge_time_max
@@ -326,6 +368,8 @@ func get_release_speed() -> float:
 	var max_speed: float = spindash_max_launch_speed
 	if owner_player._rail_active:
 		max_speed = spindash_rail_max_launch_speed
+	elif drop_dash_charging:
+		max_speed = drop_dash_max_launch_speed
 	max_speed = max(max_speed, min_speed)
 	var charged_speed: float = lerp(min_speed, max_speed, get_charge_ratio())
 	if spindash_preserve_entry_speed_above_max and entry_speed > max_speed:
@@ -334,9 +378,13 @@ func get_release_speed() -> float:
 
 
 func _start_charge() -> void:
+	if owner_player._active_action is SkydiveAction:
+		owner_player.clear_active_action()
+		owner_player.activate_neutral_air_action({"reason": &"spindash_charge", "source_action": &"skydive"})
 	if owner_player.has_method("cancel_bounce_stomp_for_action"):
 		owner_player.cancel_bounce_stomp_for_action()
 	is_charging = true
+	drop_dash_released = false
 	drop_dash_charging = spindash_air_mode == AirSpindashMode.DROP_DASH and not owner_player.attached and not owner_player._rail_active
 	charge_time = 0.0
 	charge_full_played = false
@@ -370,6 +418,7 @@ func _start_charge() -> void:
 func _cancel_charge() -> void:
 	air_charge_cancelled = air_charge_cancelled or drop_dash_charging
 	drop_dash_charging = false
+	drop_dash_released = false
 	countdown_release_buffer_open = false
 	countdown_release_queued = false
 	if not is_charging:
@@ -387,6 +436,7 @@ func _cancel_charge() -> void:
 
 func reset_state() -> void:
 	drop_dash_charging = false
+	drop_dash_released = false
 	air_charge_cancelled = false
 	is_charging = false
 	charge_time = 0.0
@@ -437,6 +487,7 @@ func _trigger_release(with_jump: bool) -> void:
 	var speed: float = get_release_speed()
 	air_charge_cancelled = air_charge_cancelled or drop_dash_charging
 	drop_dash_charging = false
+	drop_dash_released = false
 	is_charging = false
 	charge_time = 0.0
 	charge_full_played = false
@@ -500,6 +551,7 @@ func _apply_air_release(world_up: Vector3) -> void:
 	if target_speed > 0.001 and target_speed < current_speed:
 		target_velocity = target_velocity.normalized() * current_speed
 	owner_player.velocity = target_velocity
+	owner_player._water_reattach_cooldown_timer = maxf(owner_player._water_reattach_cooldown_timer, 0.4)
 
 	is_charging = false
 	charge_time = 0.0

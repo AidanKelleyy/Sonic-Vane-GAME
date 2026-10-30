@@ -317,7 +317,7 @@ func update(delta: float) -> void:
 		if _owner._rail_active or _owner._rail_switch_active:
 			command = &"CMD_SPINDASHRAIL" if _owner._spindash_charging else &"CMD_RAIL"
 		elif _owner._spindash_charging:
-			command = &"CMD_SPINDASH"
+			command = _owner._spindash_action.get_charge_animation_command() if _owner._spindash_action else &"CMD_SPINDASH"
 		elif _owner.has_state(_owner.STATE_DRIFT):
 			command = &"DRIFT_MACHINE"
 		elif _owner._bounce_state == _owner.BounceState.STOMP:
@@ -374,6 +374,7 @@ func after_advance() -> void:
 				done = _finished(playback)
 		&"Air":
 			match state:
+				&"DropDash": done = _owner.attached or (not _owner._spindash_charging and not _owner.has_state(_owner.STATE_SPINDASH))
 				&"Dash": done = _owner.attached or (_owner._jump_dash_recent_timer <= 0.0 and not _owner._homing_active and (_owner._vertical_speed < -_owner.fall_vertical_speed_threshold or _owner.has_state(_owner.STATE_FALLING)))
 				&"Bounce":
 					if _owner._bounce_state == _owner.BounceState.STOMP:

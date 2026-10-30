@@ -145,6 +145,8 @@ func _source_action_allowed(context: Dictionary = {}) -> bool:
 	var source_action: StringName = _get_source_action_id(context)
 	if owner_player.attached:
 		return _action_id_in_allowed_sources(source_action, spin_kick_allowed_source_actions)
+	if owner_player.is_drop_dash_charging():
+		return true
 	return _action_id_in_allowed_sources(source_action, tornado_kick_allowed_source_actions)
 
 

@@ -155,6 +155,8 @@ func can_land_on_surface(velocity_before: Vector3, normal: Vector3) -> bool:
 		return false
 	if p._water_reattach_cooldown_timer > 0.0:
 		return false
+	if _drop_dash_blocks_surface_initiation():
+		return false
 	if velocity_before.length() < p.water_surface_landing_min_tangential_speed:
 		return false
 	var metrics: Dictionary = PlayerMath.compute_radial_landing_metrics(velocity_before, normal)
@@ -316,10 +318,17 @@ func can_start_surface_running(normal: Vector3) -> bool:
 		return false
 	if p._water_reattach_cooldown_timer > 0.0:
 		return false
+	if _drop_dash_blocks_surface_initiation():
+		return false
 	var water_normal: Vector3 = normal.normalized()
 	if water_normal.length() < 0.001:
 		water_normal = p.get_gravity_up()
 	return p.velocity.slide(water_normal).length() >= p.water_surface_min_speed
+
+
+func _drop_dash_blocks_surface_initiation() -> bool:
+	var p = _owner
+	return not p._running_on_water_surface and p._spindash_action != null and p._spindash_action.is_charging and p._spindash_action.drop_dash_charging
 
 
 func start_surface_running(normal: Vector3) -> void:

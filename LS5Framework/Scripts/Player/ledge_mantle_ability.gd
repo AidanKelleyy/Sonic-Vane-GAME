@@ -9,7 +9,7 @@ const MANTLE_EXCLUDED_GROUP: StringName = &"mantle_excluded"
 ## Enables automatic ledge catches while the character is airborne.
 @export var ledge_mantle_enabled: bool = true
 ## Air actions from which a ledge catch may begin.
-@export var allowed_source_actions: Array[StringName] = [&"fall", &"jump", &"parkour"]
+@export var allowed_source_actions: Array[StringName] = [&"fall", &"jump", &"parkour", &"uppercut_kick"]
 ## Minimum movement-input strength required to catch a ledge.
 @export_range(0.0, 1.0, 0.01) var minimum_input_strength: float = 0.35
 ## Minimum alignment between movement input and the direction into the wall.
@@ -266,7 +266,8 @@ func _can_attempt_catch() -> bool:
 		return _reject_attempt(&"grounded_dead_or_hurt")
 	if owner_player.race_in_countdown or owner_player._ui_input_blocked:
 		return _reject_attempt(&"input_blocked")
-	if owner_player.rolling or owner_player._spindash_charging:
+	var drop_dash: bool = owner_player.is_drop_dash_charging()
+	if (owner_player.rolling or owner_player._spindash_charging) and not drop_dash:
 		return _reject_attempt(&"rolling_or_spindash")
 	if owner_player._rail_active or owner_player._spline_active or owner_player._homing_active:
 		return _reject_attempt(&"rail_spline_or_homing")
@@ -287,7 +288,7 @@ func _can_attempt_catch() -> bool:
 		return false
 	if source_action == &"":
 		source_action = &"fall"
-	if not allowed_source_actions.is_empty() and not allowed_source_actions.has(source_action):
+	if not drop_dash and not allowed_source_actions.is_empty() and not allowed_source_actions.has(source_action):
 		return _reject_attempt(StringName("source_action_%s" % String(source_action)))
 	if owner_player._move_input.length() < max(minimum_input_strength, 0.0):
 		return false

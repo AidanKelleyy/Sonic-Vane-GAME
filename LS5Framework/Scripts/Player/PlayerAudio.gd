@@ -47,6 +47,17 @@ var _emote_deadlines_ms: Dictionary = {}
 var _last_emote_clips: Dictionary = {}
 var _dialogue_finished_connected: bool = false
 var _spindash_loop_active: bool = false
+var _drop_dash_audio_active: bool = false
+## One-shot player for airborne Drop-Dash release, using the character's ability sound routing.
+var _drop_dash_release_player: AudioStreamPlayer3D
+## Sustained airborne Drop-Dash player, using the character's charge-loop spatial settings.
+var _drop_dash_loop_player: AudioStreamPlayer3D
+var _drop_dash_bus_name: StringName = &""
+var _drop_dash_destination_bus: StringName = &"Master"
+var _drop_dash_high_pass: AudioEffectHighPassFilter
+var _drop_dash_loop_base_volume_db: float = 0.0
+var _drop_dash_loop_base_pitch: float = 1.0
+var _drop_dash_loop_intensity: float = 0.0
 var _barrier_blast_wind_mix: float = 0.0
 var _barrier_blast_wind_hold_volume_db: float = -80.0
 var _barrier_blast_wind_hold_pitch: float = 1.0
@@ -67,6 +78,7 @@ func _init(owner: Node) -> void:
 
 
 func stop_remote_audio() -> void:
+	_stop_drop_dash_air_audio()
 	_voice_queue.clear()
 	_current_voice_priority = 0
 	_spindash_loop_active = false
@@ -925,7 +937,95 @@ func play_jumpdash_sfx() -> void:
 		p.rpc("_net_play_action_sfx", "jumpdash", _last_jumpdash_index)
 
 
+func play_drop_dash_air_release(send_net: bool = true) -> void:
+	var p: Node = _owner
+	if not p or not is_instance_valid(p) or not p._spindash_action:
+		return
+	if _drop_dash_audio_active:
+		return
+	var action: SpindashAction = p._spindash_action
+	_stop_spindash_loop_sfx(false)
+	if not is_instance_valid(_drop_dash_release_player) and p.sfx_spindash_release:
+		_drop_dash_release_player = p.sfx_spindash_release.duplicate(0) as AudioStreamPlayer3D
+		_drop_dash_release_player.name = "DropDashAirRelease"
+		_drop_dash_release_player.autoplay = false
+		p.sfx_spindash_release.get_parent().add_child(_drop_dash_release_player)
+	if not is_instance_valid(_drop_dash_loop_player) and p.sfx_spindash_charge_loop:
+		_drop_dash_loop_player = p.sfx_spindash_charge_loop.duplicate(0) as AudioStreamPlayer3D
+		_drop_dash_loop_player.name = "DropDashAirLoop"
+		_drop_dash_loop_player.autoplay = false
+		_drop_dash_loop_base_volume_db = _drop_dash_loop_player.volume_db
+		_drop_dash_loop_base_pitch = _drop_dash_loop_player.pitch_scale
+		p.sfx_spindash_charge_loop.get_parent().add_child(_drop_dash_loop_player)
+	_drop_dash_audio_active = true
+	if is_instance_valid(_drop_dash_loop_player):
+		_ensure_drop_dash_audio_bus()
+		update_drop_dash_air_audio(0.0)
+		_drop_dash_loop_player.stream = action.drop_dash_air_released_loop_sound
+		if _drop_dash_loop_player.stream:
+			_drop_dash_loop_player.play()
+	if is_instance_valid(_drop_dash_release_player) and action.drop_dash_air_release_sound:
+		_drop_dash_release_player.stream = action.drop_dash_air_release_sound
+		_drop_dash_release_player.play()
+	if send_net and p._network_is_active() and p.is_multiplayer_authority():
+		p.rpc("_net_play_action_sfx", "drop_dash_air_release", -1)
+
+
+func _ensure_drop_dash_audio_bus() -> void:
+	if _drop_dash_bus_name != &"" and AudioServer.get_bus_index(_drop_dash_bus_name) >= 0:
+		return
+	_drop_dash_destination_bus = _drop_dash_loop_player.bus
+	_drop_dash_bus_name = StringName("DropDashAir_%d" % _owner.get_instance_id())
+	var index: int = AudioServer.bus_count
+	AudioServer.add_bus()
+	AudioServer.set_bus_name(index, _drop_dash_bus_name)
+	AudioServer.set_bus_send(index, _drop_dash_destination_bus)
+	_drop_dash_high_pass = AudioEffectHighPassFilter.new()
+	AudioServer.add_bus_effect(index, _drop_dash_high_pass)
+	_drop_dash_loop_player.bus = _drop_dash_bus_name
+	if not _owner.tree_exiting.is_connected(_release_drop_dash_audio_bus):
+		_owner.tree_exiting.connect(_release_drop_dash_audio_bus)
+
+
+func _release_drop_dash_audio_bus() -> void:
+	_stop_drop_dash_air_audio()
+	if is_instance_valid(_drop_dash_loop_player):
+		_drop_dash_loop_player.bus = _drop_dash_destination_bus
+	var index: int = AudioServer.get_bus_index(_drop_dash_bus_name)
+	if _drop_dash_bus_name != &"" and index >= 0:
+		AudioServer.remove_bus(index)
+	_drop_dash_bus_name = &""
+	_drop_dash_high_pass = null
+
+
+func update_drop_dash_air_audio(delta: float) -> void:
+	if not _drop_dash_audio_active or not is_instance_valid(_drop_dash_loop_player) or not is_instance_valid(_owner):
+		return
+	var action: SpindashAction = _owner._spindash_action
+	if not action:
+		return
+	var velocity: Vector3 = _owner.velocity
+	var target: float = clampf(velocity.length() / maxf(action.drop_dash_loop_full_speed, 0.001), 0.0, 1.0)
+	var weight: float = 1.0 - exp(-action.drop_dash_loop_response * delta) if delta > 0.0 and action.drop_dash_loop_response > 0.0 else 1.0
+	_drop_dash_loop_intensity = lerpf(_drop_dash_loop_intensity, target, weight)
+	var intensity: float = _drop_dash_loop_intensity
+	_drop_dash_loop_player.pitch_scale = maxf(0.01, _drop_dash_loop_base_pitch * lerpf(action.drop_dash_loop_pitch_range.x, action.drop_dash_loop_pitch_range.y, intensity))
+	_drop_dash_loop_player.volume_db = _drop_dash_loop_base_volume_db + lerpf(action.drop_dash_loop_volume_range_db.x, action.drop_dash_loop_volume_range_db.y, intensity)
+	if _drop_dash_high_pass:
+		_drop_dash_high_pass.cutoff_hz = clampf(lerpf(action.drop_dash_loop_high_pass_range_hz.x, action.drop_dash_loop_high_pass_range_hz.y, intensity), 20.0, 20000.0)
+
+
+func _stop_drop_dash_air_audio() -> void:
+	_drop_dash_audio_active = false
+	if is_instance_valid(_drop_dash_release_player):
+		_drop_dash_release_player.stop()
+	if is_instance_valid(_drop_dash_loop_player):
+		_drop_dash_loop_player.stop()
+
+
 func _start_spindash_loop_sfx(send_net: bool = true) -> void:
+	if _drop_dash_audio_active:
+		return
 	# SUMMARY: Start the spindash loop and optionally replicate.
 	# STEPS:
 	# - Step 1: Validate the loop player and any gating rules.
@@ -953,24 +1053,23 @@ func _stop_spindash_loop_sfx(send_net: bool = true) -> void:
 	# - Step 1: Validate the loop player and current play state.
 	# - Step 2: Stop playback and mark it inactive.
 	# - Step 3: Replicate if requested.
-	var p
-	p = _owner
-	if p == null or not is_instance_valid(p):
+	var was_playing: bool = _drop_dash_audio_active
+	_stop_drop_dash_air_audio()
+	var p: Node = _owner
+	if not p or not is_instance_valid(p):
 		return
-	if p.sfx_spindash_charge_loop == null:
-		_spindash_loop_active = false
-		return
-	if not p.sfx_spindash_charge_loop.playing:
-		_spindash_loop_active = false
-		return
-	p.sfx_spindash_charge_loop.stop()
+	if p.sfx_spindash_charge_loop:
+		was_playing = was_playing or p.sfx_spindash_charge_loop.playing
+		p.sfx_spindash_charge_loop.stop()
 	_spindash_loop_active = false
 
-	if send_net and p._network_is_active() and p.is_multiplayer_authority():
+	if was_playing and send_net and p._network_is_active() and p.is_multiplayer_authority():
 		p.rpc("_net_play_action_sfx", "spindash_loop_stop", -1)
 
 
 func _play_spindash_charge_full_sfx(send_net: bool = true) -> void:
+	if _drop_dash_audio_active:
+		return
 	# SUMMARY: Play the spindash full-charge SFX and optionally replicate.
 	# STEPS:
 	# - Step 1: Validate the player node.
@@ -1310,6 +1409,7 @@ func update_roll_audio(
 		tangential_speed: float,
 		delta: float
 	) -> void:
+	update_drop_dash_air_audio(delta)
 	var p: Node = _owner
 	if p == null or not is_instance_valid(p):
 		return
