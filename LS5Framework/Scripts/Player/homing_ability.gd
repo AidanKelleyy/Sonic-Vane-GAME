@@ -40,6 +40,12 @@ extends CharacterAbility
 @export var homing_speed: float = 85.0
 ## Homing steering response.
 @export var homing_turn_rate: float = 3.5
+## Slides past minor terrain contacts while a fresh ray still has a clear path to the homing target.
+@export var homing_terrain_correction_enabled: bool = true
+## Maximum fraction of incoming velocity directed into a surface for terrain correction. Lower values accept shallower grazes.
+@export_range(0.0, 1.0, 0.05) var homing_terrain_correction_max_into_ratio: float = 0.65
+## Outward speed used to separate from grazed terrain without teleporting or adding travel speed.
+@export_range(0.0, 20.0, 0.5) var homing_terrain_correction_push_speed: float = 4.0
 ## Distance at which a homing target is considered hit.
 @export var homing_hit_distance: float = 1.25
 ## Upward speed applied after a successful homing attack.

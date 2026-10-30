@@ -82,6 +82,8 @@ func _process_collisions_for_attachment(v_before: Vector3, p_before: Vector3, de
 			collider,
 			collider_shape_index
 		)
+		if p._homing_active and p._targeting_module.try_correct_homing_terrain_contact(hit_normal, collider, v_before):
+			continue
 		var action_resolved_wall_velocity: bool = false
 		if not preserves_player_momentum:
 			p._record_wall_input_contact(hit_normal, p._physics_up_last, world_up)

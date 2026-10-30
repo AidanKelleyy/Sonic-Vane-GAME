@@ -302,6 +302,9 @@ func _release_drop_dash() -> void:
 	owner_player.velocity += forward * get_air_release_forward_boost()
 	owner_player.velocity += up * maxf(drop_dash_release_pop_speed - upward_speed, 0.0)
 	owner_player._trigger_anim_command_immediate(drop_dash_animation_command)
+	var rig: Node3D = owner_player.camera_rig
+	if is_instance_valid(rig) and rig.has_method("play_drop_dash_release_feedback"):
+		rig.call("play_drop_dash_release_feedback", owner_player)
 
 
 func get_air_release_input_direction() -> Vector3:

@@ -99,6 +99,22 @@ var _auto_target_timer: float = 0.0
 @export_range(0.0, 1.0, 0.01) var dolly_catchup_start: float = 0.65
 ## Maximum spring response multiplier near the edge of the leash.
 @export var dolly_catchup_multiplier: float = 2.5
+@export_subgroup("Action Dolly Lag")
+## Briefly delays dolly tracking after the followed player's airborne Drop-Dash release.
+@export var drop_dash_release_lag_enabled: bool = true
+## Uses the same dolly lag and recovery when a homing attack acquires its target. Jump Dash is unaffected.
+@export var homing_attack_lag_enabled: bool = true
+## Shared duration of the slower dolly response after Drop-Dash release or homing attack acquisition.
+@export_range(0.0, 1.0, 0.01, "suffix:s") var drop_dash_release_lag_duration: float = 0.12
+## Duration of the faster recovery before normal dolly tracking resumes.
+@export_range(0.01, 1.0, 0.01, "suffix:s") var drop_dash_release_catchup_duration: float = 0.24
+## Shared dolly spring response during the initial lag.
+@export_range(0.1, 60.0, 0.1) var drop_dash_release_lag_response: float = 2.0
+## Minimum dolly spring response during recovery.
+@export_range(0.1, 60.0, 0.1) var drop_dash_release_catchup_response: float = 22.0
+## Temporary dolly leash multiplier, returning smoothly to normal during recovery.
+@export_range(1.0, 5.0, 0.1) var drop_dash_release_leash_multiplier: float = 2.5
+@export_subgroup("")
 ## Enables a bounded velocity-based shift of the dolly tracking anchor.
 @export var target_lookahead_enabled: bool = true
 ## Prediction time used to calculate the target lookahead offset.
@@ -523,6 +539,9 @@ var _dolly_last_target_position: Vector3 = Vector3.ZERO
 var _target_lookahead_current: Vector3 = Vector3.ZERO
 var _dolly_target_ref: Node3D = null
 var _dolly_leash_ratio: float = 0.0
+var _release_dolly_lag_elapsed: float = -1.0
+## Follow target that owns the current release feedback.
+var _release_dolly_lag_target: Node3D
 var _dolly_source_velocity: Vector3 = Vector3.ZERO
 var _target_lookahead_heading: Vector3 = Vector3.ZERO
 var _target_lookahead_heading_up: Vector3 = Vector3.UP
@@ -1162,6 +1181,8 @@ func clear_camera_constraints(except_constraint: Node = null, suppress_exit_smoo
 
 
 func reset_camera_effects(reset_fov: bool = true) -> void:
+	_release_dolly_lag_elapsed = -1.0
+	_release_dolly_lag_target = null
 	clear_camera_constraints(null, true)
 	_restore_camera_local_basis()
 	end_distance_lock()
@@ -1213,6 +1234,8 @@ func end_distance_lock() -> void:
 
 
 func notify_teleport(duration: float = -1.0) -> void:
+	_release_dolly_lag_elapsed = -1.0
+	_release_dolly_lag_target = null
 	# Temporarily disables camera smoothing by forcing a snap-to-target in _update_transform.
 	# Call this whenever the target is teleported/respawned.
 	var d: float = duration
@@ -1938,6 +1961,8 @@ func _get_auto_follow_velocity(include_preview: bool = true) -> Vector3:
 
 
 func _reset_dolly_tracking(source_position: Vector3, source_velocity: Vector3, reset_collision: bool = true) -> void:
+	_release_dolly_lag_elapsed = -1.0
+	_release_dolly_lag_target = null
 	if reset_collision:
 		_camera_collision_initialized = false
 	_dolly_initialized = true
@@ -2155,6 +2180,36 @@ func _update_target_lookahead(delta: float, up: Vector3) -> Vector3:
 	return _target_lookahead_current
 
 
+func play_drop_dash_release_feedback(source: Node3D) -> void:
+	if drop_dash_release_lag_enabled:
+		_play_action_dolly_feedback(source)
+
+
+func play_homing_attack_feedback(source: Node3D) -> void:
+	if homing_attack_lag_enabled:
+		_play_action_dolly_feedback(source)
+
+
+func _play_action_dolly_feedback(source: Node3D) -> void:
+	if not dolly_follow_enabled or source != target or not is_instance_valid(source) or _rear_view_active or _teleport_snap_timer > 0.0:
+		return
+	if not _dolly_initialized or _dolly_target_ref != target:
+		_reset_dolly_tracking(target.global_position, _get_auto_follow_velocity(false))
+	_release_dolly_lag_target = source
+	_release_dolly_lag_elapsed = 0.0
+
+
+func _release_dolly_lag_active() -> bool:
+	return dolly_follow_enabled and _release_dolly_lag_target == target and _release_dolly_lag_elapsed >= 0.0 and _release_dolly_lag_elapsed < drop_dash_release_lag_duration + drop_dash_release_catchup_duration
+
+
+func _release_dolly_leash_scale() -> float:
+	if not _release_dolly_lag_active():
+		return 1.0
+	var recovery: float = clampf((_release_dolly_lag_elapsed - drop_dash_release_lag_duration) / maxf(drop_dash_release_catchup_duration, 0.001), 0.0, 1.0)
+	return lerpf(maxf(drop_dash_release_leash_multiplier, 1.0), 1.0, smoothstep(0.0, 1.0, recovery))
+
+
 func _get_dolly_response(error_ratio: float) -> float:
 	var response: float = max(follow_smooth, 0.0)
 	if drift_follow_enabled and _drift_camera_blend > 0.001:
@@ -2163,6 +2218,8 @@ func _get_dolly_response(error_ratio: float) -> float:
 			response = drift_response
 		else:
 			response = lerp(response, drift_response, _drift_camera_blend)
+	if _release_dolly_lag_active():
+		response = maxf(drop_dash_release_lag_response, 0.1) if _release_dolly_lag_elapsed < drop_dash_release_lag_duration else maxf(response, drop_dash_release_catchup_response)
 	var catchup_start: float = clamp(dolly_catchup_start, 0.0, 1.0)
 	var catchup_weight: float = 0.0
 	if catchup_start < 0.9999:
@@ -2193,7 +2250,8 @@ func _apply_dolly_leash(
 	var along_amount: float = offset.dot(heading)
 	var lateral_amount: float = offset.dot(lateral)
 	var vertical_amount: float = offset.dot(up_norm)
-	var lag_limit: float = max(dolly_max_lag_distance, 0.001)
+	var release_leash_scale: float = _release_dolly_leash_scale()
+	var lag_limit: float = max(dolly_max_lag_distance * release_leash_scale, 0.001)
 	var lookahead_minimum_speed: float = max(target_lookahead_min_speed, 0.0)
 	var lookahead_full_speed: float = max(target_lookahead_full_speed, lookahead_minimum_speed + 0.001)
 	var lookahead_motion_weight: float = smoothstep(
@@ -2202,14 +2260,14 @@ func _apply_dolly_leash(
 		source_velocity.length()
 	)
 	var lookahead_lead: float = max(_target_lookahead_current.dot(heading), 0.0) * lookahead_motion_weight
-	var lead_limit: float = max(max(dolly_max_lead_distance, lookahead_lead + 0.1), 0.001)
+	var lead_limit: float = max(max(dolly_max_lead_distance * release_leash_scale, lookahead_lead + 0.1), 0.001)
 	var lateral_leash_multiplier: float = lerp(
 		1.0,
 		max(drift_lateral_leash_multiplier, 0.1),
 		clamp(_drift_camera_blend, 0.0, 1.0)
 	)
 	var lateral_limit: float = max(dolly_max_lateral_distance * lateral_leash_multiplier, 0.001)
-	var vertical_limit: float = max(dolly_max_vertical_distance, 0.001)
+	var vertical_limit: float = max(dolly_max_vertical_distance * release_leash_scale, 0.001)
 	var clamped_along: float = clamp(along_amount, -lag_limit, lead_limit)
 	var clamped_lateral: float = clamp(lateral_amount, -lateral_limit, lateral_limit)
 	var clamped_vertical: float = clamp(vertical_amount, -vertical_limit, vertical_limit)
@@ -2280,6 +2338,11 @@ func _update_dolly_follow(delta: float, up: Vector3) -> Vector3:
 	if _teleport_snap_timer > 0.0:
 		_reset_dolly_tracking(source_position, reported_velocity)
 		return source_position
+	if _release_dolly_lag_elapsed >= 0.0:
+		_release_dolly_lag_elapsed += dt
+		if not _release_dolly_lag_active():
+			_release_dolly_lag_elapsed = -1.0
+			_release_dolly_lag_target = null
 
 	var previous_lookahead: Vector3 = _target_lookahead_current
 	var lookahead: Vector3 = _update_target_lookahead(dt, up)
@@ -2288,7 +2351,7 @@ func _update_dolly_follow(delta: float, up: Vector3) -> Vector3:
 	if dt > 0.00001:
 		tracking_velocity += (lookahead - previous_lookahead) / dt
 
-	if not dolly_follow_enabled or not smooth_follow or follow_smooth <= 0.0:
+	if not dolly_follow_enabled or ((not smooth_follow or follow_smooth <= 0.0) and not _release_dolly_lag_active()):
 		_dolly_position = tracking_position
 		_dolly_velocity = tracking_velocity
 		_apply_dolly_leash(source_position, _dolly_source_velocity, up)

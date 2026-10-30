@@ -133,7 +133,7 @@ resource_local_to_scene = true
 resource_name = "_afterimage-speed=true;min_speed=0;max_speed=1;min_alpha=0.765;max_alpha=0.765;"
 animation = &"DropDash"
 use_custom_timeline = true
-timeline_length = 0.009999999999999998
+timeline_length = 0.00999999999999999
 stretch_time_scale = true
 start_offset = 0.0
 loop_mode = 1

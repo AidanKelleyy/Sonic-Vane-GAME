@@ -37,6 +37,8 @@ signal reward_unhandled(player: Node, reward: ItemMonitorReward)
 @export_group("Interaction")
 ## Allows homing attacks to target this monitor while it is intact.
 @export var homing_target_enabled: bool = true
+## Allows the player's existing airborne attack magnetism to pull toward this monitor while intact.
+@export var attack_magnetism_enabled: bool = true
 ## Maximum distance from the player for homing targeting. Zero uses the player targeting range.
 @export_range(0.0, 1000.0, 0.1, "or_greater", "suffix:m") var homing_target_max_distance: float = 0.0
 ## Breaks on player contact and disables the solid collider when enabled.
@@ -174,7 +176,7 @@ func activate_for_gameplay(_context: Dictionary) -> bool:
 		body_exited.connect(_on_body_exited)
 	_set_intact_collision_state()
 	_configure_monitor_quantity(_display_reward)
-	_set_homing_target_registered(homing_target_enabled)
+	_set_targeting_registered(true)
 	set_process(false)
 	set_physics_process(false)
 	_gameplay_activated = true
@@ -221,7 +223,7 @@ func _resolve_preparation_nodes() -> void:
 func _exit_tree() -> void:
 	if Engine.is_editor_hint():
 		return
-	_set_homing_target_registered(false)
+	_set_targeting_registered(false)
 
 
 func _process(delta: float) -> void:
@@ -359,7 +361,7 @@ func _break_monitor(player: Node3D, direct_attack: bool = true) -> void:
 		return
 	_state_generation += 1
 	_broken = true
-	_set_homing_target_registered(false)
+	_set_targeting_registered(false)
 	_disable_collision()
 	_set_broken_visual_state()
 	_spawn_break_particles()
@@ -473,6 +475,26 @@ func _finish_homing_without_bounce(player: Node) -> void:
 		player.call("cancel_homing_attack", false)
 
 
+func get_attack_magnetism_position(_context: Variant = null) -> Vector3:
+	return get_homing_target_position(Vector3.ZERO)
+
+
+func _set_targeting_registered(registered: bool) -> void:
+	_set_homing_target_registered(registered and homing_target_enabled)
+	var should_register: bool = registered and attack_magnetism_enabled and not _broken
+	var manager: Node = get_node_or_null("/root/HomingTargetManager")
+	if should_register:
+		if not is_in_group(&"AttackMagnetismTarget"):
+			add_to_group(&"AttackMagnetismTarget")
+		if manager and manager.has_method("register_attack_magnetism_target"):
+			manager.call("register_attack_magnetism_target", self)
+	else:
+		if is_in_group(&"AttackMagnetismTarget"):
+			remove_from_group(&"AttackMagnetismTarget")
+		if manager and manager.has_method("unregister_attack_magnetism_target"):
+			manager.call("unregister_attack_magnetism_target", self)
+
+
 func _set_homing_target_registered(registered: bool) -> void:
 	var should_register: bool = registered and not _broken
 	if should_register:
@@ -576,7 +598,7 @@ func _respawn_monitor(play_feedback: bool) -> void:
 	if _score_award:
 		_score_award.reset_award()
 	_collection_completed = false
-	_set_homing_target_registered(homing_target_enabled)
+	_set_targeting_registered(true)
 	monitorable = true
 	set_deferred("monitoring", true)
 	_set_intact_collision_state()

@@ -620,6 +620,7 @@ func apply_spring_impulse(
 	cancel_vault_bar()
 	if p._dbg_tp_trace > 0:
 		print("[TP] SPRING_IMPULSE called: dir=%v strength=%s vel=%v" % [spring_direction, spring_strength, p.velocity])
+	p.cancel_drop_dash_for_object_interaction()
 	if p._spring_action != null:
 		p._sync_spring_state_to_action()
 		p._spring_action.apply_impulse(
@@ -937,6 +938,7 @@ func apply_dash_panel_impulse(
 	var was_attached: bool = p.attached
 	var previous_position: Vector3 = p.global_position
 	var previous_surface_point: Vector3 = p.surface_point
+	p.cancel_drop_dash_for_object_interaction()
 	cancel_vault_bar()
 	p._bounce_state = p.BounceState.NONE
 	cancel_spline_spring()
@@ -1204,6 +1206,7 @@ func apply_ramp_impulse(
 	hold_up_time: float
 ) -> void:
 	var p = _owner
+	p.cancel_drop_dash_for_object_interaction()
 	cancel_vault_bar()
 	cancel_spline_spring()
 	p.cancel_homing_attack(false)
@@ -1307,6 +1310,7 @@ func start_spline_spring(
 	var length: float = curve.get_baked_length()
 	if length <= 0.001:
 		return
+	p.cancel_drop_dash_for_object_interaction()
 
 	p._spline_path = spline_path
 	p._spline_total_length = length

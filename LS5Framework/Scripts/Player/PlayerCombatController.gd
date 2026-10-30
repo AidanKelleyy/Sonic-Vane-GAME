@@ -200,6 +200,7 @@ func apply_enemy_bounce(origin: Vector3, speed: float, source: Node = null) -> v
 	var p = _owner
 	if p._enemy_bounce_cooldown_timer > 0.0:
 		return
+	p.cancel_drop_dash_for_object_interaction()
 
 	var was_homing_contact: bool = _homing_contact_matches_source(source)
 	var up: Vector3 = _get_homing_contact_up()
@@ -234,6 +235,7 @@ func apply_enemy_bounce(origin: Vector3, speed: float, source: Node = null) -> v
 
 func apply_enemy_attack_bounce(end_bounce_stomp: bool = false, source: Node = null) -> void:
 	var p = _owner
+	p.cancel_drop_dash_for_object_interaction()
 	if p._bounce_state == p.BounceState.STOMP:
 		p._on_trick_detected(TrickSystem.TrickType.STOMP_DAREHOG)
 

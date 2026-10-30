@@ -507,9 +507,9 @@ func _is_attack_magnetism_attack_state_active() -> bool:
 	return false
 
 
-func _is_homing_target_obstructed(origin: Vector3, target_position: Vector3, target: Node3D) -> bool:
+func _is_homing_target_obstructed(origin: Vector3, target_position: Vector3, target: Node3D, force_check: bool = false) -> bool:
 	var p = _owner
-	if not p.homing_obstruction_check:
+	if not p.homing_obstruction_check and not force_check:
 		return false
 	var target_distance: float = origin.distance_to(target_position)
 	if target_distance <= 0.001:
@@ -540,6 +540,41 @@ func _is_homing_target_obstructed(origin: Vector3, target_position: Vector3, tar
 	var obstruction_position: Vector3 = hit_position as Vector3
 	var obstruction_margin: float = max(p.homing_obstruction_margin, 0.0)
 	return origin.distance_to(obstruction_position) < max(target_distance - obstruction_margin, 0.0)
+
+
+func try_correct_homing_terrain_contact(normal: Vector3, collider: Object, incoming_velocity: Vector3) -> bool:
+	var p = _owner
+	if not p._homing_active or p.attached or not is_instance_valid(p._homing_target):
+		return false
+	if not (collider is StaticBody3D or collider is CSGShape3D or collider is GridMap):
+		return false
+	if p._is_water_collider(collider):
+		return false
+	var target: Node3D = p._homing_target
+	if collider == target or collider.is_ancestor_of(target) or target.is_ancestor_of(collider):
+		return false
+	var ability: HomingAbility = p._homing_action
+	if not ability or not ability.homing_terrain_correction_enabled:
+		return false
+	var n: Vector3 = normal.normalized()
+	var speed: float = incoming_velocity.length()
+	if n.is_zero_approx() or speed <= 0.001:
+		return false
+	var into_ratio: float = -incoming_velocity.dot(n) / speed
+	if into_ratio < 0.0 or into_ratio > clampf(ability.homing_terrain_correction_max_into_ratio, 0.0, 1.0):
+		return false
+	var target_position: Vector3 = get_homing_attack_target_position()
+	var to_target: Vector3 = target_position - p.global_position
+	if to_target.length() <= p.homing_hit_distance or _is_homing_target_obstructed(p.global_position, target_position, target, true):
+		return false
+	var tangent: Vector3 = to_target.slide(n).normalized()
+	if tangent.is_zero_approx() or tangent.dot(to_target.normalized()) <= 0.1:
+		return false
+	var push_speed: float = minf(maxf(ability.homing_terrain_correction_push_speed, 0.0), speed * 0.1)
+	p.velocity = (tangent * speed + n * push_speed).normalized() * speed
+	p._last_air_velocity = p.velocity
+	p._dbg_radial_result = "homing_terrain_correction"
+	return true
 
 
 func _get_attack_magnetism_heading(current_velocity: Vector3) -> Vector3:

@@ -4611,6 +4611,22 @@ func _cancel_spindash_charge() -> void:
 	_stop_spindash_loop_sfx()
 
 
+func cancel_drop_dash_for_object_interaction() -> bool:
+	if not _spindash_action or not _spindash_action.drop_dash_charging:
+		return false
+	_spindash_action.reset_state()
+	_spindash_action.air_charge_cancelled = true
+	_sync_spindash_state_from_action()
+	if _roll_action:
+		_roll_action._set_rolling(false, true)
+		_sync_roll_state_from_action()
+	else:
+		rolling = false
+	if _active_action == _roll_action or _active_action == _spindash_action:
+		clear_active_action()
+	return true
+
+
 func _reset_spindash_state() -> void:
 	if _spindash_action != null:
 		_spindash_action.reset_state()
@@ -6471,6 +6487,8 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 				_coyote_jump_requested = false
 				_clear_coyote_jump_window()
 				_reset_drift_state()
+				if is_instance_valid(camera_rig) and camera_rig.has_method("play_homing_attack_feedback"):
+					camera_rig.call("play_homing_attack_feedback", self)
 				_update_homing(delta, physics_up, false)
 				_last_air_velocity = velocity
 				return
