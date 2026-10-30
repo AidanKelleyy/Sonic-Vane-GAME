@@ -4,8 +4,18 @@
 
 [resource]
 script = ExtResource("1_profile")
-attribute_ids = Array[StringName]([&"ability.spindash.spindash_air_mode", &"ability.spindash.drop_dash_charge_time_max", &"ability.spindash.drop_dash_max_launch_speed", &"ability.spindash.drop_dash_gravity_scale", &"ability.spindash.drop_dash_release_pop_speed", &"visual.outline.enabled", &"visual.uekawa.enabled", &"pawn.movement_time_scale"])
+attribute_ids = Array[StringName]([&"ability.spindash.spindash_air_mode", &"ability.spindash.drop_dash_charge_time_max", &"ability.spindash.drop_dash_max_launch_speed", &"ability.spindash.drop_dash_gravity_scale", &"ability.spindash.drop_dash_air_release_forward_speed_cap", &"ability.spindash.drop_dash_air_release_forward_boost", &"ability.spindash.drop_dash_release_pop_speed", &"visual.outline.enabled", &"visual.uekawa.enabled", &"pawn.movement_time_scale"])
 attribute_definitions = {
+&"ability.spindash.drop_dash_air_release_forward_speed_cap": {
+"label": "Drop-Dash Air Release Forward Speed Cap",
+"description": "Gravity-planar speed where the forward boost reaches zero. Independent of air top speed. Zero disables the boost.",
+"category": "Spindash"
+},
+&"ability.spindash.drop_dash_air_release_forward_boost": {
+"label": "Drop-Dash Air Release Forward Boost",
+"description": "Maximum forward speed added on airborne release with directional input. Scales with input strength and tapers to zero at the dedicated forward speed cap. Zero disables the boost.",
+"category": "Spindash"
+},
 &"ability.spindash.drop_dash_max_launch_speed": {
 "label": "Drop-Dash Max Release Strength",
 "description": "Maximum charged launch speed on Drop-Dash landing. Higher incoming speed can be retained by entry-speed preservation.",
@@ -43,7 +53,7 @@ attribute_definitions = {
 }
 }
 character_id = &"tails"
-profile_version = 11
+profile_version = 13
 selection_category = "Work In Progress"
 ability_catalog = Array[Dictionary]([{
 "ability_id": &"uppercut_kick",

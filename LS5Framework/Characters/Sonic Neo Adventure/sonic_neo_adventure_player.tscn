@@ -3250,7 +3250,7 @@ wall_cling_kick_entry_upward_multiplier = 1.45
 
 [node name="Grounded" type="Node" parent="Abilities" unique_id=2051000001]
 script = ExtResource("92_eyj1t")
-run_top_speed = 130.0
+run_top_speed = 133.0
 ground_decel_curve = ExtResource("decel_ground")
 ground_accel_curve = ExtResource("93_ows6n")
 walk_ground_accel_curve = ExtResource("94_hlsp5")
@@ -3270,8 +3270,9 @@ slope_reversal_guard_recovery_distance = 150.0
 slope_reversal_guard_momentum_preserve_speed = 200.0
 slope_uphill_control_ratio_curve = ExtResource("101_xg20j")
 slope_slide_start_angle_deg = 45.0
-skid_enter_angle_deg = 154.0
-skid_decel = 128.0
+skid_enter_angle_deg = 148.0
+skid_exit_angle_deg = 142.0
+skid_decel = 134.0
 engine_sound_volume_min_db = -55.0
 engine_sound_volume_max_db = -40.0
 
@@ -3314,10 +3315,11 @@ spindash_rail_charge_time_max = 1.0
 drop_dash_charge_time_max = 1.5
 drop_dash_gravity_scale = 4.5
 drop_dash_release_pop_speed = 18.0
+drop_dash_air_release_forward_boost = 35.0
 drop_dash_loop_pitch_range = Vector2(0.8, 1.2)
 spindash_min_launch_speed = 80.0
 spindash_max_launch_speed = 135.0
-drop_dash_max_launch_speed = 165.0
+drop_dash_max_launch_speed = 148.0
 spindash_rail_max_launch_speed = 110.0
 spindash_barrier_blast_overcharge_cap = 0.5
 spindash_barrier_blast_overcharge_duration = 2.5

@@ -17,6 +17,10 @@ enum AirSpindashMode { LEGACY, DROP_DASH }
 @export_range(0.0, 5.0, 0.05) var drop_dash_gravity_scale: float = 1.5
 ## Minimum upward speed applied once when releasing an airborne Drop-Dash, along player gravity-up.
 @export_range(0.0, 60.0, 0.5) var drop_dash_release_pop_speed: float = 12.0
+## Maximum forward speed added on airborne release with directional input. Tapers to zero at the forward speed cap. Zero disables the boost.
+@export_range(0.0, 100.0, 0.5, "or_greater") var drop_dash_air_release_forward_boost: float = 20.0
+## Gravity-planar speed where the airborne forward boost reaches zero. Independent of air top speed. Zero disables the boost.
+@export_range(0.0, 1000.0, 1.0, "or_greater") var drop_dash_air_release_forward_speed_cap: float = 150.0
 ## Animation command played after releasing the airborne Drop-Dash button.
 @export var drop_dash_animation_command: StringName = &"CMD_DROP_DASH"
 ## One-shot sound played when the airborne Drop-Dash button is released.
@@ -294,8 +298,28 @@ func _release_drop_dash() -> void:
 	owner_player._play_drop_dash_air_release_sfx()
 	var up: Vector3 = get_owner_gravity_up()
 	var upward_speed: float = owner_player.velocity.dot(up)
+	var forward: Vector3 = get_air_release_input_direction()
+	owner_player.velocity += forward * get_air_release_forward_boost()
 	owner_player.velocity += up * maxf(drop_dash_release_pop_speed - upward_speed, 0.0)
 	owner_player._trigger_anim_command_immediate(drop_dash_animation_command)
+
+
+func get_air_release_input_direction() -> Vector3:
+	var input_direction: Vector3 = owner_player._control_forward * owner_player._move_input.y + owner_player._control_right * owner_player._move_input.x
+	return input_direction.slide(get_owner_gravity_up()).normalized()
+
+
+func get_air_release_forward_boost() -> float:
+	var input_strength: float = clampf(owner_player._move_input.length(), 0.0, 1.0)
+	var up: Vector3 = get_owner_gravity_up()
+	if input_strength <= 0.001 or get_air_release_input_direction().is_zero_approx():
+		return 0.0
+	var top_speed: float = drop_dash_air_release_forward_speed_cap
+	if top_speed <= 0.0:
+		return 0.0
+	var current_speed: float = owner_player.velocity.slide(up).length()
+	var strength: float = clampf(1.0 - current_speed / top_speed, 0.0, 1.0)
+	return minf(maxf(drop_dash_air_release_forward_boost, 0.0) * strength * input_strength, maxf(top_speed - current_speed, 0.0))
 
 
 func get_drop_dash_gravity_scale() -> float:
