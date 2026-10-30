@@ -2,6 +2,52 @@
 extends RefCounted
 
 
+static func speech_regions(stream: AudioStream, start: float, end: float, minimum_pause: float) -> Array[Vector2]:
+	if not stream:
+		return [Vector2(start, end)]
+	var duration: float = stream.get_length()
+	var bins: int = clampi(ceili(duration / 0.005), 2048, 32768)
+	var analysis: Dictionary = analyze(stream, bins)
+	return speech_regions_from_peaks(analysis["peaks"], duration, start, end, minimum_pause)
+
+
+static func speech_regions_from_peaks(peaks: PackedFloat32Array, duration: float, start: float, end: float, minimum_pause: float) -> Array[Vector2]:
+	var regions: Array[Vector2] = []
+	if end <= start:
+		return regions
+	if peaks.is_empty() or duration <= 0.0:
+		return [Vector2(start, end)]
+	var maximum: float = 0.0
+	for peak: float in peaks:
+		maximum = maxf(maximum, peak)
+	if maximum <= 0.0:
+		return [Vector2(start, end)]
+	var threshold: float = maxf(0.006, maximum * 0.025)
+	var bin_duration: float = duration / float(peaks.size())
+	var guard: float = 0.025
+	var region_start: float = start
+	var quiet_start: float = -1.0
+	var heard_speech: bool = false
+	for index: int in range(peaks.size()):
+		var time: float = float(index) * bin_duration
+		if time < start or time >= end:
+			continue
+		if peaks[index] < threshold:
+			if quiet_start < 0.0:
+				quiet_start = time
+			continue
+		if heard_speech and quiet_start >= 0.0 and time - quiet_start >= minimum_pause:
+			var pause_start: float = maxf(region_start, quiet_start + guard)
+			var pause_end: float = minf(end, time - guard)
+			if pause_end > pause_start and pause_start > region_start:
+				regions.append(Vector2(region_start, pause_start))
+				region_start = pause_end
+		heard_speech = true
+		quiet_start = -1.0
+	regions.append(Vector2(region_start, end))
+	return regions
+
+
 static func analyze(stream: AudioStream, bin_count: int = 2048) -> Dictionary:
 	var result: Dictionary = {"peaks": PackedFloat32Array(), "start": 0.0, "end": stream.get_length() if stream else 0.0, "reason": "No voice audio assigned."}
 	if not stream:

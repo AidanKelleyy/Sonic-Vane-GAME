@@ -18,6 +18,7 @@ var _overlay_history: Dictionary = {}
 var _smoothing_history: Dictionary = {}
 var _smoothing_frame: int = -1
 var _smoothing_response: float = 0.0
+var _protect_speech_timing: bool = true
 var _preview_evaluating: bool = false
 
 
@@ -57,6 +58,8 @@ func _process(delta: float) -> void:
 func set_preview(clip: LipSyncClip, time_sec: float, continuous: bool = false) -> void:
 	var next_time: float = _scale_playback_time(clip, maxf(0.0, time_sec)) if clip else 0.0
 	var delta: float = next_time - _playback_time
+	if clip:
+		delta *= clip.get_influence_duration() / maxf(clip.get_timeline_length(), 0.001)
 	if not continuous or clip != _clip or delta < 0.0 or delta > 0.25:
 		_smoothing_history.clear()
 		delta = 0.0
@@ -103,12 +106,14 @@ func _process_modification_with_delta(delta: float) -> void:
 		delta = 0.0
 	if _clip:
 		_smoothing_response = _clip.smoothing_time
+		_protect_speech_timing = _clip.protect_speech_timing
 	var neutral_pose: LipSyncPose = profile.find_pose(profile.silent_viseme_id)
 	var viseme_samples: Array[Dictionary] = []
 	var expression_samples: Array[Dictionary] = []
 	if _clip and _influence_active:
 		viseme_samples = _active_poses(_clip.viseme_cues, _playback_time, false)
 		expression_samples = _active_poses(_clip.expression_cues, _playback_time, true)
+	var viseme_response: float = _speech_smoothing_response(viseme_samples)
 	var absolute: bool = _clip != null and _influence_active and _clip.application_mode == 1
 	var overlay_active: bool = absolute or not viseme_samples.is_empty() or not expression_samples.is_empty() or not _smoothing_history.is_empty()
 	var affected_bones: PackedStringArray = profile.viseme_bones.duplicate()
@@ -133,7 +138,7 @@ func _process_modification_with_delta(delta: float) -> void:
 			output.merge(neutral, true)
 		if profile.viseme_bones.has(bone_name):
 			var viseme_values: Dictionary = _blend_samples(neutral, viseme_samples, bone_name)
-			viseme_values = _smooth_layer("viseme:" + bone_name, neutral, viseme_values, delta)
+			viseme_values = _smooth_layer("viseme:" + bone_name, neutral, viseme_values, delta, viseme_response)
 			if absolute:
 				output.merge(viseme_values, true)
 			else:
@@ -164,7 +169,7 @@ func _active_poses(cues: Array[LipSyncCue], time_sec: float, expression: bool) -
 		if row_index < 0 or row_index >= per_row.size():
 			continue
 		if per_row[row_index].is_empty() or weight > float(per_row[row_index]["weight"]):
-			per_row[row_index] = {"pose": pose, "weight": weight, "fade": fade_weight, "mix": cue.expression_mix}
+			per_row[row_index] = {"pose": pose, "cue": cue, "weight": weight, "fade": fade_weight, "mix": cue.expression_mix}
 	var samples: Array[Dictionary] = []
 	for sample: Dictionary in per_row:
 		if not sample.is_empty():
@@ -226,8 +231,29 @@ func _compound_expressions(neutral: Dictionary, samples: Array[Dictionary], bone
 	return result
 
 
-func _smooth_layer(key: String, neutral: Dictionary, target: Dictionary, delta: float) -> Dictionary:
-	var response: float = _smoothing_response
+func _speech_smoothing_response(samples: Array[Dictionary]) -> float:
+	var response: float = _clip.smoothing_time if _clip else _smoothing_response
+	var protected: bool = _clip.protect_speech_timing if _clip else _protect_speech_timing
+	if response <= 0.0 or not protected:
+		return response
+	response = minf(response, 0.02)
+	var time_scale: float = _clip.get_influence_duration() / maxf(_clip.get_timeline_length(), 0.001) if _clip else 1.0
+	for sample: Dictionary in samples:
+		var cue: LipSyncCue = sample.get("cue") as LipSyncCue
+		if not cue or float(sample.get("weight", 0.0)) < 0.1:
+			continue
+		var pose: LipSyncPose = sample["pose"]
+		var role: int = cue.speech_role if cue.speech_role != LipSyncPose.SpeechRole.AUTOMATIC else pose.get_speech_role()
+		if role in [LipSyncPose.SpeechRole.CLOSURE, LipSyncPose.SpeechRole.SUSTAINED_CLOSURE]:
+			response = minf(response, 0.006)
+		var transition: float = cue.get_blend_out() if _playback_time > cue.end_time - cue.get_blend_out() else cue.get_blend_in()
+		if transition > 0.0:
+			response = minf(response, maxf(0.0015, transition * time_scale * 0.25))
+	return response
+
+
+func _smooth_layer(key: String, neutral: Dictionary, target: Dictionary, delta: float, response_override: float = -1.0) -> Dictionary:
+	var response: float = _smoothing_response if response_override < 0.0 else response_override
 	if response <= 0.0:
 		_smoothing_history.erase(key)
 		return target

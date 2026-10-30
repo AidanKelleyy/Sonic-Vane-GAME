@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_v4i0d")
 character_id = &"adventuresonic"
-profile_version = 10
+profile_version = 11
 selection_category = "Misc"
 ability_catalog = Array[Dictionary]([{
 "ability_id": &"uppercut_kick",
@@ -352,8 +352,19 @@ default_routes = Array[Dictionary]([{
 }])
 routes_authoritative = true
 
-attribute_ids = Array[StringName]([&"ability.spindash.spindash_air_mode"])
+attribute_ids = Array[StringName]([&"ability.spindash.spindash_air_mode", &"ability.spindash.drop_dash_charge_time_max", &"ability.spindash.drop_dash_gravity_scale"])
 attribute_definitions = {
+&"ability.spindash.drop_dash_charge_time_max": {
+"label": "Drop-Dash Charge Time",
+"description": "Time to reach full charge during airborne Drop-Dash.",
+"category": "Spindash",
+"suffix": "s"
+},
+&"ability.spindash.drop_dash_gravity_scale": {
+"label": "Drop-Dash Gravity Scale",
+"description": "Gravity multiplier during airborne Drop-Dash charge.",
+"category": "Spindash"
+},
 &"ability.spindash.spindash_air_mode": {
 "label": "Mid-Air Spindash",
 "description": "Drop-Dash keeps charging until landing and releases along the ground. Legacy releases diagonally in midair when the button is released.",

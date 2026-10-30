@@ -475,7 +475,7 @@ func _drag_blend(time_sec: float) -> void:
 	if not selected_cue or not clip:
 		return
 	var delta: float = _snap_time(time_sec - _drag_anchor)
-	var limit: float = (selected_cue.end_time - selected_cue.start_time) * 0.5
+	var limit: float = selected_cue.get_edit_blend_limit(_drag_mode == "blend_in")
 	var adjusted: float = 0.0
 	if _drag_mode == "blend_in":
 		adjusted = clampf(_drag_blend_start + delta, 0.0, limit)

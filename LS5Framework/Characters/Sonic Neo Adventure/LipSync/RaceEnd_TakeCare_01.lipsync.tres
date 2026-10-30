@@ -1,0 +1,217 @@
+[gd_resource type="Resource" script_class="LipSyncClip" format=3 uid="uid://cicdyp4bci5hf"]
+
+[ext_resource type="AudioStream" uid="uid://bpr3e2ob2oucj" path="res://LS5Framework/Characters/Sonic Neo Adventure/Voice/Reeseimental/RaceEnd_TakeCare_01.ogg" id="1_ue3pr"]
+[ext_resource type="Script" uid="uid://3etv3vrbsrxs" path="res://addons/ls5_lipsync/runtime/lip_sync_cue.gd" id="2_2lssi"]
+[ext_resource type="Resource" uid="uid://bosx3dco55inh" path="res://LS5Framework/Characters/Sonic Neo Adventure/SonicNeoLipSyncProfile.tres" id="3_tkbht"]
+[ext_resource type="Script" uid="uid://dfynv6i3jivb8" path="res://addons/ls5_lipsync/runtime/lip_sync_clip.gd" id="4_cgb7n"]
+
+[sub_resource type="Resource" id="Resource_8ah6s"]
+script = ExtResource("2_2lssi")
+pose_id = &"Mouth Smug Left"
+end_time = 0.8400000000000001
+blend_in = 0.39
+blend_out = 0.25
+
+[sub_resource type="Resource" id="Resource_bpkl5"]
+script = ExtResource("2_2lssi")
+pose_id = &"EXP_BROWS_UP"
+end_time = 0.79
+row = 2
+blend_in = 0.395
+blend_out = 0.395
+
+[sub_resource type="Resource" id="Resource_1tqn5"]
+script = ExtResource("2_2lssi")
+pose_id = &"EXP_BROWS_DOWN"
+start_time = 0.54
+end_time = 1.24
+row = 3
+blend_in = 0.33999999999999997
+blend_out = 0.35
+
+[sub_resource type="Resource" id="Resource_88egt"]
+script = ExtResource("2_2lssi")
+pose_id = &"Mouth Smile"
+start_time = 0.67
+end_time = 1.21
+row = 1
+blend_in = 0.175
+blend_out = 0.26999999999999996
+
+[sub_resource type="Resource" id="Resource_s06yi"]
+script = ExtResource("2_2lssi")
+pose_id = &"Mouth Smug Left"
+start_time = 0.96
+end_time = 1.9
+blend_in = 0.25
+blend_out = 0.38
+
+[sub_resource type="Resource" id="Resource_nf4bo"]
+script = ExtResource("2_2lssi")
+pose_id = &"EXP_BROWS_SKEW_R"
+start_time = 0.97
+end_time = 1.8399999999999999
+row = 2
+blend_in = 0.43499999999999994
+blend_out = 0.43499999999999994
+
+[sub_resource type="Resource" id="Resource_hcbiu"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_K_G_H_NG"
+end_time = 0.1919218
+blend_in = 0.035
+blend_out = 0.14578140940517187
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_03c17"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_AE"
+start_time = 0.04614039096981287
+end_time = 0.3286849892139435
+row = 1
+blend_in = 0.14578140940517187
+blend_out = 0.11359867352526637
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_nmhsm"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_K_G_H_NG"
+start_time = 0.21508631568867714
+end_time = 0.5240228874815835
+row = 2
+blend_in = 0.11359867352526637
+blend_out = 0.18333789826764002
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_dfbhq"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_Ah"
+start_time = 0.3406849892139435
+end_time = 0.6293850506581957
+row = 3
+blend_in = 0.18333789826764002
+blend_out = 0.08955783870012035
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_a7ouv"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_AE"
+start_time = 0.5398272119580754
+end_time = 0.794747213834808
+blend_in = 0.08955783870012035
+blend_out = 0.16536216317661223
+asymmetric_blends = true
+speech_role = 1
+strength = 0.9983121948702578
+
+[sub_resource type="Resource" id="Resource_cam8n"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_K_G_H_NG"
+start_time = 0.74
+end_time = 0.9900000000000001
+row = 1
+blend_in = 0.1
+blend_out = 0.12
+strength = 0.4117647058823529
+
+[sub_resource type="Resource" id="Resource_y5eet"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_T_L_D_N"
+start_time = 0.9342862582206726
+end_time = 1.0970786
+row = 2
+blend_in = 0.035477631509470524
+blend_out = 0.08731467205269382
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_8pevw"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_AE"
+start_time = 1.0024287668485194
+end_time = 1.2322200683099218
+row = 3
+blend_in = 0.09464979493431747
+blend_out = 0.1117091937900987
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_6tj3q"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_K_G_H_NG"
+start_time = 1.1205108745198231
+end_time = 1.3266783094406127
+blend_in = 0.1117091937900987
+blend_out = 0.0878882697350345
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_1w0ve"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_K_G_H_NG"
+start_time = 1.2387900397055782
+end_time = 1.5237699
+row = 1
+blend_in = 0.0878882697350345
+blend_out = 0.18509154605865485
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_4qtle"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_Ah"
+start_time = 1.3386783094406127
+end_time = 1.7092561233454735
+row = 2
+blend_in = 0.18509154605865485
+blend_out = 0.15233530726331934
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_1aclp"]
+script = ExtResource("2_2lssi")
+pose_id = &"VIS_R"
+start_time = 1.5569208160821542
+end_time = 1.82
+row = 3
+blend_in = 0.15233530726331934
+blend_out = 0.0990844147780848
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[resource]
+script = ExtResource("4_cgb7n")
+profile = ExtResource("3_tkbht")
+audio = ExtResource("1_ue3pr")
+transcript = "Hey guy take care"
+audible_end = 1.82
+smoothing_time = 0.01
+viseme_cues = Array[ExtResource("2_2lssi")]([SubResource("Resource_hcbiu"), SubResource("Resource_03c17"), SubResource("Resource_nmhsm"), SubResource("Resource_dfbhq"), SubResource("Resource_a7ouv"), SubResource("Resource_cam8n"), SubResource("Resource_y5eet"), SubResource("Resource_8pevw"), SubResource("Resource_6tj3q"), SubResource("Resource_1w0ve"), SubResource("Resource_4qtle"), SubResource("Resource_1aclp")])
+expression_cues = Array[ExtResource("2_2lssi")]([SubResource("Resource_8ah6s"), SubResource("Resource_bpkl5"), SubResource("Resource_1tqn5"), SubResource("Resource_88egt"), SubResource("Resource_s06yi"), SubResource("Resource_nf4bo")])
+word_spans = Array[Dictionary]([{
+"end": 0.29368498630356044,
+"start": 0.0,
+"word": "Hey"
+}, {
+"end": 0.8042862390866503,
+"start": 0.29368498630356044,
+"word": "guy"
+}, {
+"end": 1.2916783440159634,
+"start": 0.9742862390866504,
+"word": "take"
+}, {
+"end": 1.82,
+"start": 1.2916783440159634,
+"word": "care"
+}])

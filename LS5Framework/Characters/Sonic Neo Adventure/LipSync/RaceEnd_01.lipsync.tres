@@ -1,0 +1,223 @@
+[gd_resource type="Resource" script_class="LipSyncClip" format=3 uid="uid://ctsh4wrcmxlbq"]
+
+[ext_resource type="AudioStream" uid="uid://djt6h8ffj3xei" path="res://LS5Framework/Characters/Sonic Neo Adventure/Voice/RaceEnd_01.wav" id="1_jgobd"]
+[ext_resource type="Script" uid="uid://3etv3vrbsrxs" path="res://addons/ls5_lipsync/runtime/lip_sync_cue.gd" id="2_15t7m"]
+[ext_resource type="Resource" uid="uid://bosx3dco55inh" path="res://LS5Framework/Characters/Sonic Neo Adventure/SonicNeoLipSyncProfile.tres" id="3_wnvfq"]
+[ext_resource type="Script" uid="uid://dfynv6i3jivb8" path="res://addons/ls5_lipsync/runtime/lip_sync_clip.gd" id="4_wqc8g"]
+
+[sub_resource type="Resource" id="Resource_onlvk"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_K_G_H_NG"
+start_time = 0.01
+end_time = 0.12690306300289778
+blend_in = 0.023431836796384678
+blend_out = 0.08667938967745525
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_08x52"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_AE"
+start_time = 0.04022367332544253
+end_time = 0.20914723535946436
+row = 1
+blend_in = 0.08667938967745525
+blend_out = 0.06812427361279116
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_hal0w"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_K_G_H_NG"
+start_time = 0.1410229617466732
+end_time = 0.2869898
+row = 2
+blend_in = 0.06812427361279116
+blend_out = 0.07201166898863656
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_du8r7"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_Ah"
+start_time = 0.21
+end_time = 0.37
+blend_in = 0.06
+blend_out = 0.08
+
+[sub_resource type="Resource" id="Resource_rjsxs"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_AE"
+start_time = 0.29000000000000004
+end_time = 0.4553790071691786
+row = 3
+blend_in = 0.04571576392541638
+blend_out = 0.0896632432437622
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_0u4jt"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_T_L_D_N"
+start_time = 0.68
+end_time = 0.75994897
+blend_in = 0.0117159163932411
+blend_out = 0.06483712754638826
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_kvnp0"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_AE"
+start_time = 0.6951118413409408
+end_time = 0.8387915802754854
+row = 1
+blend_in = 0.06483712754638826
+blend_out = 0.06365732646564659
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_6qmsh"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_T_L_D_N"
+start_time = 0.7751342538098388
+end_time = 0.8967407886762369
+row = 2
+blend_in = 0.06365732646564659
+blend_out = 0.053570261192949276
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_whvlb"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_S_Z"
+start_time = 0.8431705274832876
+end_time = 0.9463795900247535
+row = 3
+blend_in = 0.053570261192949276
+blend_out = 0.04040195958205883
+asymmetric_blends = true
+speech_role = 7
+strength = 0.9
+
+[sub_resource type="Resource" id="Resource_jmmf1"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_B_M_P"
+start_time = 0.9059776304426946
+end_time = 0.9843244897959184
+blend_in = 0.04040195958205883
+blend_out = 0.027312245756266118
+asymmetric_blends = true
+speech_role = 2
+
+[sub_resource type="Resource" id="Resource_vubpa"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_T_L_D_N"
+start_time = 0.9570122440396522
+end_time = 1.0465906120397606
+row = 1
+blend_in = 0.027312245756266118
+blend_out = 0.05712326510098509
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_rn3vr"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_Ah"
+start_time = 0.9835273466431362
+end_time = 1.1790987759084117
+row = 3
+blend_in = 0.07144653071481352
+blend_out = 0.07065653102251955
+asymmetric_blends = true
+speech_role = 1
+strength = 0.78
+
+[sub_resource type="Resource" id="Resource_h4bry"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_AE"
+start_time = 1.0884422448858921
+end_time = 1.2460132653061224
+blend_in = 0.050656531022519546
+blend_out = 0.08976857112086556
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_exylo"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_K_G_H_NG"
+start_time = 1.1562446941852569
+end_time = 1.3787552943229675
+row = 1
+blend_in = 0.08976857112086556
+blend_out = 0.12361958003725326
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_34qjw"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_Ah"
+start_time = 1.26
+end_time = 1.42
+blend_in = 0.07999999999999996
+blend_out = 0.07999999999999996
+
+[sub_resource type="Resource" id="Resource_3218n"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_AE"
+start_time = 1.3651357142857143
+end_time = 1.501335581234523
+row = 2
+blend_in = 0.07514494287617794
+blend_out = 0.06105492407263077
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_y88pg"]
+script = ExtResource("2_15t7m")
+pose_id = &"VIS_T_L_D_N"
+start_time = 1.4008952350957053
+end_time = 1.5673469
+row = 3
+blend_in = 0.1004403461388177
+blend_out = 0.05871727752685564
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[resource]
+script = ExtResource("4_wqc8g")
+profile = ExtResource("3_wnvfq")
+audio = ExtResource("1_jgobd")
+transcript = "Hey guy let's play again"
+audible_start = 0.01
+audible_end = 1.56
+smoothing_time = 0.01
+viseme_cues = Array[ExtResource("2_15t7m")]([SubResource("Resource_onlvk"), SubResource("Resource_08x52"), SubResource("Resource_hal0w"), SubResource("Resource_du8r7"), SubResource("Resource_rjsxs"), SubResource("Resource_0u4jt"), SubResource("Resource_kvnp0"), SubResource("Resource_6qmsh"), SubResource("Resource_whvlb"), SubResource("Resource_jmmf1"), SubResource("Resource_vubpa"), SubResource("Resource_rn3vr"), SubResource("Resource_h4bry"), SubResource("Resource_exylo"), SubResource("Resource_34qjw"), SubResource("Resource_3218n"), SubResource("Resource_y88pg")])
+word_spans = Array[Dictionary]([{
+"end": 0.18903061224489795,
+"start": 0.01,
+"word": "Hey"
+}, {
+"end": 0.38035714285714284,
+"start": 0.18903061224489795,
+"word": "guy"
+}, {
+"end": 0.9400000000000001,
+"start": 0.68,
+"word": "let's"
+}, {
+"end": 1.0886734693877549,
+"start": 0.9400000000000001,
+"word": "play"
+}, {
+"end": 1.5673469387755101,
+"start": 1.0886734693877549,
+"word": "again"
+}])

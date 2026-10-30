@@ -14,6 +14,12 @@ class_name LipSyncClip
 @export var audible_end: float = 0.0
 ## Gap in seconds between consecutive transcript-generated visemes.
 @export_range(0.0, 1.0, 0.01) var generation_padding: float = 0.0
+## Maximum full-strength hold in seconds for transcript-generated visemes.
+@export_range(0.0, 0.25, 0.005) var generation_max_hold: float = 0.05
+## Fraction of each generated viseme devoted to motion before applying the maximum hold.
+@export_range(0.0, 1.0, 0.05) var generation_transition_amount: float = 0.85
+## Minimum quiet interval or word gap in seconds preserved as a speech pause during generation.
+@export_range(0.04, 1.0, 0.01) var generation_pause_threshold: float = 0.16
 ## Default blend-in duration in seconds for new cues.
 @export_range(0.0, 2.0, 0.01) var new_blend_in: float = 0.04
 ## Default blend-out duration in seconds for new cues.
@@ -28,6 +34,8 @@ class_name LipSyncClip
 @export_enum("Linear", "Smoothstep", "Sine") var expression_blend_curve: int = 1
 ## Response time in seconds for facial smoothing. Zero disables smoothing.
 @export_range(0.0, 0.25, 0.005) var smoothing_time: float = 0.0
+## Keep mouth smoothing subtle and preserve brief consonant contacts. Expression smoothing keeps the chosen response time.
+@export var protect_speech_timing: bool = true
 ## Facial pose application against gameplay animation.
 @export_enum("Additive Overlay", "Absolute Override") var application_mode: int = 0
 ## Runtime duration in seconds. Zero uses the authored timeline length.

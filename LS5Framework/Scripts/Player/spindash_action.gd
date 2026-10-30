@@ -11,6 +11,10 @@ enum AirSpindashMode { LEGACY, DROP_DASH }
 @export_enum("Legacy", "Drop-Dash") var spindash_air_mode: int = AirSpindashMode.DROP_DASH
 @export var spindash_charge_time_max: float = 0.9
 @export var spindash_rail_charge_time_max: float = 0.9
+## Time required to reach full charge after airborne Drop-Dash activation.
+@export_range(0.01, 5.0, 0.01, "suffix:s") var drop_dash_charge_time_max: float = 0.45
+## Gravity multiplier while charging an airborne Drop-Dash. Grounded and Legacy spindash are unaffected.
+@export_range(0.0, 5.0, 0.05) var drop_dash_gravity_scale: float = 1.5
 ## Delay before the Spindash activates when its modifier slot is not held.
 @export var spindash_ground_hold_time: float = 0.19
 ## Time before GO during which a fully charged release is buffered until the race starts.
@@ -184,7 +188,7 @@ func _update_standard(delta: float) -> void:
 			return
 
 		if action1_held or drop_dash_charging:
-			_advance_charge(delta, spindash_charge_time_max)
+			_advance_charge(delta, get_max_charge_time())
 
 		if not charge_full_played and get_charge_ratio() >= 1.0:
 			charge_full_played = true
@@ -260,10 +264,17 @@ func _update_on_rail(delta: float) -> void:
 		_start_charge()
 
 
-func get_charge_ratio() -> float:
+func get_max_charge_time() -> float:
+	if drop_dash_charging:
+		return drop_dash_charge_time_max
 	var charge_max: float = spindash_charge_time_max
 	if owner_player._rail_active:
 		charge_max = spindash_rail_charge_time_max
+	return charge_max
+
+
+func get_charge_ratio() -> float:
+	var charge_max: float = get_max_charge_time()
 	if charge_max <= 0.0:
 		return 1.0
 	return clamp(charge_time / charge_max, 0.0, 1.0)
@@ -277,9 +288,7 @@ func blocks_external_barrier_blast_gain() -> bool:
 	var gauge_cap: float = clamp(spindash_barrier_blast_overcharge_cap, 0.0, 1.0)
 	if gauge_cap <= 0.0 or owner_player._barrier_blast_gauge >= gauge_cap:
 		return false
-	var charge_max: float = spindash_charge_time_max
-	if owner_player._rail_active:
-		charge_max = spindash_rail_charge_time_max
+	var charge_max: float = get_max_charge_time()
 	return charge_time >= max(charge_max, 0.0)
 
 

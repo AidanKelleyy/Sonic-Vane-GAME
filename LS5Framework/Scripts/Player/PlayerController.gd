@@ -7720,6 +7720,8 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 					_is_jumping = false
 					_jump_hang_allowed = false
 
+		if drop_dash_air_control:
+			gravity_scale *= maxf(_spindash_action.drop_dash_gravity_scale, 0.0)
 		if in_spring_state:
 			gravity_scale *= spring_gravity_scale
 
@@ -9728,6 +9730,8 @@ func get_landing_prompt_prediction(duration: float) -> Dictionary:
 		gravity_scale = bounce_gravity_scale
 	elif _bounce_state == BounceState.STOMP:
 		gravity_scale = stomp_gravity_scale
+	if is_drop_dash_charging():
+		gravity_scale *= maxf(_spindash_action.drop_dash_gravity_scale, 0.0)
 	if _spring_align_timer > 0.0:
 		gravity_scale *= spring_gravity_scale
 	var acceleration: Vector3 = -up * get_effective_gravity_strength() * gravity_scale

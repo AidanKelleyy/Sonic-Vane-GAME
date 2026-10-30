@@ -24,6 +24,8 @@ var _audio_picker: EditorResourcePicker
 var _viseme_list: ItemList
 var _expression_list: ItemList
 var _creation_fields: Dictionary = {}
+## Optional speech timing protection for mouth response smoothing.
+var _speech_smoothing_guard: CheckBox
 var _curve_fields: Dictionary = {}
 var _cue_curve_menu: OptionButton
 var _cue_blend_lock: CheckBox
@@ -430,13 +432,15 @@ func _build_inspector(parent: VBoxContainer) -> void:
 	_influence_duration_field.value_changed.connect(_on_influence_duration_changed)
 	playback_options.add_child(_influence_duration_field)
 	var defaults_parent: VBoxContainer = _add_foldout(parent, "Generation and Blending")
+	var generation_help: Label = _add_label(defaults_parent, "Drafts follow the voice rhythm, shape sounds automatically, and rest during pauses. The defaults suit most lines; regenerate after changing these settings.")
+	generation_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var defaults: HFlowContainer = HFlowContainer.new()
 	defaults_parent.add_child(defaults)
-	for setting: String in ["generation_padding", "new_blend_in", "new_blend_out", "new_expression_blend_in", "new_expression_blend_out", "smoothing_time"]:
+	for setting: String in ["generation_padding", "generation_max_hold", "generation_transition_amount", "generation_pause_threshold", "new_blend_in", "new_blend_out", "new_expression_blend_in", "new_expression_blend_out", "smoothing_time"]:
 		var column: VBoxContainer = VBoxContainer.new()
 		column.custom_minimum_size.x = 100.0
 		defaults.add_child(column)
-		var captions: Dictionary = {"generation_padding": "Padding", "new_blend_in": "Viseme In", "new_blend_out": "Viseme Out", "new_expression_blend_in": "Expression In", "new_expression_blend_out": "Expression Out", "smoothing_time": "Smoothing (s)"}
+		var captions: Dictionary = {"generation_padding": "Padding", "generation_max_hold": "Hold Limit", "generation_transition_amount": "Mouth Movement", "generation_pause_threshold": "Pause Length", "new_blend_in": "Viseme In", "new_blend_out": "Viseme Out", "new_expression_blend_in": "Expression In", "new_expression_blend_out": "Expression Out", "smoothing_time": "Smoothing (s)"}
 		var caption: String = captions[setting]
 		_add_label(column, caption)
 		var field: SpinBox = SpinBox.new()
@@ -446,13 +450,33 @@ func _build_inspector(parent: VBoxContainer) -> void:
 		if setting == "smoothing_time":
 			field.max_value = 0.25
 			field.step = 0.005
+		if setting == "generation_max_hold":
+			field.max_value = 0.25
+			field.step = 0.005
+		if setting == "generation_transition_amount":
+			field.max_value = 100.0
+			field.step = 5.0
+			field.suffix = "%"
+		if setting == "generation_pause_threshold":
+			field.min_value = 0.04
+			field.max_value = 1.0
+		if setting.begins_with("generation_") and setting != "generation_transition_amount":
+			field.suffix = "s"
 		field.editable = false
-		field.tooltip_text = "Gap between generated visemes across all four rows. Zero keeps their combined coverage continuous. Use Regenerate from Words to update existing cues." if setting == "generation_padding" else "Default %s duration for new visemes and expressions." % caption.to_lower()
+		field.tooltip_text = "Gap between generated visemes. Zero crossfades connected speech while preserving pauses. Generate Draft or Regenerate from Words applies generation settings." if setting == "generation_padding" else "Default %s duration for manually inserted cues." % caption.to_lower()
+		if setting == "generation_max_hold":
+			field.tooltip_text = "Longest time a generated mouth shape stays fully held. Lower values keep it moving; zero removes the hold. The default is 0.05 s. Regenerate to apply."
+		if setting == "generation_transition_amount":
+			field.tooltip_text = "How much of each sound is spent moving between mouth shapes. Higher values keep the mouth moving; lower values allow longer holds, up to Hold Limit. The default is 85%. Regenerate to apply."
+		if setting == "generation_pause_threshold":
+			field.tooltip_text = "Shortest quiet break treated as a pause, letting the mouth rest. Lower values notice shorter pauses; higher values keep more speech connected. The default is 0.16 s. Regenerate to apply."
 		if setting == "smoothing_time":
-			field.tooltip_text = "Overall facial response time in seconds. Zero disables smoothing. Playback uses smoothing; scrubbing resets it."
+			field.tooltip_text = "Small finishing softness for facial motion. New clips use 0.01 s; zero disables it. Keep speech clear protects quick mouth contacts. Scrubbing shows the exact pose."
 		column.add_child(field)
 		field.value_changed.connect(_on_creation_field_changed.bind(setting))
 		_creation_fields[setting] = field
+	_speech_smoothing_guard = _transfer_check(defaults_parent, "Keep speech clear", true, "Recommended. Keeps mouth smoothing subtle and protects brief consonant contacts. Expressions retain the chosen smoothing time.")
+	_speech_smoothing_guard.toggled.connect(_on_speech_smoothing_guard_toggled)
 	for setting: String in ["viseme_blend_curve", "expression_blend_curve"]:
 		var column: VBoxContainer = VBoxContainer.new()
 		defaults.add_child(column)
@@ -534,7 +558,7 @@ func _build_transfer_organiser(parent: VBoxContainer) -> void:
 	_cue_source_picker.tooltip_text = "Source clip to copy. Choose a registered clip above or load a clip from another character."
 	_copy_visemes = _transfer_check(organiser, "Copy visemes", true, "Replace all four viseme rows in the open clip with copies of the source cues.")
 	_copy_expressions = _transfer_check(organiser, "Copy expressions", true, "Replace all four expression rows in the open clip with copies of the source cues.")
-	_copy_defaults = _transfer_check(organiser, "Copy blending defaults and smoothing", true, "Copy defaults for selected cue types and overall smoothing. Playback mode and duration override stay with the destination.")
+	_copy_defaults = _transfer_check(organiser, "Copy blending defaults and smoothing", true, "Copy defaults for selected cue types, viseme generation settings, and overall smoothing. Playback mode and duration override stay with the destination.")
 	_fit_transfer_timing = _transfer_check(organiser, "Fit timing to destination audible range", false, "Scale cue times and blend durations from the source audible range to the destination audible range. Expressions may still linger past audio.")
 	var actions: HFlowContainer = HFlowContainer.new()
 	organiser.add_child(actions)
@@ -620,8 +644,8 @@ func _prepare_cue_transfer(source: LipSyncClip, destination: LipSyncClip, viseme
 			copied.end_time = maxf(0.0, cue.end_time * scale_factor + offset)
 			if copied.end_time <= copied.start_time:
 				return {"error": "Fitted timing places a cue before time zero. Adjust audible ranges or disable timing fit."}
-			copied.blend_in = minf(cue.blend_in * scale_factor, (copied.end_time - copied.start_time) * 0.5)
-			copied.blend_out = minf(cue.blend_out * scale_factor, (copied.end_time - copied.start_time) * 0.5)
+			copied.blend_in = cue.get_blend_in() * scale_factor
+			copied.blend_out = cue.get_blend_out() * scale_factor
 			copied.refresh_blends()
 			result["expressions" if expression else "visemes"].append(copied)
 	if not missing.is_empty():
@@ -640,6 +664,11 @@ func _copy_cues_into_open_clip() -> void:
 	if _copy_visemes.button_pressed:
 		_clip.viseme_cues.assign(result["visemes"])
 		if _copy_defaults.button_pressed:
+			_clip.generation_padding = source.generation_padding
+			_clip.generation_max_hold = source.generation_max_hold
+			_clip.generation_transition_amount = source.generation_transition_amount
+			_clip.generation_pause_threshold = source.generation_pause_threshold
+			_clip.protect_speech_timing = source.protect_speech_timing
 			_clip.new_blend_in = source.new_blend_in
 			_clip.new_blend_out = source.new_blend_out
 			_clip.viseme_blend_curve = source.viseme_blend_curve
@@ -1142,6 +1171,9 @@ func _on_influence_duration_changed(value: float) -> void:
 
 func _refresh_creation_fields() -> void:
 	_editing_fields = true
+	if _speech_smoothing_guard:
+		_speech_smoothing_guard.disabled = _clip == null
+		_speech_smoothing_guard.set_pressed_no_signal(_clip.protect_speech_timing if _clip else true)
 	for key: String in _curve_fields:
 		var menu: OptionButton = _curve_fields[key]
 		menu.disabled = _clip == null
@@ -1149,8 +1181,17 @@ func _refresh_creation_fields() -> void:
 	for key: String in _creation_fields:
 		var field: SpinBox = _creation_fields[key]
 		field.editable = _clip != null
-		field.value = float(_clip.get(key)) if _clip else 0.0
+		field.value = float(_clip.get(key)) * (100.0 if key == "generation_transition_amount" else 1.0) if _clip else 0.0
 	_editing_fields = false
+
+
+func _on_speech_smoothing_guard_toggled(enabled: bool) -> void:
+	if _editing_fields or not _clip or _clip.protect_speech_timing == enabled:
+		return
+	_push_undo()
+	_clip.protect_speech_timing = enabled
+	_clip.emit_changed()
+	_update_preview(_timeline.playhead)
 
 
 func _on_curve_selected(value: int, key: String) -> void:
@@ -1176,14 +1217,16 @@ func _on_cue_option_selected(value: int, key: String) -> void:
 
 
 func _on_creation_field_changed(value: float, key: String) -> void:
+	if key == "generation_transition_amount":
+		value /= 100.0
 	if _editing_fields or not _clip or is_equal_approx(float(_clip.get(key)), value):
 		return
 	_push_undo()
 	_clip.set(key, value)
 	_clip.emit_changed()
 	_update_preview(_timeline.playhead)
-	if key == "generation_padding":
-		_status.text = "Padding set to %.2f s. Generate Draft or Regenerate from Words to update visemes." % value
+	if key.begins_with("generation_"):
+		_status.text = "Generation setting updated. Generate Draft or Regenerate from Words to update visemes."
 
 
 func _on_field_changed(value: float, key: String) -> void:
@@ -1195,6 +1238,7 @@ func _on_field_changed(value: float, key: String) -> void:
 	if key in ["blend_in", "blend_out"]:
 		_selected_cue.refresh_blends()
 		_selected_cue.lock_max_blend = false
+		value = clampf(value, 0.0, _selected_cue.get_edit_blend_limit(key == "blend_in"))
 	_selected_cue.set(key, value)
 	var cues: Array[LipSyncCue] = _clip.expression_cues if _selected_expression else _clip.viseme_cues
 	var previous_end: float = 0.0
@@ -1424,7 +1468,7 @@ func _regenerate_from_words() -> void:
 	_push_undo()
 	if not DRAFT_SCRIPT.regenerate_from_words(_clip):
 		_undo_stack.pop_back()
-		_status.text = "Word guidance has invalid timing or no usable words."
+		_status.text = "Word guidance has invalid timing or no usable speech regions."
 		return
 	_pre_draft_state = previous_state
 	_timeline.clear_selection()
@@ -1519,6 +1563,9 @@ func _capture_state() -> Dictionary:
 		"audible_start": _clip.audible_start,
 		"audible_end": _clip.audible_end,
 		"generation_padding": _clip.generation_padding,
+		"generation_max_hold": _clip.generation_max_hold,
+		"generation_transition_amount": _clip.generation_transition_amount,
+		"generation_pause_threshold": _clip.generation_pause_threshold,
 		"new_blend_in": _clip.new_blend_in,
 		"new_blend_out": _clip.new_blend_out,
 		"new_expression_blend_in": _clip.new_expression_blend_in,
@@ -1526,6 +1573,7 @@ func _capture_state() -> Dictionary:
 		"viseme_blend_curve": _clip.viseme_blend_curve,
 		"expression_blend_curve": _clip.expression_blend_curve,
 		"smoothing_time": _clip.smoothing_time,
+		"protect_speech_timing": _clip.protect_speech_timing,
 		"application_mode": _clip.application_mode,
 		"influence_duration_override": _clip.influence_duration_override,
 		"visemes": _cue_data(_clip.viseme_cues),
@@ -1544,6 +1592,8 @@ func _cue_data(cues: Array[LipSyncCue]) -> Array[Dictionary]:
 			"row": cue.row,
 			"blend_in": cue.blend_in,
 			"blend_out": cue.blend_out,
+			"asymmetric_blends": cue.asymmetric_blends,
+			"speech_role": cue.speech_role,
 			"strength": cue.strength,
 			"lock_max_blend": cue.lock_max_blend,
 			"blend_curve": cue.blend_curve,
@@ -1561,6 +1611,9 @@ func _restore_state(state: Dictionary) -> void:
 	_clip.audible_start = state["audible_start"]
 	_clip.audible_end = state["audible_end"]
 	_clip.generation_padding = float(state.get("generation_padding", 0.0))
+	_clip.generation_max_hold = float(state.get("generation_max_hold", 0.05))
+	_clip.generation_transition_amount = float(state.get("generation_transition_amount", 0.85))
+	_clip.generation_pause_threshold = float(state.get("generation_pause_threshold", 0.16))
 	_clip.new_blend_in = float(state.get("new_blend_in", 0.04))
 	_clip.new_blend_out = float(state.get("new_blend_out", 0.04))
 	_clip.new_expression_blend_in = float(state.get("new_expression_blend_in", 0.15))
@@ -1568,6 +1621,7 @@ func _restore_state(state: Dictionary) -> void:
 	_clip.viseme_blend_curve = int(state.get("viseme_blend_curve", 1))
 	_clip.expression_blend_curve = int(state.get("expression_blend_curve", 1))
 	_clip.smoothing_time = float(state.get("smoothing_time", 0.0))
+	_clip.protect_speech_timing = bool(state.get("protect_speech_timing", true))
 	_clip.application_mode = int(state.get("application_mode", 0))
 	_clip.influence_duration_override = float(state.get("influence_duration_override", 0.0))
 	_clip.viseme_cues.clear()
@@ -1601,6 +1655,8 @@ func _cue_from_data(data: Dictionary) -> LipSyncCue:
 	cue.row = int(data.get("row", 0))
 	cue.blend_in = data["blend_in"]
 	cue.blend_out = data["blend_out"]
+	cue.asymmetric_blends = bool(data.get("asymmetric_blends", false))
+	cue.speech_role = int(data.get("speech_role", LipSyncPose.SpeechRole.AUTOMATIC))
 	cue.strength = data["strength"]
 	cue.lock_max_blend = bool(data.get("lock_max_blend", false))
 	cue.blend_curve = int(data.get("blend_curve", -1))

@@ -1,0 +1,342 @@
+[gd_resource type="Resource" script_class="LipSyncClip" format=3 uid="uid://wwe10gpxpivk"]
+
+[ext_resource type="AudioStream" uid="uid://jy7kknp3eney" path="res://LS5Framework/Characters/Sonic Neo Adventure/Voice/Reeseimental/RaceEnd_ChaosCola_02.ogg" id="1_3112h"]
+[ext_resource type="Script" uid="uid://3etv3vrbsrxs" path="res://addons/ls5_lipsync/runtime/lip_sync_cue.gd" id="2_v4fjy"]
+[ext_resource type="Resource" uid="uid://bosx3dco55inh" path="res://LS5Framework/Characters/Sonic Neo Adventure/SonicNeoLipSyncProfile.tres" id="3_sxsek"]
+[ext_resource type="Script" uid="uid://dfynv6i3jivb8" path="res://addons/ls5_lipsync/runtime/lip_sync_clip.gd" id="4_p2nkn"]
+
+[sub_resource type="Resource" id="Resource_64rda"]
+script = ExtResource("2_v4fjy")
+pose_id = &"Mouth Smug Left"
+end_time = 0.9539640979749742
+row = 3
+blend_in = 0.2890800296893861
+blend_out = 0.4143480425547869
+
+[sub_resource type="Resource" id="Resource_pibqw"]
+script = ExtResource("2_v4fjy")
+pose_id = &"EXP_BROWS_UP"
+start_time = 0.03854400395858484
+end_time = 0.7130640732338194
+blend_in = 0.3372600346376173
+blend_out = 0.3372600346376173
+lock_max_blend = true
+
+[sub_resource type="Resource" id="Resource_crk0t"]
+script = ExtResource("2_v4fjy")
+pose_id = &"EXP_BROWS_SKEW_R"
+start_time = 0.3950760405754945
+end_time = 2.148828220691104
+row = 1
+blend_in = 0.3661680376065557
+blend_out = 0.3372600346376171
+
+[sub_resource type="Resource" id="Resource_gr2as"]
+script = ExtResource("2_v4fjy")
+pose_id = &"Mouth Smile"
+start_time = 0.645612066306296
+end_time = 1.801932185063841
+row = 2
+blend_in = 0.5781600593787726
+blend_out = 0.5781600593787726
+lock_max_blend = true
+
+[sub_resource type="Resource" id="Resource_u5277"]
+script = ExtResource("2_v4fjy")
+pose_id = &"EXP_BROWS_DOWN"
+start_time = 0.7227000742234656
+end_time = 1.8886561939706568
+blend_in = 0.462528047503018
+blend_out = 0.462528047503018
+
+[sub_resource type="Resource" id="Resource_c3rk0"]
+script = ExtResource("2_v4fjy")
+pose_id = &"Mouth Smug Left"
+start_time = 1.2623161296436534
+end_time = 3.43041635231405
+row = 3
+blend_in = 0.462528047503018
+blend_out = 1.0840501113351984
+
+[sub_resource type="Resource" id="Resource_0qiy1"]
+script = ExtResource("2_v4fjy")
+pose_id = &"EXP_BROWS_UP"
+start_time = 1.850112190012072
+end_time = 2.5246322592873067
+row = 2
+blend_in = 0.33726003463761733
+blend_out = 0.33726003463761733
+lock_max_blend = true
+
+[sub_resource type="Resource" id="Resource_u4xyo"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_T_L_D_N"
+start_time = 0.06
+end_time = 0.1802687239027011
+blend_in = 0.012815772258572458
+blend_out = 0.05555823009920994
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_lg0ku"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_AE"
+start_time = 0.1
+end_time = 0.23744642371141894
+row = 1
+blend_in = 0.05555823009920994
+blend_out = 0.05129791450238379
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_ujf50"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_K_G_H_NG"
+start_time = 0.18
+end_time = 0.28383037205748984
+row = 2
+blend_in = 0.05129791450238379
+blend_out = 0.04881774095841836
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_rlh3r"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_S_Z"
+start_time = 0.23
+end_time = 0.33316701216567557
+row = 3
+blend_in = 0.04881774095841836
+blend_out = 0.04481266329713151
+asymmetric_blends = true
+speech_role = 7
+strength = 0.9
+
+[sub_resource type="Resource" id="Resource_ol66e"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_T_L_D_N"
+start_time = 0.26
+end_time = 0.3938048604002208
+blend_in = 0.04481266329713151
+blend_out = 0.047640611261943515
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_7jxcu"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_R"
+start_time = 0.29
+end_time = 0.5034709651046422
+row = 1
+blend_in = 0.047640611261943515
+blend_out = 0.12084378386137665
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_v5rdg"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_Ah"
+start_time = 0.3659293935683268
+end_time = 0.5516488469207057
+row = 2
+blend_in = 0.12084378386137665
+blend_out = 0.04789066956770456
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_1h6rp"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_T_L_D_N"
+start_time = 0.5037581773530011
+end_time = 0.6261904797222908
+row = 3
+blend_in = 0.04789066956770456
+blend_out = 0.06856378875450253
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_qeiwu"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_Oh"
+start_time = 0.5357557290071294
+end_time = 0.7516175502083577
+row = 1
+blend_in = 0.06810879740423098
+blend_out = 0.08154601634681397
+asymmetric_blends = true
+speech_role = 1
+strength = 0.5294117647058824
+
+[sub_resource type="Resource" id="Resource_0pvr7"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_F_V"
+start_time = 0.6604355328718975
+end_time = 0.7996662541350801
+row = 2
+blend_in = 0.043002012388229115
+blend_out = 0.04223954903358735
+asymmetric_blends = true
+speech_role = 7
+strength = 0.9
+
+[sub_resource type="Resource" id="Resource_r0f35"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_Ch_J"
+start_time = 0.7574267051014927
+end_time = 0.8954804327377189
+row = 3
+blend_in = 0.04223954903358735
+blend_out = 0.09026340420370112
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_mh7rh"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_AE"
+start_time = 0.8052170285340179
+end_time = 1.037321384496018
+blend_in = 0.09026340420370112
+blend_out = 0.12173231015842866
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_oicg7"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_Ah"
+start_time = 0.9155891108078298
+end_time = 1.1374199482901268
+row = 1
+blend_in = 0.12173231015842866
+blend_out = 0.07998984925375717
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_dhx4u"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_S_Z"
+start_time = 1.0574300990363696
+end_time = 1.196852450067699
+row = 2
+blend_in = 0.07998984925375717
+blend_out = 0.04964923543647321
+asymmetric_blends = true
+speech_role = 7
+strength = 0.9
+
+[sub_resource type="Resource" id="Resource_fxti1"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_K_G_H_NG"
+start_time = 1.1472032146312259
+end_time = 1.2578791590705152
+row = 3
+blend_in = 0.04964923543647321
+blend_out = 0.05765734379643881
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_l2agd"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_Oh"
+start_time = 1.2002218152740765
+end_time = 1.358699856008135
+blend_in = 0.05765734379643881
+blend_out = 0.08285954759344293
+asymmetric_blends = true
+speech_role = 6
+
+[sub_resource type="Resource" id="Resource_xlgua"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_T_L_D_N"
+start_time = 1.2758403084146919
+end_time = 1.4248628659751545
+row = 1
+blend_in = 0.08285954759344293
+blend_out = 0.06279673309893995
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_yejvc"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_Ah"
+start_time = 1.3620661328762145
+end_time = 1.508169706829983
+row = 2
+blend_in = 0.06279673309893995
+blend_out = 0.06755763307060857
+asymmetric_blends = true
+speech_role = 1
+strength = 0.5294117647058824
+
+[sub_resource type="Resource" id="Resource_jx43s"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_S_Z"
+start_time = 1.4406120737593744
+end_time = 1.620408042100767
+row = 3
+blend_in = 0.06755763307060857
+blend_out = 0.10517431439708083
+asymmetric_blends = true
+speech_role = 7
+strength = 0.9
+
+[sub_resource type="Resource" id="Resource_dj6c1"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_Ah"
+start_time = 1.515233737050619
+end_time = 1.7231959784392428
+blend_in = 0.10517431439708083
+blend_out = 0.07952386831271778
+asymmetric_blends = true
+speech_role = 1
+
+[sub_resource type="Resource" id="Resource_t5j6f"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_T_L_D_N"
+start_time = 1.643672110126525
+end_time = 1.8242954910522637
+row = 1
+blend_in = 0.07952386831271778
+blend_out = 0.09346412925176552
+asymmetric_blends = true
+speech_role = 3
+strength = 0.85
+
+[sub_resource type="Resource" id="Resource_ix4hl"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_EE"
+start_time = 1.801932185063841
+end_time = 2.010830013112935
+row = 3
+blend_in = 0.07999823298414757
+blend_out = 0.11478225983244997
+asymmetric_blends = true
+speech_role = 1
+strength = 0.9608158594613654
+
+[sub_resource type="Resource" id="Resource_0usdy"]
+script = ExtResource("2_v4fjy")
+pose_id = &"VIS_W_OO"
+start_time = 1.8879799717527195
+end_time = 2.281629080970151
+row = 1
+blend_in = 0.13871070250902845
+blend_out = 0.2549384067084031
+asymmetric_blends = true
+speech_role = 6
+
+[resource]
+script = ExtResource("4_p2nkn")
+profile = ExtResource("3_sxsek")
+audio = ExtResource("1_3112h")
+audible_end = 2.3511842414736748
+smoothing_time = 0.01
+viseme_cues = Array[ExtResource("2_v4fjy")]([SubResource("Resource_u4xyo"), SubResource("Resource_lg0ku"), SubResource("Resource_ujf50"), SubResource("Resource_rlh3r"), SubResource("Resource_ol66e"), SubResource("Resource_7jxcu"), SubResource("Resource_v5rdg"), SubResource("Resource_1h6rp"), SubResource("Resource_qeiwu"), SubResource("Resource_0pvr7"), SubResource("Resource_r0f35"), SubResource("Resource_mh7rh"), SubResource("Resource_oicg7"), SubResource("Resource_dhx4u"), SubResource("Resource_fxti1"), SubResource("Resource_l2agd"), SubResource("Resource_xlgua"), SubResource("Resource_yejvc"), SubResource("Resource_jx43s"), SubResource("Resource_dj6c1"), SubResource("Resource_t5j6f"), SubResource("Resource_ix4hl"), SubResource("Resource_0usdy")])
+expression_cues = Array[ExtResource("2_v4fjy")]([SubResource("Resource_64rda"), SubResource("Resource_pibqw"), SubResource("Resource_crk0t"), SubResource("Resource_gr2as"), SubResource("Resource_u5277"), SubResource("Resource_c3rk0"), SubResource("Resource_0qiy1")])

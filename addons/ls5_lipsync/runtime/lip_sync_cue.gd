@@ -16,6 +16,10 @@ const ROW_COUNT: int = 4
 @export var blend_in: float = 0.04
 ## Seconds used to blend out of this cue.
 @export var blend_out: float = 0.04
+## Allow unequal fades sharing the cue duration. Disabled cues retain the half-duration limit.
+@export var asymmetric_blends: bool = false
+## Speech timing type assigned during generation. Automatic uses the character pose's Speech Role.
+@export_enum("Automatic", "Vowel", "Lip Closure", "Consonant", "Rest", "Sustained Closure", "Rounded Vowel", "Fricative") var speech_role: int = LipSyncPose.SpeechRole.AUTOMATIC
 ## Keep both blends at half the cue duration when its length changes.
 @export var lock_max_blend: bool = false
 ## Viseme or expression influence from zero to full strength.
@@ -27,16 +31,35 @@ const ROW_COUNT: int = 4
 
 
 func get_blend_in() -> float:
-	return _maximum_blend() if lock_max_blend else clampf(blend_in, 0.0, _maximum_blend())
+	return _maximum_blend() if lock_max_blend else _effective_blend(blend_in)
 
 
 func get_blend_out() -> float:
-	return _maximum_blend() if lock_max_blend else clampf(blend_out, 0.0, _maximum_blend())
+	return _maximum_blend() if lock_max_blend else _effective_blend(blend_out)
+
+
+func _effective_blend(value: float) -> float:
+	if not asymmetric_blends:
+		return clampf(value, 0.0, _maximum_blend())
+	var duration: float = maxf(0.0, end_time - start_time)
+	var fade_in: float = maxf(0.0, blend_in)
+	var fade_out: float = maxf(0.0, blend_out)
+	var total: float = fade_in + fade_out
+	var scale: float = minf(1.0, duration / total) if total > 0.0 else 1.0
+	return minf(duration, maxf(0.0, value) * scale)
+
+
+func get_edit_blend_limit(editing_in: bool) -> float:
+	if not asymmetric_blends:
+		return _maximum_blend()
+	return maxf(0.0, end_time - start_time - (get_blend_out() if editing_in else get_blend_in()))
 
 
 func refresh_blends() -> void:
-	blend_in = get_blend_in()
-	blend_out = get_blend_out()
+	var fade_in: float = get_blend_in()
+	var fade_out: float = get_blend_out()
+	blend_in = fade_in
+	blend_out = fade_out
 
 
 func get_fade_weight(time_sec: float, default_curve: int = 1) -> float:

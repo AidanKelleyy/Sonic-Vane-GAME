@@ -1,6 +1,8 @@
 @tool
 extends RefCounted
 
+const ALIGNMENT: Script = preload("res://addons/ls5_lipsync/editor/lip_sync_alignment.gd")
+
 const SPELLINGS: Dictionary = {
 	"VIS_AE": ["ae", "ai", "ay", "ei", "ey"],
 	"VIS_Ah": ["ah", "a"],
@@ -44,6 +46,10 @@ static func generate(clip: LipSyncClip) -> void:
 	var start_time: float = clampf(clip.audible_start, 0.0, clip.audio.get_length())
 	var end_time: float = clip.audible_end if clip.audible_end > start_time else clip.audio.get_length()
 	end_time = clampf(end_time, start_time, clip.audio.get_length())
+	if end_time <= start_time:
+		return
+	var analysis: Dictionary = ALIGNMENT.analyze(clip.audio, start_time, end_time, clip.generation_pause_threshold)
+	var regions: Array[Vector2] = analysis["regions"]
 	var word_units: Array[Array] = []
 	var total_weight: float = 0.0
 	var unit_count: int = 0
@@ -55,54 +61,55 @@ static func generate(clip: LipSyncClip) -> void:
 			total_weight += float(unit["weight"])
 	if total_weight <= 0.0:
 		return
-	clip.viseme_cues.clear()
-	clip.word_spans.clear()
-	var available_time: float = end_time - start_time
+	var words_generated: Array[Dictionary] = []
+	var available_time: float = _regions_duration(regions)
 	var gap_count: int = maxi(0, unit_count - 1)
 	var minimum_cue_time: float = 0.02
 	var maximum_padding: float = maxf(0.0, (available_time - float(unit_count) * minimum_cue_time) / float(gap_count)) if gap_count > 0 else 0.0
 	var padding: float = minf(maxf(0.0, snappedf(clip.generation_padding, 0.01)), maximum_padding)
 	var seconds_per_weight: float = maxf(0.0, available_time - padding * float(gap_count)) / total_weight
-	var cursor: float = start_time
+	var cursor: float = 0.0
 	var cue_index: int = 0
 	for word_index: int in range(words.size()):
 		var word_start: float = cursor
 		var word_end: float = cursor
 		for unit: Dictionary in word_units[word_index]:
-			var cue: LipSyncCue = LipSyncCue.new()
-			cue.pose_id = unit["id"]
-			cue.start_time = cursor
 			cursor += float(unit["weight"]) * seconds_per_weight
-			cue.end_time = cursor
-			cue.row = cue_index % LipSyncCue.ROW_COUNT
-			var blend_limit: float = maxf(0.0, cue.end_time - cue.start_time) * 0.5
-			cue.blend_in = minf(clip.new_blend_in, blend_limit)
-			cue.blend_out = minf(clip.new_blend_out, blend_limit)
-			clip.viseme_cues.append(cue)
 			word_end = cursor
 			cue_index += 1
 			if cue_index < unit_count:
 				cursor += padding
-		clip.word_spans.append({"word": words[word_index], "start": word_start, "end": word_end})
-	if is_zero_approx(padding):
-		_crossfade_touching_cues(clip.viseme_cues)
-	clip.emit_changed()
+		words_generated.append({"word": words[word_index], "start": word_start, "end": word_end})
+	for span: Dictionary in words_generated:
+		span["start"] = _region_time(float(span["start"]), regions, true)
+		span["end"] = _region_time(float(span["end"]), regions, false)
+	ALIGNMENT.refine_words(words_generated, analysis)
+	var previous_words: Array[Dictionary] = clip.word_spans
+	clip.word_spans = words_generated
+	if not regenerate_from_words(clip, analysis):
+		clip.word_spans = previous_words
 
 
-static func regenerate_from_words(clip: LipSyncClip) -> bool:
+## Rebuilds visemes inside word guidance, reusing decoded audio when supplied.
+static func regenerate_from_words(clip: LipSyncClip, analysis: Dictionary = {}) -> bool:
 	if not clip or not clip.profile or clip.word_spans.is_empty():
 		return false
 	var units_by_word: Array[Array] = []
+	var previous_end: float = 0.0
 	for span: Dictionary in clip.word_spans:
 		var word: String = String(span.get("word", ""))
 		var start: float = float(span.get("start", 0.0))
 		var end: float = float(span.get("end", 0.0))
-		if word.strip_edges().is_empty() or end <= start:
+		if word.strip_edges().is_empty() or end <= start or start < previous_end:
 			return false
 		units_by_word.append(_word_units(word.to_lower(), clip.profile))
-	clip.viseme_cues.clear()
+		previous_end = end
+	var range_end: float = maxf(previous_end, clip.audio.get_length() if clip.audio else previous_end)
+	if analysis.is_empty():
+		analysis = ALIGNMENT.analyze(clip.audio, 0.0, range_end, clip.generation_pause_threshold)
+	var regions: Array[Vector2] = analysis["regions"]
+	var regenerated: Array[LipSyncCue] = []
 	var padding: float = maxf(0.0, snappedf(clip.generation_padding, 0.01))
-	var cue_index: int = 0
 	for word_index: int in range(clip.word_spans.size()):
 		var span: Dictionary = clip.word_spans[word_index]
 		var start: float = float(span["start"])
@@ -110,8 +117,8 @@ static func regenerate_from_words(clip: LipSyncClip) -> bool:
 		var left_trim: float = 0.0
 		var right_trim: float = 0.0
 		if word_index > 0:
-			var previous_end: float = float(clip.word_spans[word_index - 1]["end"])
-			left_trim = maxf(0.0, padding - maxf(0.0, start - previous_end)) * 0.5
+			var previous_word_end: float = float(clip.word_spans[word_index - 1]["end"])
+			left_trim = maxf(0.0, padding - maxf(0.0, start - previous_word_end)) * 0.5
 		if word_index + 1 < clip.word_spans.size():
 			var next_start: float = float(clip.word_spans[word_index + 1]["start"])
 			right_trim = maxf(0.0, padding - maxf(0.0, next_start - end)) * 0.5
@@ -124,59 +131,237 @@ static func regenerate_from_words(clip: LipSyncClip) -> bool:
 			right_trim *= trim_scale
 		start += left_trim
 		end -= right_trim
+		var word_regions: Array[Vector2] = _regions_in_span(regions, start, end)
+		var word_duration: float = _regions_duration(word_regions)
+		if word_duration <= 0.0:
+			return false
 		var gap_count: int = maxi(0, units.size() - 1)
-		var maximum_gap: float = maxf(0.0, (end - start - float(units.size()) * minimum_cue_time) / float(gap_count)) if gap_count > 0 else 0.0
+		var maximum_gap: float = maxf(0.0, (word_duration - float(units.size()) * minimum_cue_time) / float(gap_count)) if gap_count > 0 else 0.0
 		var local_padding: float = minf(padding, maximum_gap)
 		var weight_total: float = 0.0
 		for unit: Dictionary in units:
 			weight_total += float(unit["weight"])
-		var seconds_per_weight: float = maxf(0.0, end - start - local_padding * float(gap_count)) / maxf(weight_total, 0.001)
-		var cursor: float = start
+		var seconds_per_weight: float = maxf(0.0, word_duration - local_padding * float(gap_count)) / maxf(weight_total, 0.001)
+		var cursor: float = 0.0
+		var word_cues: Array[LipSyncCue] = []
 		for unit_index: int in range(units.size()):
 			var unit: Dictionary = units[unit_index]
 			var cue: LipSyncCue = LipSyncCue.new()
 			cue.pose_id = unit["id"]
+			cue.speech_role = int(unit["role"])
 			cue.start_time = cursor
 			cursor += float(unit["weight"]) * seconds_per_weight
 			cue.end_time = cursor
-			cue.row = cue_index % LipSyncCue.ROW_COUNT
-			var blend_limit: float = maxf(0.0, cue.end_time - cue.start_time) * 0.5
-			cue.blend_in = minf(clip.new_blend_in, blend_limit)
-			cue.blend_out = minf(clip.new_blend_out, blend_limit)
-			clip.viseme_cues.append(cue)
-			cue_index += 1
+			word_cues.append(cue)
 			if unit_index + 1 < units.size():
 				cursor += local_padding
-	if is_zero_approx(padding):
-		_crossfade_touching_cues(clip.viseme_cues)
+		var expanded: Array[LipSyncCue] = _expand_cues(word_cues, word_regions)
+		ALIGNMENT.refine_cues(expanded, analysis)
+		regenerated.append_array(_prepare_word_cues(expanded, clip, analysis))
+	if regenerated.is_empty():
+		return false
+	clip.viseme_cues = regenerated
+	_add_repeat_releases(clip, analysis)
+	_shape_generated_cues(clip, regions, analysis)
 	clip.emit_changed()
 	return true
 
 
-static func _crossfade_touching_cues(cues: Array[LipSyncCue]) -> void:
-	cues.sort_custom(func(a: LipSyncCue, b: LipSyncCue) -> bool: return a.start_time < b.start_time)
-	var base_durations: Array[float] = []
+static func _regions_duration(regions: Array[Vector2]) -> float:
+	var duration: float = 0.0
+	for region: Vector2 in regions:
+		duration += region.y - region.x
+	return duration
+
+
+static func _region_time(time: float, regions: Array[Vector2], following_edge: bool) -> float:
+	for region: Vector2 in regions:
+		var duration: float = region.y - region.x
+		if time < duration - 0.000001 or (not following_edge and time <= duration + 0.000001):
+			return region.x + clampf(time, 0.0, duration)
+		time -= duration
+	return regions[-1].y if not regions.is_empty() else 0.0
+
+
+static func _regions_in_span(regions: Array[Vector2], start: float, end: float) -> Array[Vector2]:
+	var result: Array[Vector2] = []
+	for region: Vector2 in regions:
+		var intersection: Vector2 = Vector2(maxf(start, region.x), minf(end, region.y))
+		if intersection.y > intersection.x:
+			result.append(intersection)
+	return result
+
+
+static func _expand_cues(cues: Array[LipSyncCue], regions: Array[Vector2]) -> Array[LipSyncCue]:
+	var result: Array[LipSyncCue] = []
 	for cue: LipSyncCue in cues:
-		base_durations.append(maxf(0.0, cue.end_time - cue.start_time))
+		var offset: float = 0.0
+		for region: Vector2 in regions:
+			var duration: float = region.y - region.x
+			var start: float = maxf(cue.start_time, offset)
+			var end: float = minf(cue.end_time, offset + duration)
+			if end > start + 0.000001:
+				var segment: LipSyncCue = cue.duplicate() as LipSyncCue
+				segment.start_time = region.x + start - offset
+				segment.end_time = region.x + end - offset
+				result.append(segment)
+			offset += duration
+	return result
+
+
+static func _speech_role(clip: LipSyncClip, cue: LipSyncCue) -> int:
+	if cue.speech_role != LipSyncPose.SpeechRole.AUTOMATIC:
+		return cue.speech_role
+	var pose: LipSyncPose = clip.profile.find_pose(cue.pose_id)
+	return pose.get_speech_role() if pose else LipSyncPose.SpeechRole.REST
+
+
+static func _vowel_role(role: int) -> bool:
+	return role in [LipSyncPose.SpeechRole.VOWEL, LipSyncPose.SpeechRole.ROUNDED_VOWEL]
+
+
+static func _prepare_word_cues(cues: Array[LipSyncCue], clip: LipSyncClip, analysis: Dictionary) -> Array[LipSyncCue]:
+	var merged: Array[LipSyncCue] = []
+	for cue: LipSyncCue in cues:
+		var role: int = _speech_role(clip, cue)
+		if not merged.is_empty() and _vowel_role(role):
+			var previous: LipSyncCue = merged[-1]
+			if previous.pose_id == cue.pose_id and previous.speech_role == cue.speech_role and absf(previous.end_time - cue.start_time) < 0.000001:
+				previous.end_time = cue.end_time
+				continue
+		merged.append(cue)
+	var result: Array[LipSyncCue] = []
+	for cue: LipSyncCue in merged:
+		var role: int = _speech_role(clip, cue)
+		var pose: LipSyncPose = clip.profile.find_pose(cue.pose_id)
+		var strength_scale: float = pose.generation_strength if pose else 1.0
+		var duration: float = cue.end_time - cue.start_time
+		if role == LipSyncPose.SpeechRole.CONSONANT:
+			cue.strength = 0.85
+		elif role == LipSyncPose.SpeechRole.FRICATIVE:
+			cue.strength = 0.9
+		cue.strength *= strength_scale
+		if not _vowel_role(role) and role not in [LipSyncPose.SpeechRole.SUSTAINED_CLOSURE, LipSyncPose.SpeechRole.FRICATIVE]:
+			result.append(cue)
+			continue
+		if duration < 0.24:
+			result.append(cue)
+			continue
+		var count: int = clampi(ceili(duration / 0.14), 2, 32)
+		var levels: Array[float] = []
+		var maximum: float = 0.0
+		var minimum: float = 1.0
+		for index: int in range(count):
+			var time: float = cue.start_time + duration * (float(index) + 0.5) / float(count)
+			var level: float = ALIGNMENT.energy_at(analysis, time)
+			levels.append(level)
+			maximum = maxf(maximum, level)
+			minimum = minf(minimum, level)
+		for index: int in range(count):
+			var segment: LipSyncCue = cue.duplicate() as LipSyncCue
+			segment.start_time = cue.start_time + duration * float(index) / float(count)
+			segment.end_time = cue.start_time + duration * float(index + 1) / float(count)
+			var emphasis: float = levels[index] / maxf(maximum, 0.001)
+			segment.strength = lerpf(0.78, 1.0, sqrt(emphasis)) if maximum - minimum >= 0.12 else (1.0 if index == 0 else 0.92)
+			if role == LipSyncPose.SpeechRole.SUSTAINED_CLOSURE:
+				segment.strength = 1.0
+			elif role == LipSyncPose.SpeechRole.FRICATIVE:
+				segment.strength *= 0.9
+			segment.strength *= strength_scale
+			result.append(segment)
+	return result
+
+
+static func _add_repeat_releases(clip: LipSyncClip, analysis: Dictionary) -> void:
+	if clip.generation_padding > 0.0:
+		return
+	var releases: Array[LipSyncCue] = []
+	for index: int in range(clip.word_spans.size() - 1):
+		var word_end: float = float(clip.word_spans[index]["end"])
+		var next_start: float = float(clip.word_spans[index + 1]["start"])
+		if next_start - word_end >= clip.generation_pause_threshold or not ALIGNMENT.same_region(analysis, word_end, next_start):
+			continue
+		var before: LipSyncCue
+		var after: LipSyncCue
+		for cue: LipSyncCue in clip.viseme_cues:
+			if cue.end_time <= word_end + 0.000001:
+				before = cue
+			if not after and cue.start_time >= next_start - 0.000001:
+				after = cue
+		if not before or not after or before.pose_id != after.pose_id or not _vowel_role(_speech_role(clip, before)):
+			continue
+		var half_width: float = minf(0.025, minf(before.end_time - before.start_time, after.end_time - after.start_time) * 0.2)
+		var boundary: float = (word_end + next_start) * 0.5
+		var release: LipSyncCue = LipSyncCue.new()
+		release.pose_id = before.pose_id
+		release.speech_role = before.speech_role
+		release.start_time = boundary - half_width
+		release.end_time = boundary + half_width
+		release.strength = minf(before.strength, after.strength) * 0.78
+		before.end_time = minf(before.end_time, release.start_time)
+		after.start_time = maxf(after.start_time, release.end_time)
+		releases.append(release)
+	clip.viseme_cues.append_array(releases)
+
+
+static func _shape_generated_cues(clip: LipSyncClip, regions: Array[Vector2], analysis: Dictionary = {}) -> void:
+	var cues: Array[LipSyncCue] = clip.viseme_cues
+	cues.sort_custom(func(a: LipSyncCue, b: LipSyncCue) -> bool: return a.start_time < b.start_time)
+	var starts: Array[float] = []
+	var ends: Array[float] = []
+	var arrivals: Array[float] = []
+	var departures: Array[float] = []
+	for index: int in range(cues.size()):
+		var cue: LipSyncCue = cues[index]
+		var duration: float = maxf(0.0, cue.end_time - cue.start_time)
+		var hold: float = minf(maxf(0.0, clip.generation_max_hold), duration * (1.0 - clampf(clip.generation_transition_amount, 0.0, 1.0)))
+		var arrival: float = cue.start_time + minf(0.08, (duration - hold) * 0.4)
+		var role: int = _speech_role(clip, cue)
+		if role in [LipSyncPose.SpeechRole.CLOSURE, LipSyncPose.SpeechRole.SUSTAINED_CLOSURE]:
+			hold = minf(maxf(0.0, clip.generation_max_hold), maxf(hold, minf(0.035, duration * 0.4)))
+			arrival = cue.start_time + minf(0.025, (duration - hold) * 0.4)
+		elif role == LipSyncPose.SpeechRole.CONSONANT:
+			hold = minf(hold, minf(0.012, duration * 0.08))
+			arrival = cue.start_time + minf(0.035, (duration - hold) * 0.3)
+		elif role == LipSyncPose.SpeechRole.FRICATIVE:
+			arrival = cue.start_time + minf(0.045, (duration - hold) * 0.35)
+		elif role == LipSyncPose.SpeechRole.ROUNDED_VOWEL:
+			arrival = cue.start_time + minf(0.06, (duration - hold) * 0.3)
+		var pose: LipSyncPose = clip.profile.find_pose(cue.pose_id)
+		if pose:
+			hold = minf(maxf(0.0, clip.generation_max_hold), minf(duration, hold * pose.generation_hold_scale))
+			arrival = cue.start_time + (arrival - cue.start_time) * pose.generation_attack_scale
+		arrival = clampf(arrival, cue.start_time, cue.end_time - hold)
+		if _vowel_role(role):
+			arrival = ALIGNMENT.nearby_peak(analysis, arrival, maxf(cue.start_time + duration * 0.15, arrival - 0.07), minf(cue.end_time - hold - duration * 0.1, arrival + 0.07))
+		starts.append(cue.start_time)
+		ends.append(cue.end_time)
+		arrivals.append(arrival)
+		departures.append(arrival + hold)
+		cue.row = index % LipSyncCue.ROW_COUNT
+		cue.asymmetric_blends = true
+		cue.blend_in = arrival - cue.start_time
+		cue.blend_out = cue.end_time - arrival - hold
 	for index: int in range(cues.size() - 1):
 		var current: LipSyncCue = cues[index]
 		var following: LipSyncCue = cues[index + 1]
-		var gap: float = following.start_time - current.end_time
-		if gap > 0.0:
-			current.end_time += gap * 0.5
-			following.start_time -= gap * 0.5
-		var overlap: float = minf(current.blend_out, following.blend_in)
-		overlap = minf(overlap, minf(base_durations[index], base_durations[index + 1]) * 0.5)
-		current.end_time += overlap * 0.5
-		following.start_time -= overlap * 0.5
+		var gap: float = starts[index + 1] - ends[index]
+		if gap >= clip.generation_pause_threshold or (clip.generation_padding > 0.0 and gap > 0.000001):
+			continue
+		var same_region: bool = false
+		for region: Vector2 in regions:
+			if ends[index] >= region.x - 0.000001 and ends[index] <= region.y + 0.000001 and starts[index + 1] >= region.x - 0.000001 and starts[index + 1] <= region.y + 0.000001:
+				same_region = true
+				break
+		if not same_region:
+			continue
+		var overlap: float = arrivals[index + 1] - departures[index]
+		if overlap <= 0.0:
+			continue
+		current.end_time = arrivals[index + 1]
+		following.start_time = departures[index]
 		current.blend_out = overlap
 		following.blend_in = overlap
-	var covered_until: float = cues[0].end_time if not cues.is_empty() else 0.0
-	for index: int in range(1, cues.size()):
-		var cue: LipSyncCue = cues[index]
-		if cue.start_time > covered_until:
-			cue.start_time = covered_until
-		covered_until = maxf(covered_until, cue.end_time)
 
 
 static func _word_units(word: String, profile: LipSyncProfile) -> Array[Dictionary]:
@@ -245,6 +430,35 @@ static func _word_units(word: String, profile: LipSyncProfile) -> Array[Dictiona
 		index += spelling.length()
 	if units.is_empty():
 		units.append({"id": profile.silent_viseme_id, "weight": 1.0})
+	for unit: Dictionary in units:
+		var pose: LipSyncPose = profile.find_pose(unit["id"])
+		unit["role"] = LipSyncPose.SpeechRole.REST
+		if not pose:
+			continue
+		var role: int = pose.get_speech_role()
+		var spelling: String = String(unit.get("spelling", ""))
+		if pose.speech_role == LipSyncPose.SpeechRole.AUTOMATIC:
+			if pose.id == &"VIS_B_M_P" and spelling == "m":
+				role = LipSyncPose.SpeechRole.SUSTAINED_CLOSURE
+			elif pose.id == &"VIS_W_OO" and spelling == "w":
+				role = LipSyncPose.SpeechRole.CONSONANT
+			elif pose.id == &"VIS_Ch_J" and spelling == "sh":
+				role = LipSyncPose.SpeechRole.FRICATIVE
+		unit["role"] = role
+		match role:
+			LipSyncPose.SpeechRole.VOWEL:
+				unit["weight"] = 1.3
+			LipSyncPose.SpeechRole.ROUNDED_VOWEL:
+				unit["weight"] = 1.35
+			LipSyncPose.SpeechRole.CLOSURE:
+				unit["weight"] = 0.65
+			LipSyncPose.SpeechRole.SUSTAINED_CLOSURE:
+				unit["weight"] = 0.95
+			LipSyncPose.SpeechRole.FRICATIVE:
+				unit["weight"] = 0.9
+			LipSyncPose.SpeechRole.CONSONANT:
+				unit["weight"] = 0.8
+		unit["weight"] = float(unit["weight"]) * pose.generation_duration_scale
 	return units
 
 
@@ -264,7 +478,7 @@ static func _append_available_unit(units: Array[Dictionary], profile: LipSyncPro
 static func _append_unit(units: Array[Dictionary], pose_id: StringName, spelling: String) -> void:
 	var vowel_pose: bool = pose_id in [&"VIS_AE", &"VIS_Ah", &"VIS_EE", &"VIS_Ih", &"VIS_Oh", &"VIS_Uh"]
 	var vowel_spelling: bool = not spelling.is_empty() and _is_vowel(spelling.substr(0, 1))
-	units.append({"id": pose_id, "weight": 1.3 if vowel_pose or vowel_spelling else 0.8})
+	units.append({"id": pose_id, "spelling": spelling, "weight": 1.3 if vowel_pose or vowel_spelling else 0.8})
 
 
 static func _context_pose(word: String, index: int, spelling: String, fallback: StringName, profile: LipSyncProfile) -> StringName:
