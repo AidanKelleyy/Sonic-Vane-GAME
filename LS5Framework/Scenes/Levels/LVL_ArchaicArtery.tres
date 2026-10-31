@@ -4,8 +4,8 @@
 
 [resource]
 script = ExtResource("1_57hdi")
-level_name = "Level Design Test"
+level_name = "Archaic Artery"
 order = 9
 selection_category = "Work In Progress"
 scene = "res://LS5Framework/Scenes/Main.tscn"
-level_scene = "res://LS5Framework/Scenes/Levels/MyCoolLevel/sample_level.tscn"
+level_scene = "res://LS5Framework/Scenes/Levels/ArchaicArtery/ArchaicArtery.tscn"

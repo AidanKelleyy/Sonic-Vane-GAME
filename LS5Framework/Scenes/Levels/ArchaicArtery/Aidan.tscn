@@ -10,7 +10,7 @@
 [ext_resource type="AudioStream" uid="uid://cdc14esa2m2y4" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard6.wav" id="8_53lff"]
 [ext_resource type="AudioStream" uid="uid://bmrp4pclos1lh" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_impact_hard7.wav" id="9_sddhd"]
 [ext_resource type="AudioStream" uid="uid://b5q2dp8atjawr" path="res://LS5Framework/Sounds/Physics/Cardboard/cardboard_box_scrape_smooth_loop1.wav" id="10_gl2ab"]
-[ext_resource type="PackedScene" uid="uid://cqcwck7tkxn4p" path="res://LS5Framework/Scenes/Levels/MyCoolLevel/aidan.fbx" id="11_soynm"]
+[ext_resource type="PackedScene" uid="uid://cqcwck7tkxn4p" path="res://LS5Framework/Scenes/Levels/ArchaicArtery/aidan.fbx" id="11_soynm"]
 [ext_resource type="Script" uid="uid://c8t75yhaf5r4e" path="res://LS5Framework/Scripts/Animation/GazeTarget3D.gd" id="12_xm2ao"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_crate"]

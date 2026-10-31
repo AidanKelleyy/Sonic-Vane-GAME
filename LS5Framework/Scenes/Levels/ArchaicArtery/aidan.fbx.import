@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://cqcwck7tkxn4p"
-path="res://.godot/imported/aidan.fbx-8482c02f03b516bcd4090339c7f62663.scn"
+path="res://.godot/imported/aidan.fbx-8445f02262d6a2879e64a5e6d9324b85.scn"
 
 [deps]
 
-source_file="res://LS5Framework/Scenes/Levels/MyCoolLevel/aidan.fbx"
-dest_files=["res://.godot/imported/aidan.fbx-8482c02f03b516bcd4090339c7f62663.scn"]
+source_file="res://LS5Framework/Scenes/Levels/ArchaicArtery/aidan.fbx"
+dest_files=["res://.godot/imported/aidan.fbx-8445f02262d6a2879e64a5e6d9324b85.scn"]
 
 [params]
 
