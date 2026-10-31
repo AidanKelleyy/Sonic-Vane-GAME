@@ -73,6 +73,8 @@ const MISSING_DATA_FONT: Font = preload("res://LS5Framework/Resources/Fonts/Orbi
 @onready var tab_graphics: Control = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics
 @onready var tab_audio: Control = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabAudio
 @onready var tab_gameplay: Control = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGameplay
+## Returns from Options to the owning menu.
+@onready var button_options_back: Button = $Overlay/OptionsPanel/Panel/VBoxOptions/ButtonOptionsBack
 ## Restores every configurable option and binding to the packaged defaults.
 @onready var button_reset_defaults: Button = $Overlay/OptionsPanel/Panel/VBoxOptions/ButtonResetDefaults
 ## Confirms full settings resets before changing saved configuration.
@@ -307,6 +309,8 @@ func _ready() -> void:
 		set_process_input(false)
 		set_process_unhandled_input(false)
 		return
+	if not button_options_back.pressed.is_connected(_on_ButtonOptionsBack_pressed):
+		button_options_back.pressed.connect(_on_ButtonOptionsBack_pressed)
 	tab_bindings.loadout_mapping_requested.connect(_on_loadout_mapping_requested)
 	menu_overlay.hide()
 	title_backdrop.entrance_music_requested.connect(_play_title_music)

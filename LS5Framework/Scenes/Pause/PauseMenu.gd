@@ -129,6 +129,8 @@ var _character_settings_menu: CharacterSettingsMenu = null
 @onready var tab_graphics: Control = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGraphics
 @onready var tab_audio: Control = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabAudio
 @onready var tab_gameplay: Control = $Overlay/OptionsPanel/Panel/VBoxOptions/TabsOptions/TabGameplay
+## Returns from Options to the owning menu.
+@onready var button_options_back: Button = $Overlay/OptionsPanel/Panel/VBoxOptions/ButtonOptionsBack
 ## Restores every configurable option and binding to the packaged defaults.
 @onready var button_reset_defaults: Button = $Overlay/OptionsPanel/Panel/VBoxOptions/ButtonResetDefaults
 ## Confirms full settings resets before changing saved configuration.
@@ -336,6 +338,8 @@ func _set_hud_visible(value: bool) -> void:
 
 
 func _ready() -> void:
+	if not button_options_back.pressed.is_connected(_on_ButtonOptionsBack_pressed):
+		button_options_back.pressed.connect(_on_ButtonOptionsBack_pressed)
 	MenuNavigation.register_menu(self, _menu_navigation_scope)
 	_create_pause_viewport()
 	_create_pause_panel_guides()
