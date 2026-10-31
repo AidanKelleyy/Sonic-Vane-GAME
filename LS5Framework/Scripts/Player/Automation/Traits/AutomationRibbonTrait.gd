@@ -127,5 +127,5 @@ func applies(attached: bool) -> bool:
 
 
 func _validate_property(property: Dictionary) -> void:
-	if property.name in ["mode", "free_radius", "spring_strength", "damping", "max_acceleration", "correction_speed", "attraction_acceleration", "attraction_per_speed", "attraction_speed_scale", "attraction_radius"]:
+	if property.name in ["mode", "free_radius", "spring_strength", "damping", "max_acceleration", "correction_speed", "attraction_acceleration", "attraction_per_speed", "attraction_use_along_speed", "attraction_speed_scale", "attraction_radius"]:
 		property.usage = int(property.usage) & ~PROPERTY_USAGE_EDITOR
