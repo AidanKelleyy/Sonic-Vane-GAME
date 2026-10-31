@@ -30,6 +30,7 @@ var _visual_root: Node3D = null
 var _animation_tree: AnimationTree = null
 var _material: ShaderMaterial = null
 var _visible_amount: float = 0.0
+var _visibility_gate: bool = true
 var _last_heading: Vector3 = Vector3.FORWARD
 
 
@@ -42,6 +43,11 @@ func _ready() -> void:
 		_animation_tree.active = true
 		_apply_animation(0.0)
 	visible = false
+
+
+func set_visibility_gate(value: bool) -> void:
+	_visibility_gate = value
+	visible = _visibility_gate and _visible_amount > 0.001
 
 
 func set_tint(color: Color) -> void:
@@ -66,7 +72,7 @@ func set_jump_ball_active(delta: float, active: bool, world_position: Vector3, h
 	var target_amount: float = 1.0 if active else 0.0
 	var fade_speed: float = fade_in_speed if target_amount > _visible_amount else fade_out_speed
 	_visible_amount = move_toward(_visible_amount, target_amount, max(fade_speed, 0.0) * delta)
-	visible = _visible_amount > 0.001
+	visible = _visibility_gate and _visible_amount > 0.001
 
 	if visible:
 		_update_orientation(heading, up)

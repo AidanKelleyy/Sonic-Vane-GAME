@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://488y6mgbj6iw"]
+
+[ext_resource type="PackedScene" uid="uid://d0ek7rykfahm5" path="res://LS5Framework/Objects/SpikeStrip/SpikeStrip.glb" id="1_ewg7i"]
+[ext_resource type="Script" path="res://LS5Framework/Objects/SpikeStrip/SpikeStrip.gd" id="2_script"]
+[ext_resource type="AudioStream" path="res://LS5Framework/Sounds/Objects/Spike_Up.wav" id="3_sound"]
+
+[ext_resource type="Material" path="res://LS5Framework/Objects/SpikeStrip/SpikeEnvironment.tres" id="4_environment"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_base"]
+resource_local_to_scene = true
+size = Vector3(4, 0.4, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_damage"]
+resource_local_to_scene = true
+size = Vector3(2.9, 2.05, 2.9)
+
+[node name="SpikeStrip" instance=ExtResource("1_ewg7i")]
+script = ExtResource("2_script")
+
+[node name="Spike" parent="Armature/Skeleton3D"]
+surface_material_override/0 = ExtResource("4_environment")
+
+[node name="Spike_001" parent="Armature/Skeleton3D"]
+surface_material_override/0 = ExtResource("4_environment")
+
+[node name="Spike_002" parent="Armature/Skeleton3D"]
+surface_material_override/0 = ExtResource("4_environment")
+
+[node name="Spike_003" parent="Armature/Skeleton3D"]
+surface_material_override/0 = ExtResource("4_environment")
+
+[node name="BaseCollision" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BaseCollision"]
+position = Vector3(0, 0.2, 0)
+shape = SubResource("BoxShape3D_base")
+
+[node name="DamageArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageArea"]
+position = Vector3(0, 1.4, 0)
+shape = SubResource("BoxShape3D_damage")
+
+[node name="SpikeUpAudio" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_sound")
+volume_db = -10.0
+unit_size = 60.0
+max_db = 0.0
+max_distance = 180.0
+attenuation_filter_cutoff_hz = 15000.0
+attenuation_filter_db = -1.0

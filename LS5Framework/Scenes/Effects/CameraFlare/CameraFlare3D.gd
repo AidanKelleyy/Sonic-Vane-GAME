@@ -109,8 +109,9 @@ var _mesh_probe_pending: bool = false
 var _mesh_probe_generation: int = 0
 ## Small transparent viewport sampling actual rendered geometry toward the source.
 var _mesh_probe: SubViewport
-## Camera sharing the gameplay world and testing the source's angular footprint.
+## Camera testing only candidate geometry in the private probe world.
 var _mesh_probe_camera: Camera3D
+var _mesh_instances: Dictionary[int, RID] = {}
 
 
 func _ready() -> void:
@@ -140,7 +141,7 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not obstruction_enabled or _view_weight <= 0.0 or not is_instance_valid(_camera):
+	if not obstruction_enabled or _view_weight <= 0.0 or not is_instance_valid(_camera) or _get_source_intensity() <= 0.0:
 		_obstruction_valid = false
 		_obstruction_visibility = 0.0
 		_mesh_probe_generation += 1
@@ -152,7 +153,11 @@ func _physics_process(delta: float) -> void:
 	_obstruction_elapsed = 0.0
 	_physics_visibility = _sample_obstruction()
 	if _uses_mesh_obstruction():
-		_queue_mesh_probe()
+		if _physics_visibility > 0.0:
+			_queue_mesh_probe()
+		else:
+			_mesh_probe_generation += 1
+			_mesh_visibility = 0.0
 	_obstruction_visibility = minf(_physics_visibility, _mesh_visibility) if _uses_mesh_obstruction() else _physics_visibility
 	_obstruction_valid = true
 
@@ -272,6 +277,7 @@ func _queue_mesh_probe() -> void:
 		_mesh_probe.name = "MeshVisibilityProbe"
 		_mesh_probe.size = Vector2i(16, 16)
 		_mesh_probe.transparent_bg = true
+		_mesh_probe.world_3d = World3D.new()
 		_mesh_probe.gui_disable_input = true
 		_mesh_probe.audio_listener_enable_3d = false
 		_mesh_probe.audio_listener_enable_2d = false
@@ -289,16 +295,18 @@ func _queue_mesh_probe() -> void:
 		add_child(_mesh_probe)
 		_mesh_probe.add_child(_mesh_probe_camera)
 		_mesh_probe_camera.make_current()
-	_mesh_probe.world_3d = _camera.get_world_3d()
 	var camera_transform: Transform3D = _camera.get_camera_transform()
 	var basis_up: Vector3 = camera_transform.basis.y
 	if absf(basis_up.dot(_source_direction)) > 0.98:
 		basis_up = camera_transform.basis.x
 	_mesh_probe_camera.global_transform = Transform3D(Basis.looking_at(_source_direction, basis_up), camera_transform.origin)
-	_mesh_probe_camera.cull_mask = _camera.cull_mask & mesh_obstruction_mask
+	_mesh_probe_camera.cull_mask = 1
 	_mesh_probe_camera.near = maxf(_camera.near, 0.001)
 	_mesh_probe_camera.far = maxf(minf(_source_distance - 0.01, _camera.far), _mesh_probe_camera.near + 0.01)
 	_mesh_probe_camera.fov = maxf(obstruction_radius_degrees * 2.0, 1.0)
+	if not _update_mesh_candidates():
+		_mesh_visibility = 1.0
+		return
 	_mesh_probe_pending = true
 	var generation: int = _mesh_probe_generation
 	var sample_fraction: float = clampf(tan(deg_to_rad(maxf(obstruction_radius_degrees, 0.025))) / tan(deg_to_rad(_mesh_probe_camera.fov * 0.5)), 0.125, 1.0)
@@ -307,7 +315,67 @@ func _queue_mesh_probe() -> void:
 	if not is_instance_valid(_mesh_probe):
 		_mesh_probe_pending = false
 		return
-	var image: Image = _mesh_probe.get_texture().get_image()
+	if generation != _mesh_probe_generation:
+		_mesh_probe_pending = false
+		return
+	if RenderingServer.get_rendering_device():
+		RenderingServer.call_on_render_thread(_read_probe_async.bind(_mesh_probe.get_texture().get_rid(), generation, sample_fraction))
+	else:
+		var image: Image = _mesh_probe.get_texture().get_image()
+		_accept_probe_image(image, generation, sample_fraction)
+
+
+func _update_mesh_candidates() -> bool:
+	var active: Dictionary[int, bool] = {}
+	var mask: int = _camera.cull_mask & mesh_obstruction_mask
+	var candidates: PackedInt64Array = RenderingServer.instances_cull_convex(_mesh_probe_camera.get_frustum(), _camera.get_world_3d().scenario)
+	for id: int in candidates:
+		var source: GeometryInstance3D = instance_from_id(id) as GeometryInstance3D
+		if not source or not source.is_visible_in_tree() or not (source.layers & mask) or not source.get_base().is_valid() or source.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY:
+			continue
+		active[id] = true
+		if not _mesh_instances.has(id):
+			_mesh_instances[id] = RenderingServer.instance_create2(source.get_base(), _mesh_probe.world_3d.scenario)
+		var proxy: RID = _mesh_instances[id]
+		RenderingServer.instance_set_base(proxy, source.get_base())
+		RenderingServer.instance_set_transform(proxy, source.global_transform)
+		RenderingServer.instance_set_layer_mask(proxy, 1)
+		RenderingServer.instance_geometry_set_cast_shadows_setting(proxy, RenderingServer.SHADOW_CASTING_SETTING_OFF)
+		RenderingServer.instance_geometry_set_material_override(proxy, source.material_override.get_rid() if source.material_override else RID())
+		RenderingServer.instance_set_custom_aabb(proxy, source.custom_aabb)
+		if source is MeshInstance3D:
+			var mesh: MeshInstance3D = source as MeshInstance3D
+			var skin: SkinReference = mesh.get_skin_reference()
+			RenderingServer.instance_attach_skeleton(proxy, skin.get_skeleton() if skin else RID())
+			for surface: int in mesh.mesh.get_surface_count():
+				var material: Material = mesh.get_surface_override_material(surface)
+				RenderingServer.instance_set_surface_override_material(proxy, surface, material.get_rid() if material else RID())
+			for shape: int in (mesh.mesh.get_blend_shape_count() if mesh.mesh is ArrayMesh else 0):
+				RenderingServer.instance_set_blend_shape_weight(proxy, shape, mesh.get_blend_shape_value(shape))
+	for id: int in _mesh_instances.keys():
+		if not active.has(id):
+			RenderingServer.free_rid(_mesh_instances[id])
+			_mesh_instances.erase(id)
+	return not active.is_empty()
+
+
+func _read_probe_async(texture: RID, generation: int, sample_fraction: float) -> void:
+	var device: RenderingDevice = RenderingServer.get_rendering_device()
+	var gpu_texture: RID = RenderingServer.texture_get_rd_texture(texture)
+	if not gpu_texture.is_valid() or device.texture_get_data_async(gpu_texture, 0, _receive_probe_data.bind(generation, sample_fraction)) != OK:
+		_probe_read_failed.call_deferred()
+
+
+func _probe_read_failed() -> void:
+	_mesh_probe_pending = false
+
+
+func _receive_probe_data(data: PackedByteArray, generation: int, sample_fraction: float) -> void:
+	var image: Image = Image.create_from_data(16, 16, false, Image.FORMAT_RGBA8, data)
+	_accept_probe_image.call_deferred(image, generation, sample_fraction)
+
+
+func _accept_probe_image(image: Image, generation: int, sample_fraction: float) -> void:
 	_mesh_probe_pending = false
 	if generation != _mesh_probe_generation or image.is_empty():
 		return
@@ -322,6 +390,13 @@ func _queue_mesh_probe() -> void:
 			samples += 1
 	_mesh_visibility = clampf(1.0 - coverage / float(maxi(samples, 1)), 0.0, 1.0)
 	_obstruction_visibility = minf(_physics_visibility, _mesh_visibility)
+
+
+func _exit_tree() -> void:
+	_mesh_probe_generation += 1
+	for proxy: RID in _mesh_instances.values():
+		RenderingServer.free_rid(proxy)
+	_mesh_instances.clear()
 
 
 func _draw_image(canvas: Control, texture: Texture2D, center: Vector2, diameter: float, tint: Color, opacity: float) -> void:

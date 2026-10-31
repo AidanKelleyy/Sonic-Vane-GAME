@@ -438,7 +438,7 @@ transform = Transform3D(0.9131378, -0.40482605, 0.047902852, -0.08654721, -0.307
 [node name="Eyeglobe" parent="Armature/Skeleton3D" index="3" unique_id=184316529]
 surface_material_override/0 = SubResource("ShaderMaterial_xhas5")
 
-[node name="SpinBall" parent="Armature/Skeleton3D" index="7"]
+[node name="SpinBall" parent="Armature/Skeleton3D" index="7" unique_id=486901057]
 visible = false
 
 [node name="GazeTrackingModifier3D" type="SkeletonModifier3D" parent="Armature/Skeleton3D" index="10" unique_id=104063011 node_paths=PackedStringArray("facial_animation_player")]

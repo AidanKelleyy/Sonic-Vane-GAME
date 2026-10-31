@@ -8,7 +8,7 @@ Add `_spinball-enabled=true` to an AnimationNode resource name. Existing argumen
 
 `_afterimage-speed=true;min_speed=0;max_speed=1;min_alpha=0.765;max_alpha=0.765;_spinball-enabled=true`
 
-The marker reader follows the same active state-machine and selector conditions as after-images. An optional `shear=0.3` argument overrides the controller's shear strength while in a deforming action. `_spinball-enabled=false` suppresses the ball for that route. Neo's Jump, RollFloor, and DropDash nodes are marked in both its embedded tree and authored animation-tree resource.
+The marker reader follows the same active state-machine and selector conditions as after-images. An optional `shear=0.3` argument overrides the controller's shear strength while in a deforming action. `_spinball-enabled=false` suppresses the ball when that route is active, taking precedence over enabled markers on other active routes. Neo's Jump and RollFloor nodes enable the ball; DropDash disables it. These settings match in the embedded character tree and authored animation-tree resource.
 
 ## Hierarchy
 
@@ -23,3 +23,5 @@ The default clock runs at 60 ticks per second, independently of render FPS. The 
 Shear applies during spindash and Drop-Dash charging. Airborne Drop-Dash release clears shear immediately and keeps it disabled until that phase ends. Bounce descent stretches vertically along player gravity-up, independently of visual-root tilt. Rebound clears any residual forward shear before applying vertical squash/stretch. The bottom pivots remain anchored, with sideways scaling compensating for vertical deformation to preserve volume. The shared player visual_bounce_rebounded signal starts a volume-preserving spring beginning with squash, followed by stretch and several diminishing oscillations after bounce landing or enemy/monitor rebound. Deformation returns smoothly to its original transform, and each character has independent visibility, clock, and deformation state while imported geometry and materials remain shared.
 
 Configure flicker frequency, stutter chance, shear, bounce fall stretch, pivot height, response, and rebound duration, strength, and cycle count on the character's SpinBallVisuals node. Reusing the script requires references to the character, AnimationTree, animated visual root, a dedicated deformation root, and a Spin Ball mesh inside the model. Animation controls its SpinBall bone; the controller does not rotate or reset the mesh transform. The default rebound lasts 0.7 seconds with three diminishing cycles.
+
+Character-wide hurt flashing is composed above the mesh alternation by PlayerModel. It masks ModelRoot visibility without changing child visibility, so SpinBall timing and authored hidden meshes remain intact. The legacy JumpBall uses the same gate while retaining its own active state and fade. PlayerCombatController delegates flash visibility to this shared gate.

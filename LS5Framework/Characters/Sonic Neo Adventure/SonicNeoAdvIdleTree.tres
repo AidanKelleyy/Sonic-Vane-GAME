@@ -1,0 +1,99 @@
+[gd_resource type="AnimationNodeStateMachine" format=3 uid="uid://cpqlmrf3kmf2m"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wb5s7"]
+resource_local_to_scene = true
+animation = &"Idle"
+use_custom_timeline = true
+timeline_length = 3.4
+stretch_time_scale = true
+start_offset = 0.0
+loop_mode = 0
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_60fi3"]
+resource_local_to_scene = true
+animation = &"Idle"
+use_custom_timeline = true
+timeline_length = 3.4
+stretch_time_scale = true
+start_offset = 0.0
+loop_mode = 0
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4uy6r"]
+resource_local_to_scene = true
+animation = &"Idle"
+use_custom_timeline = true
+timeline_length = 3.4
+stretch_time_scale = true
+start_offset = 0.0
+loop_mode = 0
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_of5u6"]
+resource_local_to_scene = true
+animation = &"Idle"
+use_custom_timeline = true
+timeline_length = 3.4
+stretch_time_scale = true
+start_offset = 0.0
+loop_mode = 0
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_rnk11"]
+resource_local_to_scene = true
+animation = &"Idle_Wait_1"
+use_custom_timeline = true
+timeline_length = 3.4
+stretch_time_scale = true
+start_offset = 0.0
+loop_mode = 0
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0aubq"]
+resource_local_to_scene = true
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_42de7"]
+resource_local_to_scene = true
+break_loop_at_end = true
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_8m0kb"]
+resource_local_to_scene = true
+xfade_time = 0.08
+break_loop_at_end = true
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jukgl"]
+resource_local_to_scene = true
+break_loop_at_end = true
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_yepm1"]
+resource_local_to_scene = true
+break_loop_at_end = true
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_rxabv"]
+resource_local_to_scene = true
+xfade_time = 0.08
+break_loop_at_end = true
+switch_mode = 2
+advance_mode = 2
+
+[resource]
+resource_local_to_scene = true
+resource_name = "_gaze-enabled=true;_movement-time-scale=false"
+states/End/position = Vector2(1027, 100)
+states/Idle/node = SubResource("AnimationNodeAnimation_of5u6")
+states/Idle/position = Vector2(376, 100)
+"states/Idle 2/node" = SubResource("AnimationNodeAnimation_wb5s7")
+"states/Idle 2/position" = Vector2(526, 100)
+"states/Idle 3/node" = SubResource("AnimationNodeAnimation_60fi3")
+"states/Idle 3/position" = Vector2(661, 100)
+"states/Idle 4/node" = SubResource("AnimationNodeAnimation_4uy6r")
+"states/Idle 4/position" = Vector2(805, 100)
+states/Idle_Wait_1/node = SubResource("AnimationNodeAnimation_rnk11")
+states/Idle_Wait_1/position = Vector2(587, -114)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_0aubq"), "Idle", "Idle 2", SubResource("AnimationNodeStateMachineTransition_42de7"), "Idle_Wait_1", "Idle", SubResource("AnimationNodeStateMachineTransition_8m0kb"), "Idle 2", "Idle 3", SubResource("AnimationNodeStateMachineTransition_jukgl"), "Idle 3", "Idle 4", SubResource("AnimationNodeStateMachineTransition_yepm1"), "Idle 4", "Idle_Wait_1", SubResource("AnimationNodeStateMachineTransition_rxabv")]
+graph_offset = Vector2(-377, -260)

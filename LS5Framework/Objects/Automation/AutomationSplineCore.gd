@@ -425,7 +425,9 @@ func _area_crossings(body: Node3D, previous: Vector3, current: Vector3, state: D
 			continue
 		var key: String = "inside_%d" % index
 		var inside: bool = contains_gate_point(gate, current)
-		var fraction: float = preload("res://LS5Framework/Scripts/Player/Automation/AutomationGateSweep.gd")._gate_entry(gate, previous, current)
+		var fraction: float = -1.0
+		if initialized and not bool(state.get(key, false)):
+			fraction = preload("res://LS5Framework/Scripts/Player/Automation/AutomationGateSweep.gd")._gate_entry(gate, previous, current)
 		if initialized and not bool(state.get(key, false)) and fraction >= 0.0:
 			var point: Vector3 = previous.lerp(current, fraction)
 			var inward: bool = index == 0

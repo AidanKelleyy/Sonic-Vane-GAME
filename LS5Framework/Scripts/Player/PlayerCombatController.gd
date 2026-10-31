@@ -110,15 +110,7 @@ func cancel_attack_for_combat_response(_reason: StringName = &"combat_response")
 
 
 func _set_hurt_flash_visible(value: bool) -> void:
-	var p = _owner
-	if p._hurt_flash_renderers.is_empty():
-		_cache_hurt_flash_renderers()
-	for renderer in p._hurt_flash_renderers:
-		if renderer == null:
-			continue
-		if not is_instance_valid(renderer):
-			continue
-		renderer.visible = value
+	_owner._model_module.set_character_blink_visible(value)
 
 
 func _cache_hurt_flash_renderers() -> void:

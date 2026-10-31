@@ -1,0 +1,37 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://ckd1ad644r15h"]
+
+[ext_resource type="Shader" uid="uid://cnxinaoslrtg8" path="res://LS5Framework/Shaders/SphericalEnvironment.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" uid="uid://c8g7ylssx1crc" path="res://LS5Framework/Objects/SpikeStrip/SpikeStrip_fine_sky_ref.png" id="2_environment"]
+
+[resource]
+resource_name = "Spike spherical environment"
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/environment_texture = ExtResource("2_environment")
+shader_parameter/reflection_tint = Color(1, 1, 1, 1)
+shader_parameter/reflection_strength = 1.0
+shader_parameter/reflection_exposure = 0.0
+shader_parameter/blend_mode = 0
+shader_parameter/reflection_emission = 0.0
+shader_parameter/reflection_blur = 0.0
+shader_parameter/mapping_mode = 0
+shader_parameter/environment_scale = Vector2(1, 1)
+shader_parameter/environment_offset = Vector2(0, 0)
+shader_parameter/environment_rotation = 0.0
+shader_parameter/environment_scroll = Vector2(0, 0)
+shader_parameter/flip_vertical = true
+shader_parameter/base_color = Color(1, 1, 1, 1)
+shader_parameter/surface_uv_scale = Vector2(1, 1)
+shader_parameter/surface_uv_offset = Vector2(0, 0)
+shader_parameter/lighting_amount = 0.0
+shader_parameter/metallic = 0.0
+shader_parameter/roughness = 0.5
+shader_parameter/specular = 0.0
+shader_parameter/mask_enabled = false
+shader_parameter/mask_channel = 0
+shader_parameter/mask_invert = false
+shader_parameter/fresnel_amount = 0.0
+shader_parameter/fresnel_power = 3.0
+shader_parameter/fresnel_minimum = 0.0
+shader_parameter/normal_enabled = false
+shader_parameter/normal_strength = 1.0

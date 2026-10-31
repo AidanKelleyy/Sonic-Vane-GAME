@@ -65,7 +65,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if event.is_echo():
 		return
-	var cancel_pressed: bool = event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause")
+	var cancel_pressed: bool = event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(&"UI_back")
 	if not cancel_pressed and event is InputEventKey:
 		var key := event as InputEventKey
 		cancel_pressed = key.pressed and key.keycode == Key.KEY_ESCAPE

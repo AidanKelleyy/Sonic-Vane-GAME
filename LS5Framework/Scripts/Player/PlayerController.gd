@@ -6818,6 +6818,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 		sticky_surface_active
 		and (not movement_input_active or is_spindash_charging)
 		and not auto_active
+		and not _automation_controller.motion.has_automatic_drive()
 		and not in_spring_state
 		and not _hurt_active
 		and not _drift_active
@@ -6882,6 +6883,7 @@ func _apply_movement(delta: float, up_for_physics: Vector3, is_attached: bool) -
 		and not movement_input_active
 		and not is_rolling
 		and not auto_active
+		and not _automation_controller.motion.has_automatic_drive()
 		and not in_spring_state
 		and not _hurt_active
 		and not is_spindash_charging

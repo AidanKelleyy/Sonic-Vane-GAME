@@ -1,5 +1,7 @@
 [gd_resource type="AnimationNodeBlendTree" format=3 uid="uid://cf16ancw52263"]
 
+[ext_resource type="AnimationNodeStateMachine" path="res://LS5Framework/Characters/Sonic Neo Adventure/SonicNeoAdvIdleTree.tres" id="idle_animation_tree"]
+
 [sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_60fi3"]
 resource_local_to_scene = true
 resource_name = "Physics Ears Add"
@@ -77,7 +79,7 @@ resource_local_to_scene = true
 [sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_0psud"]
 resource_local_to_scene = true
 filter_enabled = true
-filters = ["../..", "Armature/Skeleton3D:Carry", "Armature/Skeleton3D:clavicle.l", "Armature/Skeleton3D:clavicle.r", "Armature/Skeleton3D:hand.l", "Armature/Skeleton3D:hand.r", "Armature/Skeleton3D:index_01.l", "Armature/Skeleton3D:index_01.r", "Armature/Skeleton3D:index_02.l", "Armature/Skeleton3D:index_02.r", "Armature/Skeleton3D:index_03.l", "Armature/Skeleton3D:index_03.r", "Armature/Skeleton3D:index_04.leaf.r", "Armature/Skeleton3D:lowerarm.l", "Armature/Skeleton3D:lowerarm.r", "Armature/Skeleton3D:middle_01.l", "Armature/Skeleton3D:middle_01.r", "Armature/Skeleton3D:middle_02.l", "Armature/Skeleton3D:middle_02.r", "Armature/Skeleton3D:middle_03.l", "Armature/Skeleton3D:middle_03.r", "Armature/Skeleton3D:middle_04.leaf.r", "Armature/Skeleton3D:pinky_01.l", "Armature/Skeleton3D:pinky_01.r", "Armature/Skeleton3D:pinky_02.l", "Armature/Skeleton3D:pinky_02.r", "Armature/Skeleton3D:pinky_03.l", "Armature/Skeleton3D:pinky_03.r", "Armature/Skeleton3D:ring_01.l", "Armature/Skeleton3D:ring_01.r", "Armature/Skeleton3D:ring_02.l", "Armature/Skeleton3D:ring_02.r", "Armature/Skeleton3D:ring_03.l", "Armature/Skeleton3D:ring_03.r", "Armature/Skeleton3D:ring_04.leaf.r", "Armature/Skeleton3D:spine_01", "Armature/Skeleton3D:spine_02", "Armature/Skeleton3D:thumb_01.l", "Armature/Skeleton3D:thumb_01.r", "Armature/Skeleton3D:thumb_02.l", "Armature/Skeleton3D:thumb_02.r", "Armature/Skeleton3D:thumb_03.l", "Armature/Skeleton3D:thumb_03.r", "Armature/Skeleton3D:upperarm.l", "Armature/Skeleton3D:upperarm.r"]
+filters = ["../..", "../../..", "Armature/Skeleton3D:Carry", "Armature/Skeleton3D:clavicle.l", "Armature/Skeleton3D:clavicle.r", "Armature/Skeleton3D:hand.l", "Armature/Skeleton3D:hand.r", "Armature/Skeleton3D:index_01.l", "Armature/Skeleton3D:index_01.r", "Armature/Skeleton3D:index_02.l", "Armature/Skeleton3D:index_02.r", "Armature/Skeleton3D:index_03.l", "Armature/Skeleton3D:index_03.r", "Armature/Skeleton3D:index_04.leaf.r", "Armature/Skeleton3D:lowerarm.l", "Armature/Skeleton3D:lowerarm.r", "Armature/Skeleton3D:middle_01.l", "Armature/Skeleton3D:middle_01.r", "Armature/Skeleton3D:middle_02.l", "Armature/Skeleton3D:middle_02.r", "Armature/Skeleton3D:middle_03.l", "Armature/Skeleton3D:middle_03.r", "Armature/Skeleton3D:middle_04.leaf.r", "Armature/Skeleton3D:pinky_01.l", "Armature/Skeleton3D:pinky_01.r", "Armature/Skeleton3D:pinky_02.l", "Armature/Skeleton3D:pinky_02.r", "Armature/Skeleton3D:pinky_03.l", "Armature/Skeleton3D:pinky_03.r", "Armature/Skeleton3D:ring_01.l", "Armature/Skeleton3D:ring_01.r", "Armature/Skeleton3D:ring_02.l", "Armature/Skeleton3D:ring_02.r", "Armature/Skeleton3D:ring_03.l", "Armature/Skeleton3D:ring_03.r", "Armature/Skeleton3D:ring_04.leaf.r", "Armature/Skeleton3D:spine_01", "Armature/Skeleton3D:spine_02", "Armature/Skeleton3D:thumb_01.l", "Armature/Skeleton3D:thumb_01.r", "Armature/Skeleton3D:thumb_02.l", "Armature/Skeleton3D:thumb_02.r", "Armature/Skeleton3D:thumb_03.l", "Armature/Skeleton3D:thumb_03.r", "Armature/Skeleton3D:upperarm.l", "Armature/Skeleton3D:upperarm.r"]
 
 [sub_resource type="AnimationNodeTimeSeek" id="AnimationNodeTimeSeek_eoona"]
 resource_local_to_scene = true
@@ -131,7 +133,7 @@ animation = &"Jump"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_drop_dash"]
 resource_local_to_scene = true
-resource_name = "_afterimage-speed=true;min_speed=0;max_speed=1;min_alpha=0.765;max_alpha=0.765;_spinball-enabled=true"
+resource_name = "_afterimage-speed=true;min_speed=0;max_speed=1;min_alpha=0.765;max_alpha=0.965;_spinball-enabled=false"
 animation = &"DropDash"
 use_custom_timeline = true
 timeline_length = 0.00999999999999999
@@ -1959,69 +1961,6 @@ blend_point_20/node = SubResource("AnimationNodeAnimation_l6vxe")
 blend_point_20/pos = Vector2(140, -1)
 blend_point_20/name = &"20"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wb5s7"]
-resource_local_to_scene = true
-animation = &"Idle"
-use_custom_timeline = true
-timeline_length = 3.4
-stretch_time_scale = true
-start_offset = 0.0
-loop_mode = 0
-
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_of5u6"]
-resource_local_to_scene = true
-animation = &"Idle"
-use_custom_timeline = true
-timeline_length = 3.4
-stretch_time_scale = true
-start_offset = 0.0
-loop_mode = 0
-
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_rnk11"]
-resource_local_to_scene = true
-animation = &"Idle_Wait_1"
-use_custom_timeline = true
-timeline_length = 3.4
-stretch_time_scale = true
-start_offset = 0.0
-loop_mode = 0
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0aubq"]
-resource_local_to_scene = true
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_42de7"]
-resource_local_to_scene = true
-break_loop_at_end = true
-switch_mode = 2
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_4ym6o"]
-resource_local_to_scene = true
-xfade_time = 0.08
-break_loop_at_end = true
-switch_mode = 2
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_8m0kb"]
-resource_local_to_scene = true
-xfade_time = 0.08
-break_loop_at_end = true
-switch_mode = 2
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_735m2"]
-resource_local_to_scene = true
-resource_name = "_gaze-enabled=true;_movement-time-scale=false"
-states/Idle/node = SubResource("AnimationNodeAnimation_of5u6")
-states/Idle/position = Vector2(376, 100)
-"states/Idle 2/node" = SubResource("AnimationNodeAnimation_wb5s7")
-"states/Idle 2/position" = Vector2(526, 100)
-states/Move1_Walk/node = SubResource("AnimationNodeAnimation_rnk11")
-states/Move1_Walk/position = Vector2(443, -20)
-transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_0aubq"), "Idle", "Idle 2", SubResource("AnimationNodeStateMachineTransition_42de7"), "Idle 2", "Move1_Walk", SubResource("AnimationNodeStateMachineTransition_4ym6o"), "Move1_Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_8m0kb")]
-graph_offset = Vector2(-361, -139)
-
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_n7hpl"]
 resource_local_to_scene = true
 resource_name = "_gaze-enabled=true"
@@ -2209,7 +2148,7 @@ states/BrakeStop_Enter/position = Vector2(1002, 328)
 states/End/position = Vector2(1348, 88)
 states/GroundMove/node = SubResource("AnimationNodeBlendSpace2D_0kt08")
 states/GroundMove/position = Vector2(432, 454)
-states/IDLE_ANIMATION/node = SubResource("AnimationNodeStateMachine_735m2")
+states/IDLE_ANIMATION/node = ExtResource("idle_animation_tree")
 states/IDLE_ANIMATION/position = Vector2(432, 100)
 states/IDLE_TO_WALK/node = SubResource("AnimationNodeAnimation_n7hpl")
 states/IDLE_TO_WALK/position = Vector2(432, 234)
@@ -2478,10 +2417,11 @@ states/REACTIONS/node = SubResource("AnimationNodeBlendTree_37bhk")
 states/REACTIONS/position = Vector2(400, 250)
 states/Start/position = Vector2(-99, 0)
 transitions = ["Start", "Motion", SubResource("AnimationNodeStateMachineTransition_35cy5"), "Motion", "Actions", SubResource("AnimationNodeStateMachineTransition_7c4bh"), "Motion", "REACTIONS", SubResource("AnimationNodeStateMachineTransition_ptubx"), "Actions", "Motion", SubResource("AnimationNodeStateMachineTransition_yxi4s"), "Actions", "REACTIONS", SubResource("AnimationNodeStateMachineTransition_u1nbe"), "REACTIONS", "Motion", SubResource("AnimationNodeStateMachineTransition_nfgyh"), "REACTIONS", "Actions", SubResource("AnimationNodeStateMachineTransition_dsx2o")]
-graph_offset = Vector2(-320, -146)
+graph_offset = Vector2(-462, -162)
 
 [resource]
 resource_local_to_scene = true
+graph_offset = Vector2(-770, -247)
 nodes/output/position = Vector2(1860, 60)
 nodes/AdditivePhysicsEars/node = SubResource("AnimationNodeAdd2_60fi3")
 nodes/AdditivePhysicsEars/position = Vector2(580, -80)

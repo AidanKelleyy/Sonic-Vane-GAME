@@ -472,6 +472,7 @@ func _update_jump_ball(delta: float) -> void:
 		ball_pos = p.model_root.global_position
 	if not p._network_is_local_authority() and not p._network_module.is_level_present():
 		p.jump_ball.call("set_jump_ball_active", delta, false, ball_pos, Vector3.FORWARD, p._get_gravity_up())
+		p._model_module.apply_jump_ball_visibility()
 		return
 
 	var external_motion_active: bool = (
@@ -506,6 +507,7 @@ func _update_jump_ball(delta: float) -> void:
 	if p.jump_ball.has_method("set_speed_for_full_extrusion"):
 		p.jump_ball.call("set_speed_for_full_extrusion", p.jump_ball_speed_for_full_extrusion)
 	p.jump_ball.call("set_jump_ball_active", delta, active, ball_pos, heading, up)
+	p._model_module.apply_jump_ball_visibility()
 
 
 func _current_action_allows_jump_ball() -> bool:

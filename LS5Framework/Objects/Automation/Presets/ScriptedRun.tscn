@@ -62,7 +62,7 @@ mode = 0
 resource_local_to_scene = true
 resource_name = "Endpoint ramps"
 script = ExtResource("Influence")
-channels = 7
+channels = 3
 start_ramp = 2.0
 end_ramp = 2.0
 

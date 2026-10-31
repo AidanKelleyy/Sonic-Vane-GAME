@@ -16,6 +16,8 @@ var _points: PackedVector3Array = []
 var _distances: PackedFloat64Array = []
 var _local_distances: PackedFloat64Array = []
 var _frames: Array[Quaternion] = []
+var _search_blocks: Array[AABB] = []
+const SEARCH_BLOCK_SIZE: int = 32
 
 
 func configure(path: Path3D) -> void:
@@ -35,6 +37,7 @@ func dispose() -> void:
 	_points.clear()
 	_distances.clear()
 	_frames.clear()
+	_search_blocks.clear()
 	_local_distances.clear()
 	length = 0.0
 	_dirty = true
@@ -70,6 +73,7 @@ func _rebuild() -> void:
 	_points.clear()
 	_distances.clear()
 	_frames.clear()
+	_search_blocks.clear()
 	_local_distances.clear()
 	length = 0.0
 	validation_message = ""
@@ -142,6 +146,12 @@ func _rebuild() -> void:
 		var side: Vector3 = tangents[index].cross(ups[index]).normalized()
 		var corrected_up: Vector3 = side.cross(tangents[index]).normalized()
 		_frames.append(Basis(side, corrected_up, -tangents[index]).get_rotation_quaternion())
+
+	for first: int in range(0, _points.size() - 1, SEARCH_BLOCK_SIZE):
+		var bounds: AABB = AABB(_points[first], Vector3.ZERO)
+		for index: int in range(first + 1, mini(first + SEARCH_BLOCK_SIZE + 1, _points.size())):
+			bounds = bounds.expand(_points[index])
+		_search_blocks.append(bounds)
 
 
 func _safe_up(tangent: Vector3, preferred: Vector3) -> Vector3:
@@ -238,30 +248,45 @@ func _search(position: Vector3, start: float, finish: float, anchor: float, head
 	var best_error: float = INF
 	var best_preference: float = INF
 	var best_score: float = INF
-	for index: int in range(begin_index, end_index + 1):
-		last_segment_tests += 1
-		var segment_length: float = _distances[index + 1] - _distances[index]
-		var segment: Vector3 = _points[index + 1] - _points[index]
-		var relative: Vector3 = position - _points[index]
-		var measured_segment: Vector3 = segment.slide(normal) if normal else segment
-		var measured_relative: Vector3 = relative.slide(normal) if normal else relative
-		var fraction: float = measured_relative.dot(measured_segment) / maxf(measured_segment.length_squared(), 0.0000001)
-		fraction = clampf(fraction, maxf((start - _distances[index]) / segment_length, 0.0), minf((finish - _distances[index]) / segment_length, 1.0))
-		var point: Vector3 = _points[index] + segment * fraction
-		var error_vector: Vector3 = position - point
-		if normal and absf(error_vector.dot(normal)) > projection_depth:
+	var first_block: int = begin_index / SEARCH_BLOCK_SIZE
+	var last_block: int = end_index / SEARCH_BLOCK_SIZE
+	var seed: int = first_block
+	var nearest_bound: float = INF
+	for block: int in range(first_block, last_block + 1):
+		var bound_distance: float = _bound_distance_squared(_search_blocks[block], position, normal)
+		if bound_distance < nearest_bound:
+			nearest_bound = bound_distance
+			seed = block
+	for iteration: int in range(last_block - first_block + 2):
+		var block: int = seed if not iteration else first_block + iteration - 1
+		if iteration and block == seed:
 			continue
-		var error: float = (error_vector.slide(normal) if normal else error_vector).length()
-		var offset: float = _distances[index] + segment_length * fraction
-		var preference: float = absf(distance_delta(wrap_distance(anchor), offset)) if anchor >= 0.0 else -absf(segment.normalized().dot(heading))
-		var continuity_cost: float = pow(preference * 0.05, 2.0) if anchor >= 0.0 else 0.0
-		var heading_cost: float = (1.0 - absf(segment.normalized().dot(heading))) * 0.01 if heading else 0.0
-		var score: float = error * error + continuity_cost + heading_cost
-		if score < best_score - 0.000001 or (absf(score - best_score) <= 0.000001 and preference < best_preference):
-			best_error = error
-			best_score = score
-			best_offset = offset
-			best_preference = preference
+		if _bound_distance_squared(_search_blocks[block], position, normal) > best_score + 0.000001:
+			continue
+		for index: int in range(maxi(begin_index, block * SEARCH_BLOCK_SIZE), mini(end_index + 1, (block + 1) * SEARCH_BLOCK_SIZE)):
+			last_segment_tests += 1
+			var segment_length: float = _distances[index + 1] - _distances[index]
+			var segment: Vector3 = _points[index + 1] - _points[index]
+			var relative: Vector3 = position - _points[index]
+			var measured_segment: Vector3 = segment.slide(normal) if normal else segment
+			var measured_relative: Vector3 = relative.slide(normal) if normal else relative
+			var fraction: float = measured_relative.dot(measured_segment) / maxf(measured_segment.length_squared(), 0.0000001)
+			fraction = clampf(fraction, maxf((start - _distances[index]) / segment_length, 0.0), minf((finish - _distances[index]) / segment_length, 1.0))
+			var point: Vector3 = _points[index] + segment * fraction
+			var error_vector: Vector3 = position - point
+			if normal and absf(error_vector.dot(normal)) > projection_depth:
+				continue
+			var error: float = (error_vector.slide(normal) if normal else error_vector).length()
+			var offset: float = _distances[index] + segment_length * fraction
+			var preference: float = absf(distance_delta(wrap_distance(anchor), offset)) if anchor >= 0.0 else -absf(segment.normalized().dot(heading))
+			var continuity_cost: float = pow(preference * 0.05, 2.0) if anchor >= 0.0 else 0.0
+			var heading_cost: float = (1.0 - absf(segment.normalized().dot(heading))) * 0.01 if heading else 0.0
+			var score: float = error * error + continuity_cost + heading_cost
+			if score < best_score - 0.000001 or (absf(score - best_score) <= 0.000001 and preference < best_preference):
+				best_error = error
+				best_score = score
+				best_offset = offset
+				best_preference = preference
 	if best_offset >= 0.0:
 		best = sample(best_offset)
 		best.spatial_error = best_error
@@ -289,3 +314,12 @@ func smooth_sample(value: AutomationSample, lookahead: float = 0.5) -> Automatio
 		result.up = result.normal.cross(result.tangent).normalized()
 	result.spatial_error = value.spatial_error
 	return result
+
+
+func _bound_distance_squared(bounds: AABB, point: Vector3, normal: Vector3) -> float:
+	if normal:
+		var separation: float = (point - bounds.get_center()).slide(normal).length()
+		var lower_bound: float = maxf(separation - bounds.size.length() * 0.5, 0.0)
+		return lower_bound * lower_bound
+	var nearest: Vector3 = point.clamp(bounds.position, bounds.end)
+	return point.distance_squared_to(nearest)

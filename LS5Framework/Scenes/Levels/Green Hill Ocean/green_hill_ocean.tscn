@@ -1,96 +1,55 @@
 [gd_scene format=3 uid="uid://cbjpdfu34lnb2"]
 
 [ext_resource type="PackedScene" uid="uid://c1g10s7pyb8t3" path="res://LS5Framework/Objects/Gameplay/Checkpoint.tscn" id="1_qr57n"]
-
 [ext_resource type="PackedScene" uid="uid://ghucsw5061eo" path="res://LS5Framework/Objects/Gameplay/DeathPlane.tscn" id="2_oslo2"]
-
 [ext_resource type="PackedScene" uid="uid://bucbdoyievjwl" path="res://LS5Framework/Objects/Race/RaceStart.tscn" id="3_bebmk"]
-
 [ext_resource type="AudioStream" uid="uid://iufjpn2a54hd" path="res://LS5Framework/Sounds/Music/2.02 Stage 00 - Sea Gate.mp3" id="4_4gvks"]
-
 [ext_resource type="PackedScene" uid="uid://bktxefyel8i42" path="res://LS5Framework/Objects/Race/RaceGoal.tscn" id="5_4j52g"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Automation/Migration/MigratedGuided.tscn" id="6_yhbre"]
-
 [ext_resource type="Shader" uid="uid://coo7mvt00c0xt" path="res://LS5Framework/Objects/Race/GoalRing/goal_ring_swap.gdshader" id="7_rj67a"]
-
 [ext_resource type="PackedScene" uid="uid://c12m0rampjump" path="res://LS5Framework/Objects/Ramps/JumpPanelRamp.tscn" id="7_s5klr"]
-
 [ext_resource type="PackedScene" uid="uid://dab7ow5oahfhc" path="res://LS5Framework/Objects/Homing/HomingTarget.tscn" id="8_22q8k"]
-
 [ext_resource type="Texture2D" uid="uid://cly188qsju2u6" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL.png" id="8_kmp54"]
-
 [ext_resource type="Texture2D" uid="uid://c1m7ix7sf8vvr" path="res://LS5Framework/Objects/Race/GoalRing/GOAL_LABEL_GLOW.png" id="9_5ksmr"]
-
 [ext_resource type="PackedScene" uid="uid://dpqdt82o1f57x" path="res://LS5Framework/Objects/Spring/Spring.tscn" id="9_8nn2w"]
-
 [ext_resource type="PackedScene" uid="uid://e1tkwisehr5p" path="res://LS5Framework/Objects/DashPanels/DashPanel.tscn" id="10_ikefc"]
-
 [ext_resource type="PackedScene" uid="uid://bdltank6nne8b" path="res://LS5Framework/Objects/Rings/Ring.tscn" id="11_lxs36"]
-
 [ext_resource type="PackedScene" uid="uid://dcow1cl6vd0n3" path="res://LS5Framework/Objects/Music/MusicTrigger.tscn" id="12_2euvt"]
-
 [ext_resource type="PackedScene" uid="uid://cyglqqs3uhsy0" path="res://LS5Framework/Objects/Camera/CameraConstraint.tscn" id="13_kkqu2"]
-
 [ext_resource type="PackedScene" uid="uid://k6ygy47hpnl7" path="res://LS5Framework/Scenes/Levels/Green Hill Ocean/GreenHillOcean.tscn" id="14_x37jo"]
-
 [ext_resource type="Material" uid="uid://c3mh5p2w5s8g7" path="res://LS5Framework/Shaders/WaterShader_StayAtHomeDev/Shader/Water.tres" id="15_wojhx"]
-
 [ext_resource type="Shader" uid="uid://chmgmj434uopx" path="res://LS5Framework/Shaders/WaterShader_StayAtHomeDev/Shader/Water.gdshader" id="16_spoc4"]
-
 [ext_resource type="Texture2D" uid="uid://bc7ebln3j6r3o" path="res://LS5Framework/Scenes/Levels/EmeraldCoast/EmeraldCoast_2/wave14.png" id="17_v1koh"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="19_spawn"]
-
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Environment/WeatherSystem/EnvironmentWeatherSystem.tscn" id="20_1433n"]
-
 [ext_resource type="PackedScene" uid="uid://by35k35q3p0d1" path="res://LS5Framework/Objects/Rail/Rail.tscn" id="20_mmchv"]
-
 [ext_resource type="Texture2D" uid="uid://ddvmsaux20gfe" path="res://LS5Framework/Scenes/Levels/Green Hill Ocean/GHO_23.jpg" id="21_7tbsg"]
-
 [ext_resource type="Texture2D" uid="uid://dpsbuwp8bpdwe" path="res://LS5Framework/Scenes/Levels/Green Hill Ocean/GHO_26.jpg" id="22_7tbsg"]
-
 [ext_resource type="PackedScene" uid="uid://yt1f44l0qcs0" path="res://LS5Framework/Objects/Camera/CameraOverrideVolume.tscn" id="23_rgv0j"]
-
 [ext_resource type="AudioStream" uid="uid://dmphbpl35nfe2" path="res://LS5Framework/Sounds/Ambient/ocean-waves-112906.mp3" id="24_45vka"]
-
 [ext_resource type="AudioStream" uid="uid://booow5munbdax" path="res://LS5Framework/Sounds/Ambient/seagull-calls-339723.mp3" id="25_mwybj"]
-
 [ext_resource type="AudioStream" uid="uid://dbymt6sywhmvh" path="res://LS5Framework/Sounds/Ambient/seagull-sound-effect-272695.mp3" id="26_3ojla"]
-
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="27_3ojla"]
-
 [ext_resource type="AudioStream" uid="uid://dr7psr12lqanc" path="res://LS5Framework/Sounds/Music/QuartzQuadrantGMix.ogg" id="28_0pe5o"]
-
 [ext_resource type="PackedScene" uid="uid://b2jkv0kca2k6q" path="res://LS5Framework/Objects/Rings/RingSpline.tscn" id="29_0pe5o"]
-
 [ext_resource type="PackedScene" uid="uid://crm288go70sj3" path="res://LS5Framework/Objects/Spring/DashRing.tscn" id="30_f56n4"]
-
 [ext_resource type="PackedScene" uid="uid://bswvitj3v4stb" path="res://LS5Framework/Objects/Rail/RailBooster.tscn" id="32_4oltd"]
-
-[ext_resource type="PackedScene" uid="uid://ie7142myiknm" path="res://LS5Framework/Objects/Water/Water_Volume.tscn" id="33_3gtnb"]
-
 [ext_resource type="PackedScene" uid="uid://d1okvbdxqc08b" path="res://LS5Framework/Objects/VaultBar/VaultBar.tscn" id="34_1433n"]
-
+[ext_resource type="Script" uid="uid://skuwrr20hryx" path="res://LS5Framework/Scenes/Effects/CameraFlare/CameraFlareElement.gd" id="34_b5s6o"]
+[ext_resource type="Texture2D" uid="uid://2psk5tt3epwh" path="res://LS5Framework/Images/Effects/Sun_Flare.png" id="35_eupwc"]
+[ext_resource type="Texture2D" uid="uid://b8g6kgbrudl3v" path="res://LS5Framework/Images/Effects/Sun_Flare_Thin.png" id="36_ksg7d"]
+[ext_resource type="PackedScene" uid="uid://488y6mgbj6iw" path="res://LS5Framework/Objects/SpikeStrip/spike_strip.tscn" id="50_eupwc"]
+[ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Deep_Pool.tscn" id="50_ksg7d"]
 [ext_resource type="Script" uid="uid://cdupr030jgwkv" path="res://LS5Framework/Scripts/Camera/Constraints/CameraActivationTrait.gd" id="cam_trait_activation"]
-
 [ext_resource type="Script" uid="uid://dyshixousqyx8" path="res://LS5Framework/Scripts/Camera/Constraints/CameraLensTrait.gd" id="cam_trait_lens"]
-
 [ext_resource type="Script" uid="uid://c3qjp7m108bma" path="res://LS5Framework/Scripts/Camera/Constraints/CameraOrientationTrait.gd" id="cam_trait_orientation"]
-
 [ext_resource type="Script" uid="uid://ejxv0c1rj01v" path="res://LS5Framework/Scripts/Camera/Constraints/CameraPositionTrait.gd" id="cam_trait_position"]
-
 [ext_resource type="Script" uid="uid://upi4v3qbppsx" path="res://LS5Framework/Scripts/Camera/Constraints/CameraTransitionTrait.gd" id="cam_trait_transition"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="phase6_AutomationInputTrait"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="phase6_AutomationSteeringTrait"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="phase6_AutomationPositionTrait"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSpeedTrait.gd" id="phase6_AutomationSpeedTrait"]
-
-[ext_resource type="Script" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSurfaceTrait.gd" id="phase6_AutomationSurfaceTrait"]
+[ext_resource type="Script" uid="uid://bs4ckgoufdhv8" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationInputTrait.gd" id="phase6_AutomationInputTrait"]
+[ext_resource type="Script" uid="uid://bnlde333urbaw" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationPositionTrait.gd" id="phase6_AutomationPositionTrait"]
+[ext_resource type="Script" uid="uid://6kwtvu2yoo6c" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSpeedTrait.gd" id="phase6_AutomationSpeedTrait"]
+[ext_resource type="Script" uid="uid://dckb0huih8mcp" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSteeringTrait.gd" id="phase6_AutomationSteeringTrait"]
+[ext_resource type="Script" uid="uid://fgg8dytkclkp" path="res://LS5Framework/Scripts/Player/Automation/Traits/AutomationSurfaceTrait.gd" id="phase6_AutomationSurfaceTrait"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_2feqb"]
 size = Vector3(720.06165, 10, 902.3798)
@@ -104,26 +63,94 @@ size = Vector3(2217.9482, 2.9222412, 2228.8506)
 [sub_resource type="BoxShape3D" id="BoxShape3D_kmp54"]
 size = Vector3(153.01868, 109.259735, 125.963745)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_2820r"]
-size = Vector3(123.35266, 15.782837, 62)
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_i48ms"]
+height = 20.400879
+radius = 13.855957
 
-[sub_resource type="BoxMesh" id="BoxMesh_ta676"]
-size = Vector3(123.35266, 15.782837, 62)
+[sub_resource type="CylinderMesh" id="CylinderMesh_tc3te"]
+top_radius = 13.855957
+bottom_radius = 13.855957
+height = 20.400879
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_3dw50"]
 size = Vector3(132, 93.30029, 134)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_hcf2b"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tc3te"]
 render_priority = 0
 shader = ExtResource("7_rj67a")
 shader_parameter/tex_flat = ExtResource("8_kmp54")
 shader_parameter/tex_glow = ExtResource("9_5ksmr")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 42952.019
+shader_parameter/swap_time = 21117.524
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_62ca1"]
 size = Vector3(71.62383, 61.625034, 58.338074)
+
+[sub_resource type="Resource" id="Resource_q3ep7"]
+resource_local_to_scene = true
+resource_name = "Canonical heading"
+script = ExtResource("phase6_AutomationSteeringTrait")
+canonical_direction = true
+strength = 1.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_ydn5p"]
+resource_local_to_scene = true
+resource_name = "Authored turn limit"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 1
+canonical_direction = true
+turn_rate = 900.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_byl1h"]
+resource_local_to_scene = true
+resource_name = "Speed-scaled attraction"
+script = ExtResource("phase6_AutomationPositionTrait")
+mode = 3
+attraction_acceleration = 10.0
+attraction_per_speed = 0.035
+attraction_speed_scale = 0.02
+attraction_radius = 1.5
+max_acceleration = 1000000.0
+
+[sub_resource type="Resource" id="Resource_s2fub"]
+resource_local_to_scene = true
+resource_name = "Canonical propulsion"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 1
+canonical_direction = true
+target_speed = 200.0
+acceleration = 60.0
+allow_braking = false
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_i0bkb"]
+resource_local_to_scene = true
+resource_name = "Authored player soft cap"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 2
+player_top_speed = true
+target_speed = 200.0
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_6f2va"]
+resource_local_to_scene = true
+resource_name = "Water physics bypass"
+script = ExtResource("phase6_AutomationSurfaceTrait")
+mode = 2
+
+[sub_resource type="Resource" id="Resource_lhn53"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+block_movement = true
+allow_braking = false
+block_jump = true
+block_roll_spindash = true
+block_drift = true
+block_abilities = true
 
 [sub_resource type="Curve3D" id="Curve3D_1mnlp"]
 _data = {
@@ -150,11 +177,11 @@ size = Vector3(5, 2, 1.0646973)
 [sub_resource type="BoxShape3D" id="BoxShape3D_qpp4q"]
 size = Vector3(43.56392, 38.656754, 58.338074)
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_aqt1o"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_7d88x"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_u0gdn"]
+[sub_resource type="Curve3D" id="Curve3D_ydu6t"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 6.17, 0, 0, 0, 0, 0, 7.795, 0, 0, 0, 0, 38.405, 0),
@@ -162,11 +189,11 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_ffom3"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_66ncq"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_mcpxm"]
+[sub_resource type="Curve3D" id="Curve3D_ht507"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 6.17, 0, 0, 0, 0, 0, 31.405, 0, 0, 0, 0, 97.755, 0),
@@ -174,11 +201,11 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_uavsw"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_5sf7d"]
 resource_local_to_scene = true
 radius = 2.0
 
-[sub_resource type="Curve3D" id="Curve3D_cwy3d"]
+[sub_resource type="Curve3D" id="Curve3D_lcoll"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, -13.015, 2.41, 0, 0, 0, 0, 7.363137, 19.125744, 0),
@@ -186,12 +213,12 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_jvfeh"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_247rq"]
 resource_local_to_scene = true
 height = 4.7338867
 radius = 1.1450195
 
-[sub_resource type="Curve3D" id="Curve3D_b5s6o"]
+[sub_resource type="Curve3D" id="Curve3D_5sm8w"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -199,12 +226,12 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_eupwc"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_v66jx"]
 resource_local_to_scene = true
 height = 4.7338867
 radius = 1.1450195
 
-[sub_resource type="Curve3D" id="Curve3D_ksg7d"]
+[sub_resource type="Curve3D" id="Curve3D_7rt63"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -212,12 +239,12 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_tc3te"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_oc6qt"]
 resource_local_to_scene = true
 height = 4.7338867
 radius = 1.1450195
 
-[sub_resource type="Curve3D" id="Curve3D_q3ep7"]
+[sub_resource type="Curve3D" id="Curve3D_bgx64"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -225,12 +252,12 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_ydn5p"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_p7m0l"]
 resource_local_to_scene = true
 height = 4.7338867
 radius = 1.1450195
 
-[sub_resource type="Curve3D" id="Curve3D_byl1h"]
+[sub_resource type="Curve3D" id="Curve3D_nratb"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -238,12 +265,12 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_s2fub"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_jgml2"]
 resource_local_to_scene = true
 height = 4.7338867
 radius = 1.1450195
 
-[sub_resource type="Curve3D" id="Curve3D_i0bkb"]
+[sub_resource type="Curve3D" id="Curve3D_r07yt"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -251,12 +278,12 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_6f2va"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_qsijv"]
 resource_local_to_scene = true
 height = 4.7338867
 radius = 1.1450195
 
-[sub_resource type="Curve3D" id="Curve3D_lhn53"]
+[sub_resource type="Curve3D" id="Curve3D_b6jfy"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -609,6 +636,54 @@ shader_parameter/ssr_fade_end = 0.95
 shader_parameter/ssr_edge_fade = 0.05
 shader_parameter/ssr_roughness_mip = 4.0
 
+[sub_resource type="Resource" id="Resource_f8ntu"]
+resource_local_to_scene = true
+resource_name = "Canonical heading"
+script = ExtResource("phase6_AutomationSteeringTrait")
+canonical_direction = true
+strength = 1.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_50en8"]
+resource_local_to_scene = true
+resource_name = "Authored turn limit"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 1
+canonical_direction = true
+turn_rate = 240.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_ljecd"]
+resource_local_to_scene = true
+resource_name = "Canonical propulsion"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 1
+canonical_direction = true
+target_speed = 170.0
+acceleration = 70.0
+allow_braking = false
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_3bgtv"]
+resource_local_to_scene = true
+resource_name = "Authored player soft cap"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 2
+player_top_speed = true
+target_speed = 170.0
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_uumfk"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+block_movement = true
+allow_braking = false
+block_jump = true
+block_roll_spindash = true
+block_drift = true
+block_abilities = true
+
 [sub_resource type="Curve3D" id="Curve3D_bq3td"]
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 57.415, 0, 0, 0, 0, 0, 0, 0, 38.27, 0, -9.64, 40.985, 62.95, 0, 0, 0, -13.525, 0, -64.51, -20.215, 78.805, 25.805, 0, 0, 0, 0, -3.945, 0, -65.7, 10.16, 0, 0, -12.465, 0, 0, 0, 0, -75.49072, 7.6450005, 43.370117),
@@ -673,6 +748,38 @@ size = Vector3(44, 42.86609, 5.4570313)
 [sub_resource type="BoxShape3D" id="BoxShape3D_0kjbo"]
 size = Vector3(65.944824, 56.26129, 7.0460205)
 
+[sub_resource type="Resource" id="Resource_aaklg"]
+resource_local_to_scene = true
+script = ExtResource("34_b5s6o")
+texture = ExtResource("35_eupwc")
+axis_position = 0.55
+diameter = 0.44
+tint = Color(0.75, 0.88, 1, 0.38)
+
+[sub_resource type="Resource" id="Resource_kximh"]
+resource_local_to_scene = true
+script = ExtResource("34_b5s6o")
+texture = ExtResource("36_ksg7d")
+axis_position = 0.2
+diameter = 0.16
+tint = Color(0.8, 1, 0.9, 0.28)
+
+[sub_resource type="Resource" id="Resource_nkyla"]
+resource_local_to_scene = true
+script = ExtResource("34_b5s6o")
+texture = ExtResource("35_eupwc")
+axis_position = 1.05
+diameter = 0.075
+tint = Color(0.65, 0.85, 1, 0.3)
+
+[sub_resource type="Resource" id="Resource_xpawb"]
+resource_local_to_scene = true
+script = ExtResource("34_b5s6o")
+texture = ExtResource("36_ksg7d")
+axis_position = 1.65
+diameter = 0.22
+tint = Color(0.85, 0.75, 1, 0.2)
+
 [sub_resource type="Curve3D" id="Curve3D_rgv0j"]
 bake_interval = 2.0
 _data = {
@@ -724,10 +831,10 @@ size = Vector3(36, 2.3579102, 5.0271606)
 
 [sub_resource type="Curve3D" id="Curve3D_f56n4"]
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.335, 0, 0.275, 6.29, 0, -43.47, -8.625, 0, 41.87, 26.025, 0, 74.235, 24.245, 0, 5.96, 0, 0, 0, -32.413612, 0, 102.29),
-"tilts": PackedFloat32Array(0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.335, 0, 0.275, 6.29, 0, -43.47, -8.625, 0, 41.87, 26.025, 0, 74.235, 24.245, 0, 5.96, -23.755, 0, -7.91, -32.413612, 0, 102.29, 0, 0, 0, 0, 0, 0, -79.66, 0, 97.895),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
 }
-point_count = 3
+point_count = 4
 
 [sub_resource type="Curve3D" id="Curve3D_rj67a"]
 _data = {
@@ -804,6 +911,65 @@ _data = {
 }
 point_count = 4
 
+[sub_resource type="Resource" id="Resource_ifi58"]
+resource_local_to_scene = true
+resource_name = "Canonical heading"
+script = ExtResource("phase6_AutomationSteeringTrait")
+canonical_direction = true
+strength = 1.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_jlht3"]
+resource_local_to_scene = true
+resource_name = "Authored turn limit"
+script = ExtResource("phase6_AutomationSteeringTrait")
+mode = 1
+canonical_direction = true
+turn_rate = 9001.0
+allow_pullback = false
+
+[sub_resource type="Resource" id="Resource_klnuw"]
+resource_local_to_scene = true
+resource_name = "Speed-scaled attraction"
+script = ExtResource("phase6_AutomationPositionTrait")
+mode = 3
+attraction_acceleration = 3.0
+attraction_per_speed = 0.135
+attraction_speed_scale = 0.02
+attraction_radius = 4.638
+max_acceleration = 1000000.0
+
+[sub_resource type="Resource" id="Resource_fnaie"]
+resource_local_to_scene = true
+resource_name = "Canonical propulsion"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 1
+canonical_direction = true
+target_speed = 150.0
+acceleration = 90.0
+allow_braking = false
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_tqf4e"]
+resource_local_to_scene = true
+resource_name = "Authored player soft cap"
+script = ExtResource("phase6_AutomationSpeedTrait")
+mode = 2
+player_top_speed = true
+target_speed = 150.0
+affect_rolling = true
+
+[sub_resource type="Resource" id="Resource_ceb3u"]
+resource_local_to_scene = true
+resource_name = "Authored action permissions"
+script = ExtResource("phase6_AutomationInputTrait")
+block_movement = true
+allow_braking = false
+block_jump = true
+block_roll_spindash = true
+block_drift = true
+block_abilities = true
+
 [sub_resource type="Curve3D" id="Curve3D_fg5i3"]
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, -86.605, 63.36, 6.125, 150.385, 7.93, 0, 0, -7.83, 0, 0, -8.535, 11.095, -6.535, 39.78, 0, 0, 0, -3.945, 0, -61.431, 7.645, 5.79),
@@ -857,191 +1023,7 @@ size = Vector3(39.760315, 19.429626, 5.4570313)
 [sub_resource type="BoxShape3D" id="BoxShape3D_u0gdn"]
 size = Vector3(10.296291, 24.09047, 25.988678)
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_7d88x"]
-size = Vector2(10999.935, 14000.025)
-subdivide_width = 32
-subdivide_depth = 32
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_ydu6t"]
-noise_type = 3
-fractal_type = 2
-domain_warp_enabled = true
-domain_warp_fractal_type = 0
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_66ncq"]
-width = 1024
-height = 1024
-noise = SubResource("FastNoiseLite_ydu6t")
-seamless = true
-as_normal_map = true
-bump_strength = 9.3
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_ht507"]
-noise_type = 3
-offset = Vector3(12, 0, 0)
-fractal_type = 2
-fractal_octaves = 6
-fractal_lacunarity = 1.855
-domain_warp_enabled = true
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_5sf7d"]
-width = 1024
-height = 1024
-noise = SubResource("FastNoiseLite_ht507")
-seamless = true
-as_normal_map = true
-bump_strength = 8.2
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_lcoll"]
-load_path = "res://.godot/imported/wave14.png-60e239494a57a9f7ded3f1b05003f5a3.s3tc.ctex"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_247rq"]
-render_priority = 0
-shader = ExtResource("16_spoc4")
-shader_parameter/albedo = Color(0, 0.7316994, 0.88269347, 1)
-shader_parameter/albedo2 = Color(0.8127987, 0.86050355, 0.97439605, 1)
-shader_parameter/metallic = 0.0
-shader_parameter/roughness = 0.02
-shader_parameter/alpha = 0.95
-shader_parameter/wave = SubResource("CompressedTexture2D_lcoll")
-shader_parameter/texture_normal = SubResource("NoiseTexture2D_66ncq")
-shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_5sf7d")
-shader_parameter/wave_uv_scale = 0.455
-shader_parameter/normal_uv_scale = 0.01
-shader_parameter/normal2_uv_scale = 0.01
-shader_parameter/wave_direction = Vector2(2, 0)
-shader_parameter/wave_direction2 = Vector2(0, 1)
-shader_parameter/time_scale = 0.025
-shader_parameter/noise_scale = 10.0
-shader_parameter/height_offset = 0.0
-shader_parameter/normal_detail_fade_start = 500.0
-shader_parameter/normal_detail_fade_end = 4000.0
-shader_parameter/distant_normal_strength = 0.2
-shader_parameter/specular_aa_strength = 0.35
-shader_parameter/distant_roughness = 0.3
-shader_parameter/ssr_camera_fade_start = 750.0
-shader_parameter/ssr_camera_fade_end = 3000.0
-shader_parameter/water_scatter_strength = 0.06
-shader_parameter/gi_fallback_fade_start = 650.0
-shader_parameter/gi_fallback_fade_end = 1300.0
-shader_parameter/gi_fallback_irradiance = 0.45
-shader_parameter/gi_fallback_near_blend = 0.35
-shader_parameter/color_deep = Color(0.16016582, 0.2380532, 0.36666462, 1)
-shader_parameter/color_shallow = Color(0.41579995, 0.6932566, 0.77, 1)
-shader_parameter/shallow_depth = 0.5
-shader_parameter/deep_depth = 50.0
-shader_parameter/depth_offset = 0.0
-shader_parameter/beers_law = 2.0
-shader_parameter/edge_color = Color(0.91, 1, 0.9925, 1)
-shader_parameter/edge_start = 0.34
-shader_parameter/edge_width = 3.65
-shader_parameter/edge_strength = 1.0
-shader_parameter/refraction_strength = 0.058
-shader_parameter/refraction_mip_scale = 2.5
-shader_parameter/ssr_strength = 0.35
-shader_parameter/ssr_max_distance = 80.0
-shader_parameter/ssr_max_steps = 48
-shader_parameter/ssr_stride = 1.0
-shader_parameter/ssr_thickness = 0.35
-shader_parameter/ssr_start_offset = 0.1
-shader_parameter/ssr_fade_start = 0.6
-shader_parameter/ssr_fade_end = 0.95
-shader_parameter/ssr_edge_fade = 0.05
-shader_parameter/ssr_roughness_mip = 4.0
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_5sm8w"]
-size = Vector2(100, 100)
-subdivide_width = 32
-subdivide_depth = 32
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_v66jx"]
-noise_type = 3
-fractal_type = 2
-domain_warp_enabled = true
-domain_warp_fractal_type = 0
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_7rt63"]
-width = 1024
-height = 1024
-noise = SubResource("FastNoiseLite_v66jx")
-seamless = true
-as_normal_map = true
-bump_strength = 9.3
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_oc6qt"]
-noise_type = 3
-offset = Vector3(12, 0, 0)
-fractal_type = 2
-fractal_octaves = 6
-fractal_lacunarity = 1.855
-domain_warp_enabled = true
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_bgx64"]
-width = 1024
-height = 1024
-noise = SubResource("FastNoiseLite_oc6qt")
-seamless = true
-as_normal_map = true
-bump_strength = 8.2
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_p7m0l"]
-load_path = "res://.godot/imported/wave14.png-60e239494a57a9f7ded3f1b05003f5a3.s3tc.ctex"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_nratb"]
-render_priority = 0
-shader = ExtResource("16_spoc4")
-shader_parameter/albedo = Color(0, 0.7316994, 0.88269347, 1)
-shader_parameter/albedo2 = Color(0.8127987, 0.86050355, 0.97439605, 1)
-shader_parameter/metallic = 0.0
-shader_parameter/roughness = 0.02
-shader_parameter/alpha = 0.85
-shader_parameter/wave = SubResource("CompressedTexture2D_p7m0l")
-shader_parameter/texture_normal = SubResource("NoiseTexture2D_7rt63")
-shader_parameter/texture_normal2 = SubResource("NoiseTexture2D_bgx64")
-shader_parameter/wave_uv_scale = 0.455
-shader_parameter/normal_uv_scale = 0.01
-shader_parameter/normal2_uv_scale = 0.01
-shader_parameter/wave_direction = Vector2(2, 0)
-shader_parameter/wave_direction2 = Vector2(0, 1)
-shader_parameter/time_scale = 0.025
-shader_parameter/noise_scale = 10.0
-shader_parameter/height_offset = 0.0
-shader_parameter/normal_detail_fade_start = 500.0
-shader_parameter/normal_detail_fade_end = 4000.0
-shader_parameter/distant_normal_strength = 0.2
-shader_parameter/specular_aa_strength = 0.35
-shader_parameter/distant_roughness = 0.3
-shader_parameter/ssr_camera_fade_start = 750.0
-shader_parameter/ssr_camera_fade_end = 3000.0
-shader_parameter/water_scatter_strength = 0.06
-shader_parameter/gi_fallback_fade_start = 650.0
-shader_parameter/gi_fallback_fade_end = 1300.0
-shader_parameter/gi_fallback_irradiance = 0.45
-shader_parameter/gi_fallback_near_blend = 0.35
-shader_parameter/color_deep = Color(0.16016582, 0.2380532, 0.36666462, 1)
-shader_parameter/color_shallow = Color(0.41579995, 0.6932566, 0.77, 1)
-shader_parameter/shallow_depth = 0.5
-shader_parameter/deep_depth = 50.0
-shader_parameter/depth_offset = 0.0
-shader_parameter/beers_law = 2.0
-shader_parameter/edge_color = Color(0.91, 1, 0.9925, 1)
-shader_parameter/edge_start = 0.34
-shader_parameter/edge_width = 3.65
-shader_parameter/edge_strength = 1.0
-shader_parameter/refraction_strength = 0.058
-shader_parameter/refraction_mip_scale = 2.5
-shader_parameter/ssr_strength = 0.35
-shader_parameter/ssr_max_distance = 80.0
-shader_parameter/ssr_max_steps = 48
-shader_parameter/ssr_stride = 1.0
-shader_parameter/ssr_thickness = 0.35
-shader_parameter/ssr_start_offset = 0.1
-shader_parameter/ssr_fade_start = 0.6
-shader_parameter/ssr_fade_end = 0.95
-shader_parameter/ssr_edge_fade = 0.05
-shader_parameter/ssr_roughness_mip = 4.0
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_jgml2"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_54ic8"]
 resource_local_to_scene = true
 size = Vector3(40.6, 6, 6)
 
@@ -1050,7 +1032,7 @@ albedo_color = Color(0.95923537, 0.39163202, 1.92523e-07, 1)
 metallic = 0.6
 roughness = 0.45
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_r07yt"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_r2vk6"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_bar")
 top_radius = 0.15
@@ -1059,7 +1041,7 @@ height = 40.6
 radial_segments = 24
 rings = 1
 
-[sub_resource type="Curve3D" id="Curve3D_qsijv"]
+[sub_resource type="Curve3D" id="Curve3D_dicvc"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, -12),
@@ -1073,217 +1055,6 @@ _data = {
 "tilts": PackedFloat32Array(0, 0)
 }
 point_count = 2
-
-[sub_resource type="Resource" id="phase6_11_0"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationInputTrait")
-resource_name = "Authored action permissions"
-grounded = true
-airborne = false
-block_movement = true
-block_jump = true
-block_roll_spindash = true
-block_abilities = true
-block_drift = true
-allow_braking = false
-
-[sub_resource type="Resource" id="phase6_11_1"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSteeringTrait")
-resource_name = "Canonical heading"
-grounded = true
-airborne = false
-mode = 0
-strength = 1.0
-canonical_direction = true
-allow_pullback = false
-
-[sub_resource type="Resource" id="phase6_11_2"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSteeringTrait")
-resource_name = "Authored turn limit"
-grounded = true
-airborne = false
-mode = 1
-turn_rate = 900.0
-canonical_direction = true
-allow_pullback = false
-
-[sub_resource type="Resource" id="phase6_11_3"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationPositionTrait")
-resource_name = "Speed-scaled attraction"
-grounded = true
-airborne = false
-mode = 3
-attraction_acceleration = 10.0
-attraction_per_speed = 0.035
-attraction_speed_scale = 0.02
-attraction_radius = 1.5
-max_acceleration = 1000000.0
-
-[sub_resource type="Resource" id="phase6_11_4"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSpeedTrait")
-resource_name = "Canonical propulsion"
-grounded = true
-airborne = false
-mode = 1
-canonical_direction = true
-target_speed = 200.0
-acceleration = 60.0
-affect_rolling = true
-allow_braking = false
-
-[sub_resource type="Resource" id="phase6_11_5"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSpeedTrait")
-resource_name = "Authored player soft cap"
-grounded = true
-airborne = false
-mode = 2
-target_speed = 200.0
-player_top_speed = true
-affect_rolling = true
-
-[sub_resource type="Resource" id="phase6_11_6"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSurfaceTrait")
-resource_name = "Water physics bypass"
-grounded = true
-airborne = false
-mode = 2
-
-[sub_resource type="Resource" id="phase6_12_0"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationInputTrait")
-resource_name = "Authored action permissions"
-grounded = true
-airborne = false
-block_movement = true
-block_jump = true
-block_roll_spindash = true
-block_abilities = true
-block_drift = true
-allow_braking = false
-
-[sub_resource type="Resource" id="phase6_12_1"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSteeringTrait")
-resource_name = "Canonical heading"
-grounded = true
-airborne = false
-mode = 0
-strength = 1.0
-canonical_direction = true
-allow_pullback = false
-
-[sub_resource type="Resource" id="phase6_12_2"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSteeringTrait")
-resource_name = "Authored turn limit"
-grounded = true
-airborne = false
-mode = 1
-turn_rate = 240.0
-canonical_direction = true
-allow_pullback = false
-
-[sub_resource type="Resource" id="phase6_12_3"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSpeedTrait")
-resource_name = "Canonical propulsion"
-grounded = true
-airborne = false
-mode = 1
-canonical_direction = true
-target_speed = 170.0
-acceleration = 70.0
-affect_rolling = true
-allow_braking = false
-
-[sub_resource type="Resource" id="phase6_12_4"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSpeedTrait")
-resource_name = "Authored player soft cap"
-grounded = true
-airborne = false
-mode = 2
-target_speed = 170.0
-player_top_speed = true
-affect_rolling = true
-
-[sub_resource type="Resource" id="phase6_13_0"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationInputTrait")
-resource_name = "Authored action permissions"
-grounded = true
-airborne = false
-block_movement = true
-block_jump = true
-block_roll_spindash = true
-block_abilities = true
-block_drift = true
-allow_braking = false
-
-[sub_resource type="Resource" id="phase6_13_1"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSteeringTrait")
-resource_name = "Canonical heading"
-grounded = true
-airborne = false
-mode = 0
-strength = 1.0
-canonical_direction = true
-allow_pullback = false
-
-[sub_resource type="Resource" id="phase6_13_2"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSteeringTrait")
-resource_name = "Authored turn limit"
-grounded = true
-airborne = false
-mode = 1
-turn_rate = 9001.0
-canonical_direction = true
-allow_pullback = false
-
-[sub_resource type="Resource" id="phase6_13_3"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationPositionTrait")
-resource_name = "Speed-scaled attraction"
-grounded = true
-airborne = false
-mode = 3
-attraction_acceleration = 3.0
-attraction_per_speed = 0.135
-attraction_speed_scale = 0.02
-attraction_radius = 4.638
-max_acceleration = 1000000.0
-
-[sub_resource type="Resource" id="phase6_13_4"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSpeedTrait")
-resource_name = "Canonical propulsion"
-grounded = true
-airborne = false
-mode = 1
-canonical_direction = true
-target_speed = 150.0
-acceleration = 90.0
-affect_rolling = true
-allow_braking = false
-
-[sub_resource type="Resource" id="phase6_13_5"]
-resource_local_to_scene = true
-script = ExtResource("phase6_AutomationSpeedTrait")
-resource_name = "Authored player soft cap"
-grounded = true
-airborne = false
-mode = 2
-target_speed = 150.0
-player_top_speed = true
-affect_rolling = true
 
 [node name="GREEN_HILL_OCEAN" type="Node3D" unique_id=1755319918]
 
@@ -1349,12 +1120,12 @@ go_music_fade_in = 0.0
 go_music_play_on_go = true
 
 [node name="CollisionShape3D" parent="RaceStartGHO" index="0" unique_id=1655613209]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1879883, 4.4978642, 2)
-shape = SubResource("BoxShape3D_2820r")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1879883, 6.4004045, 2)
+shape = SubResource("CylinderShape3D_i48ms")
 
 [node name="BoundaryVisual" parent="RaceStartGHO" index="1" unique_id=950711976]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1879883, 4.4978642, 2)
-mesh = SubResource("BoxMesh_ta676")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1879883, 6.4004045, 2)
+mesh = SubResource("CylinderMesh_tc3te")
 
 [node name="StartingLine" parent="RaceStartGHO" index="2" unique_id=96905968]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.9063926, 0)
@@ -1378,8 +1149,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.760654, 0)
 [node name="GoalCamera" parent="RaceGoalGHO" index="2" unique_id=1169733806]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 68.40405, 2.8940334, 1.3125)
 
-[node name="Circle" parent="RaceGoalGHO/GoalModel/GoalRing2/Armature/Skeleton3D" index="0" unique_id=1294627438]
-material_override = SubResource("ShaderMaterial_hcf2b")
+[node name="Circle" parent="RaceGoalGHO/GoalModel/GoalRing2/Armature/Skeleton3D" parent_id_path=PackedInt32Array(765298263, 456851143, 52793995, 744465181) index="0" unique_id=1294627438]
+material_override = SubResource("ShaderMaterial_tc3te")
 
 [node name="Checkpoint3" parent="." unique_id=2068731244 instance=ExtResource("1_qr57n")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4774.143, 77.77864, -3276.8608)
@@ -1390,14 +1161,6 @@ shape = SubResource("BoxShape3D_62ca1")
 
 [node name="AutomationSpline3" parent="." unique_id=885415540 instance=ExtResource("6_yhbre")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3128.4053, 79.03979, -1309.3528)
-enabled = true
-priority = 0
-require_group = &"player"
-path_path = NodePath("Path3D")
-volume_path = NodePath("Area3D")
-capture_distance = 0.0
-release_at_path_ends = false
-tracking_window = 6.0
 activation_mode = 3
 start_gate_path = NodePath("../GHO_AutoEnter_1")
 end_gate_path = NodePath("../GHO_AutoExit_1")
@@ -1405,11 +1168,11 @@ area_crossings_bidirectional = false
 integrate_before_speed_limits = true
 sample_lookahead = 4.0
 recovery_distance = 20.0
-steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("phase6_11_1"), SubResource("phase6_11_2")])
-position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("phase6_11_3")])
-speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("phase6_11_4"), SubResource("phase6_11_5")])
-surface_traits = Array[ExtResource("phase6_AutomationSurfaceTrait")]([SubResource("phase6_11_6")])
-input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_11_0")])
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_q3ep7"), SubResource("Resource_ydn5p")])
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("Resource_byl1h")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_s2fub"), SubResource("Resource_i0bkb")])
+surface_traits = Array[ExtResource("phase6_AutomationSurfaceTrait")]([SubResource("Resource_6f2va")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_lhn53")])
 metadata/automation_migration_id = "LS5Framework/Scenes/Levels/Green Hill Ocean/green_hill_ocean.tscn::AutomationSpline3"
 
 [node name="Path3D" parent="AutomationSpline3" index="0" unique_id=716481439]
@@ -1479,14 +1242,6 @@ shape = SubResource("BoxShape3D_3ojla")
 metadata/_uniform_size_base_position = Vector3(-0.3408203, 0.70004463, -0.012817383)
 metadata/_uniform_size_base_scale = Vector3(3.5, 1, 5.000042)
 
-[node name="TempMesh" parent="JumpPanelRamp7" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp7" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
 [node name="HomingTarget15" parent="." unique_id=2082925135 instance=ExtResource("8_22q8k")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 3104.8052, 109.55421, -1706.4508)
 
@@ -1514,7 +1269,6 @@ transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 3119.5125, 19.5928, -1767.254
 pop_up_speed_override = -2.0
 
 [node name="Spring41" parent="." unique_id=1925060265 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.0856533, -1.3642858, 0.19691262, 0.29336393, 0.7882801, 2.3542626, -1.3468437, -1.9409633, 0.8177245, 2958.1619, 71.23255, -2633.99)
 strength = 220.0
 movement_lock_time = 3.0
@@ -1523,7 +1277,6 @@ align_time = 3.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring42" parent="." unique_id=1925070028 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.445289, 0.46504283, -0.23302001, 0.41213974, -1.0489397, 2.2315607, 0.317339, -2.2211394, -1.1026495, 2849.783, 133.85367, -2788.1807)
 strength = 140.0
 movement_lock_time = 2.0
@@ -1542,7 +1295,6 @@ shape = SubResource("BoxShape3D_qpp4q")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.6941757, 2)
 
 [node name="Spring30" parent="." unique_id=529245930 node_paths=PackedStringArray("spline_path") instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 2869.83, 21.465351, -3468.7427)
 downward_trajectory_min_angle_deg = 45.0
 spline_enabled = true
@@ -1550,19 +1302,12 @@ spline_path = NodePath("SplinePath")
 spline_speed = 70.0
 
 [node name="CollisionShape3D" parent="Spring30" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_aqt1o")
-metadata/_uniform_size_base_position = Vector3(0, 0.2, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
+shape = SubResource("CylinderShape3D_7d88x")
 
 [node name="SplinePath" parent="Spring30" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_u0gdn")
-
-[node name="Mesh" parent="Spring30" index="5" unique_id=1922896033]
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
+curve = SubResource("Curve3D_ydu6t")
 
 [node name="Spring31" parent="." unique_id=2136435985 node_paths=PackedStringArray("spline_path") instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(-0.9713959, -0.20565115, 0.118732855, 8.940697e-08, 0.5000001, 0.8660253, -0.23746553, 0.8412536, -0.48569804, 2869.83, 48.35727, -3498.373)
 downward_trajectory_min_angle_deg = 45.0
 spline_enabled = true
@@ -1570,22 +1315,15 @@ spline_path = NodePath("SplinePath")
 spline_speed = 85.0
 
 [node name="CollisionShape3D" parent="Spring31" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_ffom3")
-metadata/_uniform_size_base_position = Vector3(0, 0.2, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
+shape = SubResource("CylinderShape3D_66ncq")
 
 [node name="AnimationPlayer" parent="Spring31" index="2" unique_id=636684357]
 root_node = NodePath("../../Spring30")
 
 [node name="SplinePath" parent="Spring31" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_mcpxm")
-
-[node name="Mesh" parent="Spring31" index="5" unique_id=1922896033]
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
+curve = SubResource("Curve3D_ht507")
 
 [node name="Spring32" parent="." unique_id=958453591 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.75627613, 0.6528807, 0.04234575, -3.706722e-09, -0.064723864, 0.9979033, 0.65425247, -0.7546904, -0.04894913, 2849.3628, 99.34034, -3417.2524)
 strength = 80.0
 align_time = 1.0
@@ -1653,7 +1391,6 @@ transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 4693.362
 strength = 180.0
 
 [node name="Spring33" parent="." unique_id=215960191 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.48637596, 0.8695901, -0.085156076, -0.8727603, 0.48814908, 0, 0.04156886, 0.074320845, 0.99636763, 4633.5, 135.40984, -2551.612)
 strength = 95.0
 movement_lock_time = 1.5
@@ -1662,7 +1399,6 @@ align_time = 1.5
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring34" parent="." unique_id=1869269318 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.37949425, -0.9240312, -0.046372116, 0.92452735, 0.38064668, -0.018903473, 0.035118792, -0.035698533, 0.9987454, 4689.3438, 166.74518, -2546.8394)
 strength = 105.0
 movement_lock_time = 1.0
@@ -1671,13 +1407,11 @@ align_time = 0.3
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring35" parent="." unique_id=98649238 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.9910316, -1.357771, -0.7303506, 0, 1.5940652, -2.9634748, 1.5417376, 2.6341295, 1.4169089, 4192.743, 30.800224, -2072.9907)
 strength = 110.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring36" parent="." unique_id=599878979 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(3.365, 0, 0, 0, 3.365, 0, 0, 0, 3.3650002, 4193.806, -106.61583, -2121.7004)
 strength = 187.0
 downward_trajectory_min_angle_deg = 45.0
@@ -1698,19 +1432,16 @@ transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4142.6143, 48.442497, -2177.4
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4179.7085, 38.345665, -2167.5305)
 
 [node name="Spring37" parent="." unique_id=995434901 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(1.9985577, -0.043470666, -0.062265158, 3.0267984e-08, 1.6398842, -1.1448928, 0.07593852, 1.144067, 1.6387016, 3362.9663, 99.29077, -1547.119)
 strength = 90.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring40" parent="." unique_id=1847470338 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(-1.3242947, -0.6453032, 0.28253692, -0.01213561, -0.5806279, -1.3830127, 0.7043409, -1.223297, 0.5073943, 3362.5227, 140.24884, -1552.8184)
 strength = 90.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring39" parent="." unique_id=1565644398 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(1.9985577, 0.048892573, -0.058104932, 2.2351742e-08, 1.5303147, 1.2876862, 0.07593852, -1.286758, 1.5292113, 3359.2625, 64.59617, -1449.6454)
 strength = 110.0
 downward_trajectory_min_angle_deg = 45.0
@@ -1731,7 +1462,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2921.6157, 75.35475, -3548.26
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2921.6157, 75.35475, -3536.2627)
 
 [node name="Spring22" parent="." unique_id=1090981441 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.3283718, 0.37705693, -0.8660254, -0.75411385, 0.6567436, -7.450581e-09, 0.5687567, 0.65308183, 0.5, 3045.7888, 42.036148, -1982.4248)
 strength = 80.0
 movement_lock_time = 0.2
@@ -1739,7 +1469,6 @@ action_lock_time = 0.2
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring43" parent="." unique_id=682315597 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(-9.3308444e-08, 1.854812, 0.7481126, -2, -8.742278e-08, -3.2701045e-08, 2.3738949e-09, -0.7481126, 1.854812, 3067.3542, 47.32187, -1920.5498)
 strength = 100.0
 movement_lock_time = 0.15
@@ -1748,7 +1477,6 @@ downward_trajectory_min_angle_deg = 45.0
 detach_from_ground = false
 
 [node name="Spring24" parent="." unique_id=246489722 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(-0.23572612, -0.65230423, -0.7203698, -0.8538664, 0.4929777, -0.16698791, 0.4640534, 0.57573605, -0.6731883, 3144.3638, 49.70075, -1983.927)
 strength = 132.0
 movement_lock_time = 0.8
@@ -1757,7 +1485,6 @@ align_time = 0.8
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring25" parent="." unique_id=27331726 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(-1.3580425, 0.66773236, -1.307614, 1.0598321, 1.6785201, -0.24356945, 1.0161086, -0.8583145, -1.4935929, 3050.5417, 100.00859, -1887.6106)
 strength = 145.0
 movement_lock_time = 0.8
@@ -1766,35 +1493,30 @@ align_time = 0.8
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring26" parent="." unique_id=908455403 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2, 0, 0, 0, 1.9999998, 0, 0, 0, 1.9999999, 3132.6624, 4.425186, -1604.248)
 strength = 55.0
 stop_momentum = false
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring27" parent="." unique_id=1004241124 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2, 0, 0, 0, 1.9999998, 0, 0, 0, 1.9999999, 3166.9614, 4.425186, -1605.4843)
 strength = 55.0
 stop_momentum = false
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring28" parent="." unique_id=1185013689 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2, 0, 0, 0, 1.9999998, 0, 0, 0, 1.9999999, 3105.7485, 7.125551, -1674.9723)
 strength = 65.0
 stop_momentum = false
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring29" parent="." unique_id=1368354726 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2, 0, 0, 0, 1.9999998, 0, 0, 0, 1.9999999, 3072.0166, 7.125551, -1666.6509)
 strength = 65.0
 stop_momentum = false
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring23" parent="." unique_id=1781451223 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.7071067, -0.70710677, 5.9604645e-08, 0.7071068, 0.70710677, -4.669986e-08, 2.0677263e-08, 1.4767807e-07, 1, 3070.9363, 17.615007, -1982.4248)
 strength = 100.0
 movement_lock_time = 1.0
@@ -1803,13 +1525,11 @@ align_time = 1.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring20" parent="." unique_id=666876501 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 3838.8416, -12.955156, -1319.5455)
 strength = 85.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring21" parent="." unique_id=1841671030 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.659241, 1.3886817, 0, -1.3886817, 2.659241, 0, 0, 0, 3, 3774.021, 30.1957, -1313.9661)
 strength = 190.0
 movement_lock_time = 2.0
@@ -1820,19 +1540,12 @@ spline_enabled = true
 spline_speed = 45.0
 
 [node name="CollisionShape3D" parent="Spring21" index="0" unique_id=594366491]
-shape = SubResource("CylinderShape3D_uavsw")
-metadata/_uniform_size_base_position = Vector3(0, 0.2, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
+shape = SubResource("CylinderShape3D_5sf7d")
 
 [node name="SplinePath" parent="Spring21" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_cwy3d")
-
-[node name="Mesh" parent="Spring21" index="5" unique_id=1922896033]
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
+curve = SubResource("Curve3D_lcoll")
 
 [node name="Spring" parent="." unique_id=1538883451 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.80342937, 0.47065714, -0.36466855, -0.5898486, 0.54573745, -0.5951884, -0.08111633, 0.6932911, 0.71607804, 4026.439, -18.836864, -1635.5876)
 strength = 80.0
 stop_momentum = false
@@ -1840,20 +1553,18 @@ downward_trajectory_min_angle_deg = 45.0
 
 [node name="CollisionShape3D" parent="Spring" index="0" unique_id=594366491]
 transform = Transform3D(3.4999995, -1.5156612e-06, -1.8253925e-06, 5.3048134e-06, 1, 5.1000877e-14, 1.8253922e-06, -8.050507e-13, 3.5, 0, 0.2808838, 0)
-shape = SubResource("CylinderShape3D_jvfeh")
+shape = SubResource("CylinderShape3D_247rq")
 metadata/_uniform_size_base_position = Vector3(0, 0.2808838, 0)
 metadata/_uniform_size_base_scale = Vector3(3.4999995, 1, 3.5)
 
 [node name="SplinePath" parent="Spring" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_b5s6o")
+curve = SubResource("Curve3D_5sm8w")
 
 [node name="Mesh" parent="Spring" index="5" unique_id=1922896033]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
 metadata/_uniform_size_base_scale = Vector3(2, 2, 2)
 
 [node name="Spring2" parent="." unique_id=10885081 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.8617302, 0.3527575, -0.36466855, -0.507069, 0.62340343, -0.5951884, 0.017378472, 0.697804, 0.716078, 4034.0957, -23.342264, -1635.4332)
 strength = 80.0
 stop_momentum = false
@@ -1861,20 +1572,18 @@ downward_trajectory_min_angle_deg = 45.0
 
 [node name="CollisionShape3D" parent="Spring2" index="0" unique_id=594366491]
 transform = Transform3D(3.4999995, -1.5156612e-06, -1.8253925e-06, 5.3048134e-06, 1, 5.1000877e-14, 1.8253922e-06, -8.050507e-13, 3.5, 0, 0.2808838, 0)
-shape = SubResource("CylinderShape3D_eupwc")
+shape = SubResource("CylinderShape3D_v66jx")
 metadata/_uniform_size_base_position = Vector3(0, 0.2808838, 0)
 metadata/_uniform_size_base_scale = Vector3(3.4999995, 1, 3.5)
 
 [node name="SplinePath" parent="Spring2" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_ksg7d")
+curve = SubResource("Curve3D_7rt63")
 
 [node name="Mesh" parent="Spring2" index="5" unique_id=1922896033]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
 metadata/_uniform_size_base_scale = Vector3(2, 2, 2)
 
 [node name="Spring3" parent="." unique_id=702463606 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.797854, 0.48004764, -0.36466855, -0.59620863, 0.538782, -0.5951883, -0.08924191, 0.69229203, 0.7160779, 4018.2974, -14.045956, -1635.7518)
 strength = 80.0
 stop_momentum = false
@@ -1882,20 +1591,18 @@ downward_trajectory_min_angle_deg = 45.0
 
 [node name="CollisionShape3D" parent="Spring3" index="0" unique_id=594366491]
 transform = Transform3D(3.4999995, -1.5156612e-06, -1.8253925e-06, 5.3048134e-06, 1, 5.1000877e-14, 1.8253922e-06, -8.050507e-13, 3.5, 0, 0.2808838, 0)
-shape = SubResource("CylinderShape3D_tc3te")
+shape = SubResource("CylinderShape3D_oc6qt")
 metadata/_uniform_size_base_position = Vector3(0, 0.2808838, 0)
 metadata/_uniform_size_base_scale = Vector3(3.4999995, 1, 3.5)
 
 [node name="SplinePath" parent="Spring3" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_q3ep7")
+curve = SubResource("Curve3D_bgx64")
 
 [node name="Mesh" parent="Spring3" index="5" unique_id=1922896033]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
 metadata/_uniform_size_base_scale = Vector3(2, 2, 2)
 
 [node name="Spring4" parent="." unique_id=2048058023 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.8721121, -0.42395672, 0.2442971, 0.4710071, 0.5921159, -0.65387416, 0.13256223, 0.68531734, 0.71607804, 4146.4556, -18.672983, -1635.5876)
 strength = 80.0
 stop_momentum = false
@@ -1903,20 +1610,18 @@ downward_trajectory_min_angle_deg = 45.0
 
 [node name="CollisionShape3D" parent="Spring4" index="0" unique_id=594366491]
 transform = Transform3D(3.4999995, -1.5156612e-06, -1.8253925e-06, 5.3048134e-06, 1, 5.1000877e-14, 1.8253922e-06, -8.050507e-13, 3.5, 0, 0.2808838, 0)
-shape = SubResource("CylinderShape3D_ydn5p")
+shape = SubResource("CylinderShape3D_p7m0l")
 metadata/_uniform_size_base_position = Vector3(0, 0.2808838, 0)
 metadata/_uniform_size_base_scale = Vector3(3.4999995, 1, 3.5)
 
 [node name="SplinePath" parent="Spring4" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_byl1h")
+curve = SubResource("Curve3D_nratb")
 
 [node name="Mesh" parent="Spring4" index="5" unique_id=1922896033]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
 metadata/_uniform_size_base_scale = Vector3(2, 2, 2)
 
 [node name="Spring5" parent="." unique_id=924033479 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.90750897, -0.3416817, 0.24429709, 0.41436565, 0.6330482, -0.65387416, 0.068765074, 0.69462496, 0.716078, 4154.721, -15.415789, -1635.4332)
 strength = 80.0
 stop_momentum = false
@@ -1924,23 +1629,18 @@ downward_trajectory_min_angle_deg = 45.0
 
 [node name="CollisionShape3D" parent="Spring5" index="0" unique_id=594366491]
 transform = Transform3D(3.4999995, -1.5156612e-06, -1.8253925e-06, 5.3048134e-06, 1, 5.1000877e-14, 1.8253922e-06, -8.050507e-13, 3.5, 0, 0.2808838, 0)
-shape = SubResource("CylinderShape3D_s2fub")
+shape = SubResource("CylinderShape3D_jgml2")
 metadata/_uniform_size_base_position = Vector3(0, 0.2808838, 0)
 metadata/_uniform_size_base_scale = Vector3(3.4999995, 1, 3.5)
 
 [node name="SplinePath" parent="Spring5" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_i0bkb")
+curve = SubResource("Curve3D_r07yt")
 
 [node name="Mesh" parent="Spring5" index="5" unique_id=1922896033]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
 metadata/_uniform_size_base_scale = Vector3(2, 2, 2)
 
-[node name="TempMesh" parent="Spring5/Mesh" index="1" unique_id=1862970004]
-transform = Transform3D(2.4629457, -0.057120703, 0, 0.4288341, 0.32806438, 0, 0, 0, 2.5, 0, 0.13, 0)
-
 [node name="Spring6" parent="." unique_id=2095359374 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.8928808, -0.37826282, 0.24429709, 0.43973812, 0.61569417, -0.65387416, 0.09692403, 0.6912585, 0.71607804, 4137.667, -22.136314, -1635.7518)
 strength = 80.0
 stop_momentum = false
@@ -1948,16 +1648,15 @@ downward_trajectory_min_angle_deg = 45.0
 
 [node name="CollisionShape3D" parent="Spring6" index="0" unique_id=594366491]
 transform = Transform3D(3.4999995, -1.5156612e-06, -1.8253925e-06, 5.3048134e-06, 1, 5.1000877e-14, 1.8253922e-06, -8.050507e-13, 3.5, 0, 0.2808838, 0)
-shape = SubResource("CylinderShape3D_6f2va")
+shape = SubResource("CylinderShape3D_qsijv")
 metadata/_uniform_size_base_position = Vector3(0, 0.2808838, 0)
 metadata/_uniform_size_base_scale = Vector3(3.4999995, 1, 3.5)
 
 [node name="SplinePath" parent="Spring6" index="4" unique_id=1818114504]
-curve = SubResource("Curve3D_lhn53")
+curve = SubResource("Curve3D_b6jfy")
 
 [node name="Mesh" parent="Spring6" index="5" unique_id=1922896033]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-metadata/_uniform_size_base_position = Vector3(0, 0, 0)
 metadata/_uniform_size_base_scale = Vector3(2, 2, 2)
 
 [node name="JumpPanelRamp2" parent="." unique_id=2039108526 instance=ExtResource("7_s5klr")]
@@ -1972,15 +1671,6 @@ movement_lock_time = 0.3
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08251953, 0.8789997, -0.008300781)
 shape = SubResource("BoxShape3D_41j15")
 metadata/_uniform_size_base_position = Vector3(0.08251953, 0.8789997, -0.008300781)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
-[node name="TempMesh" parent="JumpPanelRamp2" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp2" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="JumpPanelRamp8" parent="." unique_id=540033841 instance=ExtResource("7_s5klr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4095.732, -21.03092, -1758.227)
@@ -1994,15 +1684,6 @@ movement_lock_time = 0.3
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08251953, 0.8789997, -0.008300781)
 shape = SubResource("BoxShape3D_41j15")
 metadata/_uniform_size_base_position = Vector3(0.08251953, 0.8789997, -0.008300781)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
-[node name="TempMesh" parent="JumpPanelRamp8" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp8" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="JumpPanelRamp9" parent="." unique_id=1314713698 instance=ExtResource("7_s5klr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4075.732, -21.03092, -1758.227)
@@ -2016,15 +1697,6 @@ movement_lock_time = 0.3
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08251953, 0.8789997, -0.008300781)
 shape = SubResource("BoxShape3D_41j15")
 metadata/_uniform_size_base_position = Vector3(0.08251953, 0.8789997, -0.008300781)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
-
-[node name="TempMesh" parent="JumpPanelRamp9" index="1" unique_id=1872819520]
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp9" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="MusicTrigger GHO" parent="." unique_id=2065691395 instance=ExtResource("12_2euvt")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5562.828, 1.8691044, -2960.5728)
@@ -2036,7 +1708,6 @@ enabled = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3822.7996, 71.04395, -1320.5083)
 
 [node name="Spring38" parent="." unique_id=2041480205 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2, 0, 0, 0, 1.1164753, 1.6593622, 0, -1.6593622, 1.1164753, 2873.7737, 71.69283, -2917.612)
 visible = false
 active = false
@@ -2227,21 +1898,12 @@ material = SubResource("ShaderMaterial_2feqb")
 
 [node name="AutomationSpline2" parent="." unique_id=1103482878 instance=ExtResource("6_yhbre")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4772.9766, 58.625538, -3061.618)
-enabled = true
-priority = 0
-require_group = &"player"
-path_path = NodePath("Path3D")
-volume_path = NodePath("Area3D")
-capture_distance = 0.0
-release_at_path_ends = false
-tracking_window = 6.0
-activation_mode = 0
 integrate_before_speed_limits = true
 sample_lookahead = 0.5
 recovery_distance = 20.0
-steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("phase6_12_1"), SubResource("phase6_12_2")])
-speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("phase6_12_3"), SubResource("phase6_12_4")])
-input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_12_0")])
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_f8ntu"), SubResource("Resource_50en8")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_ljecd"), SubResource("Resource_3bgtv")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_uumfk")])
 metadata/automation_migration_id = "LS5Framework/Scenes/Levels/Green Hill Ocean/green_hill_ocean.tscn::AutomationSpline2"
 
 [node name="Path3D" parent="AutomationSpline2" index="0" unique_id=716481439]
@@ -2316,7 +1978,6 @@ action_lock_time = 2.0
 
 [node name="PlayerSpawn" parent="." unique_id=956848393 instance=ExtResource("19_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5555.499, 6.828437, -2964.2144)
-downwarp_enabled = true
 
 [node name="Lights" type="Node3D" parent="." unique_id=1038241183]
 
@@ -2420,6 +2081,9 @@ spot_angle_attenuation = 1.5691684
 
 [node name="EnvironmentWeatherSystem" parent="Lights" unique_id=1935415725 instance=ExtResource("20_1433n")]
 day_length_minutes = 8.0
+
+[node name="SunFlare" parent="Lights/EnvironmentWeatherSystem" index="2"]
+lens_elements = Array[ExtResource("34_b5s6o")]([SubResource("Resource_aaklg"), SubResource("Resource_kximh"), SubResource("Resource_nkyla"), SubResource("Resource_xpawb")])
 
 [node name="Rail" parent="." unique_id=304400717 instance=ExtResource("20_mmchv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4153.5527, 38.472763, -2242.2986)
@@ -2916,20 +2580,13 @@ additive_min_forward_speed = 80.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08251953, 0.8789978, -0.008300781)
 shape = SubResource("BoxShape3D_5ksmr")
 metadata/_uniform_size_base_position = Vector3(0.08251953, 0.8789978, -0.008300781)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="TempMesh" parent="JumpPanelRamp10" index="1" unique_id=1872819520]
 skeleton = NodePath("../../JumpPanelRamp10")
-metadata/_uniform_size_base_position = Vector3(0, 1, 0)
-metadata/_uniform_size_base_scale = Vector3(5, 2, 4)
-
-[node name="RampMesh" parent="JumpPanelRamp10" index="3" unique_id=1615587704]
-metadata/_uniform_size_base_position = Vector3(1.6520113e-08, -0.32655555, -0.37793612)
-metadata/_uniform_size_base_scale = Vector3(1, 1, 1)
 
 [node name="RingSpline" parent="." unique_id=2125630419 instance=ExtResource("29_0pe5o")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4721.7524, 138.0754, -2649.776)
-ring_spacing = 11.0
+ring_spacing = 26.0
 terrain_warp_enabled = true
 ring_respawn_delay = 5.0
 
@@ -3012,7 +2669,6 @@ transform = Transform3D(1, -2.7567143e-07, -1.1657309e-14, 2.7567143e-07, 1, -7.
 shape = SubResource("BoxShape3D_ta676")
 
 [node name="DashRing" parent="." unique_id=161984591 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(0.62300223, -1.1256988, -1.5312315, 1.7977563, 0.8717015, 0.09060213, 0.6163931, -1.4046134, 1.2834021, 5342.6455, 246.81946, -2790.006)
 strength = 190.0
 movement_lock_time = 1.0
@@ -3021,14 +2677,12 @@ align_time = 1.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring7" parent="." unique_id=1738335206 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5416.5605, 215.18439, -2812.2961)
 strength = 70.0
 stop_momentum = false
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring8" parent="." unique_id=1108131919 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5366.7983, 185.29518, -2838.2056)
 strength = 140.0
 min_additive_launch_speed = 85.0
@@ -3121,7 +2775,6 @@ movement_lock_time = 1.0
 action_lock_time = 1.0
 
 [node name="Spring9" parent="." unique_id=1070806803 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.0928082, -2.1308343, 0.282304, -0.05078427, 0.34488493, 2.9796767, -2.1488538, -2.08341, 0.20452172, 3470.0842, 141.40672, -2587.353)
 strength = 175.0
 movement_lock_time = 0.8
@@ -3130,7 +2783,6 @@ align_time = 0.8
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring10" parent="." unique_id=734300329 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.0935574, -2.1264973, 0.30826354, -0.043236714, 0.38861227, 2.974409, -2.14829, -2.0801415, 0.24054639, 3470.0842, 129.40672, -2587.353)
 strength = 175.0
 movement_lock_time = 0.8
@@ -3139,7 +2791,6 @@ align_time = 0.8
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring11" parent="." unique_id=6211048 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.0913305, -2.1393974, 0.22206883, -0.06827529, 0.2435489, 2.989318, -2.1498082, -2.088938, 0.12109106, 3470.0842, 153.40672, -2587.353)
 strength = 175.0
 movement_lock_time = 0.8
@@ -3148,7 +2799,6 @@ align_time = 0.8
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring12" parent="." unique_id=2067889812 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.0913305, -2.1393974, 0.22206883, -0.06827529, 0.2435489, 2.989318, -2.1498082, -2.088938, 0.12109106, 3470.0842, 166.40672, -2587.353)
 strength = 175.0
 movement_lock_time = 0.8
@@ -3157,7 +2807,6 @@ align_time = 0.8
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring13" parent="." unique_id=1372579482 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.5222955, -1.3714333, 0.8701702, 7.4505806e-08, 1.6072592, 2.533124, -1.6242001, -2.1297622, 1.3513277, 3234.5737, 128.47435, -2822.5603)
 strength = 155.0
 movement_lock_time = 0.3
@@ -3166,7 +2815,6 @@ align_time = 0.3
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring14" parent="." unique_id=1619251923 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.5222955, -1.3714333, 0.8701702, 7.4505806e-08, 1.6072592, 2.533124, -1.6242001, -2.1297622, 1.3513277, 3224.4846, 128.47435, -2816.0635)
 strength = 155.0
 movement_lock_time = 0.3
@@ -3175,7 +2823,6 @@ align_time = 0.3
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring15" parent="." unique_id=940200160 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(2.5222955, -1.3714333, 0.8701702, 7.4505806e-08, 1.6072592, 2.533124, -1.6242001, -2.1297622, 1.3513277, 3214.3955, 128.47435, -2809.5667)
 strength = 155.0
 movement_lock_time = 0.3
@@ -3184,79 +2831,66 @@ align_time = 0.3
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing2" parent="." unique_id=281633546 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(4.4726057, -2.0708513, 0.84105337, 6.3329935e-08, 1.8814433, 4.632513, -2.2351277, -4.1438813, 1.6829914, 3080.3638, 164.15453, -3026.839)
 strength = 130.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing3" parent="." unique_id=1925623978 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(4.4726057, -2.0708513, 0.84105337, 6.3329935e-08, 1.8814433, 4.632513, -2.2351277, -4.1438813, 1.6829914, 3125.9846, 164.15453, -3049.6375)
 strength = 130.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing4" parent="." unique_id=488961915 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(4.4726057, -2.145452, 0.62676316, 4.9670476e-08, 1.4020747, 4.799394, -2.235128, -4.29316, 1.2541854, 2993.808, 164.15453, -3229.4792)
 strength = 135.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing5" parent="." unique_id=688147331 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(4.4726057, -2.145452, 0.62676316, 4.9670476e-08, 1.4020747, 4.799394, -2.235128, -4.29316, 1.2541854, 3040.3235, 164.15453, -3252.7246)
 strength = 135.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring16" parent="." unique_id=2100824522 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.9659258, -0.25881904, 0, 0.25881904, 0.9659258, 0, 0, 0, 1, 3744.5723, -19.646915, -1403.8076)
 strength = 69.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring17" parent="." unique_id=1509403517 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.9659258, -0.25881904, 0, 0.25881904, 0.9659258, 0, 0, 0, 1, 3744.5723, -19.646915, -1395.8076)
 strength = 69.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="Spring18" parent="." unique_id=1744529047 instance=ExtResource("9_8nn2w")]
-process_mode = 3
 transform = Transform3D(0.9659258, -0.25881904, 0, 0.25881904, 0.9659258, 0, 0, 0, 1, 3744.5723, -19.646915, -1411.8076)
 strength = 69.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing7" parent="." unique_id=487160897 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(0.9659258, -0.25881904, 0, 0.25881904, 0.9659258, 0, 0, 0, 1, 3737.8027, 4.465629, -1403.808)
 strength = 58.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing11" parent="." unique_id=1150820710 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(0.9659258, -0.25881904, 0, 0.25881904, 0.9659258, 0, 0, 0, 1, 3737.8027, 4.465629, -1392.808)
 strength = 58.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing8" parent="." unique_id=1056891835 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(0.9659258, -0.25881904, 0, 0.25881904, 0.9659258, 0, 0, 0, 1, 3737.8027, 4.465629, -1414.808)
 strength = 58.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing9" parent="." unique_id=394968482 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, 3731.9968, 26.134068, -1392.808)
 strength = 45.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing10" parent="." unique_id=382437107 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, 3731.9968, 26.134068, -1403.808)
 strength = 45.0
 downward_trajectory_min_angle_deg = 45.0
 
 [node name="DashRing12" parent="." unique_id=1222712883 instance=ExtResource("30_f56n4")]
-process_mode = 3
 transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, 3731.9968, 26.134068, -1414.808)
 strength = 45.0
 downward_trajectory_min_angle_deg = 45.0
@@ -3275,22 +2909,13 @@ strength = 145.0
 
 [node name="AutomationSpline4" parent="." unique_id=2094852401 instance=ExtResource("6_yhbre")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3293.896, 129.8517, -1707.6565)
-enabled = true
-priority = 0
-require_group = &"player"
-path_path = NodePath("Path3D")
-volume_path = NodePath("Area3D")
-capture_distance = 0.0
-release_at_path_ends = false
-tracking_window = 6.0
-activation_mode = 0
 integrate_before_speed_limits = true
 sample_lookahead = 1.0
 recovery_distance = 20.0
-steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("phase6_13_1"), SubResource("phase6_13_2")])
-position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("phase6_13_3")])
-speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("phase6_13_4"), SubResource("phase6_13_5")])
-input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("phase6_13_0")])
+steering_traits = Array[ExtResource("phase6_AutomationSteeringTrait")]([SubResource("Resource_ifi58"), SubResource("Resource_jlht3")])
+position_traits = Array[ExtResource("phase6_AutomationPositionTrait")]([SubResource("Resource_klnuw")])
+speed_traits = Array[ExtResource("phase6_AutomationSpeedTrait")]([SubResource("Resource_fnaie"), SubResource("Resource_tqf4e")])
+input_traits = Array[ExtResource("phase6_AutomationInputTrait")]([SubResource("Resource_ceb3u")])
 metadata/automation_migration_id = "LS5Framework/Scenes/Levels/Green Hill Ocean/green_hill_ocean.tscn::AutomationSpline4"
 
 [node name="Path3D" parent="AutomationSpline4" index="0" unique_id=716481439]
@@ -3333,43 +2958,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3232.5168, 129.74275, -1704.6
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6398926, 8.892685, -1.333374)
 shape = SubResource("BoxShape3D_u0gdn")
 
-[node name="WATERNODE" parent="." unique_id=896649702 instance=ExtResource("33_3gtnb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3769.1238, -104.16077, -2469.847)
-size = Vector3(10999.935, 800, 14000.025)
-water_alpha = 0.95
-inner_subdivisions = 1
-wave_height = 2.0
-
-[node name="Water_EditorPreview" type="MeshInstance3D" parent="WATERNODE" unique_id=1199501658]
-process_mode = 4
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 80, 0)
-cast_shadow = 0
-instance_shader_parameters/clipmap_displacement_fade_start = 0.0
-instance_shader_parameters/clipmap_inner_radius = 0.0
-instance_shader_parameters/clipmap_lod_scale = 0.0
-instance_shader_parameters/clipmap_outer_radius = 0.0
-instance_shader_parameters/height_scale = 2.0
-mesh = SubResource("PlaneMesh_7d88x")
-surface_material_override/0 = SubResource("ShaderMaterial_247rq")
-
-[node name="WATERNODE2" parent="." unique_id=1565376583 instance=ExtResource("33_3gtnb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4535.9214, -85.763596, -3374.301)
-size = Vector3(100, 100.035, 100)
-inner_subdivisions = 1
-wave_height = 2.0
-
-[node name="Water_EditorPreview" type="MeshInstance3D" parent="WATERNODE2" unique_id=343224434]
-process_mode = 4
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 80, 0)
-cast_shadow = 0
-instance_shader_parameters/clipmap_displacement_fade_start = 0.0
-instance_shader_parameters/clipmap_inner_radius = 0.0
-instance_shader_parameters/clipmap_lod_scale = 0.0
-instance_shader_parameters/clipmap_outer_radius = 0.0
-instance_shader_parameters/height_scale = 2.0
-mesh = SubResource("PlaneMesh_5sm8w")
-surface_material_override/0 = SubResource("ShaderMaterial_nratb")
-
 [node name="DashPanel10" parent="." unique_id=1017788032 instance=ExtResource("10_ikefc")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 3108.6746, 162.03545, -1951.5703)
 strength = 75.0
@@ -3384,10 +2972,10 @@ fixed_launch_speed = 110.0
 launch_aim_origin = 1
 
 [node name="CollisionShape3D" parent="VaultBar" index="0" unique_id=789556539]
-shape = SubResource("BoxShape3D_jgml2")
+shape = SubResource("BoxShape3D_54ic8")
 
 [node name="Bar" parent="VaultBar/Model" parent_id_path=PackedInt32Array(1685228124, 1361387532) index="0" unique_id=511214259]
-mesh = SubResource("CylinderMesh_r07yt")
+mesh = SubResource("CylinderMesh_r2vk6")
 
 [node name="LeftCap" parent="VaultBar/Model" parent_id_path=PackedInt32Array(1685228124, 1361387532) index="1" unique_id=568321050]
 transform = Transform3D(0.20250002, 0, 0, 0, 0.20250002, 0, 0, 0, 0.20250002, -20.3, 0, 0)
@@ -3399,7 +2987,7 @@ transform = Transform3D(0.20250002, 0, 0, 0, 0.20250002, 0, 0, 0, 0.20250002, 20
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1933123e-07, 3.3790474, -7.7299805)
 
 [node name="SplinePath" parent="VaultBar" index="4" unique_id=51402399]
-curve = SubResource("Curve3D_qsijv")
+curve = SubResource("Curve3D_dicvc")
 
 [node name="RingSpline10" parent="." unique_id=354792183 instance=ExtResource("29_0pe5o")]
 transform = Transform3D(-0.6296182, 0, -0.7769047, 0, 1, 0, 0.7769047, 0, -0.6296182, 4596.0767, 130.21416, -1861.4211)
@@ -3422,128 +3010,443 @@ ring_spacing = 12.0
 [node name="Path3D" parent="RingSpline12" index="0" unique_id=1617861900]
 curve = SubResource("Curve3D_aqt1o")
 
+[node name="Spike Traps" type="Node3D" parent="." unique_id=17727546]
+
+[node name="SpikeStrip" parent="Spike Traps" unique_id=1122090777 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.15028822, -0.9886422, 0, 0.9886422, 0.15028822, 3760.0881, 185.4357, -1373.7655)
+size = 5.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip3" parent="Spike Traps" unique_id=1726539912 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.15028822, -0.9886422, 0, 0.9886422, 0.15028822, 3760.0881, 201.21616, -1376.419)
+size = 5.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip7" parent="Spike Traps" unique_id=1686350142 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.15028822, -0.9886422, 0, 0.9886422, 0.15028822, 3760.0881, 215.93942, -1379.3729)
+size = 5.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip8" parent="Spike Traps" unique_id=1489583242 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.24986435, -0.96828085, 0, 0.96828085, 0.24986435, 3760.0881, 232.56151, -1383.0022)
+size = 5.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip9" parent="Spike Traps" unique_id=1990277594 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.24986435, -0.96828085, 0, 0.96828085, 0.24986435, 3778.0881, 232.56151, -1383.0022)
+size = 5.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip10" parent="Spike Traps" unique_id=1005812823 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.24986435, -0.96828085, 0, 0.96828085, 0.24986435, 3795.0881, 232.56151, -1383.0022)
+size = 5.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip11" parent="Spike Traps" unique_id=1502479681 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.24986435, -0.96828085, 0, 0.96828085, 0.24986435, 3810.0881, 232.56151, -1383.0022)
+size = 5.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip12" parent="Spike Traps" unique_id=1759076931 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.24986435, -0.96828085, 0, 0.96828085, 0.24986435, 3829.0881, 232.56151, -1383.0022)
+size = 7.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip13" parent="Spike Traps" unique_id=2011195662 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.24986435, -0.96828085, 0, 0.96828085, 0.24986435, 3851.0881, 232.56151, -1383.0022)
+size = 7.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip14" parent="Spike Traps" unique_id=1400579260 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.24986435, -0.96828085, 0, 0.96828085, 0.24986435, 3873.0881, 232.56151, -1383.0022)
+size = 7.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip15" parent="Spike Traps" unique_id=389557357 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.24986435, -0.96828085, 0, 0.96828085, 0.24986435, 3895.0881, 232.56151, -1383.0022)
+size = 7.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip2" parent="Spike Traps" unique_id=1274371569 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.15028822, -0.9886422, 0, 0.9886422, 0.15028822, 3760.0881, 170.58876, -1371.6251)
+size = 5.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip16" parent="Spike Traps" unique_id=1124487629 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.15028822, -0.9886422, 0, 0.9886422, 0.15028822, 3760.0881, 152.77565, -1368.9172)
+size = 8.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip17" parent="Spike Traps" unique_id=267999385 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.15028822, -0.9886422, 0, 0.9886422, 0.15028822, 3760.0881, 132.01416, -1365.7612)
+size = 8.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip18" parent="Spike Traps" unique_id=1854544493 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.15028822, -0.9886422, 0, 0.9886422, 0.15028822, 3688.0881, 132.01416, -1365.7612)
+size = 8.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip19" parent="Spike Traps" unique_id=1510477628 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.15028822, -0.9886422, 0, 0.9886422, 0.15028822, 3688.0881, 158.70335, -1370.3594)
+size = 8.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip20" parent="Spike Traps" unique_id=569822139 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.266389, -0.9638656, 0, 0.9638656, 0.266389, 3688.0881, 182.48122, -1373.7838)
+size = 8.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip21" parent="Spike Traps" unique_id=1313892045 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.266389, -0.9638656, 0, 0.9638656, 0.266389, 3688.0881, 206.57785, -1380.4435)
+size = 8.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip22" parent="Spike Traps" unique_id=1974343113 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.266389, -0.9638656, 0, 0.9638656, 0.266389, 3688.0881, 227.85059, -1382.3052)
+size = 8.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip6" parent="Spike Traps" unique_id=485543881 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 0.15028822, -0.9886422, 0, 0.9886422, 0.15028822, 3760.0881, 110.281586, -1362.4576)
+size = 5.0
+hide_base_plate = true
+disable_base_collision = true
+stay_up = true
+
+[node name="SpikeStrip4" parent="Spike Traps" unique_id=100521982 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.8295047, 0.5570873, 0.03969054, 0.0088705, -0.08419889, 0.9964094, 0.55842906, -0.82617444, -0.074785, 4258.9697, 86.636444, -3077.4097)
+size = 5.0
+stay_up = true
+
+[node name="SpikeStrip23" parent="Spike Traps" unique_id=1654648052 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.8295047, 0.5570873, 0.03969054, 0.0088705, -0.08419889, 0.9964094, 0.55842906, -0.82617444, -0.074785, 4259.565, 101.58259, -3078.5315)
+size = 5.0
+stay_up = true
+
+[node name="SpikeStrip5" parent="Spike Traps" unique_id=959401260 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.61157835, 0.79018754, 0.039690536, 0.03496256, -0.07710875, 0.9964094, 0.7904109, -0.6079949, -0.074785, 4249.1777, 86.10284, -3089.7163)
+size = 5.0
+stay_up = true
+
+[node name="SpikeStrip24" parent="Spike Traps" unique_id=243485171 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.5193102, 0.8536635, 0.03969053, 0.04337189, -0.07271189, 0.9964094, 0.8534844, -0.5157242, -0.074785, 4249.7334, 100.05257, -3090.7632)
+size = 5.0
+stay_up = true
+
+[node name="SpikeStrip25" parent="Spike Traps" unique_id=183437884 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.62242717, 0.7816705, 0.03969054, 0.033894885, -0.077584, 0.9964094, 0.7819433, -0.61884725, -0.07478501, 4258.414, 72.686714, -3076.3628)
+size = 5.0
+stay_up = true
+
+[node name="SpikeStrip26" parent="Spike Traps" unique_id=1614319245 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.6686613, 0.74250686, 0.039690536, 0.029130055, -0.07949579, 0.99640936, 0.74299616, -0.6651045, -0.074785, 4258.0396, 57.707245, -3075.568)
+size = 5.0
+stay_up = true
+
+[node name="SpikeStrip27" parent="Spike Traps" unique_id=1236773994 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4740.978, 134.35922, -2581.9465)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip28" parent="Spike Traps" unique_id=2121341364 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4746.978, 134.35922, -2581.9465)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip29" parent="Spike Traps" unique_id=1631452152 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4752.978, 134.35922, -2581.9465)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip30" parent="Spike Traps" unique_id=839851129 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4758.978, 134.35922, -2581.9465)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip31" parent="Spike Traps" unique_id=2013010336 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3178.1245, -5.0033207, -4646.2314)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip32" parent="Spike Traps" unique_id=1795510998 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3184.1245, -4.901016, -4646.2314)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip33" parent="Spike Traps" unique_id=1771101963 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3190.1245, -4.9010143, -4646.2314)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip34" parent="Spike Traps" unique_id=1506134388 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3196.1245, -4.905546, -4646.2314)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip35" parent="Spike Traps" unique_id=376211096 instance=ExtResource("50_eupwc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3202.1245, -4.905546, -4646.2314)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip36" parent="Spike Traps" unique_id=807958054 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.9390804, 0, 0.34369764, 0, 1, 0, -0.34369764, 0, 0.9390804, 3077.9211, -5.0033236, -4908.693)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip37" parent="Spike Traps" unique_id=683106852 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.9390804, 0, 0.34369764, 0, 1, 0, -0.34369764, 0, 0.9390804, 3083.5557, -4.901019, -4910.755)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip38" parent="Spike Traps" unique_id=409127770 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.9390804, 0, 0.34369764, 0, 1, 0, -0.34369764, 0, 0.9390804, 3089.1902, -4.901017, -4912.8174)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip41" parent="Spike Traps" unique_id=569884948 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.9641697, 0, 0.2652864, 0, 1, 0, -0.2652864, 0, 0.9641697, 3052.6687, -4.901023, -5092.7603)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip42" parent="Spike Traps" unique_id=47662243 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.9641697, 0, 0.2652864, 0, 1, 0, -0.2652864, 0, 0.9641697, 3058.4536, -4.901021, -5094.352)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip43" parent="Spike Traps" unique_id=1376853508 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.9641697, 0, 0.2652864, 0, 1, 0, -0.2652864, 0, 0.9641697, 3064.2385, -4.905553, -5095.944)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip45" parent="Spike Traps" unique_id=632107925 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.8845685, 0, 0.46641022, 0, 1, 0, -0.46641022, 0, 0.8845685, 2972.1396, -4.901023, -5243.677)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip46" parent="Spike Traps" unique_id=270422382 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.8845685, 0, 0.46641022, 0, 1, 0, -0.46641022, 0, 0.8845685, 2977.447, -4.901021, -5246.475)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip47" parent="Spike Traps" unique_id=1127594958 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.8845685, 0, 0.46641022, 0, 1, 0, -0.46641022, 0, 0.8845685, 2982.7542, -4.905553, -5249.2734)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip48" parent="Spike Traps" unique_id=259429922 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.9995231, 0, 0.03088373, 0, 1, 0, -0.03088373, 0, 0.9995231, 2913.7854, -4.901023, -5422.3525)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip49" parent="Spike Traps" unique_id=1745107512 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.9995231, 0, 0.03088373, 0, 1, 0, -0.03088373, 0, 0.9995231, 2919.7825, -4.901021, -5422.5376)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="SpikeStrip50" parent="Spike Traps" unique_id=1012816876 instance=ExtResource("50_eupwc")]
+transform = Transform3D(0.9995231, 0, 0.03088373, 0, 1, 0, -0.03088373, 0, 0.9995231, 2925.7793, -4.905553, -5422.723)
+size = 1.5
+disable_base_collision = true
+down_loop_duration = 0.2
+up_loop_duration = 1.5
+up_transition_duration = 0.5
+
+[node name="AdventureDeepPool" parent="." unique_id=1883007199 instance=ExtResource("50_ksg7d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4163.824, -23.771, -2674.542)
+size = Vector3(12000, 600, 12000)
+water_color = Color(0.6324742, 0.83718497, 0.9958622, 1)
+transparency = 0.92
+wave_opacity = 0.87
+highlight_threshold = 0.59
+highlight_softness = 0.381
+view_angle_strength = 0.11
+refraction_strength = 0.087
+depth_color = Color(0.115870066, 0.21797928, 0.5510349, 1)
+depth_visibility_distance = 720.1
+depth_strength = 1.79
+caustic_max_distance = 400.0
+caustic_distance_fade = 150.0
+
+[node name="AdventureDeepPool2" parent="." unique_id=801744506 instance=ExtResource("50_ksg7d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4542.677, -5.58227, -3371.242)
+size = Vector3(78.565, 50, 50.58)
+water_color = Color(0.6324742, 0.83718497, 0.9958622, 1)
+transparency = 0.92
+wave_opacity = 0.87
+highlight_threshold = 0.59
+highlight_softness = 0.381
+view_angle_strength = 0.11
+refraction_strength = 0.087
+depth_color = Color(0.115870066, 0.21797928, 0.5510349, 1)
+depth_visibility_distance = 720.1
+depth_strength = 1.79
+caustic_max_distance = 400.0
+caustic_distance_fade = 150.0
+
 [editable path="Checkpoint4"]
-
 [editable path="Checkpoint4/Checkpoint"]
-
 [editable path="DeathPlane4"]
-
 [editable path="DeathPlane"]
-
 [editable path="DeathPlane3"]
-
 [editable path="DeathPlane5"]
-
 [editable path="RaceStartGHO"]
-
 [editable path="RaceGoalGHO"]
-
 [editable path="RaceGoalGHO/GoalModel"]
-
 [editable path="RaceGoalGHO/GoalModel/GoalRing2"]
-
 [editable path="Checkpoint3"]
-
 [editable path="AutomationSpline3"]
-
 [editable path="Checkpoint6"]
-
 [editable path="JumpPanelRamp7"]
-
+[editable path="JumpPanelRamp7/Ramp"]
 [editable path="Checkpoint7"]
-
 [editable path="Spring30"]
-
 [editable path="Spring31"]
-
 [editable path="Spring21"]
-
 [editable path="Spring"]
-
 [editable path="Spring2"]
-
 [editable path="Spring3"]
-
 [editable path="Spring4"]
-
 [editable path="Spring5"]
-
 [editable path="Spring6"]
-
 [editable path="JumpPanelRamp2"]
-
+[editable path="JumpPanelRamp2/Ramp"]
 [editable path="JumpPanelRamp8"]
-
+[editable path="JumpPanelRamp8/Ramp"]
 [editable path="JumpPanelRamp9"]
-
+[editable path="JumpPanelRamp9/Ramp"]
 [editable path="CameraConstraint2"]
-
 [editable path="CameraOverrideVolume"]
-
 [editable path="CameraConstraint3"]
-
 [editable path="CameraOverrideVolume2"]
-
 [editable path="CameraConstraint4"]
-
 [editable path="AutomationSpline2"]
-
 [editable path="CameraConstraint"]
-
 [editable path="Lights/EnvironmentWeatherSystem"]
-
 [editable path="Rail"]
-
 [editable path="Rail2"]
-
 [editable path="Rail3"]
-
 [editable path="Rail4"]
-
 [editable path="Rail5"]
-
 [editable path="Checkpoint"]
-
 [editable path="DeathPlane2"]
-
 [editable path="JumpPanelRamp10"]
-
+[editable path="JumpPanelRamp10/Ramp"]
 [editable path="RingSpline"]
-
 [editable path="RingSpline6"]
-
 [editable path="RingSpline9"]
-
 [editable path="RingSpline7"]
-
 [editable path="RingSpline8"]
-
 [editable path="RingSpline5"]
-
 [editable path="RingSpline2"]
-
 [editable path="RingSpline3"]
-
 [editable path="RingSpline4"]
-
 [editable path="DashPanel36"]
-
 [editable path="DashPanel36/Mesh/DashPanelMesh"]
-
 [editable path="DashPanel36/Mesh/DashPanelMesh/DashPanel"]
-
 [editable path="Rail6"]
-
 [editable path="Rail7"]
-
 [editable path="AutomationSpline4"]
-
 [editable path="CameraConstraint5"]
-
 [editable path="VaultBar"]
-
 [editable path="RingSpline10"]
-
 [editable path="RingSpline11"]
-
 [editable path="RingSpline12"]

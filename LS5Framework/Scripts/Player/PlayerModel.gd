@@ -10,6 +10,36 @@ var _owner: Node = null
 
 var _attribute_material_sources: Array[Dictionary] = []
 
+## Model root masked by character-wide blink visibility.
+var _blink_root: Node3D
+var _blink_root_visible: bool = true
+var _blink_visible: bool = true
+
+func set_character_blink_visible(value: bool) -> void:
+	var root: Node3D = _owner.model_root
+	if root != _blink_root:
+		_blink_root = root
+		_blink_root_visible = root.visible if root else true
+	if is_instance_valid(root):
+		if not value:
+			if _blink_visible:
+				_blink_root_visible = root.visible
+			root.visible = false
+		elif not _blink_visible:
+			root.visible = _blink_root_visible
+	_blink_visible = value
+	apply_jump_ball_visibility()
+
+func apply_jump_ball_visibility() -> void:
+	var ball: Node = _owner.jump_ball
+	if not is_instance_valid(ball):
+		return
+	if ball.has_method("set_visibility_gate"):
+		ball.call("set_visibility_gate", _blink_visible)
+	elif not _blink_visible and ball is Node3D:
+		(ball as Node3D).visible = false
+
+
 func restore_character_shader_attributes() -> void:
 	for entry: Dictionary in _attribute_material_sources:
 		if entry.has("eye_controller"):

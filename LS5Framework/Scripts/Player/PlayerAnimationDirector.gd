@@ -38,6 +38,10 @@ var _flushing: bool = false
 var _resetting: bool = false
 var _last_rejection: Dictionary = {}
 var _last_dispatch: Dictionary = {}
+## Animation source with player method tracks bound to the current hierarchy.
+var _method_animation_player: AnimationPlayer
+## Root used to resolve animation method tracks.
+var _method_animation_root: Node
 ## Animation source and audio targets owned by the debug preview session.
 var _debug_player: AnimationPlayer
 var _debug_library: AnimationLibrary
@@ -66,6 +70,8 @@ func dispose() -> void:
 	_motion.dispose()
 	_presentation.dispose()
 	_overlays.dispose()
+	_method_animation_player = null
+	_method_animation_root = null
 	_owner = null
 
 
@@ -406,9 +412,65 @@ func is_remote_playback() -> bool:
 
 
 func configure_tree() -> void:
+	_bind_player_method_tracks()
 	if _presentation.is_enabled():
 		_owner.anim_tree.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 		_owner.anim_tree.callback_mode_method = AnimationMixer.ANIMATION_CALLBACK_MODE_METHOD_IMMEDIATE
+
+
+func _bind_player_method_tracks() -> void:
+	var tree: AnimationTree = _owner.anim_tree
+	if not tree or tree.anim_player.is_empty():
+		return
+	var player: AnimationPlayer = tree.get_node_or_null(tree.anim_player) as AnimationPlayer
+	var root: Node = tree.get_node_or_null(tree.root_node)
+	if not player or not root or (player == _method_animation_player and root == _method_animation_root):
+		return
+	_method_animation_player = player
+	_method_animation_root = root
+	var player_path: NodePath = root.get_path_to(_owner)
+	for library_name: StringName in player.get_animation_library_list():
+		var source: AnimationLibrary = player.get_animation_library(library_name)
+		var library: AnimationLibrary
+		for animation_name: StringName in source.get_animation_list():
+			var clip: Animation = source.get_animation(animation_name)
+			var replacement: Animation
+			for track: int in clip.get_track_count():
+				if not _is_misplaced_player_method_track(clip, track, root):
+					continue
+				if not replacement:
+					replacement = clip.duplicate(false) as Animation
+				replacement.track_set_path(track, player_path)
+			if replacement:
+				if not library:
+					library = source.duplicate(false) as AnimationLibrary
+				library.remove_animation(animation_name)
+				library.add_animation(animation_name, replacement)
+		if library:
+			player.remove_animation_library(library_name)
+			player.add_animation_library(library_name, library)
+			if tree.has_animation_library(library_name):
+				tree.remove_animation_library(library_name)
+			tree.add_animation_library(library_name, library)
+
+
+func _is_misplaced_player_method_track(clip: Animation, track: int, root: Node) -> bool:
+	if clip.track_get_type(track) != Animation.TYPE_METHOD or not clip.track_get_key_count(track):
+		return false
+	var path: NodePath = clip.track_get_path(track)
+	if path.is_absolute() or path.get_subname_count():
+		return false
+	for part: String in String(path).split("/", false):
+		if part not in [".", ".."]:
+			return false
+	var target: Node = root.get_node_or_null(path)
+	if target == _owner:
+		return false
+	for key: int in clip.track_get_key_count(track):
+		var method: StringName = clip.method_track_get_name(track, key)
+		if not _owner.has_method(method) or (target and target.has_method(method)):
+			return false
+	return true
 
 
 func get_current_state() -> StringName:

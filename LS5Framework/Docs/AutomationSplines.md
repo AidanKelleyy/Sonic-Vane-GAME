@@ -166,3 +166,12 @@ Phase 4 verifies Niko Test and Green Hill Canyon fixture geometry, both depth pr
 Phase 5 adds editor/authoring checks and rendered overlay checks at 640×360, 1280×720, and 2560×1080. The actual editor dock and gizmos are also rendered in an isolated project. The migrated placements and Skyway joins are covered by phase 6 checks.
 
 Phase 6 also instantiates all seven complete level scenes and verifies 2,428 unrelated nodes and 1,105 unrelated resources against the pre-migration copies. Niko Test retains 26 pre-existing surface-array assignment diagnostics, reproduced on its pre-migration scene. Full manual gameplay traversal has not been performed.
+
+
+## Propulsion and query performance fixes (2026-10-30)
+
+Active automatic propulsion bypasses the normal no-input slope hold and sticky idle stop. Movement locks still respect the configured braking permission; ignored pullback input cannot suppress propulsion. Assist mode continues to require input, and explicit zero influence still disables its channel. Scripted Run endpoint ramps now affect steering and position only; propulsion retains its timed entry blend so a stationary player can leave the exact entrance.
+
+The sampler caches world-space bounds for blocks of 32 baked segments. Searches seed the nearest block, then reject blocks whose spatial lower bound exceeds the current candidate score. Connected arc windows, heading/continuity scoring, projected tracking, and full recovery retain their existing rules. Bounds rebuild with the route cache after geometry or transform changes. Area-crossing gates skip entry sweeps when already occupied or when initializing crossing state.
+
+The focused regression and before/after Skyway benchmark is `LS5Engine3_CodexFiles/AutomationSplines/propulsion_perf_checks.tscn`. Its comparison sampler is a frozen development fixture. Query microbenchmarks do not measure rendered gameplay FPS.

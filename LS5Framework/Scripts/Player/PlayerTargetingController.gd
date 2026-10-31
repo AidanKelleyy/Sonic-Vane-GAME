@@ -5,6 +5,7 @@ const CharacterActionType = preload("res://LS5Framework/Scripts/Player/character
 
 # Homing, attack magnetism, and lightspeed-dash target resolution.
 var _owner: Node = null
+var _lightspeed_terrain_offset: Vector3 = Vector3.ZERO
 var _lightspeed_obstruction_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
 var _lightspeed_obstruction_exclusions: Array[RID] = []
 
@@ -1357,6 +1358,7 @@ func _try_start_lightspeed_dash() -> bool:
 		return false
 	_stop_lightspeed_dash_if_active(false)
 	p._lightspeed_dash_active = true
+	_lightspeed_terrain_offset = Vector3.ZERO
 	p._lightspeed_dash_target = target
 	p._lightspeed_dash_prev_ring = null
 	p._lightspeed_dash_timer = 0.0
@@ -1625,6 +1627,7 @@ func _find_best_lightspeed_ring(origin: Vector3, max_radius: float, forward_bias
 
 
 func _advance_lightspeed_dash_target() -> bool:
+	_lightspeed_terrain_offset = Vector3.ZERO
 	var p = _owner
 	var exclude_instance_id: int = 0
 	if p._lightspeed_dash_target != null and is_instance_valid(p._lightspeed_dash_target):
@@ -1659,7 +1662,7 @@ func _update_lightspeed_dash(_delta: float, _physics_up: Vector3) -> void:
 				_end_lightspeed_dash(true, false)
 				return
 
-	var target_pos: Vector3 = p._lightspeed_dash_target.global_position
+	var target_pos: Vector3 = p._lightspeed_dash_target.global_position + _lightspeed_terrain_offset
 	var to_target: Vector3 = target_pos - p.global_position
 	var dist: float = to_target.length()
 	var dir: Vector3
@@ -1673,9 +1676,10 @@ func _update_lightspeed_dash(_delta: float, _physics_up: Vector3) -> void:
 		dir = Vector3.FORWARD
 
 	# Set velocity for move_and_slide to handle position and collision
-	p.velocity = dir * p._lightspeed_dash_speed
+	var travel_speed: float = minf(p._lightspeed_dash_speed, dist / _delta) if _delta > 0.0 else p._lightspeed_dash_speed
+	p.velocity = dir * travel_speed
 	p._lightspeed_dash_last_dir = dir
-	p._lightspeed_dash_release_velocity = p.velocity
+	p._lightspeed_dash_release_velocity = dir * p._lightspeed_dash_speed
 
 	# Keep state flags consistent
 	p.attached = false
@@ -1690,13 +1694,21 @@ func _post_move_lightspeed_dash(_delta: float) -> void:
 	if not p._lightspeed_dash_active:
 		return
 
+	for collision: KinematicCollision3D in p._get_movement_slide_collisions():
+		for contact: int in collision.get_collision_count():
+			var normal: Vector3 = collision.get_normal(contact)
+			if p._lightspeed_dash_last_dir.dot(normal) >= -0.01:
+				continue
+			if not try_correct_lightspeed_terrain_contact(normal, collision.get_position(contact)):
+				_end_lightspeed_dash(true, false)
+				return
+
 	# After move_and_slide, check if we reached the current ring
 	if p._lightspeed_dash_target != null and is_instance_valid(p._lightspeed_dash_target):
 		var distance_to_target: float = p.global_position.distance_to(p._lightspeed_dash_target.global_position)
 		var collect_dist: float = max(p.lightspeed_dash_collect_distance, 0.05)
 		if distance_to_target <= collect_dist:
-			# Snap to ring position and try to advance
-			p.global_position = p._lightspeed_dash_target.global_position
+			# Advance without placing the collision shape inside nearby terrain.
 			if not _advance_lightspeed_dash_target():
 				_end_lightspeed_dash(true, true)
 				return
@@ -1707,11 +1719,37 @@ func _post_move_lightspeed_dash(_delta: float) -> void:
 			_end_lightspeed_dash(true, true)
 
 
+func try_correct_lightspeed_terrain_contact(normal: Vector3, point: Vector3) -> bool:
+	var p = _owner
+	if not p._lightspeed_dash_active or not is_instance_valid(p._lightspeed_dash_target):
+		return false
+	if -p._lightspeed_dash_last_dir.dot(normal) > 0.65:
+		return false
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(p.global_position, p._lightspeed_dash_target.global_position, p.collision_mask)
+	query.exclude = [p.get_rid()]
+	query.hit_from_inside = true
+	if p.get_world_3d().direct_space_state.intersect_ray(query):
+		return false
+	var clearance: float = maxf(p.collision_ground_distance, 0.05)
+	if p.main_collision_shape and p.main_collision_shape.shape is SphereShape3D:
+		var shape_scale: Vector3 = p.main_collision_shape.global_basis.get_scale().abs()
+		clearance = p.main_collision_shape.shape.radius * maxf(shape_scale.x, maxf(shape_scale.y, shape_scale.z))
+	clearance += p.safe_margin * 2.0 + 0.02
+	var target: Vector3 = p._lightspeed_dash_target.global_position + _lightspeed_terrain_offset
+	var correction: float = maxf(clearance - (target - point).dot(normal), 0.0)
+	var offset: Vector3 = _lightspeed_terrain_offset + normal * correction
+	if offset.length() > maxf(p.lightspeed_dash_collect_distance, 0.05) * 0.95:
+		return false
+	_lightspeed_terrain_offset = offset
+	return true
+
+
 func _end_lightspeed_dash(apply_release_velocity: bool, try_attach: bool = false) -> void:
 	var p = _owner
 	if not p._lightspeed_dash_active:
 		return
 	p._lightspeed_dash_active = false
+	_lightspeed_terrain_offset = Vector3.ZERO
 	p._lightspeed_dash_target = null
 	p._lightspeed_dash_prev_ring = null
 	p._lightspeed_raycast_cache.clear()  # Clear raycast cache when dash ends

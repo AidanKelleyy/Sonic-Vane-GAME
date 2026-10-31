@@ -9,8 +9,8 @@ class MarkerReader extends SpeedAfterImageController:
 			var pair: PackedStringArray = item.split("=", true, 1)
 			if pair.size() != 2:
 				continue
-			if pair[0] == "enabled":
-				result.enabled = pair[1].to_lower() in ["true", "1", "on"]
+			if pair[0].strip_edges().to_lower() == "enabled":
+				result.enabled = pair[1].strip_edges().to_lower() in ["true", "1", "on"]
 			elif pair[0] == "shear" and pair[1].is_valid_float():
 				result.shear = pair[1].to_float()
 		return result
@@ -101,10 +101,12 @@ func notify_rebound() -> void:
 
 func _process(delta: float) -> void:
 	var settings: Dictionary = {}
+	var disabled: bool = false
 	for route: Dictionary in _reader._activation_routes:
 		if _reader._is_route_active(route):
+			disabled = disabled or not bool(route.settings.get("enabled", true))
 			settings.merge(route.settings, true)
-	var active: bool = not settings.is_empty() and bool(settings.get("enabled", true)) and not _player._is_dead and not _player._hurt_active
+	var active: bool = not disabled and not settings.is_empty() and bool(settings.get("enabled", true)) and not _player._is_dead and not _player._hurt_active
 	if active and not _active:
 		_reset_flicker()
 		for visual: GeometryInstance3D in _character_meshes:

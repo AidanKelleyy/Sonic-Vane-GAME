@@ -317,7 +317,7 @@ func has_automatic_drive() -> bool:
 		return false
 	var sample: AutomationSample = _sample()
 	var context: Dictionary = _active_context()
-	return not component.allow_braking or _mapped_intent().dot(sample.tangent * (1.0 if component.canonical_direction else float(context.session.direction))) >= -0.1
+	return not _drive_braking_allowed(component) or _mapped_intent().dot(sample.tangent * (1.0 if component.canonical_direction else float(context.session.direction))) >= -0.1
 
 
 func apply_velocity(velocity: Vector3, up: Vector3, delta: float) -> Vector3:
@@ -382,7 +382,7 @@ func apply_velocity(velocity: Vector3, up: Vector3, delta: float) -> Vector3:
 				continue
 			if speed.mode == AutomationSpeedTrait.Mode.ASSIST:
 				step *= clampf(absf(intent), 0.0, 1.0)
-			if speed.mode == AutomationSpeedTrait.Mode.PROPULSION and speed.allow_braking and _mapped_intent().dot(travel) < -0.1:
+			if speed.mode == AutomationSpeedTrait.Mode.PROPULSION and _drive_braking_allowed(speed) and _mapped_intent().dot(travel) < -0.1:
 				continue
 			var gain: float = minf(maxf(target - along * drive_sign, 0.0), step)
 			lateral += tangent * drive_sign * gain
@@ -654,3 +654,8 @@ func canonical_heading(up: Vector3) -> Vector3:
 	if uses_native_integration() and component and component.canonical_direction and component.strength >= 0.999 and sample and _weight(1) > 0.0:
 		return sample.tangent.slide(_up(up)).normalized()
 	return Vector3.ZERO
+
+
+func _drive_braking_allowed(component: AutomationSpeedTrait) -> bool:
+	var policy: AutomationInputTrait = _trait("input", AutomationInputTrait.Mode.PERMISSIONS) as AutomationInputTrait
+	return component.allow_braking and (not policy or not _policy_engaged or not policy.block_movement or policy.allow_braking)

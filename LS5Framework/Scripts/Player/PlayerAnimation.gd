@@ -162,7 +162,7 @@ func _prepare_network_puppet_tree(tree: AnimationTree) -> void:
 	_network_puppet_tree_id = tree.get_instance_id()
 	if tree.tree_root:
 		_network_authority_tree_root = tree.tree_root
-		tree.tree_root = tree.tree_root.duplicate(true) as AnimationRootNode
+		tree.tree_root = tree.tree_root.duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as AnimationRootNode
 		_disable_network_auto_transitions(tree.tree_root)
 	_invalidate_animation_cache()
 	_network_tree_id = 0

@@ -10,10 +10,9 @@
 [ext_resource type="Material" path="res://LS5Framework/Characters/Sonic Neo Adventure/Materials/FootAfterImage.tres" id="8_wheel_mat"]
 [ext_resource type="Texture2D" uid="uid://utth2bo1ym42" path="res://LS5Framework/Characters/Sonic Neo Adventure/Sonic_NeoAdventure_Foot_AfterImage_Red.png" id="9_wheel_tex"]
 [ext_resource type="Texture2D" uid="uid://dhh0qohlugdg1" path="res://LS5Framework/Characters/Sonic Neo Adventure/Foot_AfterImage_Mask.png" id="10_wheel_mask"]
-
-[ext_resource type="Material" path="res://LS5Framework/Characters/Sonic Neo Adventure/Materials/ANVIL_EXPORT_Material_11.tres" id="11_spin_mat"]
-[ext_resource type="Texture2D" path="res://LS5Framework/Characters/Sonic Neo Adventure/Sonic_NeoAdventure_Sonic_Spin.png" id="12_spin_tex"]
-[ext_resource type="Texture2D" path="res://LS5Framework/Characters/Sonic Neo Adventure/Sonic_Spin_Mask.png" id="13_spin_mask"]
+[ext_resource type="Material" uid="uid://bthpelsb7wo6" path="res://LS5Framework/Characters/Sonic Neo Adventure/Materials/ANVIL_EXPORT_Material_11.tres" id="11_spin_mat"]
+[ext_resource type="Texture2D" uid="uid://cultmuji77jxi" path="res://LS5Framework/Characters/Sonic Neo Adventure/Sonic_NeoAdventure_Sonic_Spin.png" id="12_spin_tex"]
+[ext_resource type="Texture2D" uid="uid://kxuwxs0ri44l" path="res://LS5Framework/Characters/Sonic Neo Adventure/Sonic_Spin_Mask.png" id="13_spin_mask"]
 
 [sub_resource type="Resource" id="CharacterColorMaterialEntry_fur"]
 script = ExtResource("7_entry")

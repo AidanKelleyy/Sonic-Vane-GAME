@@ -306,7 +306,7 @@ func _process(delta: float) -> void:
 	_fps_counter_update_time -= delta
 	if _fps_counter_update_time > 0.0:
 		return
-	_fps_counter_update_time = 0.25
+	_fps_counter_update_time = 0.2
 	_fps_counter_label.text = "%d FPS" % Engine.get_frames_per_second()
 
 

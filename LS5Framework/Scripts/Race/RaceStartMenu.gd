@@ -65,11 +65,15 @@ func _ready() -> void:
 	call_deferred("_focus_default_control")
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event == null:
+	if not event or event.is_echo() or is_queued_for_deletion():
 		return
 	if _ghost_dialog != null and is_instance_valid(_ghost_dialog):
 		return
-	var cancel_pressed: bool = event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause")
+	if event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_START:
+		get_viewport().set_input_as_handled()
+		_on_start_pressed()
+		return
+	var cancel_pressed: bool = event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(&"UI_back")
 	if not cancel_pressed and event is InputEventKey:
 		var key := event as InputEventKey
 		cancel_pressed = key.pressed and key.keycode == Key.KEY_ESCAPE
@@ -401,4 +405,4 @@ func _menu_navigation_scope() -> Dictionary:
 	var scope_root: Control = get_node("Root/Panel")
 	if not scope_root or not scope_root.is_visible_in_tree():
 		return {}
-	return {"root": scope_root, "page": ""}
+	return {"root": scope_root, "page": "", "default": button_start}
