@@ -338,6 +338,7 @@ func _set_hud_visible(value: bool) -> void:
 
 
 func _ready() -> void:
+	_wire_audio_controls()
 	if not button_options_back.pressed.is_connected(_on_ButtonOptionsBack_pressed):
 		button_options_back.pressed.connect(_on_ButtonOptionsBack_pressed)
 	MenuNavigation.register_menu(self, _menu_navigation_scope)
@@ -2288,6 +2289,20 @@ func _on_CheckWaterNormals_toggled(_pressed: bool) -> void:
 
 func _on_CheckWaterDepthFx_toggled(_pressed: bool) -> void:
 	pass
+
+
+func _wire_audio_controls() -> void:
+	var bindings: Dictionary[Range, Callable] = {
+		slider_master: _on_SliderMaster_value_changed,
+		slider_music: _on_SliderMusic_value_changed,
+		slider_sfx: _on_SliderSfx_value_changed,
+		slider_ui: _on_SliderUi_value_changed,
+		slider_voice: _on_SliderVoice_value_changed,
+	}
+	for control: Range in bindings:
+		var callback: Callable = bindings[control]
+		if not control.value_changed.is_connected(callback):
+			control.value_changed.connect(callback)
 
 
 func _on_SliderMaster_value_changed(value: float) -> void:

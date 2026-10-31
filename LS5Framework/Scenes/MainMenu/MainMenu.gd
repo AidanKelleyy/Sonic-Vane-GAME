@@ -309,6 +309,7 @@ func _ready() -> void:
 		set_process_input(false)
 		set_process_unhandled_input(false)
 		return
+	_wire_audio_controls()
 	if not button_options_back.pressed.is_connected(_on_ButtonOptionsBack_pressed):
 		button_options_back.pressed.connect(_on_ButtonOptionsBack_pressed)
 	tab_bindings.loadout_mapping_requested.connect(_on_loadout_mapping_requested)
@@ -2470,6 +2471,20 @@ func _on_CheckWaterDepthFx_toggled(_pressed: bool) -> void:
 	pass
 
 # --- Audio slider callbacks (hook via editor) ---
+func _wire_audio_controls() -> void:
+	var bindings: Dictionary[Range, Callable] = {
+		slider_master: _on_SliderMaster_value_changed,
+		slider_music: _on_SliderMusic_value_changed,
+		slider_sfx: _on_SliderSfx_value_changed,
+		slider_ui: _on_SliderUi_value_changed,
+		slider_voice: _on_SliderVoice_value_changed,
+	}
+	for control: Range in bindings:
+		var callback: Callable = bindings[control]
+		if not control.value_changed.is_connected(callback):
+			control.value_changed.connect(callback)
+
+
 func _on_SliderMaster_value_changed(value: float) -> void:
 	SettingsManager.set_master_volume_percent(value)
 	SettingsManager.save_now()

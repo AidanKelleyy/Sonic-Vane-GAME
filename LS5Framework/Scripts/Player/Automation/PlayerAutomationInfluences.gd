@@ -354,8 +354,11 @@ func apply_velocity(velocity: Vector3, up: Vector3, delta: float) -> Vector3:
 			error = (sample.position - body.global_position).slide(up)
 			var distance: float = error.length()
 			var range_weight: float = clampf(1.0 - distance / position.attraction_radius, 0.0, 1.0) if position.attraction_radius > 0.0 else 1.0
-			var strength: float = maxf(position.attraction_acceleration + velocity.length() * position.attraction_per_speed, 0.0)
-			strength *= 1.0 + lateral.length() * position.attraction_speed_scale
+			var along_speed: float = absf(velocity.dot(sample.tangent.normalized()))
+			var attraction_speed: float = along_speed if position.attraction_use_along_speed else velocity.length()
+			var multiplier_speed: float = along_speed if position.attraction_use_along_speed else lateral.length()
+			var strength: float = maxf(position.attraction_acceleration + attraction_speed * position.attraction_per_speed, 0.0)
+			strength *= 1.0 + multiplier_speed * position.attraction_speed_scale
 			lateral += error.normalized() * minf(strength * range_weight, position.max_acceleration) * delta * _weight(2)
 		elif error.length() > position.free_radius:
 			var acceleration: Vector3 = error.normalized() * (error.length() - position.free_radius) * position.spring_strength - lateral.slide(tangent) * position.damping

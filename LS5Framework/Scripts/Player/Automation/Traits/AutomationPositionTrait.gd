@@ -12,9 +12,11 @@ enum Obstruction { BLOCK, RELEASE }
 		notify_property_list_changed()
 ## Constant centering acceleration for Attraction mode.
 @export_range(0.0, 100000.0, 0.1) var attraction_acceleration: float = 0.0
-## Additional attraction acceleration per unit of total speed.
+## Additional attraction acceleration per speed unit. Uses along-spline speed when selected.
 @export_range(0.0, 1000.0, 0.01) var attraction_per_speed: float = 0.0
-## Multiplies attraction by one plus planar speed times this factor.
+## Uses absolute speed along the sampled spline tangent for both attraction speed terms. Disabled preserves total/planar speed scaling.
+@export var attraction_use_along_speed: bool = false
+## Multiplies attraction by one plus planar speed times this factor, or along-spline speed when selected.
 @export_range(0.0, 1.0, 0.001) var attraction_speed_scale: float = 0.0
 ## Attraction falls to zero at this projected distance. Zero disables range falloff.
 @export_range(0.0, 1000.0, 0.01) var attraction_radius: float = 0.0

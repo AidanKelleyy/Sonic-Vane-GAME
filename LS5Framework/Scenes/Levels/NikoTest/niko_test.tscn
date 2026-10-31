@@ -522,7 +522,7 @@ shader_parameter/tex_flat = ExtResource("42_4rehq")
 shader_parameter/tex_glow = ExtResource("43_jfrcj")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 17764.044
+shader_parameter/swap_time = 19404.494
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_ncnqb"]
 height = 8.0
@@ -535,7 +535,7 @@ shader_parameter/tex_flat = ExtResource("42_4rehq")
 shader_parameter/tex_glow = ExtResource("43_jfrcj")
 shader_parameter/swap_interval = 1.0
 shader_parameter/use_emission = true
-shader_parameter/swap_time = 17764.044
+shader_parameter/swap_time = 19404.494
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vrbq5"]
 bounce = 1.0
@@ -1164,13 +1164,14 @@ turn_rate = 350.0
 
 [sub_resource type="Resource" id="Resource_yft5e"]
 resource_local_to_scene = true
-resource_name = "Guided corridor"
+resource_name = "Speed-scaled spline attraction"
 script = ExtResource("phase6_AutomationPositionTrait")
-attraction_acceleration = 238.0
-attraction_per_speed = 2.38
-attraction_speed_scale = 0.004
-free_radius = 50.0
-max_acceleration = 29.0
+mode = 3
+attraction_acceleration = 8.0
+attraction_per_speed = 1.2
+attraction_use_along_speed = true
+attraction_radius = 30.0
+max_acceleration = 240.0
 
 [sub_resource type="Resource" id="Resource_e5sao"]
 resource_local_to_scene = true
@@ -5947,8 +5948,6 @@ shape = SubResource("BoxShape3D_oykjf")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.36105, -1.6759809, 320.49844)
 size = 2.0
 hidden_base_offset = 0.0
-stay_up = null
-base_plate_path = null
 
 [node name="SpikeStrip3" parent="." unique_id=968093186 instance=ExtResource("99_i48ms")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 194.36105, -1.6759809, 320.49844)
@@ -5963,8 +5962,6 @@ size = 2.0
 hide_base_plate = true
 disable_base_collision = true
 hidden_base_offset = 0.44
-stay_up = null
-base_plate_path = null
 
 [editable path="ENVIRONMENT/EnvironmentWeatherSystem"]
 [editable path="ENVIRONMENT/EnvironmentWeatherSystem/DayNightCycle"]
