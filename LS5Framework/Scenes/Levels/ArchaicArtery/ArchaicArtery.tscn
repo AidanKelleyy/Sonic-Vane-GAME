@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://ysdp8w626ts4"]
 
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Gameplay/SpawnPoint.tscn" id="1_dagco"]
-[ext_resource type="PackedScene" uid="uid://g4s2ptdjbioi" path="res://LS5Framework/Scenes/Levels/MyCoolLevel/prisonLevelMDL/prisonLevel.glb" id="1_t1bg2"]
+[ext_resource type="PackedScene" uid="uid://g4s2ptdjbioi" path="res://LS5Framework/Scenes/Levels/ArchaicArtery/ArchaicArteryMDL/ArchaicArtery.glb" id="1_t1bg2"]
 [ext_resource type="PackedScene" uid="uid://dpqdt82o1f57x" path="res://LS5Framework/Objects/Spring/Spring.tscn" id="3_bnxrr"]
 [ext_resource type="Script" uid="uid://buvn8yqlhmsl6" path="res://LS5Framework/Scripts/Audio/MusicController.gd" id="4_0glse"]
 [ext_resource type="AudioStream" uid="uid://dxavnsgfcvjbx" path="res://LS5Framework/Sounds/Music/ChrisSenn-EmeraldClouds.ogg" id="5_jn1ry"]
-[ext_resource type="PackedScene" uid="uid://dayucuvrdtq1v" path="res://LS5Framework/Scenes/Levels/MyCoolLevel/Aidan.tscn" id="6_5n3rl"]
+[ext_resource type="PackedScene" uid="uid://dayucuvrdtq1v" path="res://LS5Framework/Scenes/Levels/ArchaicArtery/Aidan.tscn" id="6_5n3rl"]
 [ext_resource type="PackedScene" uid="uid://e1tkwisehr5p" path="res://LS5Framework/Objects/DashPanels/DashPanel.tscn" id="6_g784r"]
+[ext_resource type="AudioStream" uid="uid://elembc46jp2k" path="res://LS5Framework/Sounds/Music/ArchaicArtery.ogg" id="6_qqmqe"]
 [ext_resource type="PackedScene" uid="uid://bucbdoyievjwl" path="res://LS5Framework/Objects/Race/RaceStart.tscn" id="7_7bd6w"]
-[ext_resource type="AudioStream" uid="uid://cpfhlp4dckfnh" path="res://LS5Framework/Sounds/Objects/Terminal_Idle.ogg" id="7_vitqo"]
 [ext_resource type="PackedScene" uid="uid://b2jkv0kca2k6q" path="res://LS5Framework/Objects/Rings/RingSpline.tscn" id="8_uqnmt"]
 [ext_resource type="PackedScene" uid="uid://bdltank6nne8b" path="res://LS5Framework/Objects/Rings/Ring.tscn" id="9_awlsv"]
 [ext_resource type="PackedScene" uid="uid://cyglqqs3uhsy0" path="res://LS5Framework/Objects/Camera/CameraConstraint.tscn" id="11_t0bcq"]
@@ -22,10 +22,12 @@
 [ext_resource type="Script" uid="uid://bbqjenpejk0mi" path="res://LS5Framework/Objects/ItemMonitor/ItemMonitorReward.gd" id="21_3qeqd"]
 [ext_resource type="PackedScene" uid="uid://bktxefyel8i42" path="res://LS5Framework/Objects/Race/RaceGoal.tscn" id="22_3qeqd"]
 [ext_resource type="PackedScene" path="res://LS5Framework/Objects/Water/Examples/Adventure_Deep_Pool.tscn" id="24_t1bg2"]
-[ext_resource type="LightmapGIData" uid="uid://csk6n5lwhjsmk" path="res://LS5Framework/Scenes/Levels/MyCoolLevel/sample_level.lmbake" id="25_otf76"]
+[ext_resource type="PackedScene" uid="uid://b6t3r2nak1q0p" path="res://LS5Framework/Objects/Terminal/Terminal.tscn" id="25_1jh0t"]
+[ext_resource type="LightmapGIData" uid="uid://csk6n5lwhjsmk" path="res://LS5Framework/Scenes/Levels/ArchaicArtery/sample_level.lmbake" id="25_otf76"]
 [ext_resource type="PackedScene" uid="uid://d1okvbdxqc08b" path="res://LS5Framework/Objects/VaultBar/VaultBar.tscn" id="25_qqmqe"]
+[ext_resource type="PackedScene" uid="uid://c6xyvqm8rq2k2" path="res://LS5Framework/Objects/Enemies/GroundedBlockout/GroundedEnemyBlockout.tscn" id="27_1jh0t"]
 
-[sub_resource type="Resource" id="Resource_q03af"]
+[sub_resource type="Resource" id="Resource_5eyg5"]
 resource_local_to_scene = true
 script = ExtResource("21_3qeqd")
 reward_type = 6
@@ -55,6 +57,13 @@ point_count = 2
 [sub_resource type="Curve3D" id="Curve3D_3qeqd"]
 _data = {
 "points": PackedVector3Array(10.190308, -21.097961, -9.302124, -10.190308, 21.097961, 9.302124, 49.42627, 14.796936, -79.578, 38.506897, 41.549988, -24.975586, -38.506897, -41.549988, 24.975586, -111.5058, 27.637451, -17.071533),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_t1bg2"]
+_data = {
+"points": PackedVector3Array(13.110962, 5.746399, -33.225952, -13.110962, -5.746399, 33.225952, 71.35242, 48.52246, -64.57068, -27.35022, -21.836426, -26.168335, 27.35022, 21.836426, 26.168335, 158.06421, 98.61774, 84.95593),
 "tilts": PackedFloat32Array(0, 0)
 }
 point_count = 2
@@ -212,6 +221,19 @@ adjustment_enabled = true
 adjustment_contrast = 1.14
 adjustment_saturation = 0.71
 
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_tx7g3"]
+resource_local_to_scene = true
+height = 7.559326
+radius = 6.484375
+
+[sub_resource type="Curve3D" id="Curve3D_5ftrs"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
 [node name="Node3D" type="Node3D" unique_id=374029068]
 
 [node name="PrisonLevel" parent="." unique_id=1930840756 instance=ExtResource("1_t1bg2")]
@@ -229,7 +251,9 @@ autoplay_fade_in = 0.1
 [node name="RaceStart" parent="." unique_id=1344341188 instance=ExtResource("7_7bd6w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5341644, -21.864407, 153.3855)
 ring_finish_goal_path = NodePath("../SetDressing/RaceGoal")
-go_music_stream = ExtResource("7_vitqo")
+go_music_stream = ExtResource("6_qqmqe")
+go_music_fade_in = 0.0
+go_music_play_on_go = true
 
 [node name="StartingLine" parent="RaceStart" index="2" unique_id=96905968]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.3374414, 23.153576, -152.90294)
@@ -244,7 +268,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.790627, -0.6456941, -7.418
 
 [node name="ItemMonitor" parent="SetDressing" unique_id=1395552001 instance=ExtResource("20_ee4q3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -246.97932, -55.652336, 1204.0725)
-rewards = Array[ExtResource("21_3qeqd")]([SubResource("Resource_q03af")])
+rewards = Array[ExtResource("21_3qeqd")]([SubResource("Resource_5eyg5")])
 
 [node name="RingSplines" type="Node3D" parent="SetDressing" unique_id=1639372671]
 
@@ -279,6 +303,14 @@ ring_respawn_delay = 30.0
 
 [node name="Path3D" parent="SetDressing/RingSplines/RingSpline4" index="0" unique_id=1617861900]
 curve = SubResource("Curve3D_3qeqd")
+
+[node name="RingSpline5" parent="SetDressing/RingSplines" unique_id=1225179457 instance=ExtResource("8_uqnmt")]
+transform = Transform3D(0.39388263, 0.7439007, 0.5398783, -0.72689736, 0.61158687, -0.312381, -0.5625629, -0.26939452, 0.7816329, -289.58392, -179.04642, 2092.524)
+ring_spacing = 12.0
+ring_respawn_delay = 30.0
+
+[node name="Path3D" parent="SetDressing/RingSplines/RingSpline5" index="0" unique_id=1617861900]
+curve = SubResource("Curve3D_t1bg2")
 
 [node name="ringies" type="Node3D" parent="SetDressing/RingSplines" unique_id=1490230839]
 
@@ -448,6 +480,10 @@ strength = 160.0
 transform = Transform3D(0.016692132, 0.86973804, 0.4932309, -0.09848318, -0.48947096, 0.86644024, 0.99499905, -0.06303787, 0.07748437, -730.00806, -50.547905, 1217.3993)
 strength = 250.0
 
+[node name="Spring14" parent="SetDressing/Springs" unique_id=646031025 instance=ExtResource("3_bnxrr")]
+transform = Transform3D(-0.4605462, 0.7794345, -0.42471075, 0.011372577, 0.48361617, 0.8752057, 0.88756317, 0.3982426, -0.23159172, -1059.6818, -99.2812, 854.66565)
+strength = 150.0
+
 [node name="Spring3" parent="SetDressing/Springs" unique_id=832322294 instance=ExtResource("3_bnxrr")]
 transform = Transform3D(0.007929019, -0.9870388, 0.16028553, 0.009783424, 0.16035967, 0.9870097, -0.99992096, -0.0062578465, 0.010928011, -1160.9059, -249.83766, 858.8721)
 strength = 250.0
@@ -534,6 +570,11 @@ stop_momentum = false
 
 [node name="CollisionShape3D" parent="SetDressing/DashPanel5" index="0" unique_id=1646361553]
 shape = SubResource("BoxShape3D_61rmn")
+
+[node name="DashPanel6" parent="SetDressing" unique_id=203726551 instance=ExtResource("6_g784r")]
+transform = Transform3D(1.856726e-07, 0.011272728, 1.4349556, -2.4944322e-08, 1.4349555, -0.011272728, -1.435, -2.3484983e-08, 1.8586282e-07, -922.24304, -70.216095, 960.5226)
+strength = 200.0
+stop_momentum = false
 
 [node name="JumpPanelRamp" parent="SetDressing" unique_id=1006219033 instance=ExtResource("11_wmtsy")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -74.08376, -396.94818, 870.7777)
@@ -628,16 +669,48 @@ shape = SubResource("BoxShape3D_uff3j")
 transform = Transform3D(-4.371139e-08, -1, -5.9604645e-08, 2.3643439e-07, 5.9604645e-08, -1, 1, -4.3711392e-08, 2.3643439e-07, 12.856079, -193.49146, 11.306061)
 
 [node name="RaceGoal" parent="SetDressing" unique_id=767008932 instance=ExtResource("22_3qeqd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 379.2853, -243.17789, 2507.8096)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 135.35251, -213.93845, 3382.2517)
 
-[node name="VaultBar" parent="." unique_id=1685228124 instance=ExtResource("25_qqmqe")]
+[node name="VaultBar" parent="SetDressing" unique_id=1685228124 instance=ExtResource("25_qqmqe")]
 transform = Transform3D(1.0129586e-07, 0.6350637, 0.77245975, -8.327854e-08, 0.77245975, -0.6350637, -1, 0, 1.3113416e-07, 220.97983, -287.87018, 2232.9556)
 bar_length = 100.0
 launch_speed_mode = 1
 fixed_launch_speed = 125.5
 launch_aim_origin = 1
 
-[node name="VaultBar2" parent="." unique_id=224244286 instance=ExtResource("25_qqmqe")]
+[node name="VaultBar3" parent="SetDressing" unique_id=1240552719 instance=ExtResource("25_qqmqe")]
+transform = Transform3D(-1, -2.7759551e-08, 9.7368876e-08, 8.327857e-08, -0.7724597, 0.63506377, 5.758443e-08, 0.63506377, 0.7724597, 377.86646, -214.839, 2985.289)
+bar_length = 10.6
+launch_speed_mode = 1
+fixed_launch_speed = 125.5
+launch_aim_origin = 1
+movement_lock_time = 0.6
+action_lock_time = 0.6
+
+[node name="VaultBar4" parent="SetDressing" unique_id=171799521 instance=ExtResource("25_qqmqe")]
+transform = Transform3D(1, -1.6282064e-07, -5.386135e-08, -1.6635893e-07, -0.9972601, -0.0739755, -4.1669054e-08, 0.0739755, -0.9972601, 377.9779, -311.66116, 2985.289)
+bar_length = 11.1
+launch_speed_mode = 1
+fixed_launch_speed = 125.5
+launch_aim_origin = 1
+
+[node name="VaultBar5" parent="SetDressing" unique_id=834330023 instance=ExtResource("25_qqmqe")]
+transform = Transform3D(-1, 8.327853e-08, 2.3243001e-07, -8.327855e-08, 0.77245975, -0.6350637, -2.3243003e-07, -0.6350637, -0.77245975, 376.58966, -309.2213, 3282.617)
+bar_length = 57.0
+launch_speed_mode = 1
+fixed_launch_speed = 190.0
+launch_aim_origin = 1
+movement_lock_time = 0.6
+action_lock_time = 0.6
+
+[node name="VaultBar6" parent="SetDressing" unique_id=480600929 instance=ExtResource("25_qqmqe")]
+transform = Transform3D(-1, 8.3278536e-08, 2.3243003e-07, 2.1922916e-07, 0.7325186, 0.68074715, -1.1356764e-07, 0.68074715, -0.7325186, 377.0169, -207.72548, 3282.617)
+bar_length = 57.0
+launch_speed_mode = 1
+fixed_launch_speed = 125.5
+launch_aim_origin = 1
+
+[node name="VaultBar2" parent="SetDressing" unique_id=224244286 instance=ExtResource("25_qqmqe")]
 transform = Transform3D(-1.3873077e-08, -0.6350637, -0.77245975, -8.327855e-08, 0.77245975, -0.6350637, 1, 5.5519042e-08, -6.3603586e-08, 244.00227, -350.71613, 2049.2705)
 bar_length = 100.0
 launch_speed_mode = 1
@@ -647,7 +720,6 @@ launch_aim_origin = 1
 [node name="LightmapGI" type="LightmapGI" parent="." unique_id=1672230381]
 quality = 0
 directional = true
-shadowmask_mode = 1
 texel_scale = 0.24
 generate_probes_subdiv = 4
 light_data = ExtResource("25_otf76")
@@ -675,11 +747,29 @@ light_indirect_energy = 2.0
 light_bake_mode = 1
 shadow_enabled = true
 
+[node name="Terminal" parent="." unique_id=107229639 instance=ExtResource("25_1jh0t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.132186, -20.040586, 120.83381)
+
+[node name="GroundedEnemyBlockout" parent="." unique_id=1271190946 instance=ExtResource("27_1jh0t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 380.32794, -240.1065, 2887.9785)
+
+[node name="Spring" parent="." unique_id=145974051 instance=ExtResource("3_bnxrr")]
+transform = Transform3D(0.9283519, 0.30217248, 0.21645933, 2.0655943e-08, 0.5823455, -0.81294143, -0.3717026, 0.75469583, 0.5406216, 376.45572, -364.8358, 3030.3557)
+strength = 130.0
+
+[node name="CollisionShape3D" parent="Spring" index="0" unique_id=594366491]
+transform = Transform3D(1, -3.576274e-07, 5.9606144e-08, 3.576277e-07, 1, -4.5596953e-06, -5.9604513e-08, 4.5596953e-06, 1, 0, 0.2, 0)
+shape = SubResource("CylinderShape3D_tx7g3")
+
+[node name="SplinePath" parent="Spring" index="4" unique_id=1818114504]
+curve = SubResource("Curve3D_5ftrs")
+
 [editable path="RaceStart"]
 [editable path="SetDressing/RingSplines/RingSpline1"]
 [editable path="SetDressing/RingSplines/RingSpline2"]
 [editable path="SetDressing/RingSplines/RingSpline3"]
 [editable path="SetDressing/RingSplines/RingSpline4"]
+[editable path="SetDressing/RingSplines/RingSpline5"]
 [editable path="SetDressing/RingSplines/ringies/RingSpline4"]
 [editable path="SetDressing/RingSplines/ringies/RingSpline12"]
 [editable path="SetDressing/RingSplines/ringies/RingSpline13"]
@@ -710,3 +800,4 @@ shadow_enabled = true
 [editable path="SetDressing/cameraStuff/CameraConstraint6"]
 [editable path="SetDressing/cameraStuff/CameraConstraint3"]
 [editable path="SetDressing/cameraStuff/CameraConstraint4"]
+[editable path="Spring"]

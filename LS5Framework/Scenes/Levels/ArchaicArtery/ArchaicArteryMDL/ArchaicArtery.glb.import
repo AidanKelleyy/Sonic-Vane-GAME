@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://g4s2ptdjbioi"
-path="res://.godot/imported/prisonLevel.glb-70e998cc2a06d70797772e128dc17ebf.scn"
+path="res://.godot/imported/ArchaicArtery.glb-33fb3ace6c0479434163b46fc2f243ac.scn"
 
 [deps]
 
-source_file="res://LS5Framework/Scenes/Levels/MyCoolLevel/prisonLevelMDL/prisonLevel.glb"
-dest_files=["res://.godot/imported/prisonLevel.glb-70e998cc2a06d70797772e128dc17ebf.scn"]
+source_file="res://LS5Framework/Scenes/Levels/ArchaicArtery/ArchaicArteryMDL/ArchaicArtery.glb"
+dest_files=["res://.godot/imported/ArchaicArtery.glb-33fb3ace6c0479434163b46fc2f243ac.scn"]
 
 [params]
 

@@ -2,18 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c358renmtew71"
-path.s3tc="res://.godot/imported/prisonLevel_prisonLevel_texture_08.png-f243c92f40a8cf9c423083abd280d677.s3tc.ctex"
-path.etc2="res://.godot/imported/prisonLevel_prisonLevel_texture_08.png-f243c92f40a8cf9c423083abd280d677.etc2.ctex"
+uid="uid://rbliju61h8ef"
+path.s3tc="res://.godot/imported/ArchaicArtery_prisonLevel_duct.png-762f336eb15cd4670becc0e1e7d6acea.s3tc.ctex"
+path.etc2="res://.godot/imported/ArchaicArtery_prisonLevel_duct.png-762f336eb15cd4670becc0e1e7d6acea.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "a2236a3000657c2d036012cf5fdfcea0"
+}
 
 [deps]
 
-source_file="res://LS5Framework/Scenes/Levels/MyCoolLevel/prisonLevelMDL/prisonLevel_prisonLevel_texture_08.png"
-dest_files=["res://.godot/imported/prisonLevel_prisonLevel_texture_08.png-f243c92f40a8cf9c423083abd280d677.s3tc.ctex", "res://.godot/imported/prisonLevel_prisonLevel_texture_08.png-f243c92f40a8cf9c423083abd280d677.etc2.ctex"]
+source_file="res://LS5Framework/Scenes/Levels/ArchaicArtery/ArchaicArteryMDL/ArchaicArtery_prisonLevel_duct.png"
+dest_files=["res://.godot/imported/ArchaicArtery_prisonLevel_duct.png-762f336eb15cd4670becc0e1e7d6acea.s3tc.ctex", "res://.godot/imported/ArchaicArtery_prisonLevel_duct.png-762f336eb15cd4670becc0e1e7d6acea.etc2.ctex"]
 
 [params]
 

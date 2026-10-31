@@ -2,18 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://do1ifxqb08wq1"
-path.s3tc="res://.godot/imported/prisonLevel_tile107Normal.png-46c7d1b2a3a7b086900134258d7c093e.s3tc.ctex"
-path.etc2="res://.godot/imported/prisonLevel_tile107Normal.png-46c7d1b2a3a7b086900134258d7c093e.etc2.ctex"
+uid="uid://da4b5h6vmhclq"
+path.s3tc="res://.godot/imported/ArchaicArtery_danger.png-971f49463125e43b6ef41a8bf587b96a.s3tc.ctex"
+path.etc2="res://.godot/imported/ArchaicArtery_danger.png-971f49463125e43b6ef41a8bf587b96a.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "767051c8e74ec14b3b8e9b8e9e1e0273"
+}
 
 [deps]
 
-source_file="res://LS5Framework/Scenes/Levels/MyCoolLevel/prisonLevelMDL/prisonLevel_tile107Normal.png"
-dest_files=["res://.godot/imported/prisonLevel_tile107Normal.png-46c7d1b2a3a7b086900134258d7c093e.s3tc.ctex", "res://.godot/imported/prisonLevel_tile107Normal.png-46c7d1b2a3a7b086900134258d7c093e.etc2.ctex"]
+source_file="res://LS5Framework/Scenes/Levels/ArchaicArtery/ArchaicArteryMDL/ArchaicArtery_danger.png"
+dest_files=["res://.godot/imported/ArchaicArtery_danger.png-971f49463125e43b6ef41a8bf587b96a.s3tc.ctex", "res://.godot/imported/ArchaicArtery_danger.png-971f49463125e43b6ef41a8bf587b96a.etc2.ctex"]
 
 [params]
 
@@ -23,7 +26,7 @@ compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=1
+compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

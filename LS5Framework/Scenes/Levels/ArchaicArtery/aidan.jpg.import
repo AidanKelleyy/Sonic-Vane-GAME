@@ -2,21 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dxqgpc3nlo504"
-path.s3tc="res://.godot/imported/prisonLevel_prisonLevel_duct.png-50a76d4ac68fb5302caa2e48c3aa691b.s3tc.ctex"
-path.etc2="res://.godot/imported/prisonLevel_prisonLevel_duct.png-50a76d4ac68fb5302caa2e48c3aa691b.etc2.ctex"
+uid="uid://biygp4r65slr1"
+path.s3tc="res://.godot/imported/aidan.jpg-ecb7a0d4ef7d45af649e751dc70a34fc.s3tc.ctex"
+path.etc2="res://.godot/imported/aidan.jpg-ecb7a0d4ef7d45af649e751dc70a34fc.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
-generator_parameters={
-"md5": "a2236a3000657c2d036012cf5fdfcea0"
-}
 
 [deps]
 
-source_file="res://LS5Framework/Scenes/Levels/MyCoolLevel/prisonLevelMDL/prisonLevel_prisonLevel_duct.png"
-dest_files=["res://.godot/imported/prisonLevel_prisonLevel_duct.png-50a76d4ac68fb5302caa2e48c3aa691b.s3tc.ctex", "res://.godot/imported/prisonLevel_prisonLevel_duct.png-50a76d4ac68fb5302caa2e48c3aa691b.etc2.ctex"]
+source_file="res://LS5Framework/Scenes/Levels/ArchaicArtery/aidan.jpg"
+dest_files=["res://.godot/imported/aidan.jpg-ecb7a0d4ef7d45af649e751dc70a34fc.s3tc.ctex", "res://.godot/imported/aidan.jpg-ecb7a0d4ef7d45af649e751dc70a34fc.etc2.ctex"]
 
 [params]
 
